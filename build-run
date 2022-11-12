@@ -3,4 +3,4 @@ value=`cat ../secret`
 git pull https://mungert69:$value@github.com/Mungert69/NetworkMonitorProcessor
 dotnet publish -c release 
 docker compose build
-docker push mungert/networkmonitorprocessor:0.0.1
+docker push mungert/networkmonitorprocessor:0.0.2
