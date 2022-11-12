@@ -344,11 +344,6 @@ healthchecksdb
 appsettings-roundhouse.json
 appsettings.json
 appsettings-dev.json
-<<<<<<< HEAD
-http.pfx
-http-freenetworkmonitor.pfx
-=======
 https.pfx
 https-freenetworkmonitor.pfx
->>>>>>> 0f27ddaeb3b93af10e0c41ff55d565ab3c46e54b
 obj/staticwebassets.pack.sentinel
