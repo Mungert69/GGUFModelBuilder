@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "LcRUfZ5jh2Z6rdyQFn9AHW0Wp6s8eUotcNYudoMn2nY=",
+  "Source": "NetworkMonitorProcessor",
+  "BasePath": "_content/NetworkMonitorProcessor",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

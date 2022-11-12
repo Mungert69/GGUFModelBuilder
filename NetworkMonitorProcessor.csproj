@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+ 
+    <PackageReference Include="Auth0.AuthenticationApi" Version="7.17.4" />
+    <PackageReference Include="Auth0.ManagementApi" Version="7.17.4" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.9.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.11" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.11" />
+   </ItemGroup>
+
+
+</Project>

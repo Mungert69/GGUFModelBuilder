@@ -1,0 +1,98 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitor.csproj": {}
+  },
+  "projects": {
+    "/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitor.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitor.csproj",
+        "projectName": "NetworkMonitor",
+        "projectPath": "/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitor.csproj",
+        "packagesPath": "/home/mahadeva/.nuget/packages/",
+        "outputPath": "/home/mahadeva/code/NetworkMonitorProcessor/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/mahadeva/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "netcoreapp6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "netcoreapp6.0",
+          "dependencies": {
+            "Auth0.AuthenticationApi": {
+              "target": "Package",
+              "version": "[7.17.3, )"
+            },
+            "Auth0.ManagementApi": {
+              "target": "Package",
+              "version": "[7.17.3, )"
+            },
+            "Dapr.AspNetCore": {
+              "target": "Package",
+              "version": "[1.9.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.AspNetCore.Mvc.NewtonsoftJson": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.AspNetCore.TestHost": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[6.0.9, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[6.23.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.402/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
