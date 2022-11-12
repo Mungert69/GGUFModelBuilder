@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   using-volumes:
-    image: mungert/networkmonitorprocessor:0.0.1
+    image: mungert/networkmonitorprocessor:0.0.2
     build:
       context: .
       dockerfile: ./Dockerfile
