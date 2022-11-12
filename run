@@ -1,0 +1,1 @@
+dapr run --app-id monitorprocessor --app-port 2054  --dapr-http-port 3501 --dapr-grpc-port 60002  dotnet run
