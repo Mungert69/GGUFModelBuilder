@@ -1,1 +1,0 @@
-{"BufferLength":1397,"TimeOut":1000,"Schedule":"* * * * *","PingBurstNumber":6,"PingBurstDelay":9999,"SaveSchedule":"0 */3 * * *","AlertSchedule":"*/5 * * * *","AlertThreshold":5,"LogStatsThreshold":200}
