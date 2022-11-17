@@ -69,7 +69,7 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
             }
             return result;
 
@@ -96,7 +96,7 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
             }
 
             return result;
@@ -124,7 +124,7 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
 
             }
             return result;
@@ -152,7 +152,7 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
             }
             return result;
 
@@ -179,13 +179,13 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
             }
             return result;
 
         }
 
-  [Topic("pubsub", "processorWakeUp")]
+        [Topic("pubsub", "processorWakeUp")]
         [HttpGet("wakeup")]
         public ActionResult<ResultObj> WakeUp()
         {
@@ -195,7 +195,7 @@ namespace NetworkMonitorProcessor.Controllers
 
             try
             {
-                _monitorPingProcessor.Awake=true;
+                _monitorPingProcessor.Awake = true;
                 result.Message += "Success ran WakeUp ok ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
@@ -205,7 +205,7 @@ namespace NetworkMonitorProcessor.Controllers
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message );
+                _logger.LogError(result.Message);
             }
             return result;
 
