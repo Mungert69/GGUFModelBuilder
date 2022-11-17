@@ -74,7 +74,7 @@ namespace NetworkMonitorProcessor.Services
                 {
                     if (initObj.TotalReset)
                     {
-                        _logger.LogInformation("Resetting Processor MonitorPingInfos");
+                        _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
                         _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
@@ -86,7 +86,7 @@ namespace NetworkMonitorProcessor.Services
                             _logger.LogInformation("Zeroing MonitorPingInfos for new DataSet");
                             foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                             {
-                                monitorPingInfo.DateStarted=DateTime.UtcNow;
+                                monitorPingInfo.DateStarted = DateTime.UtcNow;
                                 monitorPingInfo.PacketsLost = 0;
                                 monitorPingInfo.PacketsLostPercentage = 0;
                                 monitorPingInfo.PacketsRecieved = 0;
@@ -110,12 +110,16 @@ namespace NetworkMonitorProcessor.Services
                             _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count);
 
                             currentMonitorPingInfos = _daprClient.GetStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos").Result;
-                            _logger.LogInformation("MonitorPingInfos from statestore count of first enabled PingInfos " + currentMonitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
-                            _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+                            //Publish to MonitorService if redis contains data
+                            if (currentMonitorPingInfos.Count > 0)
+                            {
+                                _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+                                _logger.LogInformation("Got MonitorPingInfos from statestore and Published to MonitorService. Count of first enabled PingInfos " + currentMonitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
+                            }
 
                         }
                     }
-                    
+
                 }
                 else
                 {
@@ -126,7 +130,7 @@ namespace NetworkMonitorProcessor.Services
             }
             catch (Exception e)
             {
-                _logger.LogError("Failed : State Store : Error was : " + e.ToString());
+                _logger.LogError("Failed : Loading statestore : Error was : " + e.ToString());
                 currentMonitorPingInfos = new List<MonitorPingInfo>();
             }
 
@@ -135,11 +139,11 @@ namespace NetworkMonitorProcessor.Services
             {
                 if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
                 {
-                    _logger.LogWarning("Warning : There are No MonitorIPs using State Store");
+                    _logger.LogWarning("Warning : There are No MonitorIPs using statestore");
                     initObj.MonitorIPs = stateMonitorIPs;
                     if (stateMonitorIPs.Count == 0)
                     {
-                        _logger.LogError("Error : There are No MonitorIPs in State Store");
+                        _logger.LogError("Error : There are No MonitorIPs in statestore");
                     }
                 }
                 else
@@ -148,11 +152,11 @@ namespace NetworkMonitorProcessor.Services
                 }
                 if (initObj.PingParams == null)
                 {
-                    _logger.LogWarning("Warning : There are No PingParams using State Store");
+                    _logger.LogWarning("Warning : There are No PingParams using statestore");
                     _pingParams = statePingParams;
                     if (statePingParams == null)
                     {
-                        _logger.LogError("Error : There are No PingParams in State Store");
+                        _logger.LogError("Error : There are No PingParams in statestore");
                     }
                 }
                 else
@@ -226,14 +230,6 @@ namespace NetworkMonitorProcessor.Services
                     monitorPingInfo.ID = i + 1;
                     monitorPingInfo.UserID = monIP.UserInfo.UserID;
 
-
-                    /*// Reteive previous MonitorStatus if in memory.
-                    if (currentMonitorPingInfos.Where(w => w.MonitorIPID == monIP.ID).Count() > 0)
-                    {
-                        monitorPingInfo.MonitorStatus = currentMonitorPingInfos.Where(w => w.MonitorIPID == monIP.ID).First().MonitorStatus;
-                        //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
-                        //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
-                    }*/
                 }
                 fillPingInfo(monitorPingInfo, monIP);
                 monitorPingInfos.Add(monitorPingInfo);
@@ -335,17 +331,27 @@ namespace NetworkMonitorProcessor.Services
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (isDaprReady)
                 {
-                    _logger.LogInformation("Dapr Client Status is healthy");
+                    if (_monitorPingInfos.Count>0){
+                          _logger.LogInformation("Dapr Client Status is healthy");
                     _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
                     _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
                     _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
-                    _logger.LogInformation("Saved MonitorPingInfos to StateStore and Publish Event monitorUpdateMonitorPingInfos");
+                    _logger.LogInformation("Saved MonitorPingInfos to StateStore and Published to Monitor Service");
                     _logger.LogInformation("Number of PingInfos in first enabled MonitorPingInfos is " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
 
+                     }
+                    else{
+                        _logger.LogError("There are no MonitorPingInfos after first connect run");
+
+                    }
+                  
                 }
                 else
                 {
                     _logger.LogError("Dapr Client Status is not healthy");
+                     if (_monitorPingInfos.Count>0){
+                        _logger.LogError("There are MonitorPingInfos that need to be saved to statestore");
+                     }
                 }
 
                 TimeSpan timeTakenInner = timerInner.Elapsed;
@@ -365,9 +371,9 @@ namespace NetworkMonitorProcessor.Services
             }
             catch (Exception e)
             {
-                result.Message += "Error : MonitorPingProcessor.Ping Failed : Error Was : " + e.ToString();
+                result.Message += "Error : MonitorPingProcessor.Connect Failed : Error Was : " + e.ToString();
                 result.Success = false;
-                _logger.LogError("Error : MonitorPingProcessor.Ping Failed : Error Was : " + e.ToString());
+                _logger.LogError("Error : MonitorPingProcessor.Connect Failed : Error Was : " + e.ToString());
             }
             return result;
         }
