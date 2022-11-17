@@ -111,9 +111,11 @@ namespace NetworkMonitorProcessor.Services
 
                             currentMonitorPingInfos = _daprClient.GetStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos").Result;
                             _logger.LogInformation("MonitorPingInfos from statestore count of first enabled PingInfos " + currentMonitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
+                            _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+
                         }
                     }
-
+                    
                 }
                 else
                 {
