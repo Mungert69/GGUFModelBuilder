@@ -86,6 +86,7 @@ namespace NetworkMonitorProcessor.Services
                             _logger.LogInformation("Zeroing MonitorPingInfos for new DataSet");
                             foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                             {
+                                monitorPingInfo.DateStarted=DateTime.UtcNow;
                                 monitorPingInfo.PacketsLost = 0;
                                 monitorPingInfo.PacketsLostPercentage = 0;
                                 monitorPingInfo.PacketsRecieved = 0;
