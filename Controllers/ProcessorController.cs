@@ -185,5 +185,32 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
+  [Topic("pubsub", "processorWakeUp")]
+        [HttpGet("wakeup")]
+        public ActionResult<ResultObj> WakeUp()
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : WakeUp : ";
+
+            try
+            {
+                _monitorPingProcessor.Awake=true;
+                result.Message += "Success ran WakeUp ok ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message );
+            }
+            return result;
+
+        }
+
+
     }
 }

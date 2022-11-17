@@ -19,7 +19,7 @@ namespace NetworkMonitorProcessor.Services
     public class MonitorPingProcessor : IMonitorPingProcessor
     {
         private PingParams _pingParams;
-
+        private bool _awake;
         private ILogger _logger;
         private List<NetConnect> _netConnects = null;
         private Dictionary<string, List<MonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
@@ -27,6 +27,8 @@ namespace NetworkMonitorProcessor.Services
         private DaprClient _daprClient;
 
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
+
+        public bool Awake { get => _awake; set => _awake = value; }
 
         public MonitorPingProcessor(ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
         {
