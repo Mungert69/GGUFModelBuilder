@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Utils;
+using NetworkMonitor.Utils.Helpers;
 using NetworkMonitor.Objects.ServiceMessage;
 using System.Linq;
 using NetworkMonitor.Connection;
@@ -67,6 +68,7 @@ namespace NetworkMonitorProcessor.Services
             PingParams statePingParams = new PingParams();
             try
             {
+
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (isDaprReady)
                 {
@@ -74,7 +76,7 @@ namespace NetworkMonitorProcessor.Services
                     {
                         _logger.LogInformation("Resetting Processor MonitorPingInfos");
                         _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
-                        currentMonitorPingInfos=new List<MonitorPingInfo>();
+                        currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
                     }
                     else
@@ -156,6 +158,16 @@ namespace NetworkMonitorProcessor.Services
                     _pingParams = initObj.PingParams;
                 }
 
+                if (SystemParamsHelper.IsSystemElevatedPrivilege)
+                {
+                    _logger.LogInformation("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
+                    _pingParams.IsAdmin = true;
+                }
+                else
+                {
+                    _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
+                    _pingParams.IsAdmin = false;
+                }
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = ConnectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
 
@@ -313,7 +325,7 @@ namespace NetworkMonitorProcessor.Services
                     timerDec.Reset();
 
                 }
-                Thread.Sleep(_pingParams.Timeout+connectObj.MaxBuffer/2);
+                Thread.Sleep(_pingParams.Timeout + connectObj.MaxBuffer / 2);
                 Task.WhenAll(pingConnectTasks);
                 pingConnectTasks.Clear();
                 //ListUtils.RemoveNestedMonitorPingInfos(_monitorPingInfos);
