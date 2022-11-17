@@ -36,6 +36,20 @@
                 "${workspaceFolder}/NetworkMonitorProcessor.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "monitorprocessor",
+            "appPort": 2054,
+            "httpPort": 3502,
+            "grpcPort": 50002,
+            "label": "dapr-debug",
+            "type": "dapr",
+            "dependsOn": "build"
+        },
+        {
+            "appId": "monitorprocessor",
+            "label": "daprd-down",
+            "type": "daprd-down"
         }
     ]
 }
