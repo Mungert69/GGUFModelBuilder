@@ -18,6 +18,8 @@ namespace NetworkMonitorProcessor.Services
         void UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
 
         void ResetAlert(int monitorPingInfoID);
+
+        bool Awake{get;set;}
        
     }
 }
