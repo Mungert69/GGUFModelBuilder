@@ -186,7 +186,7 @@ namespace NetworkMonitorProcessor.Controllers
         }
 
         [Topic("pubsub", "processorWakeUp")]
-        [HttpGet("wakeup")]
+        [HttpPost("wakeup")]
         public ActionResult<ResultObj> WakeUp()
         {
             ResultObj result = new ResultObj();
