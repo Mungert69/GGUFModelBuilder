@@ -1,0 +1,5 @@
+#!/bin/sh
+value=`cat ../secret`
+git pull https://mungert69:$value@github.com/Mungert69/NetworkMonitorScheduler
+dotnet publish  
+docker push mungert/networkmonitorprocessor:0.0.3
