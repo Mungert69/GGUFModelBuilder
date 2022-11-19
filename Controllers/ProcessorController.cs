@@ -22,7 +22,8 @@ namespace NetworkMonitorProcessor.Controllers
             _monitorPingProcessor = monitorPingProcessor;
 
         }
-        [Topic("pubsub", "processorConnect")]
+        [Topic("pubsub", "processorConnect"),]
+        [TopicMetadata( "ttlInSeconds", "60")]
         [HttpPost("connect")]
         public ActionResult<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
