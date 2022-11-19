@@ -50,9 +50,9 @@ namespace NetworkMonitorProcessor.Services
                 _logger.LogInformation("Saved to state MonitorPingInfos to StateStore and Publish Event monitorUpdateMonitorPingInfos");
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
-                processorObj.IsProcessorStarted = false;
-                _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "monitorIsProcessorStarted", processorObj);
-                _logger.LogInformation("Published event ProcessorItitObj.IsProcessorStarted = false");
+                processorObj.IsProcessorReady = false;
+                _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+                _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
                 _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
             }
@@ -187,15 +187,16 @@ namespace NetworkMonitorProcessor.Services
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 if (_monitorPingInfos.Count > 0)
                 {
-                    processorObj.IsProcessorStarted = true;
-                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "monitorIsProcessorStarted", processorObj);
-                    _logger.LogInformation("Published event ProcessorItitObj.IsProcessorStarted = true");
+                    processorObj.IsProcessorReady = true;
+                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+                    _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
                 }
                 else
                 {
-                    processorObj.IsProcessorStarted = false;
-                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "monitorIsProcessorStarted", processorObj);
+                    processorObj.IsProcessorReady = false;
+                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
                     _logger.LogError("Error : Unable to init Processor");
 
                 }
@@ -269,6 +270,12 @@ namespace NetworkMonitorProcessor.Services
         {
             _logger.LogDebug("ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
 
+            ProcessorInitObj processorObj=new ProcessorInitObj();
+            processorObj.IsProcessorReady = false;
+            _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+            _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
+
+          
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "SERVICE : MonitorPingProcessor.Connect() ";
@@ -369,6 +376,10 @@ namespace NetworkMonitorProcessor.Services
 
                 result.Success = true;
                 timerInner.Reset();
+                 processorObj.IsProcessorReady = true;
+            _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+            _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
+
 
             }
             catch (Exception e)
