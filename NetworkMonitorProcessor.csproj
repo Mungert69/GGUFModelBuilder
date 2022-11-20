@@ -6,8 +6,7 @@
     <PublishProfile>DefaultContainer</PublishProfile>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0-jammy-amd64</ContainerBaseImage>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
-    <ContainerImageTag>0.0.3</ContainerImageTag>
-    <ContainerRegistry>docker.io</ContainerRegistry>
+    <ContainerImageTag>0.0.4</ContainerImageTag>
 
 </PropertyGroup>
 
