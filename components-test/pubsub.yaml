@@ -1,14 +1,12 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore
+  name: pubsub
 spec:
-  type: state.redis
+  type: pubsub.redis
   version: v1
   metadata:
   - name: redisHost
-    value: redis:6379
+    value: 10.8.0.3:6379
   - name: redisPassword
     value: ""
-  - name: actorStateStore
-    value: "true"
