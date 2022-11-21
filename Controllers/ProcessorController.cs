@@ -76,7 +76,7 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
-        [Topic("pubsub", "processorAlertFlag")]
+       // [Topic("pubsub", "processorAlertFlag")]
         [HttpPost("alertflag")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> AlertFlag([FromBody] List<int> monitorPingInfoIds)
@@ -104,7 +104,7 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
-        [Topic("pubsub", "processorAlertSent")]
+       // [Topic("pubsub", "processorAlertSent")]
         [HttpPost("alertsent")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> AlertSent([FromBody] List<int> monitorPingInfoIds)
@@ -132,7 +132,7 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
-        [Topic("pubsub", "processorResetAlert")]
+        //[Topic("pubsub", "processorResetAlert")]
         [HttpPost("resetalert")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> ResetAlert([FromBody] List<int> monitorPingInfoIds)
@@ -159,7 +159,7 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
-        [Topic("pubsub", "processorQueueDic")]
+        //[Topic("pubsub", "processorQueueDic")]
         [HttpPost("queuedic")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> QueueDic([FromBody] ProcessorQueueDicObj queueDicObj)
@@ -186,7 +186,7 @@ namespace NetworkMonitorProcessor.Controllers
 
         }
 
-        [Topic("pubsub", "processorWakeUp")]
+        //[Topic("pubsub", "processorWakeUp")]
         [HttpPost("wakeup")]
         public ActionResult<ResultObj> WakeUp()
         {
