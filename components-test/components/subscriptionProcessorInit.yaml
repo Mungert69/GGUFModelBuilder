@@ -1,0 +1,8 @@
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: processorInit1
+spec:
+  topic: processorInit1
+  route: /processor/init
+  pubsubname: pubsub
