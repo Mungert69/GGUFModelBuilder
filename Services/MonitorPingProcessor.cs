@@ -26,18 +26,18 @@ namespace NetworkMonitorProcessor.Services
         private Dictionary<string, List<MonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
         private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         private DaprClient _daprClient;
-        private string _appID="1";
+        private string _appID = "1";
 
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
 
         public bool Awake { get => _awake; set => _awake = value; }
 
-        public MonitorPingProcessor(IConfiguration config,ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
+        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
         {
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
             _daprClient = daprClient;
-            _appID=config.GetValue<string>("AppID");
+            _appID = config.GetValue<string>("AppID");
             init(new ProcessorInitObj());
         }
 
@@ -54,7 +54,7 @@ namespace NetworkMonitorProcessor.Services
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
-                processorObj.AppID=_appID;
+                processorObj.AppID = _appID;
                 _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
@@ -103,7 +103,7 @@ namespace NetworkMonitorProcessor.Services
                                 monitorPingInfo.RoundTripTimeMinimum = 0;
                                 monitorPingInfo.RoundTripTimeTotal = 0;
                                 monitorPingInfo.TimeOuts = 0;
-                                monitorPingInfo.AppID=_appID;
+                                monitorPingInfo.AppID = _appID;
                             }
                             currentMonitorPingInfos = _monitorPingInfos;
                         }
@@ -190,11 +190,11 @@ namespace NetworkMonitorProcessor.Services
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
-                processorObj.AppID=_appID;
+                processorObj.AppID = _appID;
                 if (_monitorPingInfos.Count > 0)
                 {
                     processorObj.IsProcessorReady = true;
-                    
+
                     _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
@@ -203,7 +203,7 @@ namespace NetworkMonitorProcessor.Services
                 {
                     processorObj.IsProcessorReady = false;
                     _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
-                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
+                    _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
                     _logger.LogError("Error : Unable to init Processor");
 
                 }
@@ -251,7 +251,7 @@ namespace NetworkMonitorProcessor.Services
 
         private void fillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
-            monitorPingInfo.AppID=_appID;
+            monitorPingInfo.AppID = _appID;
             monitorPingInfo.Address = monIP.Address;
             monitorPingInfo.Enabled = monIP.Enabled;
             monitorPingInfo.EndPointType = monIP.EndPointType;
@@ -277,13 +277,13 @@ namespace NetworkMonitorProcessor.Services
         {
             _logger.LogDebug("ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
 
-            ProcessorInitObj processorObj=new ProcessorInitObj();
+            ProcessorInitObj processorObj = new ProcessorInitObj();
             processorObj.IsProcessorReady = false;
-            processorObj.AppID=_appID;
+            processorObj.AppID = _appID;
             _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
-          
+
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "SERVICE : MonitorPingProcessor.Connect() ";
@@ -348,27 +348,34 @@ namespace NetworkMonitorProcessor.Services
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (isDaprReady)
                 {
-                    if (_monitorPingInfos.Count>0){
-                          _logger.LogInformation("Dapr Client Status is healthy");
-                    _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
-                    _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
-                    _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
-                    _logger.LogInformation("Saved MonitorPingInfos to StateStore and Published to Monitor Service");
-                    _logger.LogInformation("Number of PingInfos in first enabled MonitorPingInfos is " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
+                    if (_monitorPingInfos.Count > 0)
+                    {
+                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+                        {
+                            monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
+                        }
+                        _logger.LogInformation("Dapr Client Status is healthy");
+                        _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
+                        _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+                        _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
+                        _logger.LogInformation("Saved MonitorPingInfos to StateStore and Published to Monitor Service");
+                        _logger.LogInformation("Number of PingInfos in first enabled MonitorPingInfos is " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
 
-                     }
-                    else{
+                    }
+                    else
+                    {
                         _logger.LogError("There are no MonitorPingInfos after first connect run");
 
                     }
-                  
+
                 }
                 else
                 {
                     _logger.LogError("Dapr Client Status is not healthy");
-                     if (_monitorPingInfos.Count>0){
+                    if (_monitorPingInfos.Count > 0)
+                    {
                         _logger.LogError("There are MonitorPingInfos that need to be saved to statestore");
-                     }
+                    }
                 }
 
                 TimeSpan timeTakenInner = timerInner.Elapsed;
@@ -384,10 +391,10 @@ namespace NetworkMonitorProcessor.Services
 
                 result.Success = true;
                 timerInner.Reset();
-                 processorObj.IsProcessorReady = true;
-                 processorObj.AppID=_appID;
-            _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
-            _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
+                processorObj.IsProcessorReady = true;
+                processorObj.AppID = _appID;
+                _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+                _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
 
             }
