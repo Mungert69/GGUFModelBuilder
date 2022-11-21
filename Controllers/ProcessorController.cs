@@ -22,8 +22,8 @@ namespace NetworkMonitorProcessor.Controllers
             _monitorPingProcessor = monitorPingProcessor;
 
         }
-        [Topic("pubsub", "processorConnect"),]
-        [TopicMetadata( "ttlInSeconds", "60")]
+       // [Topic("pubsub", "processorConnect"),]
+        //[TopicMetadata( "ttlInSeconds", "60")]
         [HttpPost("connect")]
         public ActionResult<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
@@ -49,7 +49,7 @@ namespace NetworkMonitorProcessor.Controllers
             return result;
 
         }
-        [Topic("pubsub", "processorInit")]
+        //[Topic("pubsub", "processorInit")]
         [HttpPost("init")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> Init([FromBody] ProcessorInitObj initObj)
