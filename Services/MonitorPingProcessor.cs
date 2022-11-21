@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace NetworkMonitorProcessor.Services
 {
@@ -25,16 +26,18 @@ namespace NetworkMonitorProcessor.Services
         private Dictionary<string, List<MonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
         private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         private DaprClient _daprClient;
+        private string _appID="1";
 
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
 
         public bool Awake { get => _awake; set => _awake = value; }
 
-        public MonitorPingProcessor(ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
+        public MonitorPingProcessor(IConfiguration config,ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
         {
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
             _daprClient = daprClient;
+            _appID=config.GetValue<string>("AppID");
             init(new ProcessorInitObj());
         }
 
@@ -51,6 +54,7 @@ namespace NetworkMonitorProcessor.Services
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
+                processorObj.AppID=_appID;
                 _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
@@ -185,9 +189,11 @@ namespace NetworkMonitorProcessor.Services
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
+                processorObj.AppID=_appID;
                 if (_monitorPingInfos.Count > 0)
                 {
                     processorObj.IsProcessorReady = true;
+                    
                     _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
@@ -272,6 +278,7 @@ namespace NetworkMonitorProcessor.Services
 
             ProcessorInitObj processorObj=new ProcessorInitObj();
             processorObj.IsProcessorReady = false;
+            processorObj.AppID=_appID;
             _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
@@ -377,6 +384,7 @@ namespace NetworkMonitorProcessor.Services
                 result.Success = true;
                 timerInner.Reset();
                  processorObj.IsProcessorReady = true;
+                 processorObj.AppID=_appID;
             _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
