@@ -87,6 +87,8 @@ namespace NetworkMonitorProcessor.Controllers
 
             try
             {
+                  monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID="+f));
+
                 _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
                 result.Message += "Success ran ok ";
                 result.Success = true;
@@ -115,6 +117,8 @@ namespace NetworkMonitorProcessor.Controllers
 
             try
             {
+                  monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found MonitorPingInfo ID="+f));
+
                 _monitorPingProcessor.UpdateAlertSent(monitorPingInfoIds, true);
                 result.Message += "Success ran ok ";
                 result.Success = true;

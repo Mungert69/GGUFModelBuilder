@@ -40,7 +40,7 @@
         {
             "appId": "monitorprocessor",
             "appPort": 2054,
-            "httpPort": 3602,
+            "httpPort": 3607,
             "grpcPort": 60002,
             "label": "dapr-debug",
             "type": "dapr",

@@ -103,7 +103,6 @@ namespace NetworkMonitorProcessor.Services
                                 monitorPingInfo.RoundTripTimeMinimum = 0;
                                 monitorPingInfo.RoundTripTimeTotal = 0;
                                 monitorPingInfo.TimeOuts = 0;
-                                monitorPingInfo.AppID = _appID;
                             }
                             currentMonitorPingInfos = _monitorPingInfos;
                         }
@@ -225,6 +224,7 @@ namespace NetworkMonitorProcessor.Services
             {
 
                 MonitorPingInfo monitorPingInfo = new MonitorPingInfo();
+
                 int count = currentMonitorPingInfos.Where(m => m.MonitorIPID == monIP.ID).Count();
                 if (count > 0)
                 {
@@ -237,7 +237,7 @@ namespace NetworkMonitorProcessor.Services
                 {
                     monitorPingInfo.MonitorIPID = monIP.ID;
                     _logger.LogDebug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    monitorPingInfo.ID = i + 1;
+                    monitorPingInfo.ID = monIP.ID;
                     monitorPingInfo.UserID = monIP.UserInfo.UserID;
 
                 }
@@ -251,6 +251,7 @@ namespace NetworkMonitorProcessor.Services
 
         private void fillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
+            monitorPingInfo.ID = monIP.ID;
             monitorPingInfo.AppID = _appID;
             monitorPingInfo.Address = monIP.Address;
             monitorPingInfo.Enabled = monIP.Enabled;
