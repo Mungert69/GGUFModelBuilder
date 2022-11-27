@@ -1,9 +1,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: processorResetAlert1
+  name: processorResetAlert2
 spec:
-  topic: processorResetAlert1
+  topic: processorResetAlert2
   route: /processor/resetalert
   pubsubname: pubsub
-  ttlInSeconds: 600

@@ -1,9 +1,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: processorQueueDic1
+  name: processorQueueDic2
 spec:
-  topic: processorQueueDic1
+  topic: processorQueueDic2
   route: /processor/queuedic
   pubsubname: pubsub
-  ttlInSeconds: 600

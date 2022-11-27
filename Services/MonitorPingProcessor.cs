@@ -37,6 +37,7 @@ namespace NetworkMonitorProcessor.Services
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
             _daprClient = daprClient;
+            _daprClient.SetMetadataAsync("ttlInSeconds","600");
             _appID = config.GetValue<string>("AppID");
             init(new ProcessorInitObj());
         }
@@ -47,6 +48,7 @@ namespace NetworkMonitorProcessor.Services
             try
             {
                 _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
+                
                 _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
 
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
