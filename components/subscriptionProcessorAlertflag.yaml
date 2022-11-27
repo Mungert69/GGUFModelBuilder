@@ -6,3 +6,4 @@ spec:
   topic: processorAlertFlag1
   route: /processor/alertflag
   pubsubname: pubsub
+  ttlInSeconds: 600

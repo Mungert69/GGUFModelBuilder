@@ -6,3 +6,4 @@ spec:
   topic: processorConnect1
   route: /processor/connect
   pubsubname: pubsub
+  ttlInSeconds: 600

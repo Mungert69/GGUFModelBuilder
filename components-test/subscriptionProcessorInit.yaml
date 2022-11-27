@@ -6,3 +6,4 @@ spec:
   topic: processorInit1
   route: /processor/init
   pubsubname: pubsub
+  ttlInSeconds: 600
