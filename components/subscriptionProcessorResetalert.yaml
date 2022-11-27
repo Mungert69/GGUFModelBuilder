@@ -6,3 +6,4 @@ spec:
   topic: processorResetAlert1
   route: /processor/resetalert
   pubsubname: pubsub
+  ttlInSeconds: 600
