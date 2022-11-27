@@ -6,4 +6,3 @@ spec:
   topic: processorQueueDic1
   route: /processor/queuedic
   pubsubname: pubsub
-  ttlInSeconds: 600

@@ -6,4 +6,3 @@ spec:
   topic: processorAlertSent1
   route: /processor/alertsent
   pubsubname: pubsub
-  ttlInSeconds: 600
