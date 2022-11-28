@@ -6,6 +6,3 @@ spec:
   topic: processorInit1
   route: /processor/init
   pubsubname: pubsub
-  metadata:
-    name:  ttlInSeconds
-    value: 600

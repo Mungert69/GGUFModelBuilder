@@ -6,6 +6,3 @@ spec:
   topic: processorWakeUp1
   route: /processor/wakeup
   pubsubname: pubsub
-  metadata:
-    name:  ttlInSeconds
-    value: 600
