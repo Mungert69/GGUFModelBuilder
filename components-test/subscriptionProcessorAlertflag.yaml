@@ -6,6 +6,3 @@ spec:
   topic: processorAlertFlag1
   route: /processor/alertflag
   pubsubname: pubsub
-  metadata:
-    name:  ttlInSeconds
-    value: 600
