@@ -37,7 +37,6 @@ namespace NetworkMonitorProcessor.Services
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
             _daprClient = daprClient;
-            _daprClient.SetMetadataAsync("ttlInSeconds","600");
             _appID = config.GetValue<string>("AppID");
             init(new ProcessorInitObj());
         }
@@ -195,8 +194,9 @@ namespace NetworkMonitorProcessor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     processorObj.IsProcessorReady = true;
-
-                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
+                     CancellationTokenSource source = new CancellationTokenSource();
+                CancellationToken cancellationToken = source.Token;
+                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, cancellationToken);
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
                 }
