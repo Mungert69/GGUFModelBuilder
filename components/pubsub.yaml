@@ -14,3 +14,5 @@ spec:
     value: ""
   - name: maxLenApprox
     value: 100
+  - name: ttlInSeconds
+    value: 60
