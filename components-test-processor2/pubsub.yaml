@@ -10,3 +10,7 @@ spec:
     value: 10.8.0.3:6379
   - name: redisPassword
     value: ""
+  - name: maxLenApprox
+    value: 100
+  - name: ttlInSeconds
+    value: 60
