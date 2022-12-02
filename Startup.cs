@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System;
 using Dapr.Client;
 using NetworkMonitor.Auth;
+using Microsoft.Extensions.Logging;
 
 namespace NetworkMonitorProcessor
 {
@@ -59,6 +60,15 @@ namespace NetworkMonitorProcessor
             services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
             services.AddControllers().AddDapr();
+
+            services.AddLogging(options =>
+    {
+        options.AddSimpleConsole(c =>
+        {
+            c.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
+            c.UseUtcTimestamp = true;
+        });
+    });
 
         }
 
