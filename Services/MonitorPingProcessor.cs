@@ -202,13 +202,16 @@ namespace NetworkMonitorProcessor.Services
 
         private void PublishMonitorPingInfos(List<MonitorPingInfo> monitorPingInfos, bool saveState)
         {
-            List<MonitorPingInfo> cutMonitorPingInfos = new List<MonitorPingInfo>(monitorPingInfos);
-            foreach (MonitorPingInfo monPingInfo in cutMonitorPingInfos)
-            {
-                monPingInfo.PingInfos = null;
-            }
-            _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+           
+            
+            List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
+            
+            _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos);
+             _logger.LogDebug("Published MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
+            
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
+              _logger.LogDebug("Published Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
+               
              string logStr = "Published to MonitorService and AlertService.";
             if ( monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos!=null){
                logStr+= " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count()+" .";
