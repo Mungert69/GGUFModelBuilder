@@ -79,6 +79,9 @@ namespace NetworkMonitorProcessor.Services
                     {
                         _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
                         _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
+                         _daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
+                       _daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
+                       
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
                     }
