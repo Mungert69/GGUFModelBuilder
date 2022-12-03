@@ -361,11 +361,7 @@ namespace NetworkMonitorProcessor.Services
                         {
                             monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
                         }
-                        _logger.LogInformation("Dapr Client Status is healthy");
-                        PublishMonitorPingInfos(_monitorPingInfos, true);
-                        _logger.LogInformation("Saved MonitorPingInfos to StateStore and Published to Monitor Service");
-                        _logger.LogInformation("Number of PingInfos in first enabled MonitorPingInfos is " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count());
-
+                        PublishMonitorPingInfos(_monitorPingInfos, true);                 
                     }
                     else
                     {
