@@ -209,8 +209,11 @@ namespace NetworkMonitorProcessor.Services
             }
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", _monitorPingInfos);
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
-            string logStr = "Published to MonitorService, AlertService. Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count();
-
+             string logStr = "Published to MonitorService and AlertService.";
+            if ( monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos!=null){
+               logStr+= " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count()+" .";
+            }
+          
             if (saveState)
             {
                 _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
