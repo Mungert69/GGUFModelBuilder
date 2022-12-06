@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NetworkMonitorProcessor.Services;
+using NetworkMonitor.Processor.Services;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace NetworkMonitorProcessor
+namespace NetworkMonitor.Processor
 {
     public class Startup
     {

@@ -2,12 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.ServiceMessage;
-using NetworkMonitorProcessor.Services;
+using NetworkMonitor.Processor.Services;
 using System;
 using System.Collections.Generic;
 using Dapr;
 
-namespace NetworkMonitorProcessor.Controllers
+namespace NetworkMonitor.Processor.Controllers
 {
     [ApiController]
     [Route("[controller]")]

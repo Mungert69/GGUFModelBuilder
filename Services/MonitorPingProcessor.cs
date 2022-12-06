@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 
-namespace NetworkMonitorProcessor.Services
+namespace NetworkMonitor.Processor.Services
 {
 
     public class MonitorPingProcessor : IMonitorPingProcessor

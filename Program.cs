@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 
-namespace NetworkMonitorProcessor
+namespace NetworkMonitor.Processor
 {
     public class Program
     {
