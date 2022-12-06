@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.ServiceMessage;
 
-namespace NetworkMonitorProcessor.Services
+namespace NetworkMonitor.Processor.Services
 {
     public interface IMonitorPingProcessor
     {
