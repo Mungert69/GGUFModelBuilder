@@ -534,6 +534,10 @@ namespace NetworkMonitor.Processor.Services
             _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.AlertFlag = false;
             _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.AlertSent = false;
             _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.DownCount = 0;
+            var alertFlagObj=new AlertFlagObj();
+            alertFlagObj.ID=monitorPingInfoId;;
+            alertFlagObj.AppID=_appID;
+             _daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj);
 
         }
     }
