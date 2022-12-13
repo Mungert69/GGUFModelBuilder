@@ -100,7 +100,7 @@ namespace NetworkMonitor.Processor.Services
                                 monitorPingInfo.PingInfos = new List<PingInfo>();
                                 monitorPingInfo.RoundTripTimeAverage = 0;
                                 monitorPingInfo.RoundTripTimeMaximum = 0;
-                                monitorPingInfo.RoundTripTimeMinimum = 0;
+                                monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
                                 monitorPingInfo.RoundTripTimeTotal = 0;
                                 monitorPingInfo.TimeOuts = 0;
                             }
