@@ -79,9 +79,9 @@ namespace NetworkMonitor.Processor.Services
                     {
                         _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
                         _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
-                         _daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
-                       _daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
-                       
+                        _daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
+                        _daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
+
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
                     }
@@ -190,7 +190,7 @@ namespace NetworkMonitor.Processor.Services
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.AppID = _appID;
                 processorObj.IsProcessorReady = true;
-               
+
                 _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
@@ -205,21 +205,23 @@ namespace NetworkMonitor.Processor.Services
 
         private void PublishMonitorPingInfos(List<MonitorPingInfo> monitorPingInfos, bool saveState)
         {
-           
-            
+
+
             List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-            
+
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos);
-             _logger.LogDebug("Published MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
-            
+            _logger.LogDebug("Published MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
+
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
-              _logger.LogDebug("Published Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
-               
-             string logStr = "Published to MonitorService and AlertService.";
-            if ( monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos!=null){
-               logStr+= " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count()+" .";
+            _logger.LogDebug("Published Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
+
+            string logStr = "Published to MonitorService and AlertService.";
+            var m = monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
+            if (m != null && m.PingInfos != null)
+            {
+                logStr += " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
             }
-          
+
             if (saveState)
             {
                 _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
@@ -235,18 +237,18 @@ namespace NetworkMonitor.Processor.Services
             foreach (MonitorIP monIP in monitorIPs)
             {
 
-                MonitorPingInfo monitorPingInfo = new MonitorPingInfo();
+                MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
 
-                int count = currentMonitorPingInfos.Where(m => m.MonitorIPID == monIP.ID).Count();
-                if (count > 0)
+
+                if (monitorPingInfo != null)
                 {
-                    monitorPingInfo = currentMonitorPingInfos.Where(m => m.MonitorIPID == monIP.ID).First();
                     _logger.LogDebug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
                     //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
                 }
                 else
                 {
+                    monitorPingInfo = new MonitorPingInfo();
                     monitorPingInfo.MonitorIPID = monIP.ID;
                     _logger.LogDebug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     monitorPingInfo.ID = monIP.ID;
@@ -284,7 +286,7 @@ namespace NetworkMonitor.Processor.Services
         }
         private Task GetNetConnect(int monitorPingInfoID)
         {
-            return _netConnects.Where(w => w.MonitorPingInfo.ID == monitorPingInfoID).FirstOrDefault().connect();
+            return _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID).connect();
         }
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
@@ -367,7 +369,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
                         }
-                        PublishMonitorPingInfos(_monitorPingInfos, true);                 
+                        PublishMonitorPingInfos(_monitorPingInfos, true);
                     }
                     else
                     {
@@ -425,28 +427,44 @@ namespace NetworkMonitor.Processor.Services
             //Add and update
             foreach (MonitorIP monIP in monitorIPs)
             {
-                MonitorPingInfo monitorPingInfo = new MonitorPingInfo();
+                MonitorPingInfo monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
 
-                int count = _monitorPingInfos.Where(m => m.MonitorIPID == monIP.ID).Count();
                 // If monitorIP is contained in the list of monitorPingInfos then update it.
-                if (count > 0)
+                if (monitorPingInfo != null)
                 {
                     try
                     {
-                        monitorPingInfo = _monitorPingInfos.Where(m => m.MonitorIPID == monIP.ID).First();
                         if (monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
                         {
                             fillPingInfo(monitorPingInfo, monIP);
-                            NetConnect netConnect = _netConnects.Where(w => w.MonitorPingInfo.ID == monitorPingInfo.ID).First();
-                            int index = _netConnects.IndexOf(netConnect);
-                            NetConnect newNetConnect = ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                            _netConnects[index] = newNetConnect;
+                            NetConnect netConnect = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
+                            if (netConnect != null)
+                            {
+                                int index = _netConnects.IndexOf(netConnect);
+                                NetConnect newNetConnect = ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
+                                _netConnects[index] = newNetConnect;
+                            }
+                            else
+                            {
+                                // recreate if it is missing
+                                _netConnects.Add(ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                            }
+
                         }
                         else
                         {
-                            NetConnect netConnect = _netConnects.Where(w => w.MonitorPingInfo.ID == monitorPingInfo.ID).First();
+                            NetConnect netConnect = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                             fillPingInfo(monitorPingInfo, monIP);
-                            netConnect.MonitorPingInfo = monitorPingInfo;
+                            if (netConnect != null)
+                            {
+                                netConnect.MonitorPingInfo = monitorPingInfo;
+                            }
+                            else
+                            {
+                                // recreate if its missing
+                                _netConnects.Add(ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                            }
+
                         }
                     }
                     catch
@@ -457,6 +475,7 @@ namespace NetworkMonitor.Processor.Services
                 // Else create a new MonitorPingInfo
                 else
                 {
+                    monitorPingInfo = new MonitorPingInfo();
                     maxID++;
                     monitorPingInfo.MonitorIPID = monIP.ID;
                     monitorPingInfo.ID = maxID;
@@ -511,34 +530,91 @@ namespace NetworkMonitor.Processor.Services
             _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
         }
 
-        public void UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent)
+        public List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent)
         {
+            var results = new List<ResultObj>();
             foreach (int id in monitorPingInfoIDs)
             {
-                _monitorPingInfos.Where(w => w.ID == id).First().MonitorStatus.AlertSent = alertSent;
+                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == id);
+                var result = new ResultObj();
+                if (updateMonitorPingInfo != null)
+                {
+                    updateMonitorPingInfo.MonitorStatus.AlertSent = alertSent;
+                    result.Success = true;
+                    result.Message += "Success : updated AlertSent to " + alertSent + " for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
 
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message += "Failed : updating AlertSent for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+
+                }
+                results.Add(result);
             }
+            return results;
         }
-        public void UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag)
+        public List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag)
         {
+            var results = new List<ResultObj>();
             foreach (int id in monitorPingInfoIDs)
             {
-                _monitorPingInfos.Where(w => w.ID == id).First().MonitorStatus.AlertFlag = alertFlag;
+                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == id);
+                var result = new ResultObj();
+                if (updateMonitorPingInfo != null)
+                {
+                    updateMonitorPingInfo.MonitorStatus.AlertFlag = alertFlag;
+                    result.Success = true;
+                    result.Message += "Success : updated AlertFlag to " + alertFlag + " for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
 
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message += "Failed : updating AlertFlag for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+
+                }
+                results.Add(result);
             }
+            return results;
         }
 
-        public void ResetAlert(int monitorPingInfoId)
+        public ResultObj ResetAlert(int monitorPingInfoId)
         {
+            var result = new ResultObj();
+            var alertFlagObj = new AlertFlagObj();
+            alertFlagObj.ID = monitorPingInfoId; ;
+            alertFlagObj.AppID = _appID;
+            var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
 
-            _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.AlertFlag = false;
-            _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.AlertSent = false;
-            _monitorPingInfos.Where(m => m.ID == monitorPingInfoId).FirstOrDefault().MonitorStatus.DownCount = 0;
-            var alertFlagObj=new AlertFlagObj();
-            alertFlagObj.ID=monitorPingInfoId;;
-            alertFlagObj.AppID=_appID;
-             _daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj);
+            if (updateMonitorPingInfo == null)
+            {
+                result.Success = false;
+                result.Message += "Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID;
+            }
+            else
+            {
+                updateMonitorPingInfo.MonitorStatus.AlertFlag = false;
+                updateMonitorPingInfo.MonitorStatus.AlertSent = false;
+                updateMonitorPingInfo.MonitorStatus.DownCount = 0;
 
+                result.Success = true;
+                result.Message += "Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID;
+            }
+
+            try
+            {
+                _daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj);
+
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
+
+            }
+
+            return result;
         }
     }
 

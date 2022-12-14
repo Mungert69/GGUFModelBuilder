@@ -5,6 +5,7 @@ using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Processor.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dapr;
 
 namespace NetworkMonitor.Processor.Controllers
@@ -22,7 +23,7 @@ namespace NetworkMonitor.Processor.Controllers
             _monitorPingProcessor = monitorPingProcessor;
 
         }
-       // [Topic("pubsub", "processorConnect"),]
+        // [Topic("pubsub", "processorConnect"),]
         //[TopicMetadata( "ttlInSeconds", "60")]
         [HttpPost("connect")]
         public ActionResult<ResultObj> Connect(ProcessorConnectObj connectObj)
@@ -76,7 +77,7 @@ namespace NetworkMonitor.Processor.Controllers
 
         }
 
-       // [Topic("pubsub", "processorAlertFlag")]
+        // [Topic("pubsub", "processorAlertFlag")]
         [HttpPost("alertflag")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> AlertFlag([FromBody] List<int> monitorPingInfoIds)
@@ -87,11 +88,18 @@ namespace NetworkMonitor.Processor.Controllers
 
             try
             {
-                  monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID="+f));
+                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
 
-                _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
-                result.Message += "Success ran ok ";
-                result.Success = true;
+                List<ResultObj> results = _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
+
+                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
+                if (result.Success) result.Message += "Success ran ok ";
+                else
+                {
+                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
+                    result.Data = results;
+                }
+
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
@@ -106,7 +114,7 @@ namespace NetworkMonitor.Processor.Controllers
 
         }
 
-       // [Topic("pubsub", "processorAlertSent")]
+        // [Topic("pubsub", "processorAlertSent")]
         [HttpPost("alertsent")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> AlertSent([FromBody] List<int> monitorPingInfoIds)
@@ -117,11 +125,17 @@ namespace NetworkMonitor.Processor.Controllers
 
             try
             {
-                  monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found MonitorPingInfo ID="+f));
+                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found MonitorPingInfo ID=" + f));
 
-                _monitorPingProcessor.UpdateAlertSent(monitorPingInfoIds, true);
-                result.Message += "Success ran ok ";
-                result.Success = true;
+                List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorPingInfoIds, true);
+
+                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
+                if (result.Success) result.Message += "Success ran ok ";
+                else
+                {
+                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
+                    result.Data = results;
+                }
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
@@ -147,9 +161,8 @@ namespace NetworkMonitor.Processor.Controllers
 
             try
             {
-                _monitorPingProcessor.ResetAlert(monitorPingInfoIds[0]);
-                result.Message += "Success ran ok ";
-                result.Success = true;
+                result = _monitorPingProcessor.ResetAlert(monitorPingInfoIds[0]);
+
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)

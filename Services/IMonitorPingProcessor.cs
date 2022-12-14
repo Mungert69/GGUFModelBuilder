@@ -14,10 +14,10 @@ namespace NetworkMonitor.Processor.Services
         void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         ResultObj Connect(ProcessorConnectObj connectObj);
 
-        void UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
-        void UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
+        List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
+        List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
 
-        void ResetAlert(int monitorPingInfoID);
+        ResultObj ResetAlert(int monitorPingInfoID);
 
         bool Awake{get;set;}
        
