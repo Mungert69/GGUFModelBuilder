@@ -121,7 +121,6 @@ namespace NetworkMonitor.Processor.Services
                             {
                                 PublishMonitorPingInfos(_monitorPingInfos, false);
                             }
-
                         }
                     }
 
@@ -138,7 +137,6 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogError("Failed : Loading statestore : Error was : " + e.ToString());
                 currentMonitorPingInfos = new List<MonitorPingInfo>();
             }
-
 
             try
             {
@@ -206,7 +204,6 @@ namespace NetworkMonitor.Processor.Services
         private void PublishMonitorPingInfos(List<MonitorPingInfo> monitorPingInfos, bool saveState)
         {
 
-
             List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
 
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos);
@@ -238,7 +235,6 @@ namespace NetworkMonitor.Processor.Services
             {
 
                 MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-
 
                 if (monitorPingInfo != null)
                 {
@@ -286,7 +282,10 @@ namespace NetworkMonitor.Processor.Services
         }
         private Task GetNetConnect(int monitorPingInfoID)
         {
-            return _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID).connect();
+            var connectTask=_netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID);
+            // return completed task if no netConnect found
+            if (connectTask==null) return Task.FromResult<object>(null);
+            return connectTask.connect();
         }
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
