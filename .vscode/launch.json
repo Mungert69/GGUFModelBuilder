@@ -31,7 +31,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "dapr-debug",
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp7.0/NetworkMonitorProcessor.dll",
+            "program": "${workspaceFolder}/bin/Debug/netcoreapp7.0/linux-x64/NetworkMonitorProcessor.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
