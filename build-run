@@ -1,4 +1,4 @@
 #!/bin/sh
 value=`cat ../secret`
-git pull https://mungert69:$value@github.com/Mungert69/NetworkMonitorScheduler
+git pull https://mungert69:$value@github.com/Mungert69/NetworkMonitorProcessor
 dotnet publish  -c Release
