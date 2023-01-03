@@ -361,7 +361,7 @@ namespace NetworkMonitor.Processor.Services
                     timerDec.Reset();
 
                 }
-                Thread.Sleep(_pingParams.Timeout + connectObj.MaxBuffer / 2);
+                //Thread.Sleep(_pingParams.Timeout + 100);
                 Task.WhenAll(pingConnectTasks);
                 pingConnectTasks.Clear();
                 //ListUtils.RemoveNestedMonitorPingInfos(_monitorPingInfos);
