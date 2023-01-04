@@ -7,7 +7,8 @@ using NetworkMonitor.Processor.Services;
 using Microsoft.AspNetCore.Authorization;
 using System;
 using Microsoft.Extensions.Logging;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace NetworkMonitor.Processor
 {
     public class Startup
@@ -30,6 +31,11 @@ namespace NetworkMonitor.Processor
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
 
             services.AddControllers().AddDapr();
+            var jsonOptions = new JsonSerializerOptions
+            {
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+            };
+            services.AddDaprClient(daprOptions => daprOptions.UseJsonSerializationOptions(jsonOptions));
 
             services.AddLogging(options =>
             {
