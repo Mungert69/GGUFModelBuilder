@@ -213,7 +213,7 @@ namespace NetworkMonitor.Processor.Services
 
             List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
 
-            _logger.LogInformation("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
+            _logger.LogDebug("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
 
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos, _daprMetadata);
 
