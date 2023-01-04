@@ -30,11 +30,12 @@ namespace NetworkMonitor.Processor.Services
         private DaprClient _daprClient;
         private string _appID = "1";
 
+        private IConnectFactory _connectFactory;
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
 
         public bool Awake { get => _awake; set => _awake = value; }
 
-        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime)
+        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
         {
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
@@ -42,6 +43,7 @@ namespace NetworkMonitor.Processor.Services
             _daprMetadata.Add("ttlInSeconds", "60");
 
             _appID = config.GetValue<string>("AppID");
+            _connectFactory = connectFactory;
             init(new ProcessorInitObj());
         }
 
@@ -184,7 +186,7 @@ namespace NetworkMonitor.Processor.Services
                     _pingParams.IsAdmin = false;
                 }
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
-                _netConnects = ConnectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
+                _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
 
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
@@ -211,11 +213,13 @@ namespace NetworkMonitor.Processor.Services
 
             List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
 
+            _logger.LogInformation("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
+
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos, _daprMetadata);
-            _logger.LogDebug("Published MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
+
+            _logger.LogDebug("Publishing Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
 
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "alertUpdateMonitorPingInfos", cutMonitorPingInfos, _daprMetadata);
-            _logger.LogDebug("Published Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
 
             string logStr = "Published to MonitorService and AlertService.";
             var m = monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
@@ -361,8 +365,8 @@ namespace NetworkMonitor.Processor.Services
                     timerDec.Reset();
 
                 }
-                //Thread.Sleep(_pingParams.Timeout + 100);
                 Task.WhenAll(pingConnectTasks);
+                Thread.Sleep(_pingParams.Timeout + 100);
                 pingConnectTasks.Clear();
                 //ListUtils.RemoveNestedMonitorPingInfos(_monitorPingInfos);
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
@@ -405,8 +409,7 @@ namespace NetworkMonitor.Processor.Services
 
                 result.Success = true;
                 timerInner.Reset();
-                processorObj.IsProcessorReady = true;
-                processorObj.AppID = _appID;
+
 
             }
             catch (Exception e)
@@ -419,6 +422,8 @@ namespace NetworkMonitor.Processor.Services
             {
                 try
                 {
+                    processorObj.IsProcessorReady = true;
+                    processorObj.AppID = _appID;
                     _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
@@ -457,13 +462,13 @@ namespace NetworkMonitor.Processor.Services
                             if (netConnect != null)
                             {
                                 int index = _netConnects.IndexOf(netConnect);
-                                NetConnect newNetConnect = ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
+                                NetConnect newNetConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
                                 _netConnects[index] = newNetConnect;
                             }
                             else
                             {
                                 // recreate if it is missing
-                                _netConnects.Add(ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                                _netConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
                             }
 
                         }
@@ -478,7 +483,7 @@ namespace NetworkMonitor.Processor.Services
                             else
                             {
                                 // recreate if its missing
-                                _netConnects.Add(ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                                _netConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
                             }
 
                         }
@@ -498,7 +503,7 @@ namespace NetworkMonitor.Processor.Services
                     monitorPingInfo.UserID = monIP.UserID;
                     fillPingInfo(monitorPingInfo, monIP);
                     _monitorPingInfos.Add(monitorPingInfo);
-                    NetConnect netConnect = ConnectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
+                    NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
                     _netConnects.Add(netConnect);
                 }
             }
