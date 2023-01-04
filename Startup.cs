@@ -9,6 +9,7 @@ using System;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using NetworkMonitor.Connection;
 namespace NetworkMonitor.Processor
 {
     public class Startup
@@ -27,6 +28,7 @@ namespace NetworkMonitor.Processor
         {
             _services = services;
             services.AddSingleton<IMonitorPingProcessor, MonitorPingProcessor>();
+             services.AddSingleton<IConnectFactory, ConnectFactory>();
 
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
 
