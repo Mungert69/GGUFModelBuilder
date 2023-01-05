@@ -7,7 +7,7 @@ spec:
   version: v1
   metadata:
   - name: redisHost
-    value: 10.8.0.3:6379
+    value: 10.8.0.2:6379
   - name: redisPassword
     value: ""
   - name: maxLenApprox
