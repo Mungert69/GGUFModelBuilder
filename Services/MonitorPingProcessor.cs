@@ -59,7 +59,8 @@ namespace NetworkMonitor.Processor.Services
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
                 processorObj.AppID = _appID;
-                _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+                //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+                DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
                 _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
@@ -88,8 +89,10 @@ namespace NetworkMonitor.Processor.Services
                         Dictionary<string, string> metadata = new Dictionary<string, string>();
                         DaprRepo.SaveState(_daprClient,  "MonitorPingInfos",new List<MonitorPingInfo>());
                         //_daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
-                        _daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
-                        _daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
+                        //_daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
+                         DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", new List<MonitorIP>());
+                        //_daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
+                         DaprRepo.SaveState<PingParams>(_daprClient, "PingParams", new PingParams());
 
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
@@ -118,10 +121,12 @@ namespace NetworkMonitor.Processor.Services
                         else
                         {
 
-                            statePingParams = _daprClient.GetStateAsync<PingParams>("statestore", "PingParams").Result;
+                            //statePingParams = _daprClient.GetStateAsync<PingParams>("statestore", "PingParams").Result;
+                            statePingParams =DaprRepo.GetState<PingParams>(_daprClient, "PingParams");
                             _logger.LogInformation("PingParams from statestore ");
 
-                            stateMonitorIPs = _daprClient.GetStateAsync<List<MonitorIP>>("statestore", "MonitorIPs").Result;
+                            //stateMonitorIPs = _daprClient.GetStateAsync<List<MonitorIP>>("statestore", "MonitorIPs").Result;
+                            stateMonitorIPs =DaprRepo.GetState<List<MonitorIP>>(_daprClient, "MonitorIPs");
                             _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count);
 
                             try
@@ -173,7 +178,8 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    _daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", initObj.MonitorIPs);
+                    //_daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", initObj.MonitorIPs);
+                    DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", initObj.MonitorIPs);
                 }
                 if (initObj.PingParams == null)
                 {
@@ -211,7 +217,9 @@ namespace NetworkMonitor.Processor.Services
                 processorObj.AppID = _appID;
                 processorObj.IsProcessorReady = true;
 
-                _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+                //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+               DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
             }
@@ -319,7 +327,9 @@ namespace NetworkMonitor.Processor.Services
             ProcessorInitObj processorObj = new ProcessorInitObj();
             processorObj.IsProcessorReady = false;
             processorObj.AppID = _appID;
-            _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+            //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+            DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
 
@@ -440,7 +450,9 @@ namespace NetworkMonitor.Processor.Services
                 {
                     processorObj.IsProcessorReady = true;
                     processorObj.AppID = _appID;
-                    _daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+                    //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
+                    DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
                 }
@@ -641,8 +653,9 @@ namespace NetworkMonitor.Processor.Services
 
             try
             {
-                _daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
-
+                //_daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
+                DaprRepo.PublishEvent<AlertFlagObj>(_daprClient, "alertMessageResetAlert", alertFlagObj);
+                
             }
             catch (Exception e)
             {
