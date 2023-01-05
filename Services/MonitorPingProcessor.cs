@@ -52,7 +52,7 @@ namespace NetworkMonitor.Processor.Services
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishMonitorPingInfos(_monitorPingInfos, true);
+                PublishMonitorPingInfos( true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
 
                 ProcessorInitObj processorObj = new ProcessorInitObj();
@@ -126,7 +126,7 @@ namespace NetworkMonitor.Processor.Services
                             //Publish to MonitorService if redis contains data
                             if (currentMonitorPingInfos.Count > 0)
                             {
-                                PublishMonitorPingInfos(_monitorPingInfos, false);
+                                PublishMonitorPingInfos( false);
                             }
                         }
                     }
@@ -208,13 +208,13 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        private void PublishMonitorPingInfos(List<MonitorPingInfo> monitorPingInfos, bool saveState)
+        public void PublishMonitorPingInfos( bool saveState)
         {
-
-            List<MonitorPingInfo> cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-
-            _logger.LogDebug("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
-
+           
+            List<MonitorPingInfo> cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
+            var monitorPingInfosStr=JsonUtils.writeJsonObjectToString(_monitorPingInfos);
+            _logger.LogDebug("Publishing MonitorPingInfos : " + monitorPingInfosStr);
+             List<MonitorPingInfo> monitorPingInfos=JsonUtils.getJsonObjectFromString<List<MonitorPingInfo>>(monitorPingInfosStr);
             _daprClient.PublishEventAsync<List<MonitorPingInfo>>("pubsub", "monitorUpdateMonitorPingInfos", monitorPingInfos, _daprMetadata);
 
             _logger.LogDebug("Publishing Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
@@ -227,11 +227,14 @@ namespace NetworkMonitor.Processor.Services
             {
                 logStr += " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
             }
+            else {
+                logStr += " Found no first enabled PingInfos .";     
+            }
 
             if (saveState)
             {
-                _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", _monitorPingInfos);
-                logStr += " Saved MonitorPingInfos to State";
+                _daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", monitorPingInfos);
+                logStr += " Saved MonitorPingInfos to State.";
             }
             _logger.LogInformation(logStr);
         }
@@ -378,7 +381,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
                         }
-                        PublishMonitorPingInfos(_monitorPingInfos, true);
+                        PublishMonitorPingInfos( true);
                     }
                     else
                     {
