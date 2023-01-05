@@ -38,7 +38,7 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "appId": "monitorprocessor",
+            "appId": "monitorprocessor1",
             "appPort": 2054,
             "httpPort": 3501,
             "grpcPort": 60002,
