@@ -42,14 +42,14 @@
             "appPort": 2054,
             "httpPort": 3501,
             "grpcPort": 60002,
-            "componentsPath": "./components"
+            "componentsPath": "./components-test"
             ,
             "label": "dapr-debug",
             "type": "dapr",
             "dependsOn": "build"
         },
         {
-            "appId": "monitorprocessor",
+            "appId": "monitorprocessor1",
             "label": "daprd-down",
             "type": "daprd-down"
         }

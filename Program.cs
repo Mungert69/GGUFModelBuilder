@@ -13,14 +13,11 @@ namespace NetworkMonitor.Processor
     {
         public static void Main(string[] args)
         {
-            
             IConfigurationRoot config = new ConfigurationBuilder()
         .AddJsonFile("appsettings.json", optional: false)
         .Build();
             IWebHost host = CreateWebHostBuilder(args).Build();
-           
             host.Run();
-
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
