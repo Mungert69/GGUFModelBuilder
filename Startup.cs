@@ -33,12 +33,12 @@ namespace NetworkMonitor.Processor
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
 
             services.AddControllers().AddDapr();
-            var jsonOptions = new JsonSerializerOptions
+            /*var jsonOptions = new JsonSerializerOptions
             {
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
             };
             services.AddDaprClient(daprOptions => daprOptions.UseJsonSerializationOptions(jsonOptions));
-
+            */
             services.AddLogging(options =>
             {
                 options.AddSimpleConsole(c =>
