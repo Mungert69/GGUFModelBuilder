@@ -234,18 +234,19 @@ namespace NetworkMonitor.Processor.Services
         public void PublishMonitorPingInfos(bool saveState)
         {
 
-            List<MonitorPingInfo> cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-            _logger.LogDebug("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
-             DaprRepo.PublishEventJson(_daprClient, "monitorUpdateMonitorPingInfos", _monitorPingInfos);
+            var cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
+            var sentMonitorPingInfos=_monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x,true));
+            _logger.LogDebug("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(sentMonitorPingInfos));
+             DaprRepo.PublishEventJson(_daprClient, "monitorUpdateMonitorPingInfos", cutMonitorPingInfos);
             _logger.LogDebug("Publishing Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
              DaprRepo.PublishEventJson(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
             
             
             string logStr = "Published to MonitorService and AlertService.";
-            var m = _monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
-            if (m != null && m.PingInfos != null)
+            var m = sentMonitorPingInfos.FirstOrDefault(w => w.Enabled == true);
+            if (m != null && m.PingInfos != null)       
             {
-                logStr += " Count of first enabled PingInfos " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
+                logStr += " Count of first enabled PingInfos " + sentMonitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
             }
             else
             {
@@ -254,7 +255,7 @@ namespace NetworkMonitor.Processor.Services
 
             if (saveState)
             {
-                DaprRepo.SaveStateJson(_daprClient, "MonitorPingInfos", _monitorPingInfos);
+                DaprRepo.SaveStateJson(_daprClient, "MonitorPingInfos", sentMonitorPingInfos);
                 logStr += " Saved MonitorPingInfos to State.";
             }
             _logger.LogInformation(logStr);
@@ -262,7 +263,7 @@ namespace NetworkMonitor.Processor.Services
 
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
         {
-            List<MonitorPingInfo> monitorPingInfos = new List<MonitorPingInfo>();
+            var monitorPingInfos = new List<MonitorPingInfo>();
             int i = 0;
             foreach (MonitorIP monIP in monitorIPs)
             {
@@ -324,7 +325,7 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.LogDebug("ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
 
-            ProcessorInitObj processorObj = new ProcessorInitObj();
+            var processorObj = new ProcessorInitObj();
             processorObj.IsProcessorReady = false;
             processorObj.AppID = _appID;
             //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
@@ -333,7 +334,7 @@ namespace NetworkMonitor.Processor.Services
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
 
-            ResultObj result = new ResultObj();
+            var result = new ResultObj();
             result.Success = false;
             result.Message = "SERVICE : MonitorPingProcessor.Connect() ";
             _logger.LogInformation("SERVICE : MonitorPingProcessor.Connect() ");
@@ -365,10 +366,10 @@ namespace NetworkMonitor.Processor.Services
 
             try
             {
-                PingParams pingParams = _pingParams;
-                List<Task> pingConnectTasks = new List<Task>();
-                Stopwatch timerInner = new Stopwatch();
-                Stopwatch timerDec = new Stopwatch();
+                var pingParams = _pingParams;
+                var pingConnectTasks = new List<Task>();
+                var timerInner = new Stopwatch();
+                var timerDec = new Stopwatch();
                 TimeSpan timeTakenDec;
                 timerInner.Start();
                 foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos.Where(x => x.Enabled == true))
