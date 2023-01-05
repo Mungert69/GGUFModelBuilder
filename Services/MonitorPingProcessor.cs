@@ -87,7 +87,11 @@ namespace NetworkMonitor.Processor.Services
                     {
                         _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
                         Dictionary<string, string> metadata = new Dictionary<string, string>();
-                        DaprRepo.SaveState(_daprClient,  "MonitorPingInfos",new List<MonitorPingInfo>());
+                        var processorDataObj=new ProcessorDataObj(){
+                            MonitorPingInfos=new List<MonitorPingInfo>(),
+                            PingInfos=new List<PingInfo>()
+                        };
+                        DaprRepo.SaveState(_daprClient,  "ProcessorDataObj",processorDataObj);
                         //_daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
                         //_daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
                          DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", new List<MonitorIP>());
@@ -132,13 +136,15 @@ namespace NetworkMonitor.Processor.Services
                             try
                             {
                                 // Trying both ways until upgrade complete.
-                                currentMonitorPingInfos = DaprRepo.GetStateJson<List<MonitorPingInfo>>(_daprClient, "MonitorPingInfos");
-                                _logger.LogInformation("Success : Reading MonitorPingInfos as Json from statestore");
+
+                                currentMonitorPingInfos=ProcessorDataBuilder.Build(DaprRepo.GetState<ProcessorDataObj>(_daprClient, "ProcessorDataObj"));
+
+                                _logger.LogInformation("Success : Building MonitorPingInfos from ProcessorDataObj in statestore");
                                 
                             }
                             catch (Exception)
                             {
-                                _logger.LogError("Error : Could not read MonitorPingInfos as Json from statestore");
+                                _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
                                 currentMonitorPingInfos = _daprClient.GetStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos").Result;
                                 _logger.LogInformation("Success : Retry reading MonitorPingInfos as Object from statestore");
                                 
@@ -235,18 +241,21 @@ namespace NetworkMonitor.Processor.Services
         {
 
             var cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-            var sentMonitorPingInfos=_monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x,true));
-            _logger.LogDebug("Publishing MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(sentMonitorPingInfos));
-             DaprRepo.PublishEventJson(_daprClient, "monitorUpdateMonitorPingInfos", cutMonitorPingInfos);
-            _logger.LogDebug("Publishing Alert MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(cutMonitorPingInfos));
-             DaprRepo.PublishEventJson(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
+            var pingInfos=new List<PingInfo>();
+            _monitorPingInfos.ForEach(f => pingInfos.AddRange(f.PingInfos));
+            var processorDataObj=new ProcessorDataObj();
+            processorDataObj.MonitorPingInfos=cutMonitorPingInfos;
+            processorDataObj.PingInfos=pingInfos;
+            _logger.LogDebug("Publishing ProcessorDataObj : " + JsonUtils.writeJsonObjectToString(processorDataObj));
+             DaprRepo.PublishEvent<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj);
+             DaprRepo.PublishEvent<List<MonitorPingInfo>>(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
             
             
             string logStr = "Published to MonitorService and AlertService.";
-            var m = sentMonitorPingInfos.FirstOrDefault(w => w.Enabled == true);
+            var m = _monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
             if (m != null && m.PingInfos != null)       
             {
-                logStr += " Count of first enabled PingInfos " + sentMonitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
+                logStr += " Count of first enabled PingInfos " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
             }
             else
             {
@@ -255,7 +264,7 @@ namespace NetworkMonitor.Processor.Services
 
             if (saveState)
             {
-                DaprRepo.SaveStateJson(_daprClient, "MonitorPingInfos", sentMonitorPingInfos);
+                DaprRepo.SaveState<ProcessorDataObj>(_daprClient, "ProcessorDataObj", processorDataObj);
                 logStr += " Saved MonitorPingInfos to State.";
             }
             _logger.LogInformation(logStr);
