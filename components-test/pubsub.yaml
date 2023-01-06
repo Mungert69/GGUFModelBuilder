@@ -11,4 +11,6 @@ spec:
   - name: redisPassword
     value: ""
   - name: maxLenApprox
-    value: 10
+    value: 5
+  - name: minIdleConns
+    value: 2

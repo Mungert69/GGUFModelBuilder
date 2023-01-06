@@ -12,6 +12,8 @@
 
   <ItemGroup>
  
+    <PackageReference Include="Aspose.Zip" Version="22.12.0" />
+ 
     <PackageReference Include="Auth0.AuthenticationApi" Version="7.17.4" />
     <PackageReference Include="Auth0.ManagementApi" Version="7.17.4" />
     <PackageReference Include="Dapr.AspNetCore" Version="1.9.0" />
