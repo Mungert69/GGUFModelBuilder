@@ -11,6 +11,4 @@ spec:
   - name: redisPassword
     value: ""
   - name: maxLenApprox
-    value: 100
-  - name: ttlInSeconds
-    value: 60
+    value: 10
