@@ -87,16 +87,17 @@ namespace NetworkMonitor.Processor.Services
                     {
                         _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
                         Dictionary<string, string> metadata = new Dictionary<string, string>();
-                        var processorDataObj=new ProcessorDataObj(){
-                            MonitorPingInfos=new List<MonitorPingInfo>(),
-                            PingInfos=new List<PingInfo>()
+                        var processorDataObj = new ProcessorDataObj()
+                        {
+                            MonitorPingInfos = new List<MonitorPingInfo>(),
+                            PingInfos = new List<PingInfo>()
                         };
-                        DaprRepo.SaveState(_daprClient,  "ProcessorDataObj",processorDataObj);
+                        DaprRepo.SaveState(_daprClient, "ProcessorDataObj", processorDataObj);
                         //_daprClient.SaveStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos", new List<MonitorPingInfo>());
                         //_daprClient.SaveStateAsync<List<MonitorIP>>("statestore", "MonitorIPs", new List<MonitorIP>());
-                         DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", new List<MonitorIP>());
+                        DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", new List<MonitorIP>());
                         //_daprClient.SaveStateAsync<PingParams>("statestore", "PingParams", new PingParams());
-                         DaprRepo.SaveState<PingParams>(_daprClient, "PingParams", new PingParams());
+                        DaprRepo.SaveState<PingParams>(_daprClient, "PingParams", new PingParams());
 
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         _logger.LogInformation("Reset MonitorPingInfos in statestore ");
@@ -126,28 +127,28 @@ namespace NetworkMonitor.Processor.Services
                         {
 
                             //statePingParams = _daprClient.GetStateAsync<PingParams>("statestore", "PingParams").Result;
-                            statePingParams =DaprRepo.GetState<PingParams>(_daprClient, "PingParams");
+                            statePingParams = DaprRepo.GetState<PingParams>(_daprClient, "PingParams");
                             _logger.LogInformation("PingParams from statestore ");
 
                             //stateMonitorIPs = _daprClient.GetStateAsync<List<MonitorIP>>("statestore", "MonitorIPs").Result;
-                            stateMonitorIPs =DaprRepo.GetState<List<MonitorIP>>(_daprClient, "MonitorIPs");
-                            if (stateMonitorIPs!=null) _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count());
+                            stateMonitorIPs = DaprRepo.GetState<List<MonitorIP>>(_daprClient, "MonitorIPs");
+                            if (stateMonitorIPs != null) _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count());
 
                             try
                             {
                                 // Trying both ways until upgrade complete.
 
-                                currentMonitorPingInfos=ProcessorDataBuilder.Build(DaprRepo.GetState<ProcessorDataObj>(_daprClient, "ProcessorDataObj"));
+                                currentMonitorPingInfos = ProcessorDataBuilder.Build(DaprRepo.GetState<ProcessorDataObj>(_daprClient, "ProcessorDataObj"));
 
                                 _logger.LogInformation("Success : Building MonitorPingInfos from ProcessorDataObj in statestore");
-                                
+
                             }
                             catch (Exception)
                             {
                                 _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
                                 currentMonitorPingInfos = _daprClient.GetStateAsync<List<MonitorPingInfo>>("statestore", "MonitorPingInfos").Result;
                                 _logger.LogInformation("Success : Retry reading MonitorPingInfos as Object from statestore");
-                                
+
                             }
                             //Publish to MonitorService if redis contains data
                             if (currentMonitorPingInfos.Count > 0)
@@ -224,8 +225,8 @@ namespace NetworkMonitor.Processor.Services
                 processorObj.IsProcessorReady = true;
 
                 //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
-               DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
-                
+                DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
             }
@@ -241,20 +242,20 @@ namespace NetworkMonitor.Processor.Services
         {
 
             var cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-            var pingInfos=new List<PingInfo>();
+            var pingInfos = new List<PingInfo>();
             _monitorPingInfos.ForEach(f => pingInfos.AddRange(f.PingInfos));
-            var processorDataObj=new ProcessorDataObj();
-            processorDataObj.MonitorPingInfos=cutMonitorPingInfos;
-           // processorDataObj.PingInfos=pingInfos;
-             processorDataObj.PingInfos=new List<PingInfo>();
+            var processorDataObj = new ProcessorDataObj();
+            processorDataObj.MonitorPingInfos = cutMonitorPingInfos;
+             processorDataObj.PingInfos=pingInfos;
+            //processorDataObj.PingInfos = new List<PingInfo>();
             _logger.LogDebug("Publishing ProcessorDataObj : " + JsonUtils.writeJsonObjectToString(processorDataObj));
-             DaprRepo.PublishEvent<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj);
-             DaprRepo.PublishEvent<List<MonitorPingInfo>>(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
-            
-            
+            DaprRepo.PublishEvent<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj);
+            DaprRepo.PublishEvent<List<MonitorPingInfo>>(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
+
+
             string logStr = "Published to MonitorService and AlertService.";
             var m = _monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
-            if (m != null && m.PingInfos != null)       
+            if (m != null && m.PingInfos != null)
             {
                 logStr += " Count of first enabled PingInfos " + _monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " .";
             }
@@ -340,7 +341,7 @@ namespace NetworkMonitor.Processor.Services
             processorObj.AppID = _appID;
             //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
             DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
-                
+
             _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
 
 
@@ -358,10 +359,6 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += "Warning : There is no MonitorPingInfo data.";
                 _logger.LogWarning("Warning : There is no MonitorPingInfo data.");
                 result.Success = false;
-
-                //ProcessorInitObj processorObj = new ProcessorInitObj();
-                //processorObj.IsProcessorStarted = false;
-                //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "monitorProcessorStart", processorObj);
                 return result;
             }
             // Time interval between Now and NextRun
@@ -376,26 +373,22 @@ namespace NetworkMonitor.Processor.Services
 
             try
             {
-                var pingParams = _pingParams;
                 var pingConnectTasks = new List<Task>();
                 var timerInner = new Stopwatch();
                 var timerDec = new Stopwatch();
                 TimeSpan timeTakenDec;
                 timerInner.Start();
-                foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos.Where(x => x.Enabled == true))
+                foreach (var netConnect in _netConnects.Where(w => w.MonitorPingInfo.Enabled == true))
                 {
 
                     timerDec.Start();
-                    Task pingConnect = GetNetConnect(monitorPingInfo.ID);
-                    pingConnectTasks.Add(pingConnect);
-
-                    // pause for the time to wait
+                    //Task pingConnect = GetNetConnect(monitorPingInfo.ID);
+                    pingConnectTasks.Add(netConnect.connect());
                     timerDec.Stop();
                     timeTakenDec = timerDec.Elapsed;
                     int timeTakenDecMilliseconds = (int)timeTakenDec.TotalMilliseconds;
                     int diff = timeToWait - timeTakenDecMilliseconds;
-                    //                    Console.WriteLine("Info : Time taken to connect : " + timeTakenDecMilliseconds + "ms ");
-                    if (diff > 0)
+                     if (diff > 0)
                     {
                         Thread.Sleep(diff);
                     }
@@ -404,8 +397,6 @@ namespace NetworkMonitor.Processor.Services
                 }
                 Task.WhenAll(pingConnectTasks);
                 Thread.Sleep(_pingParams.Timeout + 100);
-                pingConnectTasks.Clear();
-                //ListUtils.RemoveNestedMonitorPingInfos(_monitorPingInfos);
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (isDaprReady)
                 {
@@ -413,8 +404,8 @@ namespace NetworkMonitor.Processor.Services
                     {
                         foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                         {
-                            if (monitorPingInfo.PingInfos!=null)
-                            monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
+                            if (monitorPingInfo.PingInfos != null)
+                                monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
                         }
                         PublishMonitorPingInfos(true);
                     }
@@ -464,7 +455,7 @@ namespace NetworkMonitor.Processor.Services
                     processorObj.AppID = _appID;
                     //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
                     DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
-                
+
                     _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = true");
 
                 }
@@ -667,7 +658,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 //_daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
                 DaprRepo.PublishEvent<AlertFlagObj>(_daprClient, "alertMessageResetAlert", alertFlagObj);
-                
+
             }
             catch (Exception e)
             {
