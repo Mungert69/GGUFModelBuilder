@@ -364,10 +364,10 @@ namespace NetworkMonitor.Processor.Services
             // Time interval between Now and NextRun
             int executionTime = connectObj.NextRunInterval - _pingParams.Timeout - connectObj.MaxBuffer;
             int timeToWait = executionTime / _monitorPingInfos.Where(x => x.Enabled == true).Count();
-            if (timeToWait < 10)
+            if (timeToWait < 25)
             {
-                result.Message += "Warning : Time to wait is less than 10ms.  This may cause problems with the service.  Please check the schedule settings.";
-                _logger.LogWarning("Warning : Time to wait is less than 10ms.  This may cause problems with the service.  Please check the schedule settings.");
+                result.Message += "Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings.";
+                _logger.LogWarning("Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings.");
             }
             result.Message += "Info : Time to wait : " + timeToWait + "ms ";
 
@@ -380,9 +380,7 @@ namespace NetworkMonitor.Processor.Services
                 timerInner.Start();
                 foreach (var netConnect in _netConnects.Where(w => w.MonitorPingInfo.Enabled == true))
                 {
-
                     timerDec.Start();
-                    //Task pingConnect = GetNetConnect(monitorPingInfo.ID);
                     pingConnectTasks.Add(netConnect.connect());
                     timerDec.Stop();
                     timeTakenDec = timerDec.Elapsed;
@@ -393,7 +391,6 @@ namespace NetworkMonitor.Processor.Services
                         Thread.Sleep(diff);
                     }
                     timerDec.Reset();
-
                 }
                 Task.WhenAll(pingConnectTasks);
                 Thread.Sleep(_pingParams.Timeout + 100);
@@ -402,11 +399,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     if (_monitorPingInfos.Count > 0)
                     {
-                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
-                        {
-                            if (monitorPingInfo.PingInfos != null)
-                                monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
-                        }
+                        _monitorPingInfos.Where(w => w.PingInfos!=null).ToList().ForEach(f => f.PacketsSent=f.PingInfos.Count());
                         PublishMonitorPingInfos(true);
                     }
                     else
