@@ -131,7 +131,7 @@ namespace NetworkMonitor.Processor.Services
 
                             //stateMonitorIPs = _daprClient.GetStateAsync<List<MonitorIP>>("statestore", "MonitorIPs").Result;
                             stateMonitorIPs =DaprRepo.GetState<List<MonitorIP>>(_daprClient, "MonitorIPs");
-                            _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count);
+                            if (stateMonitorIPs!=null) _logger.LogInformation("MonitorIPS from statestore count =" + stateMonitorIPs.Count());
 
                             try
                             {
@@ -245,7 +245,8 @@ namespace NetworkMonitor.Processor.Services
             _monitorPingInfos.ForEach(f => pingInfos.AddRange(f.PingInfos));
             var processorDataObj=new ProcessorDataObj();
             processorDataObj.MonitorPingInfos=cutMonitorPingInfos;
-            processorDataObj.PingInfos=pingInfos;
+           // processorDataObj.PingInfos=pingInfos;
+             processorDataObj.PingInfos=new List<PingInfo>();
             _logger.LogDebug("Publishing ProcessorDataObj : " + JsonUtils.writeJsonObjectToString(processorDataObj));
              DaprRepo.PublishEvent<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj);
              DaprRepo.PublishEvent<List<MonitorPingInfo>>(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos);
@@ -412,6 +413,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                         {
+                            if (monitorPingInfo.PingInfos!=null)
                             monitorPingInfo.PacketsSent = monitorPingInfo.PingInfos.Count;
                         }
                         PublishMonitorPingInfos(true);
