@@ -543,7 +543,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     catch
                     {
-                        message = "Error : Failed to update Host list check Values.";
+                        message += "Error : Failed to update Host list check Values.";
                     }
                 }
                 // Else create a new MonitorPingInfo
@@ -578,12 +578,31 @@ namespace NetworkMonitor.Processor.Services
                 _monitorPingInfos.Remove(del);
             }
 
+            // Update statestore with new MonitorIPs
+            UpdateMonitorIPsInStatestore(_monitorIPQueue);
             // reset queue to empty
             _monitorIPQueue = new List<MonitorIP>();
 
             return message;
 
         }
+
+
+            private void UpdateMonitorIPsInStatestore(List<MonitorIP> updateMonitorIPs){
+
+                 var stateMonitorIPs = DaprRepo.GetStateJsonZ<List<MonitorIP>>(_daprClient, "MonitorIPs");
+                 foreach (var updateMonitorIP in updateMonitorIPs){
+                    var monitorIP=stateMonitorIPs.Where(w => w.ID==updateMonitorIP.ID).FirstOrDefault();
+                    if (monitorIP==null){
+                        stateMonitorIPs.Add(updateMonitorIP);
+                    }
+                    else{
+                        stateMonitorIPs.Remove(monitorIP);
+                        stateMonitorIPs.Add(updateMonitorIP);
+                    }
+                 }
+                DaprRepo.SaveStateJsonZ<List<MonitorIP>>(_daprClient,"MonitorIPs",stateMonitorIPs);           
+            }
         public void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
         {
             // Nothing to process so just return
