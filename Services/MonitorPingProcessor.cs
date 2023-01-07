@@ -244,8 +244,12 @@ namespace NetworkMonitor.Processor.Services
                         processorDataObj.MonitorPingInfos = cutMonitorPingInfos;
                         processorDataObj.PingInfos = pingInfos;
                         processorDataObj.AppID=_appID;
+                        var processorDataObjAlert = new ProcessorDataObj();
+                        processorDataObjAlert.MonitorPingInfos = cutMonitorPingInfos;
+                        processorDataObjAlert.PingInfos = new List<PingInfo>();
+                        processorDataObjAlert.AppID=_appID;
                         DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj, _daprMetadata);
-                        DaprRepo.PublishEventJsonZ<List<MonitorPingInfo>>(_daprClient, "alertUpdateMonitorPingInfos", cutMonitorPingInfos, _daprMetadata);
+                        DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "alertUpdateMonitorPingInfos", processorDataObjAlert, _daprMetadata);
                         result.Message += " Published to MonitorService and AlertService. ";
                         var m = _monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
                         if (m != null && m.PingInfos != null)
