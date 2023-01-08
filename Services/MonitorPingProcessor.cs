@@ -126,7 +126,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             try
                             {
-                                currentMonitorPingInfos = ProcessorDataBuilder.Build(DaprRepo.GetStateJsonZ<ProcessorDataObj>(_daprClient, "ProcessorDataObj"));
+                                currentMonitorPingInfos = ProcessorDataBuilder.Build(FileRepo.GetStateJsonZ<ProcessorDataObj>( "ProcessorDataObj"));
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
                                     _logger.LogInformation("Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count());
@@ -143,7 +143,7 @@ namespace NetworkMonitor.Processor.Services
                             }
                             try
                             {
-                                stateMonitorIPs = DaprRepo.GetStateJsonZ<List<MonitorIP>>(_daprClient, "MonitorIPs");
+                                stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>( "MonitorIPs");
                                 if (stateMonitorIPs != null) _logger.LogInformation("Got MonitorIPS from statestore count =" + stateMonitorIPs.Count());
                             }
                             catch (Exception e)
@@ -152,7 +152,7 @@ namespace NetworkMonitor.Processor.Services
                             }
                             try
                             {
-                                statePingParams = DaprRepo.GetStateJsonZ<PingParams>(_daprClient, "PingParams");
+                                statePingParams = FileRepo.GetStateJsonZ<PingParams>( "PingParams");
                                 _logger.LogInformation("Got PingParams from statestore ");
                             }
                             catch (Exception e)
@@ -561,7 +561,7 @@ namespace NetworkMonitor.Processor.Services
             string resultStr = "";
             try
             {
-                var stateMonitorIPs = DaprRepo.GetStateJsonZ<List<MonitorIP>>(_daprClient, "MonitorIPs");
+                var stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>( "MonitorIPs");
                 foreach (var updateMonitorIP in updateMonitorIPs)
                 {
                     var monitorIP = stateMonitorIPs.Where(w => w.ID == updateMonitorIP.ID).FirstOrDefault();
