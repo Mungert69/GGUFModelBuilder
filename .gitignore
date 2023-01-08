@@ -347,3 +347,4 @@ appsettings-dev.json
 https.pfx
 https-freenetworkmonitor.pfx
 obj/staticwebassets.pack.sentinel
+ProcessorDataObj
