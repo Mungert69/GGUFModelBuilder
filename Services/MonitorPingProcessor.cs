@@ -235,6 +235,8 @@ namespace NetworkMonitor.Processor.Services
                timer.Start();
 
             bool isDaprReady = _daprClient.CheckHealthAsync().Result;
+             timerStr+=" Event (CheckHealthAsync) at "+timer.ElapsedMilliseconds+" : ";
+                        
             if (isDaprReady)
             {
                 try

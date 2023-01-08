@@ -1165,3 +1165,20 @@ time="2023-01-08T20:13:51.212135967Z" level=info msg="dapr initialized. Status: 
 == APP == [2023-01-08 20:50:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
 == APP ==        SERVICE : MonitorPingProcessor.Connect() 
 2023/01/08 20:50:08 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:51:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       TIMER started :  Event (Finished ProcessorDataObj Setup) at 4 :  Event (Published MonitorPingInfos to monitorservice) at 465 :  Event (Published MonitorPingInfos to alertservice) at 569 :  Event (Saved MonitorPingInfos to statestore) at 939 :  Event (Published event processorReady) at 939 : 
+== APP == [2023-01-08 20:51:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 25 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 20:51:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57969 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 25 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 20:51:03 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:51:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:51:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 20:51:08 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+❌  The App process exited with error code: exit status 137
+ℹ️  
+terminated signal received: shutting down
+✅  Exited Dapr successfully
+❌  Error exiting App: exit status 137
