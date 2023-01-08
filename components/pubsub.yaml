@@ -9,7 +9,6 @@ spec:
   version: v1
   metadata:
   - name: host
-    value: rabbitmq:5672
-  - name: maxLen
-    value: 5
-
+    value: "amqp://guest:guest@localhost:5672"
+  - name: durable
+    value: true

@@ -1,19 +1,16 @@
-# ./components-compose/redis-pubsub.yml
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: pubsub
-  namespace: default
+  name: pubsub-redis
 spec:
   type: pubsub.redis
   version: v1
   metadata:
   - name: redisHost
-    value: redis:6379
+    value: 10.8.0.2:6379
   - name: redisPassword
     value: ""
   - name: maxLenApprox
     value: 5
   - name: minIdleConns
     value: 2
-
