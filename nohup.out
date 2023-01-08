@@ -1,0 +1,543 @@
+ℹ️  Starting Dapr with id monitorprocessor1. HTTP Port: 3501. gRPC Port: 60002
+time="2023-01-08T19:12:57.463129165Z" level=info msg="starting Dapr Runtime -- version 1.9.5 -- commit f5f847eef8721d85f115729ee9efa820fe7c4cd3" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.463193515Z" level=info msg="log level set to: info" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.463295717Z" level=info msg="metrics server started on :43863/" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.metrics type=log ver=1.9.5
+time="2023-01-08T19:12:57.463625186Z" level=info msg="standalone mode configured" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.463651341Z" level=info msg="app id: monitorprocessor1" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.464300762Z" level=info msg="mTLS is disabled. Skipping certificate request and tls validation" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.464405186Z" level=info msg="Dapr trace sampler initialized: DaprTraceSampler(P=1.000000)" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.468940045Z" level=info msg="local service entry announced: monitorprocessor1 -> 51.89.151.14:44245" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:12:57.469006569Z" level=info msg="Initialized name resolution to mdns" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.469060834Z" level=info msg="loading components" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.57537951Z" level=info msg="component loaded. name: pubsub-redis, type: pubsub.redis/v1" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.575502586Z" level=warning msg="[DEPRECATION NOTICE] The 'host' argument is deprecated. Use 'connectionString' or individual connection arguments instead: https://docs.dapr.io/reference/components-reference/supported-pubsub/setup-rabbitmq/" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:12:57.575552995Z" level=info msg="rabbitmq pub/sub: connectionCount: current=0 reference=0" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:12:57.855981315Z" level=info msg="rabbitmq pub/sub: connected with connectionCount=1" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:12:57.856097456Z" level=info msg="component loaded. name: pubsub, type: pubsub.rabbitmq/v1" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:57.856736754Z" level=info msg="waiting for all outstanding components to be processed" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029056629Z" level=info msg="detected actor state store: statestore" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029155056Z" level=info msg="component loaded. name: statestore, type: state.redis/v1" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029209039Z" level=info msg="all outstanding components processed" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029251615Z" level=info msg="gRPC proxy enabled" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.02938342Z" level=info msg="enabled gRPC tracing middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.grpc.api type=log ver=1.9.5
+time="2023-01-08T19:12:58.02942633Z" level=info msg="enabled gRPC metrics middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.grpc.api type=log ver=1.9.5
+time="2023-01-08T19:12:58.029506372Z" level=info msg="API gRPC server is running on port 60002" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029857696Z" level=info msg="enabled metrics http middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.http type=log ver=1.9.5
+time="2023-01-08T19:12:58.029882974Z" level=info msg="enabled tracing http middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.http type=log ver=1.9.5
+time="2023-01-08T19:12:58.029949037Z" level=info msg="http server is running on port 3501" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.029979761Z" level=info msg="The request body size parameter is: 4" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.030044858Z" level=info msg="enabled gRPC tracing middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.grpc.internal type=log ver=1.9.5
+time="2023-01-08T19:12:58.030079316Z" level=info msg="enabled gRPC metrics middleware" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.grpc.internal type=log ver=1.9.5
+time="2023-01-08T19:12:58.030142857Z" level=info msg="internal gRPC server is running on port 44245" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:12:58.030180997Z" level=info msg="application protocol: http. waiting on port 2054.  This will block until the app is listening on that port." app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+ℹ️  Updating metadata for app command: dotnet run
+✅  You're up and running! Both Dapr and your app logs will appear here.
+
+== APP == [2023-01-08 19:13:02] warn: Microsoft.AspNetCore.Server.Kestrel[0]
+== APP ==       Overriding address(es) 'https://localhost:5001, http://localhost:5000'. Binding to endpoints defined via IConfiguration and/or UseKestrel() instead.
+time="2023-01-08T19:13:02.169362079Z" level=info msg="application discovered on port 2054" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+2023/01/08 19:13:02 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+time="2023-01-08T19:13:02.725902361Z" level=info msg="application configuration loaded" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:13:02.726118685Z" level=info msg="actor runtime started. actor idle timeout: 1h0m0s. actor scan interval: 30s" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime.actor type=log ver=1.9.5
+time="2023-01-08T19:13:03.15768946Z" level=info msg="app is subscribed to the following topics: [processorInit1 processorQueueDic1 processorResetAlert1 processorWakeUp1 processorAlertFlag1 processorAlertSent1 processorConnect1] through pubsub=pubsub" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+time="2023-01-08T19:13:03.15803189Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorWakeUp1/monitorprocessor1-processorWakeUp1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.22084577Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorWakeUp1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.40524059Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorAlertFlag1/monitorprocessor1-processorAlertFlag1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+== APP == Hosting environment: Development
+== APP == Content root path: /home/mahadeva/code/NetworkMonitorProcessor
+== APP == Now listening on: http://0.0.0.0:2054
+== APP == Now listening on: https://0.0.0.0:2055
+== APP == Application started. Press Ctrl+C to shut down.
+time="2023-01-08T19:13:03.466777662Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorAlertFlag1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.641744998Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorAlertSent1/monitorprocessor1-processorAlertSent1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.757965483Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorAlertSent1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.921683531Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorConnect1/monitorprocessor1-processorConnect1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:03.975225366Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorConnect1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.167148781Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorInit1/monitorprocessor1-processorInit1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.225228603Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorInit1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.427375763Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorQueueDic1/monitorprocessor1-processorQueueDic1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.4907681Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorQueueDic1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.655589043Z" level=info msg="rabbitmq pub/sub: subscribe to topic/queue 'processorResetAlert1/monitorprocessor1-processorResetAlert1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.70518242Z" level=info msg="rabbitmq pub/sub: declaring queue 'monitorprocessor1-processorResetAlert1'" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.contrib type=log ver=1.9.5
+time="2023-01-08T19:13:04.915658119Z" level=info msg="dapr initialized. Status: Running. Init Elapsed 7452ms" app_id=monitorprocessor1 instance=vps-cd541153 scope=dapr.runtime type=log ver=1.9.5
+2023/01/08 19:13:17 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:13:19] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = 61
+== APP == [2023-01-08 19:13:19] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       Got MonitorIPS from statestore count =1528
+== APP == [2023-01-08 19:13:19] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       Got PingParams from statestore 
+== APP == [2023-01-08 19:13:19] warn: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       Warning : There are No MonitorIPs using statestore
+== APP == [2023-01-08 19:13:19] warn: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       Warning : There are No PingParams using statestore
+== APP == [2023-01-08 19:13:19] warn: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 61 .  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:13:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+2023/01/08 19:13:22 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:14:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:14:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:14:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:14:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:15:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 62 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:15:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57974 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 62 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:15:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:15:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:15:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:16:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:16:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:16:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:16:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:17:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 63 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:17:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58014 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 63 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:17:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:17:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:17:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:18:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:18:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:18:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:18:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:19:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 64 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:19:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58073 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 64 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:19:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:19:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:19:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:20:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:20:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:20:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:20:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:21:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:21:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:21:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:21:41] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 65 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:21:41] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57820 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 65 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:21:42 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:21:47 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:22:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:22:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:22:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:22:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:23:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 66 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:23:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58005 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 66 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:23:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:23:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+== APP == [2023-01-08 19:23:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+2023/01/08 19:23:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:24:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 67 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:24:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58028 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 67 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:24:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:24:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:24:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:25:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:25:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:25:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:25:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:26:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:26:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:26:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:26:16] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 68 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:26:16] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57923 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 68 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:26:17 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:26:22 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:27:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:27:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:27:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:27:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:28:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 69 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:28:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57989 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 69 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:28:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:28:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:28:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:29:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:29:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:29:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:29:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:30:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 70 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:30:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58033 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 70 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:30:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:30:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:30:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:31:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:31:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:31:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:31:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:32:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:32:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:32:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:32:29] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 71 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:32:29] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57945 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 71 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:32:32 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:33:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:33:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:33:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:33:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:34:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 72 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:34:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58081 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 72 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:34:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:34:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:34:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:35:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:35:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:35:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:35:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:36:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 73 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:36:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58133 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 73 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:36:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:36:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:36:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:37:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:37:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+== APP == [2023-01-08 19:37:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+2023/01/08 19:37:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:38:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:38:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:38:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:38:40] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 74 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:38:40] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57798 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 74 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:38:42 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:39:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:39:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:39:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:39:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:40:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 75 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:40:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58137 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 75 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:40:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:40:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:40:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:41:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:41:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:41:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:41:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:42:03] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 76 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:42:03] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58044 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 76 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:42:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:42:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:42:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:43:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:43:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:43:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:43:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:44:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:44:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 19:44:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 77 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:44:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57948 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 77 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:44:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:45:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:45:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:45:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:45:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:46:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:46:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:46:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:46:45] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 78 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:46:45] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57929 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 78 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:46:47 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:46:52 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:47:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:47:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:47:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:47:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:48:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:48:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 19:48:06] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 79 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:48:06] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58301 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 79 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:48:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:48:12 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:49:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:49:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:49:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:49:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:50:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:50:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:50:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:50:21] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 80 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:50:21] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57858 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 80 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:50:22 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:50:27 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:51:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:51:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:51:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:51:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:52:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 81 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:52:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58223 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 81 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:52:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:52:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:52:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:53:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:53:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:53:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:53:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:54:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:54:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 19:54:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:54:33] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 82 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:54:33] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57861 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 82 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:54:37 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:55:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:55:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+== APP == [2023-01-08 19:55:05] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+2023/01/08 19:55:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:56:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:56:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 19:56:06] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 83 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:56:06] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58436 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 83 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:56:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 19:56:12 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:57:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:57:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:57:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:57:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:58:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:58:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 19:58:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 84 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 19:58:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58148 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 84 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 19:58:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 19:59:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 19:59:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 19:59:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 19:59:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:00:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:00:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 20:00:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 85 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 20:00:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58031 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 85 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 20:00:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:00:12 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:00:17 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:01:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:01:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 20:01:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 20:01:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:02:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:02:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+2023/01/08 20:02:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:02:30] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 86 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 20:02:30] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 57868 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 86 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 20:02:32 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:02:42 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:02:47 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:03:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:03:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 20:03:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 20:03:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:04:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:04:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 20:04:06] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 87 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 20:04:06] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58288 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 87 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 20:04:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:04:12 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:05:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:05:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        Published event ProcessorItitObj.IsProcessorReady = false 
+== APP == [2023-01-08 20:05:04] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==        SERVICE : MonitorPingProcessor.Connect() 
+2023/01/08 20:05:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+== APP == [2023-01-08 20:06:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorAlertFlag : Success ran ok 
+== APP == [2023-01-08 20:06:04] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : WakeUp : Success ran WakeUp ok 
+== APP == [2023-01-08 20:06:06] info: NetworkMonitor.Processor.Services.MonitorPingProcessor[0]
+== APP ==       PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 88 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+== APP == [2023-01-08 20:06:06] info: NetworkMonitor.Processor.Controllers.ProcessorController[0]
+== APP ==       MessageAPI : ProcessorConnect :  SERVICE : MonitorPingProcessor.Connect() Info : No updates in monitorIP queue to process Info : Time to wait : 31ms.  Success : MonitorPingProcessor.Connect Executed in 58307 ms PublishMonitorPingInfos :  Published to MonitorService and AlertService.  Count of first enabled PingInfos 88 .  Saved MonitorPingInfos to State.  Published event ProcessorItitObj.IsProcessorReady = true 
+2023/01/08 20:06:07 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused
+2023/01/08 20:06:12 request to http://localhost:9411/api/v2/spans failed: Post "http://localhost:9411/api/v2/spans": dial tcp 127.0.0.1:9411: connect: connection refused

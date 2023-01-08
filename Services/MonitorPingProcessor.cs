@@ -229,7 +229,11 @@ namespace NetworkMonitor.Processor.Services
         public ResultObj PublishMonitorPingInfos(bool saveState)
         {
             var result = new ResultObj();
+            string timerStr="TIMER started : ";
             result.Message = "PublishMonitorPingInfos : ";
+               var timer = new Stopwatch();
+               timer.Start();
+
             bool isDaprReady = _daprClient.CheckHealthAsync().Result;
             if (isDaprReady)
             {
@@ -248,8 +252,11 @@ namespace NetworkMonitor.Processor.Services
                         processorDataObjAlert.MonitorPingInfos = cutMonitorPingInfos;
                         processorDataObjAlert.PingInfos = new List<PingInfo>();
                         processorDataObjAlert.AppID=_appID;
+                        timerStr+=" Event (Finished ProcessorDataObj Setup) at "+timer.ElapsedMilliseconds+" : ";
                         DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj, _daprMetadata);
+                        timerStr+=" Event (Published MonitorPingInfos to monitorservice) at "+timer.ElapsedMilliseconds+" : ";
                         DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "alertUpdateMonitorPingInfos", processorDataObjAlert, _daprMetadata);
+                         timerStr+=" Event (Published MonitorPingInfos to alertservice) at "+timer.ElapsedMilliseconds+" : ";
                         result.Message += " Published to MonitorService and AlertService. ";
                         var m = _monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
                         if (m != null && m.PingInfos != null)
@@ -263,6 +270,7 @@ namespace NetworkMonitor.Processor.Services
                         if (saveState)
                         {
                             DaprRepo.SaveStateJsonZ(_daprClient, "ProcessorDataObj", processorDataObj);
+                             timerStr+=" Event (Saved MonitorPingInfos to statestore) at "+timer.ElapsedMilliseconds+" : ";
                             result.Message += " Saved MonitorPingInfos to State. ";
                         }
                     }
@@ -270,6 +278,8 @@ namespace NetworkMonitor.Processor.Services
                     processorObj.AppID = _appID;
                     processorObj.IsProcessorReady = true;
                     DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                     timerStr+=" Event (Published event processorReady) at "+timer.ElapsedMilliseconds+" : ";
+                     _logger.LogInformation(timerStr);
                     result.Message += " Published event ProcessorItitObj.IsProcessorReady = true ";
                     result.Success = true;
                 }
