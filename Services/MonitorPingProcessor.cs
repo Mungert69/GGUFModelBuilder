@@ -91,9 +91,9 @@ namespace NetworkMonitor.Processor.Services
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         try
                         {
-                            DaprRepo.SaveState(_daprClient, "ProcessorDataObj", processorDataObj);
-                            DaprRepo.SaveState<List<MonitorIP>>(_daprClient, "MonitorIPs", new List<MonitorIP>());
-                            DaprRepo.SaveState<PingParams>(_daprClient, "PingParams", new PingParams());
+                            FileRepo.SaveStateJsonZ( "ProcessorDataObj", processorDataObj);
+                            FileRepo.SaveStateJsonZ<List<MonitorIP>>( "MonitorIPs", new List<MonitorIP>());
+                            FileRepo.SaveStateJsonZ<PingParams>( "PingParams", new PingParams());
                             _logger.LogInformation("Reset Processor Objects in statestore ");
                         }
                         catch (Exception e)
@@ -188,7 +188,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     try
                     {
-                        DaprRepo.SaveStateJsonZ<List<MonitorIP>>(_daprClient, "MonitorIPs", initObj.MonitorIPs);
+                        FileRepo.SaveStateJsonZ<List<MonitorIP>>( "MonitorIPs", initObj.MonitorIPs);
                     }
                     catch (Exception e)
                     {
@@ -209,7 +209,7 @@ namespace NetworkMonitor.Processor.Services
                     _pingParams = initObj.PingParams;
                     try
                     {
-                        DaprRepo.SaveStateJsonZ<PingParams>(_daprClient, "PingParams", initObj.PingParams);
+                        FileRepo.SaveStateJsonZ<PingParams>( "PingParams", initObj.PingParams);
                     }
                     catch (Exception e)
                     {
@@ -289,7 +289,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     if (saveState)
                     {
-                        DaprRepo.SaveStateJsonZ(_daprClient, "ProcessorDataObj", processorDataObj);
+                        FileRepo.SaveStateJsonZ( "ProcessorDataObj", processorDataObj);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
                     }
