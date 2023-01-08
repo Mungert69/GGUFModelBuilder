@@ -240,10 +240,10 @@ namespace NetworkMonitor.Processor.Services
                 try
                 {
                     if (_monitorPingInfos != null && _monitorPingInfos.Count() != 0)
-                    {
+                    { 
                         var cutMonitorPingInfos = _monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
                         var pingInfos = new List<PingInfo>();
-                        _monitorPingInfos.ForEach(f => pingInfos.AddRange(f.PingInfos));
+                        _monitorPingInfos.ForEach(f => pingInfos.AddRange(f.PingInfos.ConvertAll(x => new PingInfo(x))));
                         var processorDataObj = new ProcessorDataObj();
                         processorDataObj.MonitorPingInfos = cutMonitorPingInfos;
                         processorDataObj.PingInfos = pingInfos;
@@ -273,6 +273,10 @@ namespace NetworkMonitor.Processor.Services
                              timerStr+=" Event (Saved MonitorPingInfos to statestore) at "+timer.ElapsedMilliseconds+" : ";
                             result.Message += " Saved MonitorPingInfos to State. ";
                         }
+                        pingInfos=null;
+                        cutMonitorPingInfos=null;
+                        processorDataObj=null;
+                        processorDataObjAlert=null;
                     }
                     ProcessorInitObj processorObj = new ProcessorInitObj();
                     processorObj.AppID = _appID;
@@ -280,6 +284,7 @@ namespace NetworkMonitor.Processor.Services
                     DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                      timerStr+=" Event (Published event processorReady) at "+timer.ElapsedMilliseconds+" : ";
                      _logger.LogInformation(timerStr);
+                     timer.Stop();
                     result.Message += " Published event ProcessorItitObj.IsProcessorReady = true ";
                     result.Success = true;
                 }
