@@ -290,7 +290,6 @@ namespace NetworkMonitor.Processor.Services
         {
             var timerInner = new Stopwatch();
             timerInner.Start();
-
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
             PublishRepo.ProcessorReadyThread(_logger,_daprClient,_appID);
             var result = new ResultObj();
@@ -356,7 +355,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
-                    PublishRepo.MonitorPingInfosThread(_logger,_daprClient,_monitorPingInfos,_appID,true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger,_daprClient,_monitorPingInfos,_appID,true);
                 }
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
