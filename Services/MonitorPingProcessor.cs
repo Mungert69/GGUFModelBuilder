@@ -373,6 +373,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID, true);
                         });
+                    thread.Priority = ThreadPriority.Lowest;
                     thread.Start();
                 }
             }
