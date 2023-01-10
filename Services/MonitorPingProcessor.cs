@@ -14,7 +14,6 @@ using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-
 namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
@@ -289,13 +288,11 @@ namespace NetworkMonitor.Processor.Services
         }
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
+            var timerInner = new Stopwatch();
+            timerInner.Start();
+
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
-            var processorObj = new ProcessorInitObj();
-            processorObj.IsProcessorReady = false;
-            processorObj.AppID = _appID;
-            //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
-            DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
-            _logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = false ");
+            PublishRepo.ProcessorReadyThread(_logger,_daprClient,_appID);
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
@@ -325,32 +322,29 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
             }
             result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
-            var timerInner = new Stopwatch();
-            timerInner.Start();
             try
             {
                 var pingConnectTasks = new List<Task>();
                 var timerDec = new Stopwatch();
-                //TimeSpan timeTakenDec;
-
-                foreach (var netConnect in _netConnects.Where(w => w.MonitorPingInfo.Enabled == true))
-                {
-                    timerDec.Start();
-                    pingConnectTasks.Add(netConnect.connect());
-                    timerDec.Stop();
-                    int timeTakenDecMilliseconds = (int)timerDec.Elapsed.TotalMilliseconds;
-                    int diff = timeToWait - timeTakenDecMilliseconds;
-                    if (diff > 0)
+                _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
+                    netConnect =>
                     {
-                        Task.Delay(diff);
+                        timerDec.Start();
+                        pingConnectTasks.Add(netConnect.connect());
+                        timerDec.Stop();
+                        int timeTakenDecMilliseconds = (int)timerDec.Elapsed.TotalMilliseconds;
+                        int diff = timeToWait - timeTakenDecMilliseconds;
+                        if (diff > 0)
+                        {
+                            Task.Delay(diff);
+                        }
+                        timerDec.Reset();
                     }
-                    timerDec.Reset();
-                }
+                );
                 Task.WhenAll(pingConnectTasks);
                 //Thread.Sleep(_pingParams.Timeout + 100);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
-
             }
             catch (Exception e)
             {
@@ -362,12 +356,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
-                    Thread thread = new Thread(delegate ()
-                        {
-                            PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID, true);
-                        });
-                    thread.Priority = ThreadPriority.Lowest;
-                    thread.Start();
+                    PublishRepo.MonitorPingInfosThread(_logger,_daprClient,_monitorPingInfos,_appID,true);
                 }
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
@@ -376,7 +365,6 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Warning : Time to execute greater than next schedule time. ";
                 _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
-
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
             timerInner.Reset();
             return result;
