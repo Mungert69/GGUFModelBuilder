@@ -35,6 +35,7 @@ namespace NetworkMonitor.Processor.Services
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
             _daprClient = daprClient;
+            // Special case 2min timeout for large published messages.
             _daprMetadata.Add("ttlInSeconds", "120");
             _appID = config.GetValue<string>("AppID");
             _connectFactory = connectFactory;
@@ -271,7 +272,7 @@ namespace NetworkMonitor.Processor.Services
                     processorDataObjAlert.PingInfos = new List<PingInfo>();
                     processorDataObjAlert.AppID = _appID;
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
-                    DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj, _daprMetadata);
+                    byte[] jsonZ=DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "monitorUpdateMonitorPingInfos", processorDataObj, _daprMetadata);
                     timerStr += " Event (Published MonitorPingInfos to monitorservice) at " + timer.ElapsedMilliseconds + " : ";
                     DaprRepo.PublishEventJsonZ<ProcessorDataObj>(_daprClient, "alertUpdateMonitorPingInfos", processorDataObjAlert, _daprMetadata);
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
@@ -287,7 +288,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     if (saveState)
                     {
-                        FileRepo.SaveStateJsonZ( "ProcessorDataObj", processorDataObj);
+                        FileRepo.SaveStateBytes( "ProcessorDataObj", jsonZ);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
                     }
