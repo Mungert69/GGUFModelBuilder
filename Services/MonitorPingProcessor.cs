@@ -426,7 +426,7 @@ namespace NetworkMonitor.Processor.Services
                     timerDec.Reset();
                 }
                 Task.WhenAll(pingConnectTasks);
-                Thread.Sleep(_pingParams.Timeout + 100);
+                //Thread.Sleep(_pingParams.Timeout + 100);
                 TimeSpan timeTakenInner = timerInner.Elapsed;
                 // If time taken is greater than the time to wait, then we need to adjust the time to wait.
                 int timeTakenInnerInt = (int)timeTakenInner.TotalMilliseconds;
