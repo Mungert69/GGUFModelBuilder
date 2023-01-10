@@ -253,8 +253,6 @@ namespace NetworkMonitor.Processor.Services
             result.Message = "PublishMonitorPingInfos : ";
             var timer = new Stopwatch();
             timer.Start();
-            bool isDaprReady = _daprClient.CheckHealthAsync().Result;
-            timerStr += " Event (Checked Dapr Health) at " + timer.ElapsedMilliseconds + " : ";
             try
             {
                 if (_monitorPingInfos != null && _monitorPingInfos.Count() != 0)
@@ -428,7 +426,7 @@ namespace NetworkMonitor.Processor.Services
                     timerDec.Reset();
                 }
                 Task.WhenAll(pingConnectTasks);
-                Thread.Sleep(_pingParams.Timeout + 100);
+                //Thread.Sleep(_pingParams.Timeout + 100);
                 TimeSpan timeTakenInner = timerInner.Elapsed;
                 // If time taken is greater than the time to wait, then we need to adjust the time to wait.
                 int timeTakenInnerInt = (int)timeTakenInner.TotalMilliseconds;
