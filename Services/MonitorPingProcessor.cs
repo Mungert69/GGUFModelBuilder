@@ -342,20 +342,13 @@ namespace NetworkMonitor.Processor.Services
                     int diff = timeToWait - timeTakenDecMilliseconds;
                     if (diff > 0)
                     {
-                        Thread.Sleep(diff);
+                        new ManualResetEvent(false).WaitOne(diff);
                     }
                     timerDec.Reset();
                 }
                 Task.WhenAll(pingConnectTasks);
                 //Thread.Sleep(_pingParams.Timeout + 100);
-                // If time taken is greater than the time to wait, then we need to adjust the time to wait.
-                int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
-                if (timeTakenInnerInt > connectObj.NextRunInterval)
-                {
-                    result.Message += " Warning : Time to execute greater than next schedule time. ";
-                    _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
-                }
-                result.Message += " Success : Completed all NetConnect tasks in " + timeTakenInnerInt + " ms ";
+                result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
 
             }
@@ -377,7 +370,14 @@ namespace NetworkMonitor.Processor.Services
                     thread.Start();
                 }
             }
-             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
+            int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
+            if (timeTakenInnerInt > connectObj.NextRunInterval)
+            {
+                result.Message += " Warning : Time to execute greater than next schedule time. ";
+                _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
+            }
+
+            result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
             timerInner.Reset();
             return result;
         }
