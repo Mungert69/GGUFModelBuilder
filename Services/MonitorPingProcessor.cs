@@ -253,8 +253,6 @@ namespace NetworkMonitor.Processor.Services
             result.Message = "PublishMonitorPingInfos : ";
             var timer = new Stopwatch();
             timer.Start();
-            bool isDaprReady = _daprClient.CheckHealthAsync().Result;
-            timerStr += " Event (Checked Dapr Health) at " + timer.ElapsedMilliseconds + " : ";
             try
             {
                 if (_monitorPingInfos != null && _monitorPingInfos.Count() != 0)
