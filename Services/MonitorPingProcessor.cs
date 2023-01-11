@@ -222,11 +222,9 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                Thread thread = new Thread(delegate ()
-                       {
-                           PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID, false);
-                       });
-                thread.Start();
+
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, false);
+                PublishRepo.ProcessorReadyThread(_logger,_daprClient,_appID,true);
             }
             catch (Exception e)
             {
