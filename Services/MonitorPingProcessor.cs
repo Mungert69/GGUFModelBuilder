@@ -329,9 +329,7 @@ namespace NetworkMonitor.Processor.Services
                     netConnect =>
                     {
                         timerDec.Start();
-                        var task=netConnect.connect();
-                        pingConnectTasks.Add(task);
-                        task.Start();
+                        pingConnectTasks.Add(netConnect.connect());
                         timerDec.Stop();
                         int timeTakenDecMilliseconds = (int)timerDec.Elapsed.TotalMilliseconds;
                         int diff = timeToWait - timeTakenDecMilliseconds;
