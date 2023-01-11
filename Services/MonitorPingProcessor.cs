@@ -331,8 +331,8 @@ namespace NetworkMonitor.Processor.Services
                         new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
                 );
-                Task.WhenAll(pingConnectTasks.ToArray());
-                //Thread.Sleep(_pingParams.Timeout + 100);
+                Task.WhenAll(pingConnectTasks);
+                 new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout+100);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
             }
