@@ -343,10 +343,11 @@ healthchecksdb
 /Report20210116-1159.diagsession
 appsettings-roundhouse.json
 appsettings.json
+appsettings-development.json
 appsettings-dev.json
 https.pfx
 https-freenetworkmonitor.pfx
 obj/staticwebassets.pack.sentinel
 ProcessorDataObj
-ProcessorDataObj
+PingParams
 MonitorIPs
