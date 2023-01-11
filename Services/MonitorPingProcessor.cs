@@ -335,7 +335,7 @@ namespace NetworkMonitor.Processor.Services
                         int diff = timeToWait - timeTakenDecMilliseconds;
                         if (diff > 0)
                         {
-                           //new System.Threading.ManualResetEvent(false).WaitOne(diff);
+                           new System.Threading.ManualResetEvent(false).WaitOne(diff);
                         }
                         timerDec.Reset();
                     }
