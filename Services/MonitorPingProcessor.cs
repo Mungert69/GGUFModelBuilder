@@ -291,7 +291,7 @@ namespace NetworkMonitor.Processor.Services
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
-            PublishRepo.ProcessorReadyThread(_logger,_daprClient,_appID);
+            PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, false);
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
@@ -332,7 +332,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                 );
                 Task.WhenAll(pingConnectTasks.ToArray());
-                 new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout+100);
+                new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
             }
@@ -346,8 +346,9 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger,_daprClient,_monitorPingInfos,_appID,true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, true);
                 }
+                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
@@ -356,7 +357,6 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
-            timerInner.Reset();
             return result;
         }
         private string UpdateMonitorPingInfosFromMonitorIPQueue()
