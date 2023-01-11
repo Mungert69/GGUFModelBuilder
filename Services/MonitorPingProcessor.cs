@@ -324,20 +324,11 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var pingConnectTasks = new List<Task>();
-                var timerDec = new Stopwatch();
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
                     {
-                        timerDec.Start();
                         pingConnectTasks.Add(netConnect.connect());
-                        timerDec.Stop();
-                        int timeTakenDecMilliseconds = (int)timerDec.Elapsed.TotalMilliseconds;
-                        int diff = timeToWait - timeTakenDecMilliseconds;
-                        if (diff > 0)
-                        {
-                           new System.Threading.ManualResetEvent(false).WaitOne(diff);
-                        }
-                        timerDec.Reset();
+                        new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
                 );
                 Task.WhenAll(pingConnectTasks.ToArray());
