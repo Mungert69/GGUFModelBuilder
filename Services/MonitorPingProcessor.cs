@@ -329,7 +329,9 @@ namespace NetworkMonitor.Processor.Services
                     netConnect =>
                     {
                         timerDec.Start();
-                        pingConnectTasks.Add(netConnect.connect());
+                        var task=netConnect.connect();
+                        pingConnectTasks.Add(task);
+                        task.Start();
                         timerDec.Stop();
                         int timeTakenDecMilliseconds = (int)timerDec.Elapsed.TotalMilliseconds;
                         int diff = timeToWait - timeTakenDecMilliseconds;
@@ -340,7 +342,7 @@ namespace NetworkMonitor.Processor.Services
                         timerDec.Reset();
                     }
                 );
-                Task.WhenAll(pingConnectTasks);
+                Task.WhenAll(pingConnectTasks.ToArray());
                 //Thread.Sleep(_pingParams.Timeout + 100);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
