@@ -42,7 +42,7 @@
             "appPort": 2054,
             "httpPort": 3501,
             "grpcPort": 60002,
-            "componentsPath": "./components-test"
+            "componentsPath": "./components"
             ,
             "label": "dapr-debug",
             "type": "dapr",
