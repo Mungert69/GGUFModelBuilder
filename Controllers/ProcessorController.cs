@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dapr;
-
 namespace NetworkMonitor.Processor.Controllers
 {
     [ApiController]
@@ -16,12 +15,10 @@ namespace NetworkMonitor.Processor.Controllers
     {
         private readonly ILogger<ProcessorController> _logger;
         private IMonitorPingProcessor _monitorPingProcessor;
-
         public ProcessorController(ILogger<ProcessorController> logger, IMonitorPingProcessor monitorPingProcessor)
         {
             _logger = logger;
             _monitorPingProcessor = monitorPingProcessor;
-
         }
         // [Topic("pubsub", "processorConnect"),]
         //[TopicMetadata( "ttlInSeconds", "60")]
@@ -31,7 +28,6 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorConnect : ";
-
             try
             {
                 ResultObj connectResult = _monitorPingProcessor.Connect(connectObj);
@@ -48,7 +44,27 @@ namespace NetworkMonitor.Processor.Controllers
                 _logger.LogError(result.Message);
             }
             return result;
-
+        }
+        [HttpPost("removePingInfos")]
+        public ActionResult<ResultObj> RemovePingInfos(List<RemovePingInfo> removePingInfos)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : RemovePingInfos : ";
+            try
+            {
+                _monitorPingProcessor.AddRemovePingInfos(removePingInfos);
+                result.Message += "Success : updated RemovePingInfos. ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
         }
         //[Topic("pubsub", "processorInit")]
         [HttpPost("init")]
@@ -58,7 +74,6 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorInit : ";
-
             try
             {
                 _monitorPingProcessor.init(initObj);
@@ -74,9 +89,7 @@ namespace NetworkMonitor.Processor.Controllers
                 _logger.LogError(result.Message);
             }
             return result;
-
         }
-
         // [Topic("pubsub", "processorAlertFlag")]
         [HttpPost("alertflag")]
         [Consumes("application/json")]
@@ -85,13 +98,10 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorAlertFlag : ";
-
             try
             {
                 monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
-
                 List<ResultObj> results = _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
-
                 result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
                 if (result.Success) result.Message += "Success ran ok ";
                 else
@@ -99,7 +109,6 @@ namespace NetworkMonitor.Processor.Controllers
                     results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
                     result.Data = results;
                 }
-
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
@@ -109,11 +118,8 @@ namespace NetworkMonitor.Processor.Controllers
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
             }
-
             return result;
-
         }
-
         // [Topic("pubsub", "processorAlertSent")]
         [HttpPost("alertsent")]
         [Consumes("application/json")]
@@ -122,13 +128,10 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorAlertSent : ";
-
             try
             {
                 monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found MonitorPingInfo ID=" + f));
-
                 List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorPingInfoIds, true);
-
                 result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
                 if (result.Success) result.Message += "Success ran ok ";
                 else
@@ -144,12 +147,9 @@ namespace NetworkMonitor.Processor.Controllers
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
-
             }
             return result;
-
         }
-
         //[Topic("pubsub", "processorResetAlert")]
         [HttpPost("resetalert")]
         [Consumes("application/json")]
@@ -158,11 +158,9 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorResetAlert : ";
-
             try
             {
                 result = _monitorPingProcessor.ResetAlert(monitorPingInfoIds[0]);
-
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
@@ -173,9 +171,7 @@ namespace NetworkMonitor.Processor.Controllers
                 _logger.LogError(result.Message);
             }
             return result;
-
         }
-
         //[Topic("pubsub", "processorQueueDic")]
         [HttpPost("queuedic")]
         [Consumes("application/json")]
@@ -184,7 +180,6 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorQueueDic : ";
-
             try
             {
                 _monitorPingProcessor.AddMonitorIPsToQueueDic(queueDicObj);
@@ -200,9 +195,7 @@ namespace NetworkMonitor.Processor.Controllers
                 _logger.LogError(result.Message);
             }
             return result;
-
         }
-
         //[Topic("pubsub", "processorWakeUp")]
         [HttpPost("wakeup")]
         public ActionResult<ResultObj> WakeUp()
@@ -210,7 +203,6 @@ namespace NetworkMonitor.Processor.Controllers
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : WakeUp : ";
-
             try
             {
                 _monitorPingProcessor.Awake = true;
@@ -226,9 +218,6 @@ namespace NetworkMonitor.Processor.Controllers
                 _logger.LogError(result.Message);
             }
             return result;
-
         }
-
-
     }
 }

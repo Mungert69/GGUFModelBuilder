@@ -26,6 +26,8 @@ namespace NetworkMonitor.Processor.Services
         private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         private DaprClient _daprClient;
         private string _appID = "1";
+        private int _piIDKey = 1;
+        private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private IConnectFactory _connectFactory;
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
@@ -217,6 +219,8 @@ namespace NetworkMonitor.Processor.Services
                     _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     _pingParams.IsAdmin = false;
                 }
+                _removePingInfos = new List<RemovePingInfo>();
+                _piIDKey = getPiIDKey(currentMonitorPingInfos);
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
@@ -224,12 +228,39 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
 
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, false);
-                PublishRepo.ProcessorReadyThread(_logger,_daprClient,_appID,true);
+                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
             catch (Exception e)
             {
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
+        }
+
+        private int getPiIDKey(List<MonitorPingInfo> monitorPingInfos)
+        {
+            int max = 0;
+            if (monitorPingInfos == null || monitorPingInfos.Count() == 0) return 1;
+            monitorPingInfos.ForEach(f =>
+            {
+                int i = f.PingInfos.Max(m => m.ID);
+                if (i > max) max = i;
+            });
+            return max;
+        }
+
+        public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos){
+            _removePingInfos.AddRange(removePingInfos);
+        }
+        private void removePublishedPingInfos()
+        {
+            _monitorPingInfos.ForEach(f =>
+            {
+                _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
+                {
+                    f.PingInfos.RemoveAll(r => r.ID==p.ID);
+                });
+                _removePingInfos.RemoveAll(r => r.MonitorPingInfoID==f.ID);
+            });
         }
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
         {
@@ -325,6 +356,7 @@ namespace NetworkMonitor.Processor.Services
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
                     {
+                        netConnect.PiID = _piIDKey + 1;
                         pingConnectTasks.Add(netConnect.connect());
                         new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
@@ -344,6 +376,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
+                    removePublishedPingInfos();
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);

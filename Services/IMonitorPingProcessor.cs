@@ -18,6 +18,7 @@ namespace NetworkMonitor.Processor.Services
         List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
 
         ResultObj ResetAlert(int monitorPingInfoID);
+        void AddRemovePingInfos(List<RemovePingInfo> removePingInfos);
 
         bool Awake{get;set;}
        
