@@ -14,6 +14,7 @@ using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+
 namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
@@ -226,7 +227,6 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, false);
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
@@ -235,20 +235,22 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
         }
-
         private int getPiIDKey(List<MonitorPingInfo> monitorPingInfos)
         {
-            int max = 0;
+            int max = 1;
             if (monitorPingInfos == null || monitorPingInfos.Count() == 0) return 1;
             monitorPingInfos.ForEach(f =>
             {
-                int i = f.PingInfos.Max(m => m.ID);
-                if (i > max) max = i;
+                if (f.PingInfos != null && f.PingInfos.Count() != 0)
+                {
+                    int i = f.PingInfos.Max(m => m.ID);
+                    if (i > max) max = i;
+                }
             });
             return max;
         }
-
-        public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos){
+        public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos)
+        {
             _removePingInfos.AddRange(removePingInfos);
         }
         private void removePublishedPingInfos()
@@ -257,9 +259,9 @@ namespace NetworkMonitor.Processor.Services
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
                 {
-                    f.PingInfos.RemoveAll(r => r.ID==p.ID);
+                    f.PingInfos.RemoveAll(r => r.ID == p.ID);
                 });
-                _removePingInfos.RemoveAll(r => r.MonitorPingInfoID==f.ID);
+                _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
             });
         }
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
@@ -356,7 +358,8 @@ namespace NetworkMonitor.Processor.Services
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
                     {
-                        netConnect.PiID = _piIDKey + 1;
+                        netConnect.PiID = _piIDKey;
+                        _piIDKey++;
                         pingConnectTasks.Add(netConnect.connect());
                         new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
