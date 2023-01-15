@@ -46,7 +46,7 @@ namespace NetworkMonitor.Processor.Services
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID, true);
+                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
@@ -234,7 +234,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, false);
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
             catch (Exception e)
@@ -387,7 +387,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     removePublishedPingInfos();
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
@@ -509,7 +509,7 @@ namespace NetworkMonitor.Processor.Services
                         stateMonitorIPs.Add(updateMonitorIP);
                     }
                 }
-                DaprRepo.SaveStateJsonZ<List<MonitorIP>>(_daprClient, "MonitorIPs", stateMonitorIPs);
+                FileRepo.SaveStateJsonZ<List<MonitorIP>>( "MonitorIPs", stateMonitorIPs);
                 resultStr += " Success : saved MonitorIP queue into statestore. ";
             }
             catch (Exception e)
