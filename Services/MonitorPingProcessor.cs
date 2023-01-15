@@ -14,7 +14,6 @@ using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
-
 namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
@@ -120,18 +119,18 @@ namespace NetworkMonitor.Processor.Services
                         }
                         else
                         {
+                             string infoLog="";
                             try
                             {
                                 using (var processorDataObj = FileRepo.GetStateJsonZ<ProcessorDataObj>("ProcessorDataObj"))
                                 {
                                     _piIDKey=processorDataObj.PiIDKey;
+                                    infoLog+=" Got PiIDKey="+_piIDKey+" . ";
                                     currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                                 }
-
-
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
-                                    _logger.LogInformation("Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count());
+                                    infoLog+=(" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count())+" ";
                                 }
                                 else
                                 {
@@ -146,7 +145,7 @@ namespace NetworkMonitor.Processor.Services
                             try
                             {
                                 stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
-                                if (stateMonitorIPs != null) _logger.LogInformation("Got MonitorIPS from statestore count =" + stateMonitorIPs.Count());
+                                if (stateMonitorIPs != null) infoLog+=(" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count())+" . ";
                             }
                             catch (Exception e)
                             {
@@ -155,12 +154,13 @@ namespace NetworkMonitor.Processor.Services
                             try
                             {
                                 statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
-                                _logger.LogInformation("Got PingParams from statestore ");
+                                infoLog+=( "Got PingParams from statestore . ");
                             }
                             catch (Exception e)
                             {
                                 _logger.LogWarning("Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
                             }
+                            _logger.LogInformation(infoLog);
                         }
                     }
                 }
