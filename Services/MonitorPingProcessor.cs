@@ -262,7 +262,7 @@ namespace NetworkMonitor.Processor.Services
         }
         private void removePublishedPingInfos()
         {
-            if (_removePingInfos != null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 )  return;
+            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 )  return;
             _monitorPingInfos.ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
