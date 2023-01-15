@@ -263,8 +263,13 @@ namespace NetworkMonitor.Processor.Services
         private ResultObj removePublishedPingInfos()
         {
             var result=new ResultObj();
+    
             int count=0;
-            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 )  return;
+            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 ) {
+                result.Success=false;
+                result.Message=" No PingInfos removed. ";
+                return result;
+            } 
             _monitorPingInfos.ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
