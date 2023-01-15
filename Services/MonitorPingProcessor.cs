@@ -260,17 +260,23 @@ namespace NetworkMonitor.Processor.Services
         {
             _removePingInfos.AddRange(removePingInfos);
         }
-        private void removePublishedPingInfos()
+        private ResultObj removePublishedPingInfos()
         {
+            var result=new ResultObj();
+            int count=0;
             if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 )  return;
             _monitorPingInfos.ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
                 {
                     f.PingInfos.RemoveAll(r => r.ID == p.ID);
+                    count++;
                 });
                 _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
             });
+            result.Success=true;
+            result.Message=" Removed "+count+" PingInfos from MonitorPingInfos. ";
+            return result;
         }
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
         {
@@ -387,7 +393,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
-                    removePublishedPingInfos();
+                    result.Message+= removePublishedPingInfos().Message;
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
