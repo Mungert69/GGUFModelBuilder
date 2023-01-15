@@ -242,20 +242,6 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
         }
-        /*private int getPiIDKey(List<MonitorPingInfo> monitorPingInfos)
-        {
-            int max = 1;
-            if (monitorPingInfos == null || monitorPingInfos.Count() == 0) return 1;
-            monitorPingInfos.ForEach(f =>
-            {
-                if (f.PingInfos != null && f.PingInfos.Count() != 0)
-                {
-                    int i = f.PingInfos.Max(m => m.ID);
-                    if (i > max) max = i;
-                }
-            });
-            return max;
-        }*/
         public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos)
         {
             _removePingInfos.AddRange(removePingInfos);
@@ -263,7 +249,6 @@ namespace NetworkMonitor.Processor.Services
         private ResultObj removePublishedPingInfos()
         {
             var result=new ResultObj();
-    
             int count=0;
             if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 ) {
                 result.Success=false;
