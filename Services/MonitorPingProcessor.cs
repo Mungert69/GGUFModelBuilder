@@ -46,7 +46,7 @@ namespace NetworkMonitor.Processor.Services
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, true);
+                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _appID, _piIDKey, true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
@@ -119,18 +119,18 @@ namespace NetworkMonitor.Processor.Services
                         }
                         else
                         {
-                             string infoLog="";
+                            string infoLog = "";
                             try
                             {
                                 using (var processorDataObj = FileRepo.GetStateJsonZ<ProcessorDataObj>("ProcessorDataObj"))
                                 {
-                                    _piIDKey=processorDataObj.PiIDKey;
-                                    infoLog+=" Got PiIDKey="+_piIDKey+" . ";
+                                    _piIDKey = processorDataObj.PiIDKey;
+                                    infoLog += " Got PiIDKey=" + _piIDKey + " . ";
                                     currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                                 }
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
-                                    infoLog+=(" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count())+" ";
+                                    infoLog += (" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count()) + " ";
                                 }
                                 else
                                 {
@@ -145,7 +145,7 @@ namespace NetworkMonitor.Processor.Services
                             try
                             {
                                 stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
-                                if (stateMonitorIPs != null) infoLog+=(" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count())+" . ";
+                                if (stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count()) + " . ";
                             }
                             catch (Exception e)
                             {
@@ -154,7 +154,7 @@ namespace NetworkMonitor.Processor.Services
                             try
                             {
                                 statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
-                                infoLog+=( "Got PingParams from statestore . ");
+                                infoLog += ("Got PingParams from statestore . ");
                             }
                             catch (Exception e)
                             {
@@ -234,7 +234,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, _piIDKey, false);
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
             catch (Exception e)
@@ -262,6 +262,7 @@ namespace NetworkMonitor.Processor.Services
         }
         private void removePublishedPingInfos()
         {
+            if (_removePingInfos != null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 )  return;
             _monitorPingInfos.ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
@@ -387,7 +388,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     removePublishedPingInfos();
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID,_piIDKey, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
@@ -509,7 +510,7 @@ namespace NetworkMonitor.Processor.Services
                         stateMonitorIPs.Add(updateMonitorIP);
                     }
                 }
-                FileRepo.SaveStateJsonZ<List<MonitorIP>>( "MonitorIPs", stateMonitorIPs);
+                FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
                 resultStr += " Success : saved MonitorIP queue into statestore. ";
             }
             catch (Exception e)
