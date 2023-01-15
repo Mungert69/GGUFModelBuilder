@@ -80,7 +80,8 @@ namespace NetworkMonitor.Processor.Services
                         var processorDataObj = new ProcessorDataObj()
                         {
                             MonitorPingInfos = new List<MonitorPingInfo>(),
-                            PingInfos = new List<PingInfo>()
+                            PingInfos = new List<PingInfo>(),
+                            PiIDKey = 1
                         };
                         currentMonitorPingInfos = new List<MonitorPingInfo>();
                         try
@@ -115,12 +116,19 @@ namespace NetworkMonitor.Processor.Services
                                 //monitorPingInfo.TimeOuts = 0;
                             }
                             currentMonitorPingInfos = _monitorPingInfos;
+                            _piIDKey = 1;
                         }
                         else
                         {
                             try
                             {
-                                currentMonitorPingInfos = ProcessorDataBuilder.Build(FileRepo.GetStateJsonZ<ProcessorDataObj>("ProcessorDataObj"));
+                                using (var processorDataObj = FileRepo.GetStateJsonZ<ProcessorDataObj>("ProcessorDataObj"))
+                                {
+                                    _piIDKey=processorDataObj.PiIDKey;
+                                    currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
+                                }
+
+
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
                                     _logger.LogInformation("Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count());
@@ -221,7 +229,6 @@ namespace NetworkMonitor.Processor.Services
                     _pingParams.IsAdmin = false;
                 }
                 _removePingInfos = new List<RemovePingInfo>();
-                _piIDKey = getPiIDKey(currentMonitorPingInfos);
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
@@ -235,7 +242,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
         }
-        private int getPiIDKey(List<MonitorPingInfo> monitorPingInfos)
+        /*private int getPiIDKey(List<MonitorPingInfo> monitorPingInfos)
         {
             int max = 1;
             if (monitorPingInfos == null || monitorPingInfos.Count() == 0) return 1;
@@ -248,7 +255,7 @@ namespace NetworkMonitor.Processor.Services
                 }
             });
             return max;
-        }
+        }*/
         public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos)
         {
             _removePingInfos.AddRange(removePingInfos);
