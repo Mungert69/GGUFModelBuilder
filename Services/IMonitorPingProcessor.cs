@@ -13,7 +13,7 @@ namespace NetworkMonitor.Processor.Services
         ResultObj Connect(ProcessorConnectObj connectObj);
         List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
         List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
-        ResultObj ResetAlert(int monitorPingInfoID);
+        List<ResultObj> ResetAlerts(List<int> monitorIPIDs);
         void AddRemovePingInfos(List<RemovePingInfo> removePingInfos);
         bool Awake{get;set;}
     }

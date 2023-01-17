@@ -248,13 +248,14 @@ namespace NetworkMonitor.Processor.Services
         }
         private ResultObj removePublishedPingInfos()
         {
-            var result=new ResultObj();
-            int count=0;
-            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos==null || _monitorPingInfos.Count()==0 ) {
-                result.Success=false;
-                result.Message=" No PingInfos removed. ";
+            var result = new ResultObj();
+            int count = 0;
+            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
+            {
+                result.Success = false;
+                result.Message = " No PingInfos removed. ";
                 return result;
-            } 
+            }
             _monitorPingInfos.ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
@@ -264,8 +265,8 @@ namespace NetworkMonitor.Processor.Services
                 });
                 _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
             });
-            result.Success=true;
-            result.Message=" Removed "+count+" PingInfos from MonitorPingInfos. ";
+            result.Success = true;
+            result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
             return result;
         }
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
@@ -383,7 +384,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingInfos.Count > 0)
                 {
-                    result.Message+= removePublishedPingInfos().Message;
+                    result.Message += removePublishedPingInfos().Message;
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
@@ -578,37 +579,43 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
-        public ResultObj ResetAlert(int monitorIPID)
+        public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
         {
-            var result = new ResultObj();
+            var results = new List<ResultObj>();
             var alertFlagObj = new AlertFlagObj();
-            alertFlagObj.ID = monitorIPID; ;
-            alertFlagObj.AppID = _appID;
-            var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
-            if (updateMonitorPingInfo == null)
+            monitorIPIDs.ForEach(m =>
             {
-                result.Success = false;
-                result.Message += "Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID;
-            }
-            else
-            {
-                updateMonitorPingInfo.MonitorStatus.AlertFlag = false;
-                updateMonitorPingInfo.MonitorStatus.AlertSent = false;
-                updateMonitorPingInfo.MonitorStatus.DownCount = 0;
-                result.Success = true;
-                result.Message += "Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID;
-            }
-            try
-            {
-                //_daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
-                DaprRepo.PublishEvent<AlertFlagObj>(_daprClient, "alertMessageResetAlert", alertFlagObj);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
-            }
-            return result;
+                var result=new  ResultObj();
+                alertFlagObj.ID = m;
+                alertFlagObj.AppID = _appID;
+                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
+                if (updateMonitorPingInfo == null)
+                {
+                    result.Success = false;
+                    result.Message += " Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID+" . ";
+                }
+                else
+                {
+                    updateMonitorPingInfo.MonitorStatus.AlertFlag = false;
+                    updateMonitorPingInfo.MonitorStatus.AlertSent = false;
+                    updateMonitorPingInfo.MonitorStatus.DownCount = 0;
+                    result.Success = true;
+                    result.Message += " Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID+" . ";
+                }
+                try
+                {
+                    //_daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
+                    DaprRepo.PublishEvent<AlertFlagObj>(_daprClient, "alertMessageResetAlert", alertFlagObj);
+                }
+                catch (Exception e)
+                {
+                    result.Success = false;
+                    result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
+                }
+                results.Add(result);
+
+            });
+            return results;
         }
     }
 }

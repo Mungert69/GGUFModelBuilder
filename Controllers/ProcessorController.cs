@@ -153,14 +153,17 @@ namespace NetworkMonitor.Processor.Controllers
         //[Topic("pubsub", "processorResetAlert")]
         [HttpPost("resetalert")]
         [Consumes("application/json")]
-        public ActionResult<ResultObj> ResetAlert([FromBody] List<int> monitorPingInfoIds)
+        public ActionResult<ResultObj> ResetAlerts([FromBody] List<int> monitorIPIDs)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorResetAlert : ";
             try
             {
-                result = _monitorPingProcessor.ResetAlert(monitorPingInfoIds[0]);
+                var results= _monitorPingProcessor.ResetAlerts(monitorIPIDs);
+                results.ForEach(f => result.Message+=f.Message);
+                result.Success= results.All(a => a.Success==true) && results.Count()!=0;
+                result.Data =results;
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
