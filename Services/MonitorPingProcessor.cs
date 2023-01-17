@@ -582,17 +582,21 @@ namespace NetworkMonitor.Processor.Services
         public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
         {
             var results = new List<ResultObj>();
-            var alertFlagObj = new AlertFlagObj();
+            ResultObj result ;
+            var alertFlagObjs = new List<AlertFlagObj>();
+
             monitorIPIDs.ForEach(m =>
             {
-                var result=new  ResultObj();
+                result = new ResultObj();
+                var alertFlagObj = new AlertFlagObj();
                 alertFlagObj.ID = m;
                 alertFlagObj.AppID = _appID;
+                alertFlagObjs.Add(alertFlagObj);
                 var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
                 if (updateMonitorPingInfo == null)
                 {
                     result.Success = false;
-                    result.Message += " Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID+" . ";
+                    result.Message += " Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }
                 else
                 {
@@ -600,21 +604,25 @@ namespace NetworkMonitor.Processor.Services
                     updateMonitorPingInfo.MonitorStatus.AlertSent = false;
                     updateMonitorPingInfo.MonitorStatus.DownCount = 0;
                     result.Success = true;
-                    result.Message += " Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID+" . ";
-                }
-                try
-                {
-                    //_daprClient.PublishEventAsync<AlertFlagObj>("pubsub", "alertMessageResetAlert", alertFlagObj, _daprMetadata);
-                    DaprRepo.PublishEvent<AlertFlagObj>(_daprClient, "alertMessageResetAlert", alertFlagObj);
-                }
-                catch (Exception e)
-                {
-                    result.Success = false;
-                    result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
+                    result.Message += " Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }
                 results.Add(result);
-
             });
+            result = new ResultObj();
+            try
+            {
+                DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
+                result.Success=true;
+                result.Message=" Success : sent alertMessageResetAlert message . ";          
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
+            }
+            results.Add(result);
+
+
             return results;
         }
     }

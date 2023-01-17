@@ -3,6 +3,6 @@ kind: Subscription
 metadata:
   name: processorResetAlert2
 spec:
-  topic: processorResetAlert2
-  route: /processor/resetalert
+  topic: processorResetAlerts2
+  route: /processor/ProcessorResetAlerts
   pubsubname: pubsub
