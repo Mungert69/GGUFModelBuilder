@@ -150,8 +150,8 @@ namespace NetworkMonitor.Processor.Controllers
             }
             return result;
         }
-        //[Topic("pubsub", "processorResetAlert")]
-        [HttpPost("resetalert")]
+        //[Topic("pubsub", "processorResetAlerts")]
+        [HttpPost("ProcessorResetAlerts")]
         [Consumes("application/json")]
         public ActionResult<ResultObj> ResetAlerts([FromBody] List<int> monitorIPIDs)
         {
