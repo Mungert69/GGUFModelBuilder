@@ -578,13 +578,13 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
-        public ResultObj ResetAlert(int monitorPingInfoId)
+        public ResultObj ResetAlert(int monitorIPID)
         {
             var result = new ResultObj();
             var alertFlagObj = new AlertFlagObj();
-            alertFlagObj.ID = monitorPingInfoId; ;
+            alertFlagObj.ID = monitorIPID; ;
             alertFlagObj.AppID = _appID;
-            var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
+            var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
             if (updateMonitorPingInfo == null)
             {
                 result.Success = false;
