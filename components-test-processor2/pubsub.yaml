@@ -2,15 +2,13 @@ apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: pubsub
+  namespace: default
 spec:
-  type: pubsub.redis
+  type: pubsub.rabbitmq
   version: v1
   metadata:
-  - name: redisHost
-    value: 10.8.0.3:6379
-  - name: redisPassword
-    value: ""
-  - name: maxLenApprox
-    value: 100
-  - name: ttlInSeconds
-    value: 60
+  - name: host
+    value: "amqp://guest:guest@10.8.0.4:5672"
+  - name: durable
+    value: true
+
