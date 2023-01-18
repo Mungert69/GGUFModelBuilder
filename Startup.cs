@@ -43,8 +43,10 @@ namespace NetworkMonitor.Processor
             {
                 options.AddSimpleConsole(c =>
                 {
-                    c.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
-                    c.UseUtcTimestamp = true;
+                    c.SingleLine = true;
+            c.TimestampFormat = "[yyyy-MM-dd HH:mm:ss] ";
+            c.UseUtcTimestamp = true;
+            c.ColorBehavior=Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
                 });
             });
 
