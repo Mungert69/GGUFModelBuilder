@@ -157,7 +157,7 @@ namespace NetworkMonitor.Processor.Controllers
         {
             ResultObj result = new ResultObj();
             result.Success = false;
-            result.Message = "MessageAPI : ProcessorResetAlert : ";
+            result.Message = "MessageAPI : ProcessorResetAlerts : ";
             try
             {
                 var results= _monitorPingProcessor.ResetAlerts(monitorIPIDs);

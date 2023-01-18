@@ -38,6 +38,8 @@ namespace NetworkMonitor.Processor.Services
             _daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
+             _logger.LogInformation(" Starting Processor with AppID = "+_appID);
+               
             _connectFactory = connectFactory;
             init(new ProcessorInitObj());
         }
