@@ -1,0 +1,8 @@
+apiVersion: dapr.io/v1alpha1
+kind: Subscription
+metadata:
+  name: processorConnect4
+spec:
+  topic: processorConnect4
+  route: /processor/connect
+  pubsubname: pubsub
