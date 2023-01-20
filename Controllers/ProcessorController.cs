@@ -123,15 +123,15 @@ namespace NetworkMonitor.Processor.Controllers
         // [Topic("pubsub", "processorAlertSent")]
         [HttpPost("alertsent")]
         [Consumes("application/json")]
-        public ActionResult<ResultObj> AlertSent([FromBody] List<int> monitorPingInfoIds)
+        public ActionResult<ResultObj> AlertSent([FromBody] List<int> monitorIPIDs)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorAlertSent : ";
             try
             {
-                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found MonitorPingInfo ID=" + f));
-                List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorPingInfoIds, true);
+                monitorIPIDs.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found monitorIPID =" + f));
+                List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorIPIDs, true);
                 result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
                 if (result.Success) result.Message += "Success ran ok ";
                 else
