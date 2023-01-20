@@ -537,45 +537,45 @@ namespace NetworkMonitor.Processor.Services
             // Reset Queue Dictionary
             _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
         }
-        public List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent)
+        public List<ResultObj> UpdateAlertSent(List<int> monitorIPIDs, bool alertSent)
         {
             var results = new List<ResultObj>();
-            foreach (int id in monitorPingInfoIDs)
+            foreach (int id in monitorIPIDs)
             {
-                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == id);
+                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
                 var result = new ResultObj();
                 if (updateMonitorPingInfo != null)
                 {
                     updateMonitorPingInfo.MonitorStatus.AlertSent = alertSent;
                     result.Success = true;
-                    result.Message += "Success : updated AlertSent to " + alertSent + " for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+                    result.Message += "Success : updated AlertSent to " + alertSent + " for MonitorPingInfo with MonitorIPID = " + id;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message += "Failed : updating AlertSent for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+                    result.Message += "Failed : updating AlertSent for MonitorPingInfo with MonitorIPID = " + id;
                 }
                 results.Add(result);
             }
             return results;
         }
-        public List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag)
+        public List<ResultObj> UpdateAlertFlag(List<int> monitorIPIDs, bool alertFlag)
         {
             var results = new List<ResultObj>();
-            foreach (int id in monitorPingInfoIDs)
+            foreach (int id in monitorIPIDs)
             {
-                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.ID == id);
+                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
                 var result = new ResultObj();
                 if (updateMonitorPingInfo != null)
                 {
                     updateMonitorPingInfo.MonitorStatus.AlertFlag = alertFlag;
                     result.Success = true;
-                    result.Message += "Success : updated AlertFlag to " + alertFlag + " for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+                    result.Message += "Success : updated AlertFlag to " + alertFlag + " for MonitorPingInfo with MonitorIPID = " + id;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message += "Failed : updating AlertFlag for MonitorPingInfo ID = " + updateMonitorPingInfo.ID;
+                    result.Message += "Failed : updating AlertFlag for MonitorPingInfo with MonitorIPID = " + id;
                 }
                 results.Add(result);
             }
@@ -598,7 +598,7 @@ namespace NetworkMonitor.Processor.Services
                 if (updateMonitorPingInfo == null)
                 {
                     result.Success = false;
-                    result.Message += " Warning : Unable to find MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
+                    result.Message += " Warning : Unable to find MonitorPingInfo with MonitorIPID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }
                 else
                 {
@@ -606,7 +606,7 @@ namespace NetworkMonitor.Processor.Services
                     updateMonitorPingInfo.MonitorStatus.AlertSent = false;
                     updateMonitorPingInfo.MonitorStatus.DownCount = 0;
                     result.Success = true;
-                    result.Message += " Success : updated MonitorPingInfo with ID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
+                    result.Message += " Success : updated MonitorPingInfo with MonitorIPID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }
                 results.Add(result);
             });
