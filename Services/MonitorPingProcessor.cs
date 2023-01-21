@@ -30,7 +30,7 @@ namespace NetworkMonitor.Processor.Services
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private IConnectFactory _connectFactory;
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
-        private List<int> _removeMonitorPingInfoIDs=new List<int>();
+        private List<int> _removeMonitorPingInfoIDs = new List<int>();
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
         {
@@ -39,8 +39,8 @@ namespace NetworkMonitor.Processor.Services
             _daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
-             _logger.LogInformation(" Starting Processor with AppID = "+_appID);
-               
+            _logger.LogInformation(" Starting Processor with AppID = " + _appID);
+
             _connectFactory = connectFactory;
             init(new ProcessorInitObj());
         }
@@ -49,7 +49,7 @@ namespace NetworkMonitor.Processor.Services
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos,null, _appID, _piIDKey, true);
+                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _appID, _piIDKey, true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
@@ -70,6 +70,8 @@ namespace NetworkMonitor.Processor.Services
             List<MonitorPingInfo> currentMonitorPingInfos;
             List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
             PingParams statePingParams = new PingParams();
+            _removePingInfos = new List<RemovePingInfo>();
+            _removeMonitorPingInfoIDs = new List<int>();
             try
             {
                 bool isDaprReady = _daprClient.CheckHealthAsync().Result;
@@ -82,6 +84,8 @@ namespace NetworkMonitor.Processor.Services
                         var processorDataObj = new ProcessorDataObj()
                         {
                             MonitorPingInfos = new List<MonitorPingInfo>(),
+                            RemoveMonitorPingInfoIDs = new List<int>(),
+                            RemovePingInfos = new List<RemovePingInfo>(),
                             PingInfos = new List<PingInfo>(),
                             PiIDKey = 1
                         };
@@ -118,6 +122,7 @@ namespace NetworkMonitor.Processor.Services
                                 //monitorPingInfo.TimeOuts = 0;
                             }
                             currentMonitorPingInfos = _monitorPingInfos;
+
                             _piIDKey = 1;
                         }
                         else
@@ -130,6 +135,8 @@ namespace NetworkMonitor.Processor.Services
                                     _piIDKey = processorDataObj.PiIDKey;
                                     infoLog += " Got PiIDKey=" + _piIDKey + " . ";
                                     currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
+                                    _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
+                                    _removePingInfos = processorDataObj.RemovePingInfos;
                                 }
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
@@ -144,6 +151,7 @@ namespace NetworkMonitor.Processor.Services
                             {
                                 _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
                                 currentMonitorPingInfos = new List<MonitorPingInfo>();
+
                             }
                             try
                             {
@@ -231,13 +239,13 @@ namespace NetworkMonitor.Processor.Services
                     _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     _pingParams.IsAdmin = false;
                 }
-                _removePingInfos = new List<RemovePingInfo>();
+
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos,null, _appID, _piIDKey, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _appID, _piIDKey, false);
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
             catch (Exception e)
@@ -245,10 +253,13 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
         }
-        public void AddRemovePingInfos(List<RemovePingInfo> removePingInfos)
+        public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
-            _removePingInfos.AddRange(removePingInfos);
+            _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
+            _removeMonitorPingInfoIDs.Except(processorDataObj.RemoveMonitorPingInfoIDs);
         }
+
+
         private ResultObj removePublishedPingInfos()
         {
             var result = new ResultObj();
@@ -388,7 +399,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     result.Message += removePublishedPingInfos().Message;
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos,_removeMonitorPingInfoIDs, _appID, _piIDKey, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, _removePingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
@@ -480,7 +491,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                 }
             }
-            _removeMonitorPingInfoIDs=new List<int>(delList.Select(s => s.MonitorIPID));
+            _removeMonitorPingInfoIDs.AddRange(delList.Select(s => s.MonitorIPID));
             foreach (MonitorPingInfo del in delList)
             {
                 _monitorPingInfos.Remove(del);
@@ -586,7 +597,7 @@ namespace NetworkMonitor.Processor.Services
         public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
         {
             var results = new List<ResultObj>();
-            ResultObj result ;
+            ResultObj result;
             var alertFlagObjs = new List<AlertFlagObj>();
 
             monitorIPIDs.ForEach(m =>
@@ -616,8 +627,8 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
-                result.Success=true;
-                result.Message=" Success : sent alertMessageResetAlert message . ";          
+                result.Success = true;
+                result.Message = " Success : sent alertMessageResetAlert message . ";
             }
             catch (Exception e)
             {

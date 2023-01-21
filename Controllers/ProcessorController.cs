@@ -46,14 +46,14 @@ namespace NetworkMonitor.Processor.Controllers
             return result;
         }
         [HttpPost("removePingInfos")]
-        public ActionResult<ResultObj> RemovePingInfos(List<RemovePingInfo> removePingInfos)
+        public ActionResult<ResultObj> RemovePingInfos(ProcessorDataObj processorDataObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : RemovePingInfos : ";
             try
             {
-                _monitorPingProcessor.AddRemovePingInfos(removePingInfos);
+                _monitorPingProcessor.ProcessesMonitorReturnData(processorDataObj);
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);

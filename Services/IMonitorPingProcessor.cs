@@ -14,7 +14,7 @@ namespace NetworkMonitor.Processor.Services
         List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
         List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
         List<ResultObj> ResetAlerts(List<int> monitorIPIDs);
-        void AddRemovePingInfos(List<RemovePingInfo> removePingInfos);
+        void  ProcessesMonitorReturnData(ProcessorDataObj processorDataObj);
         bool Awake{get;set;}
     }
 }
