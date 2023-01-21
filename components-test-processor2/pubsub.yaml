@@ -1,3 +1,4 @@
+# ./components-compose/redis-pubsub.yml
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -8,7 +9,6 @@ spec:
   version: v1
   metadata:
   - name: host
-    value: "amqp://guest:guest@10.8.0.4:5672"
+    value: "amqp://guest:guest@rabbitmq:5672"
   - name: durable
     value: true
-
