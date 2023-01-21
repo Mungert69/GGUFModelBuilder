@@ -151,6 +151,8 @@ namespace NetworkMonitor.Processor.Services
                             {
                                 _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
                                 currentMonitorPingInfos = new List<MonitorPingInfo>();
+                                if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+                                if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
 
                             }
                             try
@@ -255,8 +257,12 @@ namespace NetworkMonitor.Processor.Services
         }
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
+            if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+            if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
             _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
-            _removeMonitorPingInfoIDs.Except(processorDataObj.RemoveMonitorPingInfoIDs);
+            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f => {
+                _removeMonitorPingInfoIDs.Remove(f);
+            });
         }
 
 
