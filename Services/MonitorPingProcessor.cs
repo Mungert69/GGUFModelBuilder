@@ -504,6 +504,7 @@ namespace NetworkMonitor.Processor.Services
                             ID=monitorPingInfo.ID,
                             AppID=_appID
                         });
+                        _logger.LogCritical(" Adding SwapMonitorPingInfo with ID "+monitorPingInfo);
                     }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
