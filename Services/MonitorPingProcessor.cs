@@ -31,6 +31,7 @@ namespace NetworkMonitor.Processor.Services
         private IConnectFactory _connectFactory;
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
+        private List<SwapMonitorPingInfo> _swapMonitorPingInfos=new List<SwapMonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
         {
@@ -259,6 +260,10 @@ namespace NetworkMonitor.Processor.Services
             processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
             {
                 _removeMonitorPingInfoIDs.Remove(f);
+            });
+            processorDataObj.SwapMonitorPingInfos.ForEach(f =>
+            {
+                _swapMonitorPingInfos.Remove(f);
             });
         }
         private ResultObj removePublishedPingInfos()
@@ -492,6 +497,10 @@ namespace NetworkMonitor.Processor.Services
                     {
                         monitorPingInfo = monIP.MonitorPingInfo;
                         monitorPingInfo.AppID = _appID;
+                        _swapMonitorPingInfos.Add(new SwapMonitorPingInfo(){
+                            ID=monitorPingInfo.ID,
+                            AppID=_appID
+                        });
                     }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
