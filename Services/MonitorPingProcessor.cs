@@ -372,13 +372,14 @@ namespace NetworkMonitor.Processor.Services
                 result.Message = " Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ";
                 _logger.LogError(" Error : Failed to Process Monitor IP Queue. Error was : " + e.ToString() + " . ");
             }
-            /*if (_monitorPingInfos == null || _monitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
+            if (_monitorPingInfos == null || _monitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
             {
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
+                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
                 return result;
-            }*/
+            }
             // Time interval between Now and NextRun
             int executionTime = connectObj.NextRunInterval - _pingParams.Timeout - connectObj.MaxBuffer;
             int timeToWait = executionTime / _monitorPingInfos.Where(x => x.Enabled == true).Count();
