@@ -258,13 +258,14 @@ namespace NetworkMonitor.Processor.Services
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+            
             if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
             _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
             processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
             {
                 _removeMonitorPingInfoIDs.Remove(f);
             });
-            processorDataObj.SwapMonitorPingInfos.ForEach(f =>
+            if (processorDataObj.SwapMonitorPingInfos!=null) processorDataObj.SwapMonitorPingInfos.ForEach(f =>
             {
                 _swapMonitorPingInfos.Remove(f);
             });
