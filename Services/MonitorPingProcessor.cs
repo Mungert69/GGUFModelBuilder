@@ -502,16 +502,7 @@ namespace NetworkMonitor.Processor.Services
             List<MonitorPingInfo> delList = new List<MonitorPingInfo>();
             foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
             {
-                // Note ID with -1 means delete all for this user
-                if (kvp.Value[0].DeleteAll)
-                {
-                    var removeMonitorPingInfos = _monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList();
-                    delList.AddRange(removeMonitorPingInfos);
-                    _removeMonitorPingInfoIDs.AddRange(removeMonitorPingInfos.Select(s => s.MonitorIPID));
-                }
-                else
-                {
-                    kvp.Value.ForEach(f =>
+                kvp.Value.ForEach(f =>
                     {
                         if (f.Delete)
                         {
@@ -520,7 +511,6 @@ namespace NetworkMonitor.Processor.Services
                             if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
                         }
                     });
-                }
             }
             foreach (MonitorPingInfo del in delList)
             {
@@ -552,17 +542,13 @@ namespace NetworkMonitor.Processor.Services
                         stateMonitorIPs.Add((MonitorIP)updateMonitorIP);
                     }
                 }
-                var delList = new List<MonitorIP>();
+
                 foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
-                    // Note ID with -1 means delete all for this user
-                    stateMonitorIPs.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
-                        {
-                            if (kvp.Value.Where(m => m.ID == del.ID).FirstOrDefault() == null)
-                                delList.Add(del);
-                        });
+                    kvp.Value.ForEach(f =>{
+                        if (f.Delete) stateMonitorIPs.Remove(f);
+                    });
                 }
-                stateMonitorIPs.Except(delList);
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
                 resultStr += " Success : saved MonitorIP queue into statestore. ";
             }
