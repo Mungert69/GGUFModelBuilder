@@ -572,7 +572,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     kvp.Value.ForEach(f =>
                     {
-                        if (f.Delete) stateMonitorIPs.Remove(f);
+                        if (f.Delete) stateMonitorIPs.RemoveAll(r => r.ID==f.ID);
                     });
                 }
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
