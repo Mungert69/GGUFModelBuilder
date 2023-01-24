@@ -138,6 +138,10 @@ namespace NetworkMonitor.Processor.Services
                                     _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
                                     _removePingInfos = processorDataObj.RemovePingInfos;
                                     _swapMonitorPingInfos=processorDataObj.SwapMonitorPingInfos;
+                                    if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+                                if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
+                                if (_swapMonitorPingInfos ==null) _swapMonitorPingInfos= new List<SwapMonitorPingInfo>();
+                        
                                 }
                                 if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
                                 {
@@ -258,6 +262,7 @@ namespace NetworkMonitor.Processor.Services
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+             if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
             
             if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
             _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
