@@ -489,13 +489,14 @@ namespace NetworkMonitor.Processor.Services
                 // Else create a new MonitorPingInfo or copy from Queue
                 else
                 {
-                    if (!monIP.IsSwapping)
+                    if (!monIP.IsSwapping || monIP.MonitorPingInfo==null)
                     {
                         monitorPingInfo = new MonitorPingInfo();
                         monitorPingInfo.MonitorIPID = monIP.ID;
                         monitorPingInfo.ID = monIP.ID;
                         monitorPingInfo.UserID = monIP.UserID; ;
                         fillPingInfo(monitorPingInfo, monIP);
+                        _logger.LogError(" Just adding a new MonitorPingInfo with ID "+monitorPingInfo);
                     }
                     else
                     {
