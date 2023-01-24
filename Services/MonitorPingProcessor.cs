@@ -22,8 +22,8 @@ namespace NetworkMonitor.Processor.Services
         private bool _awake;
         private ILogger _logger;
         private List<NetConnect> _netConnects = null;
-        private Dictionary<string, List<MonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
-        private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
+        private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
+        // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         private DaprClient _daprClient;
         private string _appID = "1";
         private int _piIDKey = 1;
@@ -40,7 +40,6 @@ namespace NetworkMonitor.Processor.Services
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
             _logger.LogInformation(" Starting Processor with AppID = " + _appID);
-
             _connectFactory = connectFactory;
             init(new ProcessorInitObj());
         }
@@ -122,7 +121,6 @@ namespace NetworkMonitor.Processor.Services
                                 //monitorPingInfo.TimeOuts = 0;
                             }
                             currentMonitorPingInfos = _monitorPingInfos;
-
                             _piIDKey = 1;
                         }
                         else
@@ -153,7 +151,6 @@ namespace NetworkMonitor.Processor.Services
                                 currentMonitorPingInfos = new List<MonitorPingInfo>();
                                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
                                 if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
-
                             }
                             try
                             {
@@ -241,7 +238,6 @@ namespace NetworkMonitor.Processor.Services
                     _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     _pingParams.IsAdmin = false;
                 }
-
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
@@ -260,12 +256,11 @@ namespace NetworkMonitor.Processor.Services
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
             if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
             _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
-            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f => {
+            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
+            {
                 _removeMonitorPingInfoIDs.Remove(f);
             });
         }
-
-
         private ResultObj removePublishedPingInfos()
         {
             var result = new ResultObj();
@@ -420,14 +415,18 @@ namespace NetworkMonitor.Processor.Services
         }
         private string UpdateMonitorPingInfosFromMonitorIPQueue()
         {
-            ProcessMonitorIPDic();
-            if (_monitorIPQueue.Count == 0) return "Info : No updates in monitorIP queue to process"; ;
-            List<MonitorIP> monitorIPs = _monitorIPQueue;
+            var monitorIPQueue = new List<UpdateMonitorIP>();
+            foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
+            {
+                if (kvp.Value[0].ID != -1) monitorIPQueue.AddRange(kvp.Value);
+            }
+            // Reset Queue Dictionary
+            //if (monitorIPQueue.Count == 0) return "Info : No updates in monitorIP queue to process"; ;
             // Get max MonitorPingInfo.ID
-            int maxID = _monitorPingInfos.Max(m => m.ID);
+            //int maxID = _monitorPingInfos.Max(m => m.ID);
             string message = "";
             //Add and update
-            foreach (MonitorIP monIP in monitorIPs)
+            foreach (UpdateMonitorIP monIP in monitorIPQueue)
             {
                 MonitorPingInfo monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
                 // If monitorIP is contained in the list of monitorPingInfos then update it.
@@ -471,15 +470,23 @@ namespace NetworkMonitor.Processor.Services
                         message += "Error : Failed to update Host list check Values.";
                     }
                 }
-                // Else create a new MonitorPingInfo
+                // Else create a new MonitorPingInfo or copy from Queue
                 else
                 {
-                    monitorPingInfo = new MonitorPingInfo();
-                    maxID++;
-                    monitorPingInfo.MonitorIPID = monIP.ID;
-                    monitorPingInfo.ID = maxID;
-                    monitorPingInfo.UserID = monIP.UserID;
-                    fillPingInfo(monitorPingInfo, monIP);
+                    if (monIP.MonitorPingInfo == null)
+                    {
+                        monitorPingInfo = new MonitorPingInfo();
+                        monitorPingInfo.MonitorIPID = monIP.ID;
+                        monitorPingInfo.ID = monIP.ID;
+                        monitorPingInfo.UserID = monIP.UserID; ;
+                        fillPingInfo(monitorPingInfo, monIP);
+                    }
+                    else
+                    {
+                        monitorPingInfo = monIP.MonitorPingInfo;
+                        monitorPingInfo.AppID = _appID;
+
+                    }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
                     _netConnects.Add(netConnect);
@@ -487,14 +494,20 @@ namespace NetworkMonitor.Processor.Services
             }
             //Delete
             List<MonitorPingInfo> delList = new List<MonitorPingInfo>();
-            foreach (MonitorPingInfo del in _monitorPingInfos)
+            foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
             {
-                if (monitorIPs.Where(m => m.ID == del.MonitorIPID).Count() == 0)
+                // Note ID with -1 means delete all for this user
+                if (kvp.Value[0].ID == -1)
                 {
-                    if (monitorIPs.Where(m => m.UserID == del.UserID).Count() > 0)
-                    {
-                        delList.Add(del);
-                    }
+                    delList.AddRange(_monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList());
+                }
+                else
+                {
+                    _monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
+                        {
+                            if (kvp.Value.Where(m => m.ID == del.MonitorIPID).FirstOrDefault() == null)
+                                delList.Add(del);
+                        });
                 }
             }
             _removeMonitorPingInfoIDs.AddRange(delList.Select(s => s.MonitorIPID));
@@ -504,12 +517,12 @@ namespace NetworkMonitor.Processor.Services
             }
             message += " Success : Updated MonitorPingInfos. ";
             // Update statestore with new MonitorIPs
-            message += UpdateMonitorIPsInStatestore(_monitorIPQueue);
+            message += UpdateMonitorIPsInStatestore(monitorIPQueue);
             // reset queue to empty
-            _monitorIPQueue = new List<MonitorIP>();
+            _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
             return message;
         }
-        private string UpdateMonitorIPsInStatestore(List<MonitorIP> updateMonitorIPs)
+        private string UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
         {
             string resultStr = "";
             try
@@ -520,14 +533,27 @@ namespace NetworkMonitor.Processor.Services
                     var monitorIP = stateMonitorIPs.Where(w => w.ID == updateMonitorIP.ID).FirstOrDefault();
                     if (monitorIP == null)
                     {
-                        stateMonitorIPs.Add(updateMonitorIP);
+                        stateMonitorIPs.Add((MonitorIP)updateMonitorIP);
                     }
                     else
                     {
                         stateMonitorIPs.Remove(monitorIP);
-                        stateMonitorIPs.Add(updateMonitorIP);
+                        stateMonitorIPs.Add((MonitorIP)updateMonitorIP);
                     }
                 }
+                var delList=new List<MonitorIP>();
+                foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
+                {
+                    // Note ID with -1 means delete all for this user
+                   
+                        stateMonitorIPs.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
+                            {
+                                if (kvp.Value.Where(m => m.ID == del.ID).FirstOrDefault() == null)
+                                    delList.Add(del);
+                            });
+                    
+                }
+                stateMonitorIPs.Except(delList);
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
                 resultStr += " Success : saved MonitorIP queue into statestore. ";
             }
@@ -549,12 +575,6 @@ namespace NetworkMonitor.Processor.Services
         private void ProcessMonitorIPDic()
         {
             // Get all MonitorIPs from the queue
-            foreach (KeyValuePair<string, List<MonitorIP>> kvp in _monitorIPQueueDic)
-            {
-                _monitorIPQueue.AddRange(kvp.Value);
-            }
-            // Reset Queue Dictionary
-            _monitorIPQueueDic = new Dictionary<string, List<MonitorIP>>();
         }
         public List<ResultObj> UpdateAlertSent(List<int> monitorIPIDs, bool alertSent)
         {
@@ -605,7 +625,6 @@ namespace NetworkMonitor.Processor.Services
             var results = new List<ResultObj>();
             ResultObj result;
             var alertFlagObjs = new List<AlertFlagObj>();
-
             monitorIPIDs.ForEach(m =>
             {
                 result = new ResultObj();
@@ -642,8 +661,6 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
             }
             results.Add(result);
-
-
             return results;
         }
     }
