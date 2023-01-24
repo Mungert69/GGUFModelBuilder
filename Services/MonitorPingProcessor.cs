@@ -54,7 +54,6 @@ namespace NetworkMonitor.Processor.Services
                 ProcessorInitObj processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = false;
                 processorObj.AppID = _appID;
-                //_daprClient.PublishEventAsync<ProcessorInitObj>("pubsub", "processorReady", processorObj, _daprMetadata);
                 DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
@@ -252,11 +251,14 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
-                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+            
             }
             catch (Exception e)
             {
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
+            }
+            finally{
+    PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
         }
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
