@@ -416,9 +416,16 @@ namespace NetworkMonitor.Processor.Services
         private string UpdateMonitorPingInfosFromMonitorIPQueue()
         {
             var monitorIPQueue = new List<UpdateMonitorIP>();
+            if (_monitorIPQueueDic.Count()==0) return " No Data in Queue . ";
             foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
             {
-                if (kvp.Value[0].ID != -1) monitorIPQueue.AddRange(kvp.Value);
+                if (!kvp.Value[0].DeleteAll)
+                {
+                    kvp.Value.ForEach(f =>
+                    {
+                        if (!f.Delete) monitorIPQueue.Add(f);
+                    });
+                }
             }
             // Reset Queue Dictionary
             //if (monitorIPQueue.Count == 0) return "Info : No updates in monitorIP queue to process"; ;
@@ -473,7 +480,7 @@ namespace NetworkMonitor.Processor.Services
                 // Else create a new MonitorPingInfo or copy from Queue
                 else
                 {
-                    if (monIP.MonitorPingInfo == null)
+                    if (!monIP.IsSwapping)
                     {
                         monitorPingInfo = new MonitorPingInfo();
                         monitorPingInfo.MonitorIPID = monIP.ID;
@@ -485,7 +492,6 @@ namespace NetworkMonitor.Processor.Services
                     {
                         monitorPingInfo = monIP.MonitorPingInfo;
                         monitorPingInfo.AppID = _appID;
-
                     }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
@@ -497,20 +503,25 @@ namespace NetworkMonitor.Processor.Services
             foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
             {
                 // Note ID with -1 means delete all for this user
-                if (kvp.Value[0].ID == -1)
+                if (kvp.Value[0].DeleteAll)
                 {
-                    delList.AddRange(_monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList());
+                    var removeMonitorPingInfos = _monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList();
+                    delList.AddRange(removeMonitorPingInfos);
+                    _removeMonitorPingInfoIDs.AddRange(removeMonitorPingInfos.Select(s => s.MonitorIPID));
                 }
                 else
                 {
-                    _monitorPingInfos.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
+                    kvp.Value.ForEach(f =>
+                    {
+                        if (f.Delete)
                         {
-                            if (kvp.Value.Where(m => m.ID == del.MonitorIPID).FirstOrDefault() == null)
-                                delList.Add(del);
-                        });
+                            var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
+                            delList.Add(del);
+                            if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
+                        }
+                    });
                 }
             }
-            _removeMonitorPingInfoIDs.AddRange(delList.Select(s => s.MonitorIPID));
             foreach (MonitorPingInfo del in delList)
             {
                 _monitorPingInfos.Remove(del);
@@ -541,17 +552,15 @@ namespace NetworkMonitor.Processor.Services
                         stateMonitorIPs.Add((MonitorIP)updateMonitorIP);
                     }
                 }
-                var delList=new List<MonitorIP>();
+                var delList = new List<MonitorIP>();
                 foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
                     // Note ID with -1 means delete all for this user
-                   
-                        stateMonitorIPs.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
-                            {
-                                if (kvp.Value.Where(m => m.ID == del.ID).FirstOrDefault() == null)
-                                    delList.Add(del);
-                            });
-                    
+                    stateMonitorIPs.Where(w => w.UserID == kvp.Key).ToList().ForEach(del =>
+                        {
+                            if (kvp.Value.Where(m => m.ID == del.ID).FirstOrDefault() == null)
+                                delList.Add(del);
+                        });
                 }
                 stateMonitorIPs.Except(delList);
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
