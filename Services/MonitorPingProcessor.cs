@@ -363,7 +363,7 @@ namespace NetworkMonitor.Processor.Services
             catch (Exception e)
             {
                 result.Message = " Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ";
-                _logger.LogError(" Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ");
+                _logger.LogError(" Error : Failed to Process Monitor IP Queue. Error was : " + e.ToString() + " . ");
             }
             if (_monitorPingInfos == null || _monitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
             {
