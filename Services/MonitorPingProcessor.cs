@@ -493,7 +493,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         message += "Error : Failed to update Host list check Values.";
                     }
-                     _logger.LogError(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
+                     _logger.LogInformation(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
                  
                 }
                 // Else create a new MonitorPingInfo or copy from Queue
@@ -506,7 +506,7 @@ namespace NetworkMonitor.Processor.Services
                         monitorPingInfo.ID = monIP.ID;
                         monitorPingInfo.UserID = monIP.UserID; ;
                         fillPingInfo(monitorPingInfo, monIP);
-                        _logger.LogError(" Just adding a new MonitorPingInfo with ID " + monitorPingInfo.ID);
+                        _logger.LogInformation(" Just adding a new MonitorPingInfo with ID " + monitorPingInfo.ID);
                     }
                     else
                     {
@@ -517,7 +517,7 @@ namespace NetworkMonitor.Processor.Services
                             ID = monitorPingInfo.ID,
                             AppID = _appID
                         });
-                        _logger.LogCritical(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID);
+                        _logger.LogInformation(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID);
                     }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
@@ -534,7 +534,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                             delList.Add(del);
-                             _logger.LogError(" Deleting MonitorIP with ID " + f.ID);
+                             _logger.LogInformation(" Deleting MonitorIP with ID " + f.ID);
               
                             if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
                         }
