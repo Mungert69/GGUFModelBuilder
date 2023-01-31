@@ -394,9 +394,9 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var pingConnectTasks = new List<Task>();
-                result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo() + " : ";
+                result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.Collect();
-                result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo() + " : ";
+                result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.TryStartNoGCRegion(104857600, false);
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
