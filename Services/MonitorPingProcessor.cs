@@ -9,6 +9,7 @@ using System.Linq;
 using NetworkMonitor.Connection;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Runtime;
 using System.Diagnostics;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
@@ -251,14 +252,15 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
-            
+
             }
             catch (Exception e)
             {
                 _logger.LogCritical("Error : Unable to init Processor : Error was : " + e.ToString());
             }
-            finally{
-    PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+            finally
+            {
+                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
             }
         }
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
@@ -377,7 +379,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
-                 PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
                 return result;
             }
             // Time interval between Now and NextRun
@@ -392,8 +394,10 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var pingConnectTasks = new List<Task>();
+                result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo() + " : ";
                 GC.Collect();
-                GC.TryStartNoGCRegion(104857600,false);
+                result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo() + " : ";
+                GC.TryStartNoGCRegion(104857600, false);
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
                     {
@@ -404,7 +408,8 @@ namespace NetworkMonitor.Processor.Services
                     }
                 );
                 Task.WhenAll(pingConnectTasks.ToArray());
-                GC.EndNoGCRegion();
+                if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
+                    GC.EndNoGCRegion();
                 new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
@@ -496,8 +501,8 @@ namespace NetworkMonitor.Processor.Services
                     {
                         message += "Error : Failed to update Host list check Values.";
                     }
-                     _logger.LogInformation(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
-                 
+                    _logger.LogInformation(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
+
                 }
                 // Else create a new MonitorPingInfo or copy from Queue
                 else
@@ -537,8 +542,8 @@ namespace NetworkMonitor.Processor.Services
                         {
                             var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                             delList.Add(del);
-                             _logger.LogInformation(" Deleting MonitorIP with ID " + f.ID);
-              
+                            _logger.LogInformation(" Deleting MonitorIP with ID " + f.ID);
+
                             if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
                         }
                     });
@@ -578,7 +583,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     kvp.Value.ForEach(f =>
                     {
-                        if (f.Delete) stateMonitorIPs.RemoveAll(r => r.ID==f.ID);
+                        if (f.Delete) stateMonitorIPs.RemoveAll(r => r.ID == f.ID);
                     });
                 }
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
