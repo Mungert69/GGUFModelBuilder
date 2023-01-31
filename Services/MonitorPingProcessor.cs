@@ -392,6 +392,8 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var pingConnectTasks = new List<Task>();
+                GC.Collect();
+                GC.TryStartNoGCRegion(104857600,false);
                 _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
                     netConnect =>
                     {
@@ -402,6 +404,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                 );
                 Task.WhenAll(pingConnectTasks.ToArray());
+                GC.EndNoGCRegion();
                 new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
