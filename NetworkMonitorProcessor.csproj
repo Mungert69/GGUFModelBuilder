@@ -7,7 +7,7 @@
     <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled</ContainerBaseImage>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerImageTag>0.1.2</ContainerImageTag>
-
+  <PublishTrimmed>true</PublishTrimmed>
 </PropertyGroup>
 
   <ItemGroup>
