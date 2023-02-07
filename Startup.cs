@@ -29,10 +29,9 @@ namespace NetworkMonitor.Processor
             _services = services;
             services.AddSingleton<IMonitorPingProcessor, MonitorPingProcessor>();
             services.AddSingleton<IConnectFactory, ConnectFactory>();
-
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
-
-            services.AddControllers().AddDapr();
+            services.AddControllers();
+            //services.AddControllers().AddDapr();
             /*var jsonOptions = new JsonSerializerOptions
             {
                 NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
@@ -55,7 +54,7 @@ namespace NetworkMonitor.Processor
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
         {
-            app.ApplicationServices.GetService<IMonitorPingProcessor>();
+
             app.UseRouting();
             app.UseCloudEvents();
             app.UseEndpoints(endpoints =>
@@ -63,6 +62,7 @@ namespace NetworkMonitor.Processor
                 endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
             });
+            app.ApplicationServices.GetService<IMonitorPingProcessor>();
         }
     }
 }

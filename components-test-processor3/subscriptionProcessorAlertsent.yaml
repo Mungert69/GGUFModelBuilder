@@ -1,8 +1,0 @@
-apiVersion: dapr.io/v1alpha1
-kind: Subscription
-metadata:
-  name: processorAlertSent3
-spec:
-  topic: processorAlertSent3
-  route: /processor/alertsent
-  pubsubname: pubsub

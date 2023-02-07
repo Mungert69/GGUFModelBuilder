@@ -1,8 +1,0 @@
-apiVersion: dapr.io/v1alpha1
-kind: Subscription
-metadata:
-  name: processorWakeUp4
-spec:
-  topic: processorWakeUp4
-  route: /processor/wakeup
-  pubsubname: pubsub

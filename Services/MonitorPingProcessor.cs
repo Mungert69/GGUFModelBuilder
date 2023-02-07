@@ -35,7 +35,7 @@ namespace NetworkMonitor.Processor.Services
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
-        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, DaprClient daprClient, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
+        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
         {
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
