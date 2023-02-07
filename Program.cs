@@ -10,7 +10,7 @@ namespace NetworkMonitor.Processor
         static void Main(string[] args)
         {
             IConfiguration config = new ConfigurationBuilder()
-    .AddJsonFile("/home/mahadeva/code/NetworkMonitorProcessor/appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables()
     .AddCommandLine(args)
     .Build();
