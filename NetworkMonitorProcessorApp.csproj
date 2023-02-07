@@ -2,11 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <TargetFramework>net7.0</TargetFramework>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled</ContainerBaseImage>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerImageTag>0.2.1</ContainerImageTag>
   </PropertyGroup>

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Connection;
@@ -25,10 +27,11 @@ namespace NetworkMonitor.Processor
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
             var connectFactory = new ConnectFactory();
+            var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
+            
             Task.Run(() =>
             {
-                var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
-            
+                
                 var random = new Random(10);
                 while (true)
                 {

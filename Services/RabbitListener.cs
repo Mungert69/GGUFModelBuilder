@@ -32,7 +32,15 @@ namespace NetworkMonitor.Objects.Repository
             _monitorPingProcessor = monitorPingProcessor;
             _appID = appID;
             _instanceName = instanceName;
-            _factory = new ConnectionFactory { HostName = hostname, UserName ="guest" , Password="guest"};
+            _factory = new ConnectionFactory
+            {
+                HostName = hostname,
+                UserName = "guest",
+                Password = "guest",
+                AutomaticRecoveryEnabled = true,
+                MaxMessageSize=16000000,
+                UseBackgroundThreadsForIO=true
+            };
             init();
         }
         public void init()
@@ -42,37 +50,37 @@ namespace NetworkMonitor.Objects.Repository
                 ExchangeName = "processorConnect" + _appID,
                 FuncName = "processorConnect"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "removePingInfos" + _appID,
                 FuncName = "removePingInfos"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorInit" + _appID,
                 FuncName = "processorInit"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorAlertFlag" + _appID,
                 FuncName = "processorAlertFlag"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorAlertSent" + _appID,
                 FuncName = "processorAlertSent"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorQueueDic" + _appID,
                 FuncName = "processorQueueDic"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorResetAlerts" + _appID,
                 FuncName = "processorResetAlerts"
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorWakeUp" + _appID,
                 FuncName = "processorWakeUp"
