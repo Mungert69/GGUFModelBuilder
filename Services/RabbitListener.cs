@@ -32,7 +32,7 @@ namespace NetworkMonitor.Objects.Repository
             _monitorPingProcessor = monitorPingProcessor;
             _appID = appID;
             _instanceName = instanceName;
-            _factory = new ConnectionFactory { HostName = hostname};
+            _factory = new ConnectionFactory { HostName = hostname, UserName ="guest" , Password="guest"};
             init();
         }
         public void init()
