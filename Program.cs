@@ -25,9 +25,10 @@ namespace NetworkMonitor.Processor
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
             var connectFactory = new ConnectFactory();
-            //var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
             Task.Run(() =>
             {
+                var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
+            
                 var random = new Random(10);
                 while (true)
                 {
