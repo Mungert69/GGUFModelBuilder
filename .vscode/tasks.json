@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/NetworkMonitorProcessor.csproj",
+                "${workspaceFolder}/Receive.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/NetworkMonitorProcessor.csproj",
+                "${workspaceFolder}/Receive.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,25 +33,9 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/NetworkMonitorProcessor.csproj"
+                "${workspaceFolder}/Receive.csproj"
             ],
             "problemMatcher": "$msCompile"
-        },
-        {
-            "appId": "monitorprocessor1",
-            "appPort": 2054,
-            "httpPort": 3501,
-            "grpcPort": 60002,
-            "componentsPath": "./components"
-            ,
-            "label": "dapr-debug",
-            "type": "dapr",
-            "dependsOn": "build"
-        },
-        {
-            "appId": "monitorprocessor1",
-            "label": "daprd-down",
-            "type": "daprd-down"
         }
     ]
 }
