@@ -24,14 +24,15 @@ namespace NetworkMonitor.Objects.Repository
 
         private ILogger _logger;
         private IMonitorPingProcessor _monitorPingProcessor;
-        private ConnectionFactory _factory = new ConnectionFactory { HostName = "localhost" };
+        private ConnectionFactory _factory;
         List<RabbitMQObj> _rabbitMQObjs = new List<RabbitMQObj>();
-        public RabbitListener(ILogger logger, IMonitorPingProcessor monitorPingProcessor, string appID, string instanceName)
+        public RabbitListener(ILogger logger, IMonitorPingProcessor monitorPingProcessor, string appID, string instanceName, string hostname)
         {
             _logger = logger;
             _monitorPingProcessor = monitorPingProcessor;
             _appID = appID;
             _instanceName = instanceName;
+            _factory = new ConnectionFactory { HostName = hostname};
             init();
         }
         public void init()
