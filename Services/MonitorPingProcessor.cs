@@ -35,9 +35,9 @@ namespace NetworkMonitor.Processor.Services
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
-        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, IHostApplicationLifetime appLifetime, IConnectFactory connectFactory)
+        public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, IConnectFactory connectFactory)
         {
-            appLifetime.ApplicationStopping.Register(OnStopping);
+
             _logger = logger;
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
@@ -201,7 +201,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning("Warning : There are No MonitorIPs using statestore");
                     initObj.MonitorIPs = stateMonitorIPs;
-                    if (stateMonitorIPs.Count == 0)
+                    if (stateMonitorIPs==null ||stateMonitorIPs.Count == 0)
                     {
                         _logger.LogError("Error : There are No MonitorIPs in statestore");
                     }
