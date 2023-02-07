@@ -1,8 +1,0 @@
-apiVersion: dapr.io/v1alpha1
-kind: Subscription
-metadata:
-  name: removePingInfosZZ
-spec:
-  topic: removePingInfosZZ
-  route: /processor/removePingInfos
-  pubsubname: pubsub
