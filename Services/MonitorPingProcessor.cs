@@ -44,7 +44,7 @@ namespace NetworkMonitor.Processor.Services
             _appID = config.GetValue<string>("AppID");
             _logger.LogInformation(" Starting Processor with AppID = " + _appID);
             _connectFactory = connectFactory;
-            _rabbitRepo = new RabbitListener(_logger,this, _appID, "monitorProcessor1");
+            _rabbitRepo = new RabbitListener(_logger,this, _appID, config.GetValue<string>("InstanceName"), config.GetValue<string>("HostName"));
             init(new ProcessorInitObj());
             
         }
