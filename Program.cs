@@ -27,10 +27,7 @@ namespace NetworkMonitor.Processor
     {
         //options.Listen(IPAddress.Loopback, 5000);  // http:localhost:5000
         options.Listen(IPAddress.Any, 2054);         // http:*:65123
-        options.Listen(IPAddress.Any, 2055, listenOptions =>
-        {
-            listenOptions.UseHttps("https.pfx", "Ac£0462110");
-        });
+        options.Listen(IPAddress.Any, 2055);
     }).UseStartup<Startup>();
     }
 }
