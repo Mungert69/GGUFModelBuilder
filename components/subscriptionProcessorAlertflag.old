@@ -1,8 +1,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: processorAlertFlag1
+  name: processorAlertFlagZZ
 spec:
-  topic: processorAlertFlag1
+  topic: processorAlertFlagZZ
   route: /processor/alertflag
   pubsubname: pubsub

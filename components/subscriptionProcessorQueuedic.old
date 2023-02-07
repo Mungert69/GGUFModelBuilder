@@ -1,8 +1,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: processorQueueDic1
+  name: processorQueueDicZZ
 spec:
-  topic: processorQueueDic1
+  topic: processorQueueDicZZ
   route: /processor/queuedic
   pubsubname: pubsub

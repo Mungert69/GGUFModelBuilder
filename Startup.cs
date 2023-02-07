@@ -28,7 +28,7 @@ namespace NetworkMonitor.Processor
         {
             _services = services;
             services.AddSingleton<IMonitorPingProcessor, MonitorPingProcessor>();
-             services.AddSingleton<IConnectFactory, ConnectFactory>();
+            services.AddSingleton<IConnectFactory, ConnectFactory>();
 
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
 
@@ -44,9 +44,9 @@ namespace NetworkMonitor.Processor
                 options.AddSimpleConsole(c =>
                 {
                     c.SingleLine = true;
-            c.TimestampFormat = "[HH:mm:ss] ";
-            c.UseUtcTimestamp = true;
-            c.ColorBehavior=Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+                    c.TimestampFormat = "[HH:mm:ss] ";
+                    c.UseUtcTimestamp = true;
+                    c.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
                 });
             });
 
@@ -55,7 +55,7 @@ namespace NetworkMonitor.Processor
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
         {
-
+            app.ApplicationServices.GetService<IMonitorPingProcessor>();
             app.UseRouting();
             app.UseCloudEvents();
             app.UseEndpoints(endpoints =>

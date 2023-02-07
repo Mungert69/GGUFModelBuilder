@@ -25,9 +25,10 @@ namespace NetworkMonitor.Processor.Services
         private List<NetConnect> _netConnects = null;
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
-        private DaprClient _daprClient;
+        //private DaprClient _daprClient;
         private string _appID = "1";
         private int _piIDKey = 1;
+        private RabbitListener _rabbitRepo;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private IConnectFactory _connectFactory;
         private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
@@ -38,24 +39,24 @@ namespace NetworkMonitor.Processor.Services
         {
             appLifetime.ApplicationStopping.Register(OnStopping);
             _logger = logger;
-            _daprClient = daprClient;
+            //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
             _logger.LogInformation(" Starting Processor with AppID = " + _appID);
             _connectFactory = connectFactory;
+            _rabbitRepo = new RabbitListener(_logger,this, _appID, "monitorProcessor1");
             init(new ProcessorInitObj());
+            
         }
         private void OnStopping()
         {
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishRepo.MonitorPingInfos(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
-                ProcessorInitObj processorObj = new ProcessorInitObj();
-                processorObj.IsProcessorReady = false;
-                processorObj.AppID = _appID;
-                DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
+               // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
             }
@@ -74,7 +75,8 @@ namespace NetworkMonitor.Processor.Services
             _removeMonitorPingInfoIDs = new List<int>();
             try
             {
-                bool isDaprReady = _daprClient.CheckHealthAsync().Result;
+                //bool isDaprReady = _daprClient.CheckHealthAsync().Result;
+                bool isDaprReady = true;
                 if (isDaprReady)
                 {
                     if (initObj.TotalReset)
@@ -251,7 +253,8 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
+
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
 
             }
             catch (Exception e)
@@ -260,7 +263,7 @@ namespace NetworkMonitor.Processor.Services
             }
             finally
             {
-                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
         }
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
@@ -360,7 +363,7 @@ namespace NetworkMonitor.Processor.Services
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
-            PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, false);
+            PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
@@ -379,7 +382,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
-                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
                 return result;
             }
             // Time interval between Now and NextRun
@@ -425,9 +428,10 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     result.Message += removePublishedPingInfos().Message;
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _daprClient, _monitorPingInfos, _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 }
-                PublishRepo.ProcessorReadyThread(_logger, _daprClient, _appID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
+
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
@@ -683,7 +687,8 @@ namespace NetworkMonitor.Processor.Services
             result = new ResultObj();
             try
             {
-                DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
+                _rabbitRepo.Publish<List<AlertFlagObj>>("alertMessageResetAlerts", alertFlagObjs);
+                //DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
                 result.Success = true;
                 result.Message = " Success : sent alertMessageResetAlert message . ";
             }
