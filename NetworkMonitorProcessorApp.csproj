@@ -11,9 +11,6 @@
     <ContainerImageTag>0.2.1</ContainerImageTag>
   </PropertyGroup>
 
-  <ItemGroup>
-   <None Include="appsettings.json" CopyToPublishDirectory="Always" />
-</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CloudNative.CloudEvents" Version="2.5.1" />
