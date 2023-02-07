@@ -30,14 +30,7 @@ namespace NetworkMonitor.Processor
             services.AddSingleton<IMonitorPingProcessor, MonitorPingProcessor>();
             services.AddSingleton<IConnectFactory, ConnectFactory>();
             services.Configure<HostOptions>(s => s.ShutdownTimeout = TimeSpan.FromMinutes(5));
-            services.AddControllers();
-            //services.AddControllers().AddDapr();
-            /*var jsonOptions = new JsonSerializerOptions
-            {
-                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
-            };
-            services.AddDaprClient(daprOptions => daprOptions.UseJsonSerializationOptions(jsonOptions));
-            */
+           
             services.AddLogging(options =>
             {
                 options.AddSimpleConsole(c =>
@@ -59,8 +52,7 @@ namespace NetworkMonitor.Processor
             app.UseCloudEvents();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapSubscribeHandler();
-                endpoints.MapControllers();
+
             });
             app.ApplicationServices.GetService<IMonitorPingProcessor>();
         }
