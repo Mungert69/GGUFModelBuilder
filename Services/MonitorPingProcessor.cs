@@ -132,7 +132,7 @@ namespace NetworkMonitor.Processor.Services
                             string infoLog = "";
                             try
                             {
-                                using (var processorDataObj = FileRepo.GetStateJsonZ<ProcessorDataObj>("ProcessorDataObj"))
+                                using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
                                 {
                                     _piIDKey = processorDataObj.PiIDKey;
                                     infoLog += " Got PiIDKey=" + _piIDKey + " . ";
