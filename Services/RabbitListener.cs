@@ -23,6 +23,7 @@ namespace NetworkMonitor.Objects.Repository
         private ILogger _logger;
         private IMonitorPingProcessor _monitorPingProcessor;
         private ConnectionFactory _factory;
+        private IConnection _connection;
         List<RabbitMQObj> _rabbitMQObjs = new List<RabbitMQObj>();
         public RabbitListener(ILogger logger, IMonitorPingProcessor monitorPingProcessor, string appID, string instanceName, string hostname)
         {
@@ -82,9 +83,9 @@ namespace NetworkMonitor.Objects.Repository
                 ExchangeName = "processorWakeUp" + _appID,
                 FuncName = "processorWakeUp"
             });
-            var connection = _factory.CreateConnection();
-            _publishChannel = connection.CreateModel();
-            _rabbitMQObjs.ForEach(r => r.ConnectChannel = connection.CreateModel());
+            _connection = _factory.CreateConnection();
+            _publishChannel = _connection.CreateModel();
+            _rabbitMQObjs.ForEach(r => r.ConnectChannel = _connection.CreateModel());
             Console.WriteLine(DeclareQueues().Message);
             Console.WriteLine(DeclareConsumers().Message);
             Console.WriteLine(BindChannelToConsumer().Message);
@@ -202,7 +203,9 @@ namespace NetworkMonitor.Objects.Repository
                     {
                         rabbitMQObj.ConnectChannel.BasicConsume(queue: rabbitMQObj.QueueName,
                             autoAck: false,
-                            consumer: rabbitMQObj.Consumer);
+                            consumer: rabbitMQObj.Consumer
+                            
+                            );
                     });
                 result.Success = true;
                 result.Message += " Success :  bound all consumers to queues ";
