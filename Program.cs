@@ -23,12 +23,17 @@ namespace NetworkMonitor.Processor
                             .AddFilter("Microsoft", LogLevel.Warning)
                             .AddFilter("System", LogLevel.Warning)
                             .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
-                            .AddConsole();
+                            .AddConsole(c =>
+                            {
+                                c.TimestampFormat = "[HH:mm:ss] ";
+                                c.UseUtcTimestamp = true;
+
+                            });
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
             var connectFactory = new NetworkMonitor.Connection.ConnectFactory();
             var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
-            
+
             Task.Run(() =>
             {
                 while (true)
