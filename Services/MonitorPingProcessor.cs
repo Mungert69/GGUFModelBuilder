@@ -233,12 +233,12 @@ namespace NetworkMonitor.Processor.Services
                 if (SystemParamsHelper.IsSystemElevatedPrivilege)
                 {
                     _logger.LogInformation("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
-                    _pingParams.IsAdmin = true;
+                    if (_pingParams!=null)_pingParams.IsAdmin = true;
                 }
                 else
                 {
                     _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
-                    _pingParams.IsAdmin = false;
+                     if (_pingParams!=null) _pingParams.IsAdmin = false;
                 }
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
