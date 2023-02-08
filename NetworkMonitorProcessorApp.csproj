@@ -5,6 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled</ContainerBaseImage>
     <ContainerImageTag>0.2.1</ContainerImageTag>
   </PropertyGroup>
 

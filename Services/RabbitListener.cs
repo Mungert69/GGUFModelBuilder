@@ -13,7 +13,6 @@ using System.Text;
 using System.Linq;
 using NetworkMonitor.Utils;
 using Microsoft.Extensions.Logging;
-
 namespace NetworkMonitor.Objects.Repository
 {
     public class RabbitListener
@@ -21,7 +20,6 @@ namespace NetworkMonitor.Objects.Repository
         private string _appID;
         private string _instanceName;
         private IModel _publishChannel;
-
         private ILogger _logger;
         private IMonitorPingProcessor _monitorPingProcessor;
         private ConnectionFactory _factory;
@@ -38,9 +36,9 @@ namespace NetworkMonitor.Objects.Repository
                 UserName = "guest",
                 Password = "guest",
                 AutomaticRecoveryEnabled = true,
-                MaxMessageSize=16000000,
-                UseBackgroundThreadsForIO=true,
-                Port=5672
+                MaxMessageSize = 16000000,
+                UseBackgroundThreadsForIO = true,
+                Port = 5672
             };
             init();
         }
@@ -86,7 +84,6 @@ namespace NetworkMonitor.Objects.Repository
                 ExchangeName = "processorWakeUp" + _appID,
                 FuncName = "processorWakeUp"
             });
-            _factory.AutomaticRecoveryEnabled = true;
             var connection = _factory.CreateConnection();
             _publishChannel = connection.CreateModel();
             _rabbitMQObjs.ForEach(r => r.ConnectChannel = connection.CreateModel());
@@ -94,205 +91,6 @@ namespace NetworkMonitor.Objects.Repository
             Console.WriteLine(DeclareConsumers().Message);
             Console.WriteLine(BindChannelToConsumer().Message);
         }
-
-
-        private T ConvertToObject<T>(object sender, BasicDeliverEventArgs @event) where T : class
-        {
-            string json = Encoding.UTF8.GetString(@event.Body.ToArray(), 0, @event.Body.ToArray().Length);
-            var cloudEvent = JsonConvert.DeserializeObject<CloudEvent>(json);
-            JObject dataAsJObject = (JObject)cloudEvent.Data;
-            var result = dataAsJObject.ToObject<T>();
-            return result;
-        }
-        public ResultObj Connect(ProcessorConnectObj connectObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorConnect : ";
-            try
-            {
-                ResultObj connectResult = _monitorPingProcessor.Connect(connectObj);
-                result.Message += connectResult.Message;
-                result.Success = connectResult.Success;
-                result.Data = connectResult.Data;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to run Connect : Error was : " + e.ToString() + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj RemovePingInfos(ProcessorDataObj processorDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : RemovePingInfos : ";
-            try
-            {
-                _monitorPingProcessor.ProcessesMonitorReturnData(processorDataObj);
-                result.Message += "Success : updated RemovePingInfos. ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj Init(ProcessorInitObj initObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorInit : ";
-            try
-            {
-                _monitorPingProcessor.init(initObj);
-                result.Message += "Success ran ok ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj AlertFlag(List<int> monitorPingInfoIds)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorAlertFlag : ";
-            try
-            {
-                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
-                List<ResultObj> results = _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
-                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
-                if (result.Success) result.Message += "Success ran ok ";
-                else
-                {
-                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
-                    result.Data = results;
-                }
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj AlertSent(List<int> monitorIPIDs)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorAlertSent : ";
-            try
-            {
-                monitorIPIDs.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found monitorIPID =" + f));
-                List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorIPIDs, true);
-                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
-                if (result.Success) result.Message += "Success ran ok ";
-                else
-                {
-                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
-                    result.Data = results;
-                }
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj ResetAlerts(List<int> monitorIPIDs)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorResetAlerts : ";
-            try
-            {
-                var results = _monitorPingProcessor.ResetAlerts(monitorIPIDs);
-                results.ForEach(f => result.Message += f.Message);
-                result.Success = results.All(a => a.Success == true) && results.Count() != 0;
-                result.Data = results;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj QueueDic(ProcessorQueueDicObj queueDicObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorQueueDic : ";
-            try
-            {
-                _monitorPingProcessor.AddMonitorIPsToQueueDic(queueDicObj);
-                result.Message += "Success ran ok ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public ResultObj WakeUp()
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : WakeUp : ";
-            try
-            {
-                _monitorPingProcessor.Awake = true;
-                result.Message += "Success ran WakeUp ok ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Data = null;
-                result.Success = false;
-                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
         private ResultObj DeclareQueues()
         {
             var result = new ResultObj();
@@ -420,12 +218,199 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-
+        private T ConvertToObject<T>(object sender, BasicDeliverEventArgs @event) where T : class
+        {
+            string json = Encoding.UTF8.GetString(@event.Body.ToArray(), 0, @event.Body.ToArray().Length);
+            var cloudEvent = JsonConvert.DeserializeObject<CloudEvent>(json);
+            JObject dataAsJObject = (JObject)cloudEvent.Data;
+            var result = dataAsJObject.ToObject<T>();
+            return result;
+        }
+        public ResultObj Connect(ProcessorConnectObj connectObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorConnect : ";
+            try
+            {
+                ResultObj connectResult = _monitorPingProcessor.Connect(connectObj);
+                result.Message += connectResult.Message;
+                result.Success = connectResult.Success;
+                result.Data = connectResult.Data;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to run Connect : Error was : " + e.ToString() + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj RemovePingInfos(ProcessorDataObj processorDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : RemovePingInfos : ";
+            try
+            {
+                _monitorPingProcessor.ProcessesMonitorReturnData(processorDataObj);
+                result.Message += "Success : updated RemovePingInfos. ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj Init(ProcessorInitObj initObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorInit : ";
+            try
+            {
+                _monitorPingProcessor.init(initObj);
+                result.Message += "Success ran ok ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj AlertFlag(List<int> monitorPingInfoIds)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorAlertFlag : ";
+            try
+            {
+                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
+                List<ResultObj> results = _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
+                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
+                if (result.Success) result.Message += "Success ran ok ";
+                else
+                {
+                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
+                    result.Data = results;
+                }
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj AlertSent(List<int> monitorIPIDs)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorAlertSent : ";
+            try
+            {
+                monitorIPIDs.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found monitorIPID =" + f));
+                List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorIPIDs, true);
+                result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
+                if (result.Success) result.Message += "Success ran ok ";
+                else
+                {
+                    results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
+                    result.Data = results;
+                }
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj ResetAlerts(List<int> monitorIPIDs)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorResetAlerts : ";
+            try
+            {
+                var results = _monitorPingProcessor.ResetAlerts(monitorIPIDs);
+                results.ForEach(f => result.Message += f.Message);
+                result.Success = results.All(a => a.Success == true) && results.Count() != 0;
+                result.Data = results;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj QueueDic(ProcessorQueueDicObj queueDicObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorQueueDic : ";
+            try
+            {
+                _monitorPingProcessor.AddMonitorIPsToQueueDic(queueDicObj);
+                result.Message += "Success ran ok ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+        public ResultObj WakeUp()
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : WakeUp : ";
+            try
+            {
+                _monitorPingProcessor.Awake = true;
+                result.Message += "Success ran WakeUp ok ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
         public string PublishJsonZ<T>(string exchangeName, T obj) where T : class
         {
             var datajson = JsonUtils.writeJsonObjectToString<T>(obj);
             string datajsonZ = StringCompressor.Compress(datajson);
-
             CloudEvent cloudEvent = new CloudEvent
             {
                 Id = "event-id",
@@ -447,7 +432,6 @@ namespace NetworkMonitor.Objects.Repository
         }
         public void Publish<T>(string exchangeName, T obj) where T : class
         {
-
             CloudEvent cloudEvent = new CloudEvent
             {
                 Id = "event-id",
@@ -466,10 +450,8 @@ namespace NetworkMonitor.Objects.Repository
                                  // body: formatter.EncodeBinaryModeEventData(cloudEvent));
                                  body: body);
         }
-
         public void Publish(string exchangeName, Object obj)
         {
-
             CloudEvent cloudEvent = new CloudEvent
             {
                 Id = "event-id",
