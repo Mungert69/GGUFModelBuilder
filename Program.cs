@@ -26,26 +26,21 @@ namespace NetworkMonitor.Processor
                             .AddConsole();
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
-            var connectFactory = new ConnectFactory();
+            var connectFactory = new NetworkMonitor.Connection.ConnectFactory();
             var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
             
             Task.Run(() =>
             {
-                
-                var random = new Random(10);
                 while (true)
                 {
-                    // Write here whatever your side car applications needs to do.
-                    // In this sample we are just writing a random number to the Console (stdout)
-                    Console.WriteLine($"Loop = {random.Next()}");
-                    // Sleep as long as you need.
-                    Thread.Sleep(1000);
+                    Task.Delay(1000).Wait();
                 }
             });
             // Handle Control+C or Control+Break
             Console.CancelKeyPress += (o, e) =>
             {
                 Console.WriteLine("Exit");
+                _monitorPingProcessor.OnStopping();
                 // Allow the manin thread to continue and exit...
                 waitHandle.Set();
             };
