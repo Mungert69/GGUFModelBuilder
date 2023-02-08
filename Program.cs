@@ -17,17 +17,20 @@ namespace NetworkMonitor.Processor
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
+
             var loggerFactory = LoggerFactory.Create(builder =>
                     {
                         builder
                             .AddFilter("Microsoft", LogLevel.Warning)
                             .AddFilter("System", LogLevel.Warning)
                             .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
-                            .AddConsole(c =>
+                            .AddSimpleConsole(c =>
                             {
+                                c.SingleLine = true;
                                 c.TimestampFormat = "[HH:mm:ss] ";
                                 c.UseUtcTimestamp = true;
-
+                                c.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
+    
                             });
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
