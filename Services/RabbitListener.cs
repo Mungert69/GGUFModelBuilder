@@ -36,8 +36,6 @@ namespace NetworkMonitor.Objects.Repository
                 UserName = "guest",
                 Password = "guest",
                 AutomaticRecoveryEnabled = true,
-                MaxMessageSize = 16000000,
-                UseBackgroundThreadsForIO = true,
                 Port = 5672
             };
             init();
