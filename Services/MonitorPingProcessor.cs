@@ -37,18 +37,19 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger<MonitorPingProcessor> logger, IConnectFactory connectFactory)
         {
-
             _logger = logger;
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
-            _logger.LogInformation(" Starting Processor with AppID = " + _appID);
+            string instanceName=config.GetValue<string>("InstanceName");
+            //string hostName=config.GetValue<string>("hostname");
+            string hostName="rabbitmq";
+            _logger.LogInformation(" Starting Processor with AppID = " + _appID+ " instanceName="+instanceName+" connecting to RabbitMQ at "+hostName);
             _connectFactory = connectFactory;
-            _rabbitRepo = new RabbitListener(_logger,this, _appID, config.GetValue<string>("InstanceName"), config.GetValue<string>("HostName"));
+            _rabbitRepo = new RabbitListener(_logger, this, _appID, instanceName, hostName );
             init(new ProcessorInitObj());
-            
         }
-        private void OnStopping()
+        public void OnStopping()
         {
             Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
@@ -56,7 +57,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
-               // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
             }
@@ -76,118 +77,108 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 //bool isDaprReady = _daprClient.CheckHealthAsync().Result;
-                bool isDaprReady = true;
-                if (isDaprReady)
+                if (initObj.TotalReset)
                 {
-                    if (initObj.TotalReset)
+                    _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
+                    Dictionary<string, string> metadata = new Dictionary<string, string>();
+                    var processorDataObj = new ProcessorDataObj()
                     {
-                        _logger.LogInformation("Resetting Processor MonitorPingInfos in statestore");
-                        Dictionary<string, string> metadata = new Dictionary<string, string>();
-                        var processorDataObj = new ProcessorDataObj()
-                        {
-                            MonitorPingInfos = new List<MonitorPingInfo>(),
-                            RemoveMonitorPingInfoIDs = new List<int>(),
-                            SwapMonitorPingInfos = new List<SwapMonitorPingInfo>(),
-                            RemovePingInfos = new List<RemovePingInfo>(),
-                            PingInfos = new List<PingInfo>(),
-                            PiIDKey = 1
-                        };
-                        currentMonitorPingInfos = new List<MonitorPingInfo>();
-                        try
-                        {
-                            FileRepo.SaveStateJsonZ("ProcessorDataObj", processorDataObj);
-                            FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
-                            FileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
-                            _logger.LogInformation("Reset Processor Objects in statestore ");
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogError("Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
-                        }
+                        MonitorPingInfos = new List<MonitorPingInfo>(),
+                        RemoveMonitorPingInfoIDs = new List<int>(),
+                        SwapMonitorPingInfos = new List<SwapMonitorPingInfo>(),
+                        RemovePingInfos = new List<RemovePingInfo>(),
+                        PingInfos = new List<PingInfo>(),
+                        PiIDKey = 1
+                    };
+                    currentMonitorPingInfos = new List<MonitorPingInfo>();
+                    try
+                    {
+                        FileRepo.SaveStateJsonZ("ProcessorDataObj", processorDataObj);
+                        FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+                        FileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
+                        _logger.LogInformation("Reset Processor Objects in statestore ");
                     }
-                    else
+                    catch (Exception e)
                     {
-                        if (initObj.Reset)
-                        {
-                            _logger.LogInformation("Zeroing MonitorPingInfos for new DataSet");
-                            foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
-                            {
-                                monitorPingInfo.DateStarted = DateTime.UtcNow;
-                                monitorPingInfo.PacketsLost = 0;
-                                monitorPingInfo.PacketsLostPercentage = 0;
-                                monitorPingInfo.PacketsRecieved = 0;
-                                monitorPingInfo.PacketsSent = 0;
-                                monitorPingInfo.PingInfos = new List<PingInfo>();
-                                monitorPingInfo.RoundTripTimeAverage = 0;
-                                monitorPingInfo.RoundTripTimeMaximum = 0;
-                                monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
-                                monitorPingInfo.RoundTripTimeTotal = 0;
-                                //monitorPingInfo.TimeOuts = 0;
-                            }
-                            currentMonitorPingInfos = _monitorPingInfos;
-                            _piIDKey = 1;
-                        }
-                        else
-                        {
-                            string infoLog = "";
-                            try
-                            {
-                                using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
-                                {
-                                    _piIDKey = processorDataObj.PiIDKey;
-                                    infoLog += " Got PiIDKey=" + _piIDKey + " . ";
-                                    currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
-                                    _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                                    _removePingInfos = processorDataObj.RemovePingInfos;
-                                    _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
-                                    if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                                    if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
-                                    if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-
-                                }
-                                if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
-                                {
-                                    infoLog += (" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count()) + " ";
-                                }
-                                else
-                                {
-                                    _logger.LogWarning("Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
-                                currentMonitorPingInfos = new List<MonitorPingInfo>();
-                                if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                                if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
-                                if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-                            }
-                            try
-                            {
-                                stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
-                                if (stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count()) + " . ";
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogWarning("Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
-                            }
-                            try
-                            {
-                                statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
-                                infoLog += ("Got PingParams from statestore . ");
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogWarning("Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
-                            }
-                            _logger.LogInformation(infoLog);
-                        }
+                        _logger.LogError("Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
                     }
                 }
                 else
                 {
-                    _logger.LogError("Dapr Client Status is not healthy");
-                    currentMonitorPingInfos = new List<MonitorPingInfo>();
+                    if (initObj.Reset)
+                    {
+                        _logger.LogInformation("Zeroing MonitorPingInfos for new DataSet");
+                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+                        {
+                            monitorPingInfo.DateStarted = DateTime.UtcNow;
+                            monitorPingInfo.PacketsLost = 0;
+                            monitorPingInfo.PacketsLostPercentage = 0;
+                            monitorPingInfo.PacketsRecieved = 0;
+                            monitorPingInfo.PacketsSent = 0;
+                            monitorPingInfo.PingInfos = new List<PingInfo>();
+                            monitorPingInfo.RoundTripTimeAverage = 0;
+                            monitorPingInfo.RoundTripTimeMaximum = 0;
+                            monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
+                            monitorPingInfo.RoundTripTimeTotal = 0;
+                            //monitorPingInfo.TimeOuts = 0;
+                        }
+                        currentMonitorPingInfos = _monitorPingInfos;
+                        _piIDKey = 1;
+                    }
+                    else
+                    {
+                        string infoLog = "";
+                        try
+                        {
+                            using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
+                            {
+                                _piIDKey = processorDataObj.PiIDKey;
+                                infoLog += " Got PiIDKey=" + _piIDKey + " . ";
+                                currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
+                                _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
+                                _removePingInfos = processorDataObj.RemovePingInfos;
+                                _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
+                                if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+                                if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
+                                if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+                            }
+                            if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
+                            {
+                                infoLog += (" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count()) + " ";
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            _logger.LogError("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
+                            currentMonitorPingInfos = new List<MonitorPingInfo>();
+                            if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+                            if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
+                            if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+                        }
+                        try
+                        {
+                            stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                            if (stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count()) + " . ";
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning("Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
+                        }
+                        try
+                        {
+                            statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
+                            infoLog += ("Got PingParams from statestore . ");
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogWarning("Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
+                        }
+                        _logger.LogInformation(infoLog);
+                    }
                 }
             }
             catch (Exception e)
@@ -201,7 +192,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning("Warning : There are No MonitorIPs using statestore");
                     initObj.MonitorIPs = stateMonitorIPs;
-                    if (stateMonitorIPs==null ||stateMonitorIPs.Count == 0)
+                    if (stateMonitorIPs == null || stateMonitorIPs.Count == 0)
                     {
                         _logger.LogError("Error : There are No MonitorIPs in statestore");
                     }
@@ -235,6 +226,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     catch (Exception e)
                     {
+                        if (_pingParams==null) _pingParams=new PingParams();
                         _logger.LogError(" Error : Unable to Save OingParams to statestore. Error was : " + e.Message);
                     }
                 }
@@ -253,9 +245,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
-
             }
             catch (Exception e)
             {
@@ -270,7 +260,6 @@ namespace NetworkMonitor.Processor.Services
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
             if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-
             if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
             _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
             processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
@@ -431,7 +420,6 @@ namespace NetworkMonitor.Processor.Services
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
-
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
@@ -506,7 +494,6 @@ namespace NetworkMonitor.Processor.Services
                         message += "Error : Failed to update Host list check Values.";
                     }
                     _logger.LogInformation(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
-
                 }
                 // Else create a new MonitorPingInfo or copy from Queue
                 else
@@ -547,7 +534,6 @@ namespace NetworkMonitor.Processor.Services
                             var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                             delList.Add(del);
                             _logger.LogInformation(" Deleting MonitorIP with ID " + f.ID);
-
                             if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
                         }
                     });
@@ -582,7 +568,6 @@ namespace NetworkMonitor.Processor.Services
                         stateMonitorIPs.Add((MonitorIP)updateMonitorIP);
                     }
                 }
-
                 foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
                     kvp.Value.ForEach(f =>
