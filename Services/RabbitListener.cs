@@ -133,51 +133,74 @@ namespace NetworkMonitor.Objects.Repository
                 switch (rabbitMQObj.FuncName)
                 {
                     case "processorConnect":
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                             {
                                 result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                             };
                         break;
                     case "removePingInfos":
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
+                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorInit":
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
+                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = Init(ConvertToObject<ProcessorInitObj>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorAlertFlag":
+                      rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
+                  
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = AlertFlag(ConvertToObject<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorAlertSent":
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
+                  
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = AlertSent(ConvertToObject<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorQueueDic":
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
+                  
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorResetAlerts":
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
+                  
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = ResetAlerts(ConvertToObject<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                     case "processorWakeUp":
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
+                  
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = WakeUp();
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
                     };
                         break;
                 }
