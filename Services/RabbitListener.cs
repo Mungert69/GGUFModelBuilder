@@ -34,8 +34,9 @@ namespace NetworkMonitor.Objects.Repository
             _factory = new ConnectionFactory
             {
                 HostName = hostname,
-                UserName = "guest",
-                Password = "guest",
+                UserName = "usercommonxf1",
+                Password = "test12",
+                VirtualHost="/vhostuser",
                 AutomaticRecoveryEnabled = true,
                 Port = 5672
             };
