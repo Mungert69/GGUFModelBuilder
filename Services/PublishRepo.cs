@@ -150,7 +150,7 @@ namespace NetworkMonitor.Objects.Repository
             processorObj.IsProcessorReady = isReady;
             processorObj.AppID = appID;
             rabbitListener.Publish<ProcessorInitObj>( "processorReady", processorObj);
-            logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = true ");
+            logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = "+isReady);
         }
     }
 }
