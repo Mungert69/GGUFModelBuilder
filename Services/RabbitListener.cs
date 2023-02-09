@@ -133,7 +133,7 @@ namespace NetworkMonitor.Objects.Repository
                 switch (rabbitMQObj.FuncName)
                 {
                     case "processorConnect":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                             {
                                 result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
@@ -141,7 +141,7 @@ namespace NetworkMonitor.Objects.Repository
                             };
                         break;
                     case "removePingInfos":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
                    
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -150,7 +150,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorInit":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 1, prefetchCount: 1,global: false);
+                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
                    
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -159,7 +159,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorAlertFlag":
-                      rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 100, prefetchCount: 0,global: false);
+                      rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -168,7 +168,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorAlertSent":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 100, prefetchCount: 0,global: false);
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -177,7 +177,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorQueueDic":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 100, prefetchCount: 0,global: false);
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -186,7 +186,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorResetAlerts":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 100, prefetchCount: 0,global: false);
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -195,7 +195,7 @@ namespace NetworkMonitor.Objects.Repository
                     };
                         break;
                     case "processorWakeUp":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 100, prefetchCount: 0,global: false);
+                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 0,global: false);
                   
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
@@ -205,6 +205,7 @@ namespace NetworkMonitor.Objects.Repository
                         break;
                 }
             });
+            
                 result.Success = true;
                 result.Message += " Success : Declared all consumers ";
             }
