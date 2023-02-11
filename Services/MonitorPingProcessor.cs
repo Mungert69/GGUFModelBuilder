@@ -27,7 +27,7 @@ namespace NetworkMonitor.Processor.Services
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         //private DaprClient _daprClient;
         private string _appID = "1";
-        private int _piIDKey = 1;
+        private uint _piIDKey = 1;
         private RabbitListener _rabbitRepo;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private IConnectFactory _connectFactory;

@@ -26,7 +26,7 @@ namespace NetworkMonitor.Objects.Repository
                 logger.LogError(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
-        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, int piIDKey, bool saveState)
+        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
         {
             Thread thread = new Thread(delegate ()
                        {
@@ -35,7 +35,7 @@ namespace NetworkMonitor.Objects.Repository
             thread.Priority = ThreadPriority.Lowest;
             thread.Start();
         }
-        public  static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, int piIDKey, bool saveState)
+        public  static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
