@@ -67,6 +67,9 @@ namespace NetworkMonitor.Processor.Services
                 Console.WriteLine();
             }
         }
+        /*
+        The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
+
         public void init(ProcessorInitObj initObj)
         {
             List<MonitorPingInfo> currentMonitorPingInfos;
@@ -256,6 +259,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
         }
+       //This method ProcessesMonitorReturnData receives an input object processorDataObj and updates class level variables _removeMonitorPingInfoIDs, _swapMonitorPingInfos, and _removePingInfos based on the data in processorDataObj. It removes items from _removeMonitorPingInfoIDs and _swapMonitorPingInfos and adds items to _removePingInfos.
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
@@ -271,6 +275,7 @@ namespace NetworkMonitor.Processor.Services
                 _swapMonitorPingInfos.Remove(f);
             });
         }
+        //This method removePublishedPingInfos removes PingInfos from _monitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
         private ResultObj removePublishedPingInfos()
         {
             var result = new ResultObj();
@@ -294,6 +299,7 @@ namespace NetworkMonitor.Processor.Services
             result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
             return result;
         }
+        //This is a method that adds MonitorPingInfos to a list of monitor IPs. If the MonitorPingInfo for a given monitor IP already exists, it updates it. Otherwise, it creates a new MonitorPingInfo object and fills it with data. The method returns a list of the newly added or updated MonitorPingInfos.
         private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
         {
             var monitorPingInfos = new List<MonitorPingInfo>();
@@ -321,6 +327,8 @@ namespace NetworkMonitor.Processor.Services
             }
             return monitorPingInfos;
         }
+
+        //The method fillPingInfo populates the MonitorPingInfo object with values from the MonitorIP object. The MonitorPingInfo object properties are assigned the values of the corresponding properties of the MonitorIP object, except for Timeout property. If Timeout property of MonitorIP is 0, it will be assigned with the default value of _pingParams.Timeout.
         private void fillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
             monitorPingInfo.ID = monIP.ID;
@@ -340,6 +348,8 @@ namespace NetworkMonitor.Processor.Services
             }
             return;
         }
+
+        // /This method GetNetConnect returns a Task object for a network connection with the given monitorPingInfoID. It searches the list of _netConnects for an object with the matching ID and returns the connect task from that object. If no match is found, a completed task is returned.
         private Task GetNetConnect(int monitorPingInfoID)
         {
             var connectTask = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID);
@@ -347,6 +357,7 @@ namespace NetworkMonitor.Processor.Services
             if (connectTask == null) return Task.FromResult<object>(null);
             return connectTask.connect();
         }
+        // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
             var timerInner = new Stopwatch();
@@ -399,10 +410,10 @@ namespace NetworkMonitor.Processor.Services
                         new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
                 );
-                Task.WhenAll(pingConnectTasks.ToArray());
+               Task.WhenAll(pingConnectTasks.ToArray()).Wait();
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
-                new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
+                //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
             }
@@ -430,6 +441,7 @@ namespace NetworkMonitor.Processor.Services
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
             return result;
         }
+        //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
         private string UpdateMonitorPingInfosFromMonitorIPQueue()
         {
             var monitorIPQueue = new List<UpdateMonitorIP>();
@@ -585,6 +597,8 @@ namespace NetworkMonitor.Processor.Services
             }
             return resultStr;
         }
+
+        //This method "UpdateMonitorPingInfosFromMonitorIPQueue()" updates the information in the "MonitorPingInfo" class from a queue of updates stored in "_monitorIPQueueDic". 
         public void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
         {
             // Nothing to process so just return
@@ -597,6 +611,7 @@ namespace NetworkMonitor.Processor.Services
         {
             // Get all MonitorIPs from the queue
         }
+        // This method updates the AlertSent property of MonitorPingInfo objects in the _monitorPingInfos list, based on the provided monitorIPIDs list. For each id in monitorIPIDs, it retrieves the corresponding MonitorPingInfo object and sets its AlertSent property to alertSent. The method returns a list of ResultObj objects, where each object represents the result of updating the AlertSent property for a specific MonitorPingInfo object.
         public List<ResultObj> UpdateAlertSent(List<int> monitorIPIDs, bool alertSent)
         {
             var results = new List<ResultObj>();
@@ -619,6 +634,7 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
+        // This method updates the AlertFlag field for multiple MonitorPingInfo objects based on the provided monitorIPIDs. The method returns a list of ResultObj objects indicating the success or failure of the update for each MonitorPingInfo. If the MonitorPingInfo with a given id is found in the _monitorPingInfos collection, the AlertFlag field is updated to the provided alertFlag value, and a success message is added to the ResultObj. If the MonitorPingInfo is not found, a failure message is added to the ResultObj.
         public List<ResultObj> UpdateAlertFlag(List<int> monitorIPIDs, bool alertFlag)
         {
             var results = new List<ResultObj>();
@@ -641,6 +657,9 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
+
+
+        // This method resets the alert status for a list of MonitorPingInfos, specified by their monitorIPIDs, by setting the AlertFlag to false and AlertSent to false, and setting the DownCount to 0. It also publishes a message "alertMessageResetAlerts" with the list of AlertFlagObjs to the rabbitmq. The method returns a list of ResultObjs, which contains the success or failure of the operation and the relevant message.
         public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
         {
             var results = new List<ResultObj>();
