@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Connection;
+using NetworkMonitor.Objects;
 using Microsoft.Extensions.Logging;
 namespace NetworkMonitor.Processor
 {
@@ -12,12 +13,12 @@ namespace NetworkMonitor.Processor
         private static readonly AutoResetEvent waitHandle = new AutoResetEvent(false);
         static void Main(string[] args)
         {
+          
             IConfiguration config = new ConfigurationBuilder()
                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
-
             var loggerFactory = LoggerFactory.Create(builder =>
                     {
                         builder
@@ -30,13 +31,11 @@ namespace NetworkMonitor.Processor
                                 c.TimestampFormat = "[HH:mm:ss] ";
                                 c.UseUtcTimestamp = true;
                                 c.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
-    
                             });
                     });
             ILogger<MonitorPingProcessor> logger = loggerFactory.CreateLogger<MonitorPingProcessor>();
             var connectFactory = new NetworkMonitor.Connection.ConnectFactory();
             var _monitorPingProcessor = new MonitorPingProcessor(config, logger, connectFactory);
-
             Task.Run(() =>
             {
                 while (true)
