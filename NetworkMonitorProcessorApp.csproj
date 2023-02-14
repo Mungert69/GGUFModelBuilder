@@ -7,6 +7,8 @@
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled</ContainerBaseImage>
     <ContainerImageTag>0.2.1</ContainerImageTag>
+     <GenerateProgramFile>false</GenerateProgramFile>
+
   </PropertyGroup>
 
 
@@ -14,6 +16,7 @@
     <PackageReference Include="CloudNative.CloudEvents" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.NewtonsoftJson" Version="2.5.1" />
+    <PackageReference Include="MailKit" Version="3.5.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
@@ -26,6 +29,10 @@
     <PackageReference Include="RestSharp" Version="108.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+     
 
   </ItemGroup>
 
