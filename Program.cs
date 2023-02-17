@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Connection;
@@ -13,7 +14,22 @@ namespace NetworkMonitor.Processor
         private static readonly AutoResetEvent waitHandle = new AutoResetEvent(false);
         static void Main(string[] args)
         {
-          
+               var pingParams = new PingParams
+            {
+                Timeout = 10000
+            };
+          var pingInfo = new MonitorPingInfo
+            {
+                MonitorIPID = 1,
+                Address = "pq.cloudflareresearch.com",
+                EndPointType = "Quantum",
+                PingInfos = new List<PingInfo>(),
+                Timeout = 5000
+            };
+            // Arrange
+            var quantumConnect = new QuantumConnect(pingInfo, pingParams);
+            quantumConnect.connect();
+
             IConfiguration config = new ConfigurationBuilder()
                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                  .AddEnvironmentVariables()

@@ -25,7 +25,7 @@ namespace NetworkMonitor.Tests
             var pingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
-                Address = "https://www.google.com",
+                Address = "https://pq.cloudflareresearch.com",
                 EndPointType = "Quantum",
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
@@ -63,7 +63,7 @@ namespace NetworkMonitor.Tests
 
             // Assert
             Assert.Equal(1, pingInfo.PacketsSent);
-            Assert.Equal("Not using quantum safe encryption", pingInfo.Status);
+            Assert.Equal("QUANTUM:Failed to connect: Not using quantum safe encryption", pingInfo.Status);
             Assert.Single(pingInfo.PingInfos);
             Assert.Equal("Not using quantum safe encryption", pingInfo.PingInfos[0].Status);
            
