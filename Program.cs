@@ -14,6 +14,7 @@ namespace NetworkMonitor.Processor
         private static readonly AutoResetEvent waitHandle = new AutoResetEvent(false);
         static void Main(string[] args)
         {
+            /*
                var pingParams = new PingParams
             {
                 Timeout = 10000
@@ -21,7 +22,9 @@ namespace NetworkMonitor.Processor
           var pingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
-                Address = "pq.cloudflareresearch.com",
+                //Address = "pq.cloudflareresearch.com",
+                // Address = "google.com",
+                Address= "localhost",
                 EndPointType = "Quantum",
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
@@ -29,7 +32,9 @@ namespace NetworkMonitor.Processor
             // Arrange
             var quantumConnect = new QuantumConnect(pingInfo, pingParams);
             quantumConnect.connect();
+            */
 
+            
             IConfiguration config = new ConfigurationBuilder()
                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                  .AddEnvironmentVariables()
