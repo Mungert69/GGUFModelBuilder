@@ -36,7 +36,7 @@ namespace NetworkMonitor.Objects.Repository
                 HostName = hostname,
                 UserName = "usercommonxf1",
                 Password = "test12",
-                VirtualHost="/vhostuser",
+                VirtualHost = "/vhostuser",
                 AutomaticRecoveryEnabled = true,
                 Port = 5672
             };
@@ -133,74 +133,74 @@ namespace NetworkMonitor.Objects.Repository
                 switch (rabbitMQObj.FuncName)
                 {
                     case "processorConnect":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                             {
                                 result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             };
                         break;
                     case "removePingInfos":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                   
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorInit":
-                    rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                   
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = Init(ConvertToObject<ProcessorInitObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorAlertFlag":
-                      rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                  
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = AlertFlag(ConvertToObject<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        result = AlertFlag(ConvertToList<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorAlertSent":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                  
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = AlertSent(ConvertToObject<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        result = AlertSent(ConvertToList<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorQueueDic":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                  
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorResetAlerts":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                  
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = ResetAlerts(ConvertToObject<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        result = ResetAlerts(ConvertToList<List<int>>(model, ea));
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                     case "processorWakeUp":
-                     rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1,global: false);
-                  
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
                         result = WakeUp();
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag,false);
+                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
                 }
@@ -229,7 +229,7 @@ namespace NetworkMonitor.Objects.Repository
                         rabbitMQObj.ConnectChannel.BasicConsume(queue: rabbitMQObj.QueueName,
                             autoAck: false,
                             consumer: rabbitMQObj.Consumer
-                            
+
                             );
                     });
                 result.Success = true;
@@ -246,12 +246,42 @@ namespace NetworkMonitor.Objects.Repository
         }
         private T ConvertToObject<T>(object sender, BasicDeliverEventArgs @event) where T : class
         {
-            string json = Encoding.UTF8.GetString(@event.Body.ToArray(), 0, @event.Body.ToArray().Length);
-            var cloudEvent = JsonConvert.DeserializeObject<CloudEvent>(json);
-            JObject dataAsJObject = (JObject)cloudEvent.Data;
-            var result = dataAsJObject.ToObject<T>();
+            T result = null;
+            try
+            {
+                string json = Encoding.UTF8.GetString(@event.Body.ToArray(), 0, @event.Body.ToArray().Length);
+                var cloudEvent = JsonConvert.DeserializeObject<CloudEvent>(json);
+                JObject dataAsJObject = (JObject)cloudEvent.Data;
+                result = dataAsJObject.ToObject<T>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error : Unable to convert Object. Error was : " + e.ToString());
+
+            }
+
             return result;
         }
+
+ private T ConvertToList<T>(object sender, BasicDeliverEventArgs @event) where T : class
+        {
+            T result = null;
+            try
+            {
+                string json = Encoding.UTF8.GetString(@event.Body.ToArray(), 0, @event.Body.ToArray().Length);
+                var cloudEvent = JsonConvert.DeserializeObject<CloudEvent>(json);
+                JArray dataAsJObject = (JArray)cloudEvent.Data;
+                result = dataAsJObject.ToObject<T>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error : Unable to convert Object. Error was : " + e.ToString());
+
+            }
+
+            return result;
+        }
+
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
             ResultObj result = new ResultObj();
