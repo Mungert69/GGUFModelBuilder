@@ -449,9 +449,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : WakeUp : ";
             try
             {
-                _monitorPingProcessor.Awake = true;
-                result.Message += "Success ran WakeUp ok ";
-                result.Success = true;
+                result=_monitorPingProcessor.WakeUp();
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)

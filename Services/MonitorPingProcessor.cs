@@ -41,12 +41,12 @@ namespace NetworkMonitor.Processor.Services
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
-            string instanceName=config.GetValue<string>("InstanceName");
+            string instanceName = config.GetValue<string>("InstanceName");
             //string hostName=config.GetValue<string>("hostname");
-            string hostName="rabbitmq";
-            _logger.LogInformation(" Starting Processor with AppID = " + _appID+ " instanceName="+instanceName+" connecting to RabbitMQ at "+hostName);
+            string hostName = "rabbitmq";
+            _logger.LogInformation(" Starting Processor with AppID = " + _appID + " instanceName=" + instanceName + " connecting to RabbitMQ at " + hostName);
             _connectFactory = connectFactory;
-            _rabbitRepo = new RabbitListener(_logger, this, _appID, instanceName, hostName );
+            _rabbitRepo = new RabbitListener(_logger, this, _appID, instanceName, hostName);
             init(new ProcessorInitObj());
         }
         public void OnStopping()
@@ -229,19 +229,19 @@ namespace NetworkMonitor.Processor.Services
                     }
                     catch (Exception e)
                     {
-                        if (_pingParams==null) _pingParams=new PingParams();
+                        if (_pingParams == null) _pingParams = new PingParams();
                         _logger.LogError(" Error : Unable to Save OingParams to statestore. Error was : " + e.Message);
                     }
                 }
                 if (SystemParamsHelper.IsSystemElevatedPrivilege)
                 {
                     _logger.LogInformation("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
-                    if (_pingParams!=null)_pingParams.IsAdmin = true;
+                    if (_pingParams != null) _pingParams.IsAdmin = true;
                 }
                 else
                 {
                     _logger.LogWarning(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
-                     if (_pingParams!=null) _pingParams.IsAdmin = false;
+                    if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
@@ -259,7 +259,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
         }
-       //This method ProcessesMonitorReturnData receives an input object processorDataObj and updates class level variables _removeMonitorPingInfoIDs, _swapMonitorPingInfos, and _removePingInfos based on the data in processorDataObj. It removes items from _removeMonitorPingInfoIDs and _swapMonitorPingInfos and adds items to _removePingInfos.
+        //This method ProcessesMonitorReturnData receives an input object processorDataObj and updates class level variables _removeMonitorPingInfoIDs, _swapMonitorPingInfos, and _removePingInfos based on the data in processorDataObj. It removes items from _removeMonitorPingInfoIDs and _swapMonitorPingInfos and adds items to _removePingInfos.
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
@@ -360,6 +360,7 @@ namespace NetworkMonitor.Processor.Services
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
+            _awake=true;
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -383,6 +384,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
+                _awake=false;
                 return result;
             }
             // Time interval between Now and NextRun
@@ -410,7 +412,7 @@ namespace NetworkMonitor.Processor.Services
                         new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                     }
                 );
-               Task.WhenAll(pingConnectTasks.ToArray()).Wait();
+                Task.WhenAll(pingConnectTasks.ToArray()).Wait();
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
@@ -439,6 +441,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
+            _awake=false;
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
@@ -703,6 +706,33 @@ namespace NetworkMonitor.Processor.Services
             }
             results.Add(result);
             return results;
+        }
+        public ResultObj WakeUp()
+        {
+            ResultObj result = new ResultObj();
+            result.Message = "SERVICE : MonitorPingProcessor.WakeUp() ";
+
+            try
+            {
+                if (_awake)
+                {
+                    result.Message += "Received WakeUp but processor is currently running";
+                    result.Success = false;
+                }
+                else
+                {
+                    PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
+                    result.Message += "Received WakeUp so Published event processorReady = true";
+                    result.Success = true;
+                }
+
+            }
+            catch (Exception e)
+            {
+                result.Message += "Error : failed to Published event processorReady = true. Error was : " + e.ToString();
+                result.Success = false;
+            }
+            return result;
         }
     }
 }
