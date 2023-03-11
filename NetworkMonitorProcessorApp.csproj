@@ -3,7 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0-jammy-amd64</ContainerBaseImage>
     <ContainerImageTag>0.2.1</ContainerImageTag>
@@ -17,6 +16,8 @@
    <PackageReference Include="CloudNative.CloudEvents" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.NewtonsoftJson" Version="2.5.1" />
+    <PackageReference Include="MetroLog.MAUI" Version="2.1.0" />
+    <PackageReference Include="MetroLog.NET6" Version="2.1.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
@@ -34,5 +35,19 @@
      
 
   </ItemGroup>
+<ItemGroup>
+	  <None Update="appsettings.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="MonitorIPs">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="PingParams">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 
+	  <None Update="ProcessorDataObj">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>
