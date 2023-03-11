@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetworkMonitor.Objects.ServiceMessage;
-using Dapr.Client;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+using MetroLog;
 using System.Threading;
 namespace NetworkMonitor.Objects.Repository
 {
@@ -23,7 +22,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             catch (Exception e)
             {
-                logger.LogError(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
+                logger.Error(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
         public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
@@ -114,17 +113,17 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj = null;
                     processorDataObjAlert = null;
                 }
-                logger.LogInformation(timerStr);
+                logger.Info(timerStr);
                 timer.Stop();
                 result.Message += " Published event ProcessorItitObj.IsProcessorReady = true ";
                 result.Success = true;
-                logger.LogInformation(result.Message);
+                logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Message += " Error : Failed to publish events and save data to statestore. Error was : " + e.Message.ToString() + " . ";
                 result.Success = false;
-                logger.LogError(result.Message);
+                logger.Error(result.Message);
             }
             return result;
         }
@@ -150,7 +149,7 @@ namespace NetworkMonitor.Objects.Repository
             processorObj.IsProcessorReady = isReady;
             processorObj.AppID = appID;
             rabbitListener.Publish<ProcessorInitObj>( "processorReady", processorObj);
-            logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = "+isReady);
+            logger.Info(" Published event ProcessorItitObj.IsProcessorReady = "+isReady);
         }
     }
 }

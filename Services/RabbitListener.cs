@@ -12,7 +12,7 @@ using System;
 using System.Text;
 using System.Linq;
 using NetworkMonitor.Utils;
-using Microsoft.Extensions.Logging;
+using MetroLog;
 namespace NetworkMonitor.Objects.Repository
 {
     public class RabbitListener
@@ -256,7 +256,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("Error : Unable to convert Object. Error was : " + e.ToString());
+                _logger.Error("Error : Unable to convert Object. Error was : " + e.ToString());
 
             }
 
@@ -275,7 +275,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             catch (Exception e)
             {
-                _logger.LogError("Error : Unable to convert Object. Error was : " + e.ToString());
+                _logger.Error("Error : Unable to convert Object. Error was : " + e.ToString());
 
             }
 
@@ -293,14 +293,14 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to run Connect : Error was : " + e.ToString() + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -314,13 +314,13 @@ namespace NetworkMonitor.Objects.Repository
                 _monitorPingProcessor.ProcessesMonitorReturnData(processorDataObj);
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Success = false;
                 result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -334,14 +334,14 @@ namespace NetworkMonitor.Objects.Repository
                 _monitorPingProcessor.init(initObj);
                 result.Message += "Success ran ok ";
                 result.Success = true;
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -352,7 +352,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : ProcessorAlertFlag : ";
             try
             {
-                monitorPingInfoIds.ForEach(f => _logger.LogDebug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
+                monitorPingInfoIds.ForEach(f => _logger.Debug("ProcessorAlertFlag Found MonitorPingInfo ID=" + f));
                 List<ResultObj> results = _monitorPingProcessor.UpdateAlertFlag(monitorPingInfoIds, true);
                 result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
                 if (result.Success) result.Message += "Success ran ok ";
@@ -361,14 +361,14 @@ namespace NetworkMonitor.Objects.Repository
                     results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
                     result.Data = results;
                 }
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -379,7 +379,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : ProcessorAlertSent : ";
             try
             {
-                monitorIPIDs.ForEach(f => _logger.LogDebug("ProcessorSentFlag Found monitorIPID =" + f));
+                monitorIPIDs.ForEach(f => _logger.Debug("ProcessorSentFlag Found monitorIPID =" + f));
                 List<ResultObj> results = _monitorPingProcessor.UpdateAlertSent(monitorIPIDs, true);
                 result.Success = results.Where(w => w.Success == false).ToList().Count() == 0;
                 if (result.Success) result.Message += "Success ran ok ";
@@ -388,14 +388,14 @@ namespace NetworkMonitor.Objects.Repository
                     results.Select(s => s.Message).ToList().ForEach(f => result.Message += f);
                     result.Data = results;
                 }
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -410,14 +410,14 @@ namespace NetworkMonitor.Objects.Repository
                 results.ForEach(f => result.Message += f.Message);
                 result.Success = results.All(a => a.Success == true) && results.Count() != 0;
                 result.Data = results;
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -431,14 +431,14 @@ namespace NetworkMonitor.Objects.Repository
                 _monitorPingProcessor.AddMonitorIPsToQueueDic(queueDicObj);
                 result.Message += "Success ran ok ";
                 result.Success = true;
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
@@ -450,14 +450,14 @@ namespace NetworkMonitor.Objects.Repository
             try
             {
                 result=_monitorPingProcessor.WakeUp();
-                _logger.LogInformation(result.Message);
+                _logger.Info(result.Message);
             }
             catch (Exception e)
             {
                 result.Data = null;
                 result.Success = false;
                 result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                _logger.Error(result.Message);
             }
             return result;
         }
