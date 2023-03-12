@@ -6,15 +6,14 @@ using Microsoft.Extensions.Configuration;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Connection;
 using NetworkMonitor.Objects;
-using MetroLog;
-using MetroLog.Maui;
-using MetroLog.Targets;
+using NetworkMonitor.Objects.Repository;
+using NetworkMonitor.Objects.Factory;
 
 namespace NetworkMonitor.Processor
 {
     class Program
     {
-       private static  ILogger _logger; 
+     
     private static ConnectFactory _connectFactory ;
     private static MonitorPingProcessor _monitorPingProcessor;
 
@@ -47,36 +46,9 @@ namespace NetworkMonitor.Processor
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
-          var configLog = new LoggingConfiguration();
-
-#if RELEASE
-    config.AddTarget(
-        LogLevel.Info, 
-        LogLevel.Fatal, 
-        new StreamingFileTarget(retainDays: 2);
-#else
-        // Will write logs to the Debug output
-        configLog.AddTarget(
-            LogLevel.Trace,
-            LogLevel.Fatal,
-            new TraceTarget());
-#endif
-
-        // will write logs to the console output (Logcat for android)
-        configLog.AddTarget(
-            LogLevel.Info,
-            LogLevel.Fatal,
-            new ConsoleTarget());
-
-        configLog.AddTarget(
-            LogLevel.Info,
-            LogLevel.Fatal,
-            new MemoryTarget(2048));
-
-        LoggerFactory.Initialize(configLog);
-        _logger = LoggerFactory.GetLogger(nameof(MonitorPingProcessor));
+        var loggerFactory=new NetLoggerFactory();
         _connectFactory = new NetworkMonitor.Connection.ConnectFactory();
-        _monitorPingProcessor = new MonitorPingProcessor(config, _logger, _connectFactory);
+        _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.GetLogger("Processor"), _connectFactory);
       Task.Run(() =>
             {
                 while (true)
