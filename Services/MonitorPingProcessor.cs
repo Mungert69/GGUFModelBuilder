@@ -59,7 +59,7 @@ namespace NetworkMonitor.Processor.Services
         }
         public void OnStopping()
         {
-            Console.WriteLine("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
+            _logger.Warn("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
                 PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
