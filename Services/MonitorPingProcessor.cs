@@ -40,7 +40,12 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
+            
+                           
             _logger = logger;
+             FileRepo.CheckFileExists("ProcessorDataObj",logger);
+               FileRepo.CheckFileExists("MonitorIPs",logger);
+                 FileRepo.CheckFileExists("PingParams",logger);
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
