@@ -39,6 +39,15 @@
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+<None Update="ProcessorDataObj">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          </None>
+<None Update="PingParams">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          </None>
+<None Update="MonitorIPs">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+          </None>
 	
 	</ItemGroup>
 </Project>
