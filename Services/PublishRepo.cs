@@ -9,6 +9,24 @@ namespace NetworkMonitor.Objects.Repository
 {
     public class PublishRepo
     {
+
+        public static ResultObj AlertMessgeResetAlerts(RabbitListener rabbitRepo, List<AlertFlagObj> alertFlagObjs){
+            var result = new ResultObj();
+            try
+            {
+                rabbitRepo.Publish<List<AlertFlagObj>>("alertMessageResetAlerts", alertFlagObjs);
+                //DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
+                result.Success = true;
+                result.Message = " Success : sent alertMessageResetAlert message . ";
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
+            }
+            return result;
+        }
+
         public static void ProcessorResetAlerts(ILogger logger, RabbitListener rabbitListener, Dictionary<string, List<int>> monitorIPDic)
         {
             try
@@ -17,7 +35,7 @@ namespace NetworkMonitor.Objects.Repository
                 {
                     var monitorIPIDs = new List<int>(kvp.Value);
                     // Dont publish this at the moment as its causing alerts to refire.
-                    rabbitListener.Publish<List<int>>( "processorResetAlerts" + kvp.Key, monitorIPIDs);
+                    rabbitListener.Publish<List<int>>("processorResetAlerts" + kvp.Key, monitorIPIDs);
                 }
             }
             catch (Exception e)
@@ -25,16 +43,16 @@ namespace NetworkMonitor.Objects.Repository
                 logger.Error(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
-        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
+        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
         {
             Thread thread = new Thread(delegate ()
                        {
-                           PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos,swapMonitorPingInfos, appID, piIDKey, saveState);
+                           PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, appID, piIDKey, saveState);
                        });
             thread.Priority = ThreadPriority.Lowest;
             thread.Start();
         }
-        public  static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos,List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
+        public static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
@@ -56,7 +74,7 @@ namespace NetworkMonitor.Objects.Repository
                         pingInfos.AddRange(f.PingInfos.ConvertAll(x => new PingInfo(x)));
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
-                        monitorStatusAlert.AppID=f.AppID;
+                        monitorStatusAlert.AppID = f.AppID;
                         monitorStatusAlert.Address = f.Address;
                         monitorStatusAlert.AlertFlag = f.MonitorStatus.AlertFlag;
                         monitorStatusAlert.AlertSent = f.MonitorStatus.AlertSent;
@@ -75,7 +93,7 @@ namespace NetworkMonitor.Objects.Repository
                     var processorDataObj = new ProcessorDataObj();
                     processorDataObj.MonitorPingInfos = cutMonitorPingInfos;
                     processorDataObj.RemoveMonitorPingInfoIDs = removeMonitorPingInfoIDs;
-                    processorDataObj.SwapMonitorPingInfos=swapMonitorPingInfos;
+                    processorDataObj.SwapMonitorPingInfos = swapMonitorPingInfos;
                     processorDataObj.MonitorStatusAlerts = null;
                     processorDataObj.PingInfos = pingInfos;
                     processorDataObj.AppID = appID;
@@ -88,7 +106,7 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     timerStr += " Event (Published MonitorPingInfos to monitorservice) at " + timer.ElapsedMilliseconds + " : ";
                     //DaprRepo.PublishEventJsonZ<ProcessorDataObj>(daprClient, "alertUpdateMonitorStatusAlerts", processorDataObjAlert);
-                    rabbitListener.PublishJsonZ<ProcessorDataObj>( "alertUpdateMonitorStatusAlerts", processorDataObjAlert);
+                    rabbitListener.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     result.Message += " Published to MonitorService and AlertService. ";
                     var m = monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
@@ -103,7 +121,7 @@ namespace NetworkMonitor.Objects.Repository
                     if (saveState)
                     {
                         processorDataObj.RemovePingInfos = removePingInfos;
-                        string jsonZ = rabbitListener.PublishJsonZ<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj);                    
+                        string jsonZ = rabbitListener.PublishJsonZ<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj);
                         FileRepo.SaveStateString("ProcessorDataObj", jsonZ);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
@@ -143,13 +161,21 @@ namespace NetworkMonitor.Objects.Repository
             DaprRepo.PublishEvent<ProcessorInitObj>(daprClient, "processorReady", processorObj);
             logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = false ");
         }*/
-        public static void ProcessorReady(ILogger logger,RabbitListener rabbitListener, string appID, bool isReady)
+        public static void ProcessorReady(ILogger logger, RabbitListener rabbitListener, string appID, bool isReady)
         {
-            var processorObj = new ProcessorInitObj();
-            processorObj.IsProcessorReady = isReady;
-            processorObj.AppID = appID;
-            rabbitListener.Publish<ProcessorInitObj>( "processorReady", processorObj);
-            logger.Info(" Published event ProcessorItitObj.IsProcessorReady = "+isReady);
+            try
+            {
+                var processorObj = new ProcessorInitObj();
+                processorObj.IsProcessorReady = isReady;
+                processorObj.AppID = appID;
+                rabbitListener.Publish<ProcessorInitObj>("processorReady", processorObj);
+                logger.Info(" Published event ProcessorItitObj.IsProcessorReady = " + isReady);
+            }
+            catch (Exception e)
+            {
+                logger.Error(" Error : Could not Publish event ProcessorItitObj.IsProcessorReady . Erro was : " + e.Message);
+            }
         }
+
     }
 }
