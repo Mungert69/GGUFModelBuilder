@@ -36,15 +36,7 @@
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-<None Update="ProcessorDataObj">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          </None>
-<None Update="PingParams">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          </None>
-<None Update="MonitorIPs">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          </None>
+
 	
 	</ItemGroup>
   <ItemGroup>
