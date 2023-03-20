@@ -13,7 +13,6 @@ using System.Runtime;
 using System.Diagnostics;
 using MetroLog;
 using MetroLog.Maui;
-using MetroLog;
 using MetroLog.MicrosoftExtensions;
 using MetroLog.Targets;
 using MetroLog.Internal;
