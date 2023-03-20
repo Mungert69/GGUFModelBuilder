@@ -39,12 +39,10 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
-            
-                           
             _logger = logger;
-             FileRepo.CheckFileExists("ProcessorDataObj",logger);
-               FileRepo.CheckFileExists("MonitorIPs",logger);
-                 FileRepo.CheckFileExists("PingParams",logger);
+            FileRepo.CheckFileExists("ProcessorDataObj", logger);
+            FileRepo.CheckFileExists("MonitorIPs", logger);
+            FileRepo.CheckFileExists("PingParams", logger);
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
@@ -76,7 +74,6 @@ namespace NetworkMonitor.Processor.Services
         }
         /*
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
-
         public void init(ProcessorInitObj initObj)
         {
             List<MonitorPingInfo> currentMonitorPingInfos;
@@ -334,7 +331,6 @@ namespace NetworkMonitor.Processor.Services
             }
             return monitorPingInfos;
         }
-
         //The method fillPingInfo populates the MonitorPingInfo object with values from the MonitorIP object. The MonitorPingInfo object properties are assigned the values of the corresponding properties of the MonitorIP object, except for Timeout property. If Timeout property of MonitorIP is 0, it will be assigned with the default value of _pingParams.Timeout.
         private void fillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
@@ -355,7 +351,6 @@ namespace NetworkMonitor.Processor.Services
             }
             return;
         }
-
         // /This method GetNetConnect returns a Task object for a network connection with the given monitorPingInfoID. It searches the list of _netConnects for an object with the matching ID and returns the connect task from that object. If no match is found, a completed task is returned.
         private Task GetNetConnect(int monitorPingInfoID)
         {
@@ -367,7 +362,7 @@ namespace NetworkMonitor.Processor.Services
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public ResultObj Connect(ProcessorConnectObj connectObj)
         {
-            _awake=true;
+            _awake = true;
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.Debug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -390,8 +385,8 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
                 _logger.Warn(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
+                _awake = false;
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
-                _awake=false;
                 return result;
             }
             // Time interval between Now and NextRun
@@ -448,7 +443,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.Warn(" Warning : Time to execute greater than next schedule time. ");
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
-            _awake=false;
+            _awake = false;
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
@@ -607,7 +602,6 @@ namespace NetworkMonitor.Processor.Services
             }
             return resultStr;
         }
-
         //This method "UpdateMonitorPingInfosFromMonitorIPQueue()" updates the information in the "MonitorPingInfo" class from a queue of updates stored in "_monitorIPQueueDic". 
         public void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
         {
@@ -667,8 +661,6 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
-
-
         // This method resets the alert status for a list of MonitorPingInfos, specified by their monitorIPIDs, by setting the AlertFlag to false and AlertSent to false, and setting the DownCount to 0. It also publishes a message "alertMessageResetAlerts" with the list of AlertFlagObjs to the rabbitmq. The method returns a list of ResultObjs, which contains the success or failure of the operation and the relevant message.
         public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
         {
@@ -698,27 +690,13 @@ namespace NetworkMonitor.Processor.Services
                 }
                 results.Add(result);
             });
-            result = new ResultObj();
-            try
-            {
-                _rabbitRepo.Publish<List<AlertFlagObj>>("alertMessageResetAlerts", alertFlagObjs);
-                //DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
-                result.Success = true;
-                result.Message = " Success : sent alertMessageResetAlert message . ";
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += " Error : failed to set alertMessageResetAlert. Error was :" + e.Message.ToString();
-            }
-            results.Add(result);
+            results.Add(PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs));
             return results;
         }
         public ResultObj WakeUp()
         {
             ResultObj result = new ResultObj();
             result.Message = "SERVICE : MonitorPingProcessor.WakeUp() ";
-
             try
             {
                 if (_awake)
@@ -732,7 +710,6 @@ namespace NetworkMonitor.Processor.Services
                     result.Message += "Received WakeUp so Published event processorReady = true";
                     result.Success = true;
                 }
-
             }
             catch (Exception e)
             {

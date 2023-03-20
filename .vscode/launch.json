@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net7.0/linux-x64/NetworkMonitorProcessorApp.dll",
+            "program": "${workspaceFolder}/bin/Debug/net7.0/NetworkMonitorProcessorApp.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
