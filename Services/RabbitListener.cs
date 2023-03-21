@@ -87,9 +87,16 @@ namespace NetworkMonitor.Objects.Repository
             _connection = _factory.CreateConnection();
             _publishChannel = _connection.CreateModel();
             _rabbitMQObjs.ForEach(r => r.ConnectChannel = _connection.CreateModel());
-            Console.WriteLine(DeclareQueues().Message);
-            Console.WriteLine(DeclareConsumers().Message);
-            Console.WriteLine(BindChannelToConsumer().Message);
+            var results=new List<ResultObj>();
+            results.Add(DeclareQueues());
+            results.Add(DeclareConsumers());
+            results.Add(BindChannelToConsumer());
+            bool flag=true;
+            bool messages=results.ForEach(f => messages+=f.Message);
+            if (result.ForEach(f => flag=f.Success && flag));
+            if (flag) _logger.Info("Success : Setup RabbitListener messages were : "+messages);
+            else _logger.Fatal("Error : Failed to setup RabbitListener messages were : "+messages);
+
         }
         private ResultObj DeclareQueues()
         {
