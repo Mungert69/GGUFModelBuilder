@@ -92,7 +92,8 @@ namespace NetworkMonitor.Objects.Repository
             results.Add(DeclareConsumers());
             results.Add(BindChannelToConsumer());
             bool flag=true;
-            srting messages=results.ForEach(f => messages+=f.Message);
+            string messages="";
+            results.ForEach(f => messages+=f.Message);
             if (result.ForEach(f => flag=f.Success && flag));
             if (flag) _logger.Info("Success : Setup RabbitListener messages were : "+messages);
             else _logger.Fatal("Error : Failed to setup RabbitListener messages were : "+messages);
