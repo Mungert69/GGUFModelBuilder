@@ -94,7 +94,7 @@ namespace NetworkMonitor.Objects.Repository
             bool flag=true;
             string messages="";
             results.ForEach(f => messages+=f.Message);
-            if (result.ForEach(f => flag=f.Success && flag));
+            results.ForEach(f => flag=f.Success && flag);
             if (flag) _logger.Info("Success : Setup RabbitListener messages were : "+messages);
             else _logger.Fatal("Error : Failed to setup RabbitListener messages were : "+messages);
 
