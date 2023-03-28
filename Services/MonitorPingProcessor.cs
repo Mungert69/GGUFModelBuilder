@@ -46,11 +46,11 @@ namespace NetworkMonitor.Processor.Services
             //_daprClient = daprClient;
             // Special case 2min timeout for large published messages.
             _appID = config.GetValue<string>("AppID");
-            string instanceName = config.GetValue<string>("RabbitInstanceName");
-            string hostName=config.GetValue<string>("RabbitHostName");
-            _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + instanceName + " connecting to RabbitMQ at " + hostName);
-            _connectFactory = connectFactory;
-            _rabbitRepo = new RabbitListener(_logger, this, _appID, instanceName, hostName);
+             _connectFactory = connectFactory;
+            SystemUrl systemUrl = config.GetSection("SystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("SystemUrl");
+            _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName +" connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
+           
+            _rabbitRepo = new RabbitListener(_logger,systemUrl, this, _appID);
             init(new ProcessorInitObj());
         }
         public void OnStopping()
