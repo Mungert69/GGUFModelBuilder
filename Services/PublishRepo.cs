@@ -121,7 +121,7 @@ namespace NetworkMonitor.Objects.Repository
                     if (saveState)
                     {
                         processorDataObj.RemovePingInfos = removePingInfos;
-                        string jsonZ = rabbitListener.PublishJsonZ<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj);
+                        string jsonZ = rabbitListener.PublishJsonZWithID<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj,appID);
                         FileRepo.SaveStateString("ProcessorDataObj", jsonZ);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
