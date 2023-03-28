@@ -498,6 +498,31 @@ namespace NetworkMonitor.Objects.Repository
                                  body: body);
             return datajsonZ;
         }
+
+          public string PublishJsonZWithID<T>(string exchangeName, T obj,string id) where T : class
+        {
+            var datajson = JsonUtils.writeJsonObjectToString<T>(obj);
+            string datajsonZ = StringCompressor.Compress(datajson);
+            Tuple<string,string> data=new Tuple<string, string>(datajsonZ,id);
+            CloudEvent cloudEvent = new CloudEvent
+            {
+                Id = "event-id",
+                Type = "event-type",
+                Source = new Uri("https://srv1.mahadeva.co.uk"),
+                Time = DateTimeOffset.UtcNow,
+                Data = data
+            };
+            var formatter = new JsonEventFormatter();
+            var json = formatter.ConvertToJObject(cloudEvent);
+            string message = json.ToString();
+            var body = Encoding.UTF8.GetBytes(message);
+            _publishChannel.BasicPublish(exchange: exchangeName,
+                                 routingKey: string.Empty,
+                                 basicProperties: null,
+                                 // body: formatter.EncodeBinaryModeEventData(cloudEvent));
+                                 body: body);
+            return datajsonZ;
+        }
         public void Publish<T>(string exchangeName, T obj) where T : class
         {
             CloudEvent cloudEvent = new CloudEvent
