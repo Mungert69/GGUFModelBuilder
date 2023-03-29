@@ -22,6 +22,7 @@ namespace NetworkMonitor.Objects.Repository
           public RabbitListener(ILogger logger,  SystemUrl systemUrl, IMonitorPingProcessor monitorPingProcessor, string appID) : base(logger, systemUrl) 
         {
            _monitorPingProcessor=monitorPingProcessor;
+           _appID=appID;
         }
         protected override void InitRabbitMQObjs()
         {
