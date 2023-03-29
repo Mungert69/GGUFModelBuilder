@@ -23,6 +23,7 @@ namespace NetworkMonitor.Objects.Repository
         {
            _monitorPingProcessor=monitorPingProcessor;
            _appID=appID;
+           Setup();
         }
         protected override void InitRabbitMQObjs()
         {
