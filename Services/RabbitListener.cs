@@ -9,6 +9,7 @@ using NetworkMonitor.Objects;
 using NetworkMonitor.Processor.Services;
 using System.Collections.Generic;
 using System;
+using System.Threading.Tasks;
 using System.Text;
 using System.Linq;
 using NetworkMonitor.Utils;
@@ -83,9 +84,9 @@ namespace NetworkMonitor.Objects.Repository
                 {
                     case "processorConnect":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                        rabbitMQObj.Consumer.Received += (model, ea) =>
+                        rabbitMQObj.Consumer.Received += async (model, ea) =>
                             {
-                                result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
+                                result = await Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             };
                         break;
@@ -168,14 +169,14 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
    
-        public ResultObj Connect(ProcessorConnectObj connectObj)
+        public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorConnect : ";
             try
             {
-                ResultObj connectResult = _monitorPingProcessor.Connect(connectObj);
+                ResultObj connectResult = await _monitorPingProcessor.Connect(connectObj);
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;

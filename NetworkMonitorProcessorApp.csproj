@@ -5,14 +5,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0-jammy-amd64</ContainerBaseImage>
-    <ContainerImageTag>0.2.1</ContainerImageTag>
+    <ContainerImageTag>0.3.0</ContainerImageTag>
      <GenerateProgramFile>false</GenerateProgramFile>
 
   </PropertyGroup>
 
 
   <ItemGroup>
-   <PackageReference Include="bouncycastle.cryptography" Version="2.1.1" />
+   <PackageReference Include="bouncycastle.cryptography" Version="2.2.0" />
    <PackageReference Include="CloudNative.CloudEvents" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.5.1" />
     <PackageReference Include="CloudNative.CloudEvents.NewtonsoftJson" Version="2.5.1" />
