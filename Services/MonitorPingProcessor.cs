@@ -25,7 +25,11 @@ namespace NetworkMonitor.Processor.Services
         private bool _awake;
         private ILogger _logger;
         private NetConnectCollection _netConnectCollection;
-        //private List<NetConnect> _netConnects = null;
+
+        private readonly SemaphoreSlim _taskSemaphore = new SemaphoreSlim(5); // Limit to 5 concurrent tasks
+
+        private int _waitingTasksCounter = 0;
+        private int _maxWaitingTasks = 100;
         private List<Tuple<NetConnect, Task>> _longRunningTasks = new List<Tuple<NetConnect, Task>>();
 
 
@@ -371,6 +375,40 @@ namespace NetworkMonitor.Processor.Services
             if (connectTask == null) return Task.FromResult<object>(null);
             return connectTask.connect();
         }*/
+
+        private async Task HandleLongRunningTask(NetConnect netConnect)
+        {
+            // Increment waiting tasks counter
+            Interlocked.Increment(ref _waitingTasksCounter);
+            // Check if the waitingTaskCounter exceeds the threshold
+            if (_waitingTasksCounter > _maxWaitingTasks)
+            {
+                _logger.Error($"Error: The waitingTaskCounter has reached {_waitingTasksCounter}, which exceeds the limit of {_maxWaitingTasks}.");
+                // You can handle this situation here or log additional information if needed
+            }
+
+            // Wait for a semaphore slot
+            await _taskSemaphore.WaitAsync();
+
+            // Decrement waiting tasks counter
+            Interlocked.Decrement(ref _waitingTasksCounter);
+
+            var task = netConnect.connect();
+            var taskTuple = Tuple.Create(netConnect, task);
+            _longRunningTasks.Add(taskTuple);
+
+            // Add a continuation to remove the task from the list and release the semaphore when it's complete
+            _ = task.ContinueWith((t) =>
+            {
+                lock (_longRunningTasks)
+                {
+                    _longRunningTasks.Remove(taskTuple);
+                }
+                _taskSemaphore.Release(); // Release the semaphore slot
+            });
+        }
+
+
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
@@ -428,18 +466,7 @@ namespace NetworkMonitor.Processor.Services
 
                         if (!netConnectExists)
                         {
-                            var task = netConnect.connect();
-                            var taskTuple = Tuple.Create(netConnect, task);
-                            _longRunningTasks.Add(taskTuple);
-
-                            // Add a continuation to remove the task from the list when it's complete
-                            _ = task.ContinueWith((t) =>
-                            {
-                                lock (_longRunningTasks)
-                                {
-                                    _longRunningTasks.Remove(taskTuple);
-                                }
-                            });
+                            _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
                         }
                     }
                     else
