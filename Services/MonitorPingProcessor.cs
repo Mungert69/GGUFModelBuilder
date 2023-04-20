@@ -24,7 +24,11 @@ namespace NetworkMonitor.Processor.Services
         private PingParams _pingParams;
         private bool _awake;
         private ILogger _logger;
-        private List<NetConnect> _netConnects = null;
+        private NetConnectCollection _netConnectCollection;
+        //private List<NetConnect> _netConnects = null;
+        private List<Tuple<NetConnect, Task>> _longRunningTasks = new List<Tuple<NetConnect, Task>>();
+
+
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         //private DaprClient _daprClient;
@@ -43,14 +47,23 @@ namespace NetworkMonitor.Processor.Services
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
             FileRepo.CheckFileExists("MonitorIPs", logger);
             FileRepo.CheckFileExists("PingParams", logger);
-            //_daprClient = daprClient;
-            // Special case 2min timeout for large published messages.
+
             _appID = config.GetValue<string>("AppID");
-             _connectFactory = connectFactory;
+            _connectFactory = connectFactory;
             SystemUrl systemUrl = config.GetSection("SystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("SystemUrl");
-            _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName +" connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
-           
-            _rabbitRepo = new RabbitListener(_logger,systemUrl, this, _appID);
+            _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
+
+            _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
+
+            INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(5, 0);
+            INetConnectFilterStrategy smtpStrategy = new SmtpEndPointFilterStrategy(5, 1);
+
+            // Combine the strategies using the composite pattern
+            INetConnectFilterStrategy compositeStrategy = new CompositeFilterStrategy(quantumStrategy, smtpStrategy);
+
+            // Create an instance of the NetConnectCollection with the composite strategy
+            _netConnectCollection = new NetConnectCollection(compositeStrategy);
+
             init(new ProcessorInitObj());
         }
         public void OnStopping()
@@ -247,7 +260,7 @@ namespace NetworkMonitor.Processor.Services
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
                 _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
-                _netConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
+                _netConnectCollection.NetConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
@@ -351,15 +364,15 @@ namespace NetworkMonitor.Processor.Services
             return;
         }
         // /This method GetNetConnect returns a Task object for a network connection with the given monitorPingInfoID. It searches the list of _netConnects for an object with the matching ID and returns the connect task from that object. If no match is found, a completed task is returned.
-        private Task GetNetConnect(int monitorPingInfoID)
+        /*private Task GetNetConnect(int monitorPingInfoID)
         {
             var connectTask = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID);
             // return completed task if no netConnect found
             if (connectTask == null) return Task.FromResult<object>(null);
             return connectTask.connect();
-        }
+        }*/
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
-        public ResultObj Connect(ProcessorConnectObj connectObj)
+        public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
             var timerInner = new Stopwatch();
@@ -404,16 +417,39 @@ namespace NetworkMonitor.Processor.Services
                 GC.Collect();
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.TryStartNoGCRegion(104857600, false);
-                _netConnects.Where(w => w.MonitorPingInfo.Enabled == true).ToList().ForEach(
-                    netConnect =>
+                var filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
+                foreach (var netConnect in filteredNetConnects)
+                {
+                    netConnect.PiID = _piIDKey;
+                    _piIDKey++;
+                    if (netConnect.IsLongRunning)
                     {
-                        netConnect.PiID = _piIDKey;
-                        _piIDKey++;
-                        pingConnectTasks.Add(netConnect.connect());
-                        new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
+                        bool netConnectExists = _longRunningTasks.Any(t => t.Item1 == netConnect);
+
+                        if (!netConnectExists)
+                        {
+                            var task = netConnect.connect();
+                            var taskTuple = Tuple.Create(netConnect, task);
+                            _longRunningTasks.Add(taskTuple);
+
+                            // Add a continuation to remove the task from the list when it's complete
+                            _ = task.ContinueWith((t) =>
+                            {
+                                lock (_longRunningTasks)
+                                {
+                                    _longRunningTasks.Remove(taskTuple);
+                                }
+                            });
+                        }
                     }
-                );
-                Task.WhenAll(pingConnectTasks.ToArray()).Wait();
+                    else
+                    {
+                        pingConnectTasks.Add(netConnect.connect());
+                    }
+
+                    await Task.Delay(timeToWait); // Use 'await' here
+                };
+                await Task.Delay(timeToWait).ConfigureAwait(false);
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
@@ -477,22 +513,22 @@ namespace NetworkMonitor.Processor.Services
                         if (monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
                         {
                             fillPingInfo(monitorPingInfo, monIP);
-                            NetConnect netConnect = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
+                            NetConnect netConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                             if (netConnect != null)
                             {
-                                int index = _netConnects.IndexOf(netConnect);
+                                int index = _netConnectCollection.NetConnects.IndexOf(netConnect);
                                 NetConnect newNetConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                                _netConnects[index] = newNetConnect;
+                                _netConnectCollection.NetConnects[index] = newNetConnect;
                             }
                             else
                             {
                                 // recreate if it is missing
-                                _netConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                                _netConnectCollection.NetConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
                             }
                         }
                         else
                         {
-                            NetConnect netConnect = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
+                            NetConnect netConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                             fillPingInfo(monitorPingInfo, monIP);
                             if (netConnect != null)
                             {
@@ -501,7 +537,7 @@ namespace NetworkMonitor.Processor.Services
                             else
                             {
                                 // recreate if its missing
-                                _netConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
+                                _netConnectCollection.NetConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
                             }
                         }
                     }
@@ -536,7 +572,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     _monitorPingInfos.Add(monitorPingInfo);
                     NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                    _netConnects.Add(netConnect);
+                    _netConnectCollection.NetConnects.Add(netConnect);
                 }
             }
             //Delete
