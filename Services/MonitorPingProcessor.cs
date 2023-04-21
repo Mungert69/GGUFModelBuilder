@@ -29,7 +29,7 @@ namespace NetworkMonitor.Processor.Services
         private readonly SemaphoreSlim _taskSemaphore = new SemaphoreSlim(5); // Limit to 5 concurrent tasks
 
         private int _waitingTasksCounter = 0;
-        private int _maxWaitingTasks = 100;
+        private int  _maxTaskQueueSize=100;
         private List<Tuple<NetConnect, Task>> _longRunningTasks = new List<Tuple<NetConnect, Task>>();
 
 
@@ -58,9 +58,15 @@ namespace NetworkMonitor.Processor.Services
             _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
             _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
-
-            INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(5, 0);
-            INetConnectFilterStrategy smtpStrategy = new SmtpEndPointFilterStrategy(5, 1);
+            int quantumFilterSkip=config.GetValue<int>("QuantumFilterSkip");
+            int quantumFilterStart=config.GetValue<int>("QuantumFilterStart");
+            int smtpFilterSkip=config.GetValue<int>("SmtpFilterSkip");
+            int smtpFilterStart=config.GetValue<int>("SmtpFilterStart");
+            _maxTaskQueueSize=config.GetValue<int>("MaxTaskQueueSize");
+            _logger.Info("QuantumFilterSkip = " + quantumFilterSkip + " QuantumFilterStart = " + quantumFilterStart + " SmtpFilterSkip = " + smtpFilterSkip + " SmtpFilterStart = " + smtpFilterStart + " MaxTaskQueueSize = " + _maxTaskQueueSize);
+           
+            INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(quantumFilterSkip, quantumFilterStart);
+            INetConnectFilterStrategy smtpStrategy = new SmtpEndPointFilterStrategy(smtpFilterSkip, smtpFilterStart);
 
             // Combine the strategies using the composite pattern
             INetConnectFilterStrategy compositeStrategy = new CompositeFilterStrategy(quantumStrategy, smtpStrategy);
@@ -250,7 +256,7 @@ namespace NetworkMonitor.Processor.Services
                     catch (Exception e)
                     {
                         if (_pingParams == null) _pingParams = new PingParams();
-                        _logger.Error(" Error : Unable to Save OingParams to statestore. Error was : " + e.Message);
+                        _logger.Error(" Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
                     }
                 }
                 if (SystemParamsHelper.IsSystemElevatedPrivilege)
@@ -381,9 +387,9 @@ namespace NetworkMonitor.Processor.Services
             // Increment waiting tasks counter
             Interlocked.Increment(ref _waitingTasksCounter);
             // Check if the waitingTaskCounter exceeds the threshold
-            if (_waitingTasksCounter > _maxWaitingTasks)
+            if (_waitingTasksCounter > _maxTaskQueueSize)
             {
-                _logger.Error($"Error: The waitingTaskCounter has reached {_waitingTasksCounter}, which exceeds the limit of {_maxWaitingTasks}.");
+                _logger.Error($"Error: The waitingTaskCounter has reached {_waitingTasksCounter}, which exceeds the limit of {_maxTaskQueueSize}.");
                 // You can handle this situation here or log additional information if needed
             }
 
