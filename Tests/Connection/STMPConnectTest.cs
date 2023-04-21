@@ -32,7 +32,7 @@ namespace NetworkMonitor.Tests
             var smtpConnect = new SMTPConnect(pingInfo, pingParams);
             var result = await smtpConnect.TestConnectionAsync(cts.Token);
             // Assert
-            Assert.True(result);
+            Assert.True(result.Success);
         }
         [Fact]
         public async void Connect_WhenConnectedToServer_UpdatesMonitorPingInfo()
