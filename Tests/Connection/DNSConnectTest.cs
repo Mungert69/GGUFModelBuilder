@@ -27,7 +27,7 @@ namespace NetworkMonitor.Tests.Connection
             pingInfo.Address="www.google.com";
             DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
             // Act
-            await dnsConnect.connect();
+            await dnsConnect.Connect();
             // Assert
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("Found :", pingInfo.Status);
@@ -47,7 +47,7 @@ namespace NetworkMonitor.Tests.Connection
             };
             DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
             // Act
-            await dnsConnect.connect();
+            await dnsConnect.Connect();
             // Assert
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("Timeout", pingInfo.Status);
@@ -66,7 +66,7 @@ namespace NetworkMonitor.Tests.Connection
             };
             DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
             // Act
-            await dnsConnect.connect();
+            await dnsConnect.Connect();
             // Assert
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("DNS:Failed to connect", pingInfo.Status);

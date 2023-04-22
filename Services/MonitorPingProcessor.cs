@@ -30,7 +30,7 @@ namespace NetworkMonitor.Processor.Services
 
         private int _waitingTasksCounter = 0;
         private int  _maxTaskQueueSize=100;
-        private List<Tuple<NetConnect, Task>> _longRunningTasks = new List<Tuple<NetConnect, Task>>();
+        private List<int> _longRunningTaskIDs = new  List<int>();
 
 
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
@@ -384,31 +384,41 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task HandleLongRunningTask(NetConnect netConnect)
         {
+            if (_longRunningTaskIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID)){
+                _logger.Warn($" Warning: The task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
+                return;
+            }
             // Increment waiting tasks counter
             Interlocked.Increment(ref _waitingTasksCounter);
             // Check if the waitingTaskCounter exceeds the threshold
             if (_waitingTasksCounter > _maxTaskQueueSize)
             {
-                _logger.Error($"Error: The waitingTaskCounter has reached {_waitingTasksCounter}, which exceeds the limit of {_maxTaskQueueSize}.");
+                _logger.Error($" Error: The waitingTaskCounter has reached {_waitingTasksCounter}, which exceeds the limit of {_maxTaskQueueSize}.");
                 // You can handle this situation here or log additional information if needed
             }
 
+            _logger.Fatal($" Waiting tasks: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
+             _logger.Error($" Waiting tasks: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+
 
             // Decrement waiting tasks counter
             Interlocked.Decrement(ref _waitingTasksCounter);
+            _longRunningTaskIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
+            var task = netConnect.Connect();
 
-            var task = netConnect.connect();
-            var taskTuple = Tuple.Create(netConnect, task);
-            _longRunningTasks.Add(taskTuple);
 
             // Add a continuation to remove the task from the list and release the semaphore when it's complete
             _ = task.ContinueWith((t) =>
             {
-                lock (_longRunningTasks)
+                lock (_longRunningTaskIDs)
                 {
-                    _longRunningTasks.Remove(taskTuple);
+                    _longRunningTaskIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
+                       // log output netConnect.MonitorPingInfo.PingInfos write as json
+                      _logger.Error($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . PingInfos: {JsonUtils.writeJsonObjectToString(netConnect.MonitorPingInfo.PingInfos)}");
+
                 }
                 _taskSemaphore.Release(); // Release the semaphore slot
             });
@@ -468,16 +478,12 @@ namespace NetworkMonitor.Processor.Services
                     _piIDKey++;
                     if (netConnect.IsLongRunning)
                     {
-                        bool netConnectExists = _longRunningTasks.Any(t => t.Item1 == netConnect);
-
-                        if (!netConnectExists)
-                        {
-                            _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
-                        }
+                         _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
+                        
                     }
                     else
                     {
-                        pingConnectTasks.Add(netConnect.connect());
+                        pingConnectTasks.Add(netConnect.Connect());
                     }
 
                     await Task.Delay(timeToWait); // Use 'await' here

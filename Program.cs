@@ -47,7 +47,7 @@ namespace NetworkMonitor.Processor
                  .AddCommandLine(args)
                  .Build();
         var loggerFactory=new NetLoggerFactory();
-        _connectFactory = new NetworkMonitor.Connection.ConnectFactory();
+        _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config);
         _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.GetLogger("Processor"), _connectFactory);
       Task.Run(() =>
             {

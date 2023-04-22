@@ -22,7 +22,7 @@ namespace NetworkMonitor.Tests
         [Fact]
         public async void TestConnectWithQuantumSafeEncryption()
         {
-            var pingInfo = new MonitorPingInfo
+            var monitorPingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
                 Address = "https://pq.cloudflareresearch.com",
@@ -30,23 +30,31 @@ namespace NetworkMonitor.Tests
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
+          
+          string oqsProviderPath="/usr/local/lib/";
+             string csvFilePath = "AlgoTable.csv";
+               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
             // Arrange
-            var quantumConnect = new QuantumConnect(pingInfo, pingParams);
+            var quantumConnect = new QuantumConnect(monitorPingInfo, pingParams, algorithmInfoList, oqsProviderPath);
 
             // Act
-            await quantumConnect.connect();
+            await quantumConnect.Connect();
 
             // Assert
-            Assert.Equal(1, pingInfo.PacketsSent);
-            Assert.Equal("Using quantum safe encryption", pingInfo.Status);
-            Assert.Single(pingInfo.PingInfos);
-            Assert.Equal("Success", pingInfo.PingInfos[0].Status);
+            Assert.Equal(1, monitorPingInfo.PacketsSent);
+            Assert.Contains("Using quantum safe handshake", monitorPingInfo.Status);
+            Assert.Single(monitorPingInfo.PingInfos);
+            Assert.Equal("Success", monitorPingInfo.PingInfos[0].Status);
             }
 
         [Fact]
         public async void TestConnectWithNotQuantumSafeEncryption()
         {
             // Arrange
+              string oqsProviderPath="/usr/local/lib/";
+             string csvFilePath = "AlgoTable.csv";
+               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
+     
             var pingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
@@ -55,17 +63,17 @@ namespace NetworkMonitor.Tests
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
-            var quantumConnect = new QuantumConnect(pingInfo, pingParams);
+            var quantumConnect = new QuantumConnect(pingInfo, pingParams, algorithmInfoList, oqsProviderPath);
          
 
             // Act
-            await quantumConnect.connect();
+            await quantumConnect.Connect();
 
             // Assert
             Assert.Equal(1, pingInfo.PacketsSent);
-            Assert.Equal("QUANTUM:Failed to connect: Not using quantum safe encryption", pingInfo.Status);
+            Assert.Contains("Could not negotiate quantum safe handshake", pingInfo.Status);
             Assert.Single(pingInfo.PingInfos);
-            Assert.Equal("Not using quantum safe encryption", pingInfo.PingInfos[0].Status);
+            Assert.Contains("Could not negotiate quantum safe handshake", pingInfo.PingInfos[0].Status);
            
         }
 
