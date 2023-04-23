@@ -26,10 +26,11 @@ namespace NetworkMonitor.Processor.Services
         private ILogger _logger;
         private NetConnectCollection _netConnectCollection;
 
-        private readonly SemaphoreSlim _taskSemaphore = new SemaphoreSlim(5); // Limit to 5 concurrent tasks
+        private SemaphoreSlim _taskSemaphore; // Limit to 5 concurrent tasks
 
         private int _waitingTasksCounter = 0;
         private int  _maxTaskQueueSize=100;
+        private List<int> _quantumTaskQueueIDs = new  List<int>();
         private List<int> _longRunningTaskIDs = new  List<int>();
 
 
@@ -48,6 +49,7 @@ namespace NetworkMonitor.Processor.Services
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
+            
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
             FileRepo.CheckFileExists("MonitorIPs", logger);
             FileRepo.CheckFileExists("PingParams", logger);
@@ -63,6 +65,7 @@ namespace NetworkMonitor.Processor.Services
             int smtpFilterSkip=config.GetValue<int>("SmtpFilterSkip");
             int smtpFilterStart=config.GetValue<int>("SmtpFilterStart");
             _maxTaskQueueSize=config.GetValue<int>("MaxTaskQueueSize");
+            _taskSemaphore= new SemaphoreSlim(_maxTaskQueueSize);
             _logger.Info("QuantumFilterSkip = " + quantumFilterSkip + " QuantumFilterStart = " + quantumFilterStart + " SmtpFilterSkip = " + smtpFilterSkip + " SmtpFilterStart = " + smtpFilterStart + " MaxTaskQueueSize = " + _maxTaskQueueSize);
            
             INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(quantumFilterSkip, quantumFilterStart);
@@ -386,11 +389,16 @@ namespace NetworkMonitor.Processor.Services
         private async Task HandleLongRunningTask(NetConnect netConnect)
         {
             if (_longRunningTaskIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID)){
-                _logger.Warn($" Warning: The task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
+                _logger.Warn($" Warning: The Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
+                return;
+            }
+             if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID)){
+                _logger.Warn($" Warning: Rejecting Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue" );
                 return;
             }
             // Increment waiting tasks counter
             Interlocked.Increment(ref _waitingTasksCounter);
+            _quantumTaskQueueIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             // Check if the waitingTaskCounter exceeds the threshold
             if (_waitingTasksCounter > _maxTaskQueueSize)
             {
@@ -398,15 +406,16 @@ namespace NetworkMonitor.Processor.Services
                 // You can handle this situation here or log additional information if needed
             }
 
-            _logger.Fatal($" Waiting tasks: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+            //_logger.Fatal($" Waiting tasks: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
 
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
-             _logger.Error($" Waiting tasks: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
-
+             _logger.Error($" Starting task count running: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+  
 
             // Decrement waiting tasks counter
             Interlocked.Decrement(ref _waitingTasksCounter);
+            _quantumTaskQueueIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
             _longRunningTaskIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             var task = netConnect.Connect();
 
