@@ -410,7 +410,8 @@ namespace NetworkMonitor.Processor.Services
 
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
-             _logger.Error($" Starting task count running: {_waitingTasksCounter} . MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+            
+             _logger.Error($" Tasks waiting in semaphore: {_waitingTasksCounter} . Tasks running {_taskSemaphore.CurrentCount} Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
   
 
             // Decrement waiting tasks counter
