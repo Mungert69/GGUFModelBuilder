@@ -1,0 +1,2 @@
+OQS_CODEPOINT_X25519_KYBER512=65072  openssl s_client  -curves x25519_kyber512 -connect pq.cloudflareresearch.com:443 -provider-path ~/code/oqs-provider/_build/lib -provider oqsprovider -provider default  -msg
+
