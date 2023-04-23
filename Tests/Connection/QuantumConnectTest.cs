@@ -9,6 +9,7 @@ namespace NetworkMonitor.Tests
     {
         private MonitorPingInfo pingInfo;
         private PingParams pingParams;
+        private string csvFilePath = "/home/mahadeva/code/NetworkMonitorProcessor/AlgoTable-test.csv";
 
         public QuantumConnectTests()
         {
@@ -25,14 +26,14 @@ namespace NetworkMonitor.Tests
             var monitorPingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
-                Address = "https://pq.cloudflareresearch.com",
+                Address = "pq.cloudflareresearch.com",
                 EndPointType = "Quantum",
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
           
           string oqsProviderPath="/usr/local/lib/";
-             string csvFilePath = "AlgoTable.csv";
+
                List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
             // Arrange
             var quantumConnect = new QuantumConnect(monitorPingInfo, pingParams, algorithmInfoList, oqsProviderPath);
@@ -52,13 +53,13 @@ namespace NetworkMonitor.Tests
         {
             // Arrange
               string oqsProviderPath="/usr/local/lib/";
-             string csvFilePath = "AlgoTable.csv";
                List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
      
             var pingInfo = new MonitorPingInfo
             {
                 MonitorIPID = 1,
-                Address = "https://basic.com",
+                Address = "srv1.mahadeva.co.uk",
+                Port = 4433,
                 EndPointType = "Quantum",
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000

@@ -1,0 +1,3 @@
+AlgorithmName,DefaultID,Enabled,EnvironmentVariable
+x25519_kyber512,0xfe30,Yes,OQS_CODEPOINT_X25519_KYBER512
+kyber768,0x023C,Yes,OQS_CODEPOINT_KYBER768
