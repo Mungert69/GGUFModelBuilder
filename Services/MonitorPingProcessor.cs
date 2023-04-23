@@ -359,6 +359,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.ID = monIP.ID;
             monitorPingInfo.AppID = _appID;
             monitorPingInfo.Address = monIP.Address;
+            monitorPingInfo.Port = monIP.Port;
             monitorPingInfo.Enabled = monIP.Enabled;
             monitorPingInfo.EndPointType = monIP.EndPointType;
             //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
