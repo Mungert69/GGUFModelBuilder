@@ -411,7 +411,7 @@ namespace NetworkMonitor.Processor.Services
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
             
-             _logger.Error($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+             _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
   
 
             // Decrement waiting tasks counter
@@ -428,7 +428,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _longRunningTaskIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
                        // log output netConnect.MonitorPingInfo.PingInfos write as json
-                      _logger.Error($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . PingInfos: {JsonUtils.writeJsonObjectToString(netConnect.MonitorPingInfo.PingInfos)}");
+                      _logger.Debug($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . ");
 
                 }
                 _taskSemaphore.Release(); // Release the semaphore slot
