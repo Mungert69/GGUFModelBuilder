@@ -69,7 +69,7 @@ namespace NetworkMonitor.Processor.Services
             _logger.Info("QuantumFilterSkip = " + quantumFilterSkip + " QuantumFilterStart = " + quantumFilterStart + " SmtpFilterSkip = " + smtpFilterSkip + " SmtpFilterStart = " + smtpFilterStart + " MaxTaskQueueSize = " + _maxTaskQueueSize);
            
             INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(quantumFilterSkip, quantumFilterStart);
-            INetConnectFilterStrategy smtpStrategy = new SmtpEndPointFilterStrategy(smtpFilterSkip, smtpFilterStart);
+            INetConnectFilterStrategy smtpStrategy = new SmtpEndpointFilterStrategy(smtpFilterSkip, smtpFilterStart);
 
             // Combine the strategies using the composite pattern
             INetConnectFilterStrategy compositeStrategy = new CompositeFilterStrategy(quantumStrategy, smtpStrategy);
