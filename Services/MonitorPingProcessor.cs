@@ -498,9 +498,8 @@ namespace NetworkMonitor.Processor.Services
                         pingConnectTasks.Add(netConnect.Connect());
                     }
 
-                    await Task.Delay(timeToWait); // Use 'await' here
+                    new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
                 };
-                await Task.Delay(timeToWait).ConfigureAwait(false);
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
