@@ -29,9 +29,9 @@ namespace NetworkMonitor.Processor.Services
         private SemaphoreSlim _taskSemaphore; // Limit to 5 concurrent tasks
 
         private int _waitingTasksCounter = 0;
-        private int  _maxTaskQueueSize=100;
-        private List<int> _quantumTaskQueueIDs = new  List<int>();
-        private List<int> _longRunningTaskIDs = new  List<int>();
+        private int _maxTaskQueueSize = 100;
+        private List<int> _quantumTaskQueueIDs = new List<int>();
+        private List<int> _longRunningTaskIDs = new List<int>();
 
 
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
@@ -49,7 +49,7 @@ namespace NetworkMonitor.Processor.Services
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
-            
+
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
             FileRepo.CheckFileExists("MonitorIPs", logger);
             FileRepo.CheckFileExists("PingParams", logger);
@@ -60,14 +60,14 @@ namespace NetworkMonitor.Processor.Services
             _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
             _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
-            int quantumFilterSkip=config.GetValue<int>("QuantumFilterSkip");
-            int quantumFilterStart=config.GetValue<int>("QuantumFilterStart");
-            int smtpFilterSkip=config.GetValue<int>("SmtpFilterSkip");
-            int smtpFilterStart=config.GetValue<int>("SmtpFilterStart");
-            _maxTaskQueueSize=config.GetValue<int>("MaxTaskQueueSize");
-            _taskSemaphore= new SemaphoreSlim(_maxTaskQueueSize);
+            int quantumFilterSkip = config.GetValue<int>("QuantumFilterSkip");
+            int quantumFilterStart = config.GetValue<int>("QuantumFilterStart");
+            int smtpFilterSkip = config.GetValue<int>("SmtpFilterSkip");
+            int smtpFilterStart = config.GetValue<int>("SmtpFilterStart");
+            _maxTaskQueueSize = config.GetValue<int>("MaxTaskQueueSize");
+            _taskSemaphore = new SemaphoreSlim(_maxTaskQueueSize);
             _logger.Info("QuantumFilterSkip = " + quantumFilterSkip + " QuantumFilterStart = " + quantumFilterStart + " SmtpFilterSkip = " + smtpFilterSkip + " SmtpFilterStart = " + smtpFilterStart + " MaxTaskQueueSize = " + _maxTaskQueueSize);
-           
+
             INetConnectFilterStrategy quantumStrategy = new QuantumEndpointFilterStrategy(quantumFilterSkip, quantumFilterStart);
             INetConnectFilterStrategy smtpStrategy = new SmtpEndpointFilterStrategy(smtpFilterSkip, smtpFilterStart);
 
@@ -388,12 +388,14 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task HandleLongRunningTask(NetConnect netConnect)
         {
-            if (_longRunningTaskIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID)){
+            if (_longRunningTaskIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
+            {
                 _logger.Warn($" Warning: The Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
                 return;
             }
-             if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID)){
-                _logger.Warn($" Warning: Rejecting Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue" );
+            if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
+            {
+                _logger.Warn($" Warning: Rejecting Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue");
                 return;
             }
             // Increment waiting tasks counter
@@ -410,9 +412,9 @@ namespace NetworkMonitor.Processor.Services
 
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
-            
-             _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
-  
+
+            _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+
 
             // Decrement waiting tasks counter
             Interlocked.Decrement(ref _waitingTasksCounter);
@@ -427,8 +429,8 @@ namespace NetworkMonitor.Processor.Services
                 lock (_longRunningTaskIDs)
                 {
                     _longRunningTaskIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
-                       // log output netConnect.MonitorPingInfo.PingInfos write as json
-                      _logger.Debug($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . ");
+                    // log output netConnect.MonitorPingInfo.PingInfos write as json
+                    _logger.Debug($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . ");
 
                 }
                 _taskSemaphore.Release(); // Release the semaphore slot
@@ -466,15 +468,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
                 return result;
             }
-            // Time interval between Now and NextRun
-            int executionTime = connectObj.NextRunInterval - _pingParams.Timeout - connectObj.MaxBuffer;
-            int timeToWait = executionTime / _monitorPingInfos.Where(x => x.Enabled == true).Count();
-            if (timeToWait < 25)
-            {
-                result.Message += " Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ";
-                _logger.Warn(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
-            }
-            result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
+
             try
             {
                 var pingConnectTasks = new List<Task>();
@@ -483,6 +477,15 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.TryStartNoGCRegion(104857600, false);
                 var filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
+                // Time interval between Now and NextRun
+                int executionTime = connectObj.NextRunInterval - _pingParams.Timeout - connectObj.MaxBuffer;
+                int timeToWait = executionTime / filteredNetConnects.Count();
+                if (timeToWait < 25)
+                {
+                    result.Message += " Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ";
+                    _logger.Warn(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
+                }
+                result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
                 foreach (var netConnect in filteredNetConnects)
                 {
                     netConnect.PiID = _piIDKey;
@@ -490,15 +493,15 @@ namespace NetworkMonitor.Processor.Services
                     if (netConnect.IsLongRunning)
                     {
                         Console.WriteLine($"Starting long running task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID}");
-                         _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
-                        
+                        _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
+
                     }
                     else
                     {
                         pingConnectTasks.Add(netConnect.Connect());
                     }
 
-                    new System.Threading.ManualResetEvent(false).WaitOne(timeToWait);
+                    await Task.Delay(timeToWait); // Use 'await' here
                 };
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
