@@ -17,6 +17,7 @@ using MetroLog.MicrosoftExtensions;
 using MetroLog.Targets;
 using MetroLog.Internal;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Concurrent;
 namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
@@ -42,7 +43,7 @@ namespace NetworkMonitor.Processor.Services
         private RabbitListener _rabbitRepo;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private IConnectFactory _connectFactory;
-        private List<MonitorPingInfo> _monitorPingInfos = new List<MonitorPingInfo>();
+        private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
@@ -84,7 +85,7 @@ namespace NetworkMonitor.Processor.Services
             _logger.Warn("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
             {
-                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
@@ -154,7 +155,7 @@ namespace NetworkMonitor.Processor.Services
                             monitorPingInfo.RoundTripTimeTotal = 0;
                             //monitorPingInfo.TimeOuts = 0;
                         }
-                        currentMonitorPingInfos = _monitorPingInfos;
+                        currentMonitorPingInfos = _monitorPingInfos.ToList();
                         _piIDKey = 1;
                     }
                     else
@@ -272,12 +273,13 @@ namespace NetworkMonitor.Processor.Services
                     _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
-                _monitorPingInfos = AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos);
-                _netConnectCollection.NetConnects = _connectFactory.GetNetConnectList(_monitorPingInfos, _pingParams);
+                AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos).ForEach(info => _monitorPingInfos.Add(info));
+               
+                _netConnectCollection.NetConnects = _connectFactory.GetNetConnectList(_monitorPingInfos.ToList(), _pingParams);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
             }
             catch (Exception e)
             {
@@ -315,7 +317,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message = " No PingInfos removed. ";
                 return result;
             }
-            _monitorPingInfos.ForEach(f =>
+            _monitorPingInfos.ToList().ForEach(f =>
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
                 {
@@ -478,7 +480,7 @@ namespace NetworkMonitor.Processor.Services
                 GC.TryStartNoGCRegion(104857600, false);
                 var filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
                 // Time interval between Now and NextRun
-                int executionTime = connectObj.NextRunInterval - _pingParams.Timeout - connectObj.MaxBuffer;
+                int executionTime = connectObj.NextRunInterval - connectObj.MaxBuffer;
                 int timeToWait = executionTime / filteredNetConnects.Count();
                 if (timeToWait < 25)
                 {
@@ -520,7 +522,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingInfos.Count > 0)
                 {
                     result.Message += removePublishedPingInfos().Message;
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos, _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
@@ -645,7 +647,7 @@ namespace NetworkMonitor.Processor.Services
             }
             foreach (MonitorPingInfo del in delList)
             {
-                _monitorPingInfos.Remove(del);
+                _monitorPingInfos.ToList().Remove(del);
             }
             message += " Success : Updated MonitorPingInfos. ";
             // Update statestore with new MonitorIPs
