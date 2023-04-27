@@ -89,7 +89,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
-                
+
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // Cancel all the tasks
                 _logger.Info(" Cancelling all tasks");
@@ -97,7 +97,6 @@ namespace NetworkMonitor.Processor.Services
                 {
                     nc.PCts.Cancel();
                 }
-
                 // Wait for all tasks to complete their cancellation
                 Task.WhenAll(_netConnectCollection.NetConnects.ToArray().Select(nc => nc.Connect()));
 
@@ -107,7 +106,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                _logger.Fatal("Error : Failed to run SaveState before shutdown : Error Was : " + e.ToString() + " Inner Exception : " + e.InnerException.Message);
+                _logger.Fatal("Error : Failed to run SaveState before shutdown : Error Was : " + e.ToString());
                 Console.WriteLine();
             }
         }
@@ -538,6 +537,8 @@ namespace NetworkMonitor.Processor.Services
                         result.Message += " Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ";
                         _logger.Warn(" Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ");
                     }
+                     _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. ");
+
                 }
             }
             catch (Exception e)
