@@ -85,10 +85,22 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.Warn("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
-            {
+            {   _logger.Info(" Saving MonitorPingInfos to state");
                 PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
+                _logger.Info(" Sending ProcessorReady = false");
+                
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
+                // Cancel all the tasks
+                _logger.Info(" Cancelling all tasks");
+                foreach (var nc in _netConnectCollection.NetConnects.ToArray())
+                {
+                    nc.PCts.Cancel();
+                }
+
+                // Wait for all tasks to complete their cancellation
+                Task.WhenAll(_netConnectCollection.NetConnects.ToArray().Select(nc => nc.Connect()));
+
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
@@ -516,7 +528,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
                 // Check _netConnectCollection for any NetConnects that have RunningTime > _maxRunningTime and log them.
-                var longRunningNetConnects = filteredNetConnects.Where(w => w.IsRunning==true && w.RunningTime() > _maxRunningTime).ToList();
+                var longRunningNetConnects = filteredNetConnects.Where(w => w.IsRunning == true && w.RunningTime() > _maxRunningTime).ToList();
                 if (longRunningNetConnects.Count() > 0)
                 {
                     result.Message += " Warning : There are " + longRunningNetConnects.Count() + " NetConnects that have exceeded the MaxRunningTime of " + _maxRunningTime + " ms. ";
