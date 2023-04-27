@@ -85,7 +85,8 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.Warn("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
-            {   _logger.Info(" Saving MonitorPingInfos to state");
+            {
+                _logger.Info(" Saving MonitorPingInfos to state");
                 PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
@@ -93,9 +94,17 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // Cancel all the tasks
                 _logger.Info(" Cancelling all tasks");
+                _logger.Info(" Cancelling all tasks");
                 foreach (var nc in _netConnectCollection.NetConnects.ToArray())
                 {
-                    nc.PCts.Cancel();
+                    try
+                    {
+                        nc.PCts.Cancel();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        _logger.Warn(" CancellationTokenSource has been disposed for " + nc.PCts);
+                    }
                 }
                 // Wait for all tasks to complete their cancellation
                 Task.WhenAll(_netConnectCollection.NetConnects.ToArray().Select(nc => nc.Connect()));
@@ -536,7 +545,7 @@ namespace NetworkMonitor.Processor.Services
                         result.Message += " Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ";
                         _logger.Warn(" Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ");
                     }
-                     _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. ");
+                    _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. ");
 
                 }
             }
