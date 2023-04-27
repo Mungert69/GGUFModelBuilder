@@ -396,14 +396,14 @@ namespace NetworkMonitor.Processor.Services
                 _logger.Warn($" Warning: The task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
                 return;
             }
-            /*if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
+            if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
             {
                 _logger.Warn($" Warning: Rejecting task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue");
                 return;
-            }*/
+            }
             // Increment waiting tasks counter
             Interlocked.Increment(ref _waitingTasksCounter);
-            //_quantumTaskQueueIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
+            _quantumTaskQueueIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             // Check if the waitingTaskCounter exceeds the threshold
             if (_waitingTasksCounter > _maxTaskQueueSize)
             {
@@ -422,7 +422,7 @@ namespace NetworkMonitor.Processor.Services
 
             // Decrement waiting tasks counter
             Interlocked.Decrement(ref _waitingTasksCounter);
-            //_quantumTaskQueueIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
+            _quantumTaskQueueIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
             //_longRunningTaskIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             var task = netConnect.Connect();
 
