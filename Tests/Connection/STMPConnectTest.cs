@@ -30,7 +30,7 @@ namespace NetworkMonitor.Tests
             pingInfo.Port = port;
             // Act
             var smtpConnect = new SMTPConnect(pingInfo, pingParams);
-            var result = await smtpConnect.TestConnectionAsync(cts.Token);
+            var result = await smtpConnect.TestConnectionAsync(port);
             // Assert
             Assert.True(result.Success);
         }

@@ -484,13 +484,14 @@ namespace NetworkMonitor.Processor.Services
                     _logger.Warn(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
                 }
                 result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
+                int countDown = filteredNetConnects.Count();
                 foreach (var netConnect in filteredNetConnects)
                 {
                     netConnect.PiID = _piIDKey;
                     _piIDKey++;
                     if (netConnect.IsLongRunning)
                     {
-                        Console.WriteLine($"Starting long running task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID}");
+                        //Console.WriteLine($"Starting long running task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID}");
                         _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
@@ -498,6 +499,9 @@ namespace NetworkMonitor.Processor.Services
                         pingConnectTasks.Add(netConnect.Connect());
                     }
                     await Task.Delay(timeToWait); // Use 'await' here
+                                                  // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
+                    timeToWait = (executionTime - (int)timerInner.ElapsedMilliseconds) / countDown;
+                    countDown--;
                 };
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
@@ -516,7 +520,7 @@ namespace NetworkMonitor.Processor.Services
                         _logger.Warn(" Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ");
                     }
                 }
-                 _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. ");
+                _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. ");
             }
             catch (Exception e)
             {
