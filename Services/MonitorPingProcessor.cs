@@ -274,8 +274,7 @@ namespace NetworkMonitor.Processor.Services
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
                 AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos).ForEach(info => _monitorPingInfos.Add(info));
-               
-                _netConnectCollection.NetConnects = _connectFactory.GetNetConnectList(_monitorPingInfos.ToList(), _pingParams);
+                _connectFactory.GetNetConnectList(_monitorPingInfos.ToList(), _pingParams).ForEach(connect => _netConnectCollection.NetConnects.Add(connect));
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
@@ -317,15 +316,16 @@ namespace NetworkMonitor.Processor.Services
                 result.Message = " No PingInfos removed. ";
                 return result;
             }
-            _monitorPingInfos.ToList().ForEach(f =>
+            foreach (var f in _monitorPingInfos.ToList())
             {
                 _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
-                {
-                    f.PingInfos.RemoveAll(r => r.ID == p.ID);
-                    count++;
-                });
+                     {
+                         f.PingInfos.RemoveAll(r => r.ID == p.ID);
+                         count++;
+                     });
                 _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
-            });
+            }
+
             result.Success = true;
             result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
             return result;
@@ -571,9 +571,12 @@ namespace NetworkMonitor.Processor.Services
                             NetConnect netConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                             if (netConnect != null)
                             {
-                                int index = _netConnectCollection.NetConnects.IndexOf(netConnect);
                                 NetConnect newNetConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                                _netConnectCollection.NetConnects[index] = newNetConnect;
+                                if (_netConnectCollection.NetConnects.TryTake(out netConnect)) _netConnectCollection.NetConnects.Add(newNetConnect);
+                                else{
+                                    message += " Error : Failed to update NetConnect with PiID "+netConnect.PiID+" . ";
+                                    _logger.Error(" Error : Failed to update NetConnect with PiID "+netConnect.PiID+" . ");
+                                }
                             }
                             else
                             {
@@ -645,9 +648,14 @@ namespace NetworkMonitor.Processor.Services
                         }
                     });
             }
-            foreach (MonitorPingInfo del in delList)
+            foreach (MonitorPingInfo del in _monitorPingInfos.ToList())
             {
-                _monitorPingInfos.ToList().Remove(del);
+                var removeMon=new MonitorPingInfo(del);
+                if (!_monitorPingInfos.TryTake(out removeMon)){
+                     
+                    message += " Error : Failed to remove MonitorPingInfo with ID "+removeMon.ID+" . ";
+                    _logger.Error(" Error : Failed to remove MonitorPingInfo with ID "+removeMon.ID+" . ");    
+                }
             }
             message += " Success : Updated MonitorPingInfos. ";
             // Update statestore with new MonitorIPs
