@@ -501,6 +501,10 @@ namespace NetworkMonitor.Processor.Services
                     await Task.Delay(timeToWait); // Use 'await' here
                                                   // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
                     timeToWait = (executionTime - (int)timerInner.ElapsedMilliseconds) / countDown;
+                    if (timeToWait<0) {
+                        timeToWait = 0;
+                        _logger.Warn(" Warning : Time to wait is less than 0ms.  This may cause problems with the service.  Please check the schedule settings. ");
+                    }
                     countDown--;
                 };
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
