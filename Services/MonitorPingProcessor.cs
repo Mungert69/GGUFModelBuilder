@@ -31,6 +31,7 @@ namespace NetworkMonitor.Processor.Services
 
         private int _waitingTasksCounter = 0;
         private int _maxTaskQueueSize = 100;
+        private TimeSpan _maxRunningTime = TimeSpan.FromSeconds(120);
         private List<int> _quantumTaskQueueIDs = new List<int>();
         private List<int> _longRunningTaskIDs = new List<int>();
 
@@ -390,19 +391,19 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task HandleLongRunningTask(NetConnect netConnect)
         {
-            if (_longRunningTaskIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
+            if (netConnect.IsRunning)
             {
-                _logger.Warn($" Warning: The Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
+                _logger.Warn($" Warning: The task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID} is already running.");
                 return;
             }
-            if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
+            /*if (_quantumTaskQueueIDs.Contains(netConnect.MonitorPingInfo.MonitorIPID))
             {
-                _logger.Warn($" Warning: Rejecting Quantum task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue");
+                _logger.Warn($" Warning: Rejecting task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID} is already in queue");
                 return;
-            }
+            }*/
             // Increment waiting tasks counter
             Interlocked.Increment(ref _waitingTasksCounter);
-            _quantumTaskQueueIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
+            //_quantumTaskQueueIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             // Check if the waitingTaskCounter exceeds the threshold
             if (_waitingTasksCounter > _maxTaskQueueSize)
             {
@@ -415,26 +416,30 @@ namespace NetworkMonitor.Processor.Services
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
 
-            _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+            //_logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+            _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
 
 
             // Decrement waiting tasks counter
             Interlocked.Decrement(ref _waitingTasksCounter);
-            _quantumTaskQueueIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
-            _longRunningTaskIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
+            //_quantumTaskQueueIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
+            //_longRunningTaskIDs.Add(netConnect.MonitorPingInfo.MonitorIPID);
             var task = netConnect.Connect();
 
 
             // Add a continuation to remove the task from the list and release the semaphore when it's complete
             _ = task.ContinueWith((t) =>
             {
-                lock (_longRunningTaskIDs)
+                /*lock (_longRunningTaskIDs)
                 {
-                    _longRunningTaskIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
+                   // _longRunningTaskIDs.Remove(netConnect.MonitorPingInfo.MonitorIPID);
                     // log output netConnect.MonitorPingInfo.PingInfos write as json
                     _logger.Debug($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . ");
 
-                }
+                }*/
+                _logger.Debug($" Finished task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID} . ");
+
+
                 _taskSemaphore.Release(); // Release the semaphore slot
             });
         }
@@ -494,7 +499,7 @@ namespace NetworkMonitor.Processor.Services
                     _piIDKey++;
                     if (netConnect.IsLongRunning)
                     {
-                        Console.WriteLine($"Starting long running task for MonitorPingInfoID {netConnect.MonitorPingInfo.MonitorIPID}");
+                        Console.WriteLine($"Starting long running task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID}");
                         _ = HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
 
                     }
@@ -510,6 +515,18 @@ namespace NetworkMonitor.Processor.Services
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
+                // Check _netConnectCollection for any NetConnects that have RunningTime > _maxRunningTime and log them.
+                var longRunningNetConnects = filteredNetConnects.Where(w => w.IsRunning==true && w.RunningTime() > _maxRunningTime).ToList();
+                if (longRunningNetConnects.Count() > 0)
+                {
+                    result.Message += " Warning : There are " + longRunningNetConnects.Count() + " NetConnects that have exceeded the MaxRunningTime of " + _maxRunningTime + " ms. ";
+                    _logger.Warn(" Warning : There are " + longRunningNetConnects.Count() + " NetConnects that have exceeded the MaxRunningTime of " + _maxRunningTime + " ms. ");
+                    foreach (var longRunningNetConnect in longRunningNetConnects)
+                    {
+                        result.Message += " Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ";
+                        _logger.Warn(" Warning : NetConnect : " + JsonUtils.writeJsonObjectToString(longRunningNetConnect) + " . ");
+                    }
+                }
             }
             catch (Exception e)
             {
