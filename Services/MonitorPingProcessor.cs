@@ -561,13 +561,18 @@ namespace NetworkMonitor.Processor.Services
             foreach (UpdateMonitorIP monIP in monitorIPQueue)
             {
                 var monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-                var testNetConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
-                // We are not going to process if the NetConnect is still running.
-                if (testNetConnect.IsRunning){
-                    message += " Error : NetConnect with PiID "+testNetConnect.PiID+" is still running. ";
-                    addBackMonitorIPs.Add(monIP);
-                    continue;
-                }        
+                if (monitorPingInfo != null)
+                {
+                    var testNetConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
+                    // We are not going to process if the NetConnect is still running.
+                    if (testNetConnect.IsRunning)
+                    {
+                        message += " Error : NetConnect with PiID " + testNetConnect.PiID + " is still running. ";
+                        addBackMonitorIPs.Add(monIP);
+                        continue;
+                    }
+                }
+
                 // If monitorIP is contained in the list of monitorPingInfos then update it.
                 if (monitorPingInfo != null)
                 {
@@ -581,9 +586,10 @@ namespace NetworkMonitor.Processor.Services
                             {
                                 NetConnect newNetConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
                                 if (_netConnectCollection.NetConnects.TryTake(out netConnect)) _netConnectCollection.NetConnects.Add(newNetConnect);
-                                else{
-                                    message += " Error : Failed to update NetConnect with PiID "+netConnect.PiID+" . ";
-                                    _logger.Error(" Error : Failed to update NetConnect with PiID "+netConnect.PiID+" . ");
+                                else
+                                {
+                                    message += " Error : Failed to update NetConnect with PiID " + netConnect.PiID + " . ";
+                                    _logger.Error(" Error : Failed to update NetConnect with PiID " + netConnect.PiID + " . ");
                                 }
                             }
                             else
@@ -647,7 +653,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 kvp.Value.ForEach(f =>
                     {
-                        // Skip if monitorIP is in addBackMonitorIPs
+                        // Skip if monitorIP is in addBackMonitorIPs ie NetConnect still running
                         if (!addBackMonitorIPs.Contains(f) && f.Delete)
                         {
                             var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
@@ -657,15 +663,15 @@ namespace NetworkMonitor.Processor.Services
                         }
                     });
             }
-            foreach (MonitorPingInfo del in _monitorPingInfos.ToList())
+            foreach (MonitorPingInfo del in delList)
             {
                 // Skip if monitorIP is in addBackMonitorIPs
-                if (addBackMonitorIPs.Where(w => w.ID == del.MonitorIPID).FirstOrDefault() != null) continue;
-                var removeMon=new MonitorPingInfo(del);
-                if (!_monitorPingInfos.TryTake(out removeMon)){
-                     
-                    message += " Error : Failed to remove MonitorPingInfo with ID "+removeMon.ID+" . ";
-                    _logger.Error(" Error : Failed to remove MonitorPingInfo with ID "+removeMon.ID+" . ");    
+                var removeMon = new MonitorPingInfo(del);
+                if (!_monitorPingInfos.TryTake(out removeMon))
+                {
+
+                    message += " Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ";
+                    _logger.Error(" Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ");
                 }
             }
             message += " Success : Updated MonitorPingInfos. ";
