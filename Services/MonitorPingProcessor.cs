@@ -427,8 +427,7 @@ namespace NetworkMonitor.Processor.Services
             // Wait for a semaphore slot
             await _taskSemaphore.WaitAsync();
 
-            //_logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}. Running queue Size {_longRunningTaskIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
-            _logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
+            //_logger.Info($" Semaphore tasks waiting : {_waitingTasksCounter} . Slots remaining {_taskSemaphore.CurrentCount}. Task queue size {_quantumTaskQueueIDs.Count()}.  Starting task for MonitorIPID: {netConnect.MonitorPingInfo.MonitorIPID}");
 
 
             // Decrement waiting tasks counter
