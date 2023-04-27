@@ -556,10 +556,18 @@ namespace NetworkMonitor.Processor.Services
             // Get max MonitorPingInfo.ID
             //int maxID = _monitorPingInfos.Max(m => m.ID);
             string message = "";
+            List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
             //Add and update
             foreach (UpdateMonitorIP monIP in monitorIPQueue)
             {
-                MonitorPingInfo monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                var monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                var testNetConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
+                // We are not going to process if the NetConnect is still running.
+                if (testNetConnect.IsRunning){
+                    message += " Error : NetConnect with PiID "+testNetConnect.PiID+" is still running. ";
+                    addBackMonitorIPs.Add(monIP);
+                    continue;
+                }        
                 // If monitorIP is contained in the list of monitorPingInfos then update it.
                 if (monitorPingInfo != null)
                 {
@@ -639,7 +647,8 @@ namespace NetworkMonitor.Processor.Services
             {
                 kvp.Value.ForEach(f =>
                     {
-                        if (f.Delete)
+                        // Skip if monitorIP is in addBackMonitorIPs
+                        if (!addBackMonitorIPs.Contains(f) && f.Delete)
                         {
                             var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                             delList.Add(del);
@@ -650,6 +659,8 @@ namespace NetworkMonitor.Processor.Services
             }
             foreach (MonitorPingInfo del in _monitorPingInfos.ToList())
             {
+                // Skip if monitorIP is in addBackMonitorIPs
+                if (addBackMonitorIPs.Where(w => w.ID == del.MonitorIPID).FirstOrDefault() != null) continue;
                 var removeMon=new MonitorPingInfo(del);
                 if (!_monitorPingInfos.TryTake(out removeMon)){
                      
@@ -659,9 +670,17 @@ namespace NetworkMonitor.Processor.Services
             }
             message += " Success : Updated MonitorPingInfos. ";
             // Update statestore with new MonitorIPs
+            // remove addBackMonitorIPs from monitorIPQueue
+            monitorIPQueue.RemoveAll(addBackMonitorIPs.Contains);
             message += UpdateMonitorIPsInStatestore(monitorIPQueue);
-            // reset queue to empty
-            _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
+
+            // remove all items from queue that are no in addBackMonitorIPs
+            foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
+            {
+                kvp.Value.RemoveAll(r => !addBackMonitorIPs.Contains(r));
+            }
+            // remove all empty keys
+            _monitorIPQueueDic = _monitorIPQueueDic.Where(w => w.Value.Count > 0).ToDictionary(d => d.Key, d => d.Value);
             return message;
         }
         private string UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
