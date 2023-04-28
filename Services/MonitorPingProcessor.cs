@@ -82,6 +82,7 @@ namespace NetworkMonitor.Processor.Services
         public void Init(ProcessorInitObj initObj)
         {
             _netConnectCollection.Init();
+            _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
             List<MonitorPingInfo> currentMonitorPingInfos;
             List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
             PingParams statePingParams = new PingParams();
@@ -506,7 +507,7 @@ namespace NetworkMonitor.Processor.Services
                         // We are not going to process if the NetConnect is still running.
                         if (testNetConnect != null && testNetConnect.IsRunning)
                         {
-                            message += " Error : NetConnect with PiID " + testNetConnect.PiID + " is still running. ";
+                            message += " Error : NetConnect with MonitorPingInfoID " + testNetConnect.MonitorPingInfo.ID + " is still running. ";
                             addBackMonitorIPs.Add(monIP);
                             continue;
                         }
