@@ -500,6 +500,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     await Task.Delay(timeToWait); // Use 'await' here
                                                   // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
+                    if (countDown<1) countDown=1;
                     timeToWait = (executionTime - (int)timerInner.ElapsedMilliseconds) / countDown;
                     if (timeToWait<0) {
                         timeToWait = 0;
