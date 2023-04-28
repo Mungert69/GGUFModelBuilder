@@ -8,7 +8,7 @@ namespace NetworkMonitor.Processor.Services
 {
     public interface IMonitorPingProcessor
     {
-        void init(ProcessorInitObj initObj);
+        void Init(ProcessorInitObj initObj);
         void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         Task<ResultObj> Connect(ProcessorConnectObj connectObj);
         ResultObj WakeUp();
