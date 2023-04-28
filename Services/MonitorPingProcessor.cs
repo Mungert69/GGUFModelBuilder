@@ -577,20 +577,18 @@ namespace NetworkMonitor.Processor.Services
             foreach (UpdateMonitorIP monIP in monitorIPQueue)
             {
                 var monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+               
+                // If monitorIP is contained in the list of monitorPingInfos then update it.
                 if (monitorPingInfo != null)
                 {
                     var testNetConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                     // We are not going to process if the NetConnect is still running.
-                    if (testNetConnect.IsRunning)
+                    if (testNetConnect!=null && testNetConnect.IsRunning)
                     {
                         message += " Error : NetConnect with PiID " + testNetConnect.PiID + " is still running. ";
                         addBackMonitorIPs.Add(monIP);
                         continue;
                     }
-                }
-                // If monitorIP is contained in the list of monitorPingInfos then update it.
-                if (monitorPingInfo != null)
-                {
                     try
                     {
                         if (monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
