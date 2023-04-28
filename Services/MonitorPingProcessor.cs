@@ -67,9 +67,7 @@ namespace NetworkMonitor.Processor.Services
                 // Cancel all the tasks
                 _logger.Info(" Cancelling all tasks");
                 _netConnectCollection.CancelAllTasks();
-                // Wait for all tasks to complete their cancellation
-                Task.WhenAll(_netConnectCollection.NetConnects.ToArray().Select(nc => nc.Connect()));
-                // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
             }
