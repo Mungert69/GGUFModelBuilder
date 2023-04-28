@@ -218,7 +218,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : ProcessorInit : ";
             try
             {
-                _monitorPingProcessor.init(initObj);
+                _monitorPingProcessor.Init(initObj);
                 result.Message += "Success ran ok ";
                 result.Success = true;
                 _logger.Info(result.Message);
