@@ -420,12 +420,12 @@ namespace NetworkMonitor.Processor.Services
                             if (monitorPingInfo.Port != monIP.Port || monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
                             {
                                 _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
-                                message += _netConnectCollection.ReplaceOrAdd(monitorPingInfo, _pingParams);
+                                message += _netConnectCollection.ReplaceOrAdd(monitorPingInfo);
                             }
                             else
                             {
                                 _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
-                                _netConnectCollection.UpdateOrAdd(monitorPingInfo, _pingParams);
+                                _netConnectCollection.UpdateOrAdd(monitorPingInfo);
                             }
                         }
                         catch
@@ -458,7 +458,7 @@ namespace NetworkMonitor.Processor.Services
                             _logger.Info(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID);
                         }
                         _monitorPingCollection.MonitorPingInfos.Add(monitorPingInfo);
-                        _netConnectCollection.Add(monitorPingInfo, _pingParams);
+                        _netConnectCollection.Add(monitorPingInfo);
                     }
                 }
                 //Delete
