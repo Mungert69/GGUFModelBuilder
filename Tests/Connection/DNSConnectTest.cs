@@ -25,7 +25,10 @@ namespace NetworkMonitor.Tests.Connection
                 EndPointType="DNS"
             };
             pingInfo.Address="www.google.com";
-            DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
+            DNSConnect dnsConnect = new DNSConnect();
+            dnsConnect.PingParams=pingParams;
+            dnsConnect.MonitorPingInfo=pingInfo;
+
             // Act
             await dnsConnect.Connect();
             // Assert
@@ -45,7 +48,9 @@ namespace NetworkMonitor.Tests.Connection
                 Timeout = 1,
                 EndPointType="DNS"
             };
-            DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
+            DNSConnect dnsConnect = new DNSConnect();
+              dnsConnect.PingParams=pingParams;
+            dnsConnect.MonitorPingInfo=pingInfo;
             // Act
             await dnsConnect.Connect();
             // Assert
@@ -64,7 +69,9 @@ namespace NetworkMonitor.Tests.Connection
                 Timeout = 5000,
                 EndPointType="DNS"
             };
-            DNSConnect dnsConnect = new DNSConnect(pingInfo, pingParams);
+            DNSConnect dnsConnect = new DNSConnect();
+              dnsConnect.PingParams=pingParams;
+            dnsConnect.MonitorPingInfo=pingInfo;
             // Act
             await dnsConnect.Connect();
             // Assert
