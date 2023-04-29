@@ -25,11 +25,11 @@ namespace NetworkMonitor.Processor.Services
         private readonly object _lock = new object();
         private bool _awake;
         private ILogger _logger;
-           private string _appID = "1";
+        private string _appID = "1";
         private PingParams _pingParams;
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-       
+
         private NetConnectCollection _netConnectCollection;
         private MonitorPingCollection _monitorPingCollection;
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
@@ -41,7 +41,7 @@ namespace NetworkMonitor.Processor.Services
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
-            
+
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
             FileRepo.CheckFileExists("MonitorIPs", logger);
             FileRepo.CheckFileExists("PingParams", logger);
@@ -250,7 +250,7 @@ namespace NetworkMonitor.Processor.Services
                     _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
-                _monitorPingCollection.SetVars(_appID,_pingParams);
+                _monitorPingCollection.SetVars(_appID, _pingParams);
                 _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos);
                 _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
@@ -272,7 +272,8 @@ namespace NetworkMonitor.Processor.Services
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
-            while (_netConnectCollection.IsLocked){
+            while (_netConnectCollection.IsLocked)
+            {
                 _logger.Warn("Warning : NetConnectCollection is locked. Waiting 1 second to try again.");
                 await Task.Delay(1000);
             }
@@ -395,11 +396,7 @@ namespace NetworkMonitor.Processor.Services
                         });
                     }
                 }
-                // Reset Queue Dictionary
-                //if (monitorIPQueue.Count == 0) return "Info : No updates in monitorIP queue to process"; ;
-                // Get max MonitorPingInfo.ID
-                //int maxID = MonitorPingInfos.Max(m => m.ID);
-                string message = "";
+                 string message = "";
                 List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
                 //Add and update
                 foreach (UpdateMonitorIP monIP in monitorIPQueue)
@@ -409,7 +406,7 @@ namespace NetworkMonitor.Processor.Services
                     if (monitorPingInfo != null)
                     {
                         // We are not going to process if the NetConnect is still running.
-                        if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.ID))
+                        if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.MonitorIPID))
                         {
                             message += " Error : NetConnect with MonitorPingInfoID " + monitorPingInfo.ID + " is still running. ";
                             addBackMonitorIPs.Add(monIP);
@@ -417,16 +414,8 @@ namespace NetworkMonitor.Processor.Services
                         }
                         try
                         {
-                            if (monitorPingInfo.Port != monIP.Port || monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
-                            {
-                                _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
-                                message += _netConnectCollection.ReplaceOrAdd(monitorPingInfo);
-                            }
-                            else
-                            {
-                                _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
-                                _netConnectCollection.UpdateOrAdd(monitorPingInfo);
-                            }
+                            _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
+                            _netConnectCollection.UpdateOrAdd(monitorPingInfo);
                         }
                         catch
                         {
@@ -665,9 +654,11 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
 
-        public async Task WaitInit(ProcessorInitObj initObj){
-            _netConnectCollection.IsLocked=true;
-            while (_awake){
+        public async Task WaitInit(ProcessorInitObj initObj)
+        {
+            _netConnectCollection.IsLocked = true;
+            while (_awake)
+            {
                 await Task.Delay(1000);
             }
             Init(initObj);
