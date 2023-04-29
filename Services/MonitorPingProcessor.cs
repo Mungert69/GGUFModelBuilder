@@ -329,7 +329,7 @@ namespace NetworkMonitor.Processor.Services
                     if (netConnect.IsLongRunning)
                     {
                         // Note we dont set a CancellationTokenSource here as it will be set when the task enters the semaphore
-                         _ = _netConnectCollection.HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
                     {
@@ -337,7 +337,7 @@ namespace NetworkMonitor.Processor.Services
                         netConnect.Cts.CancelAfter(TimeSpan.FromMilliseconds(netConnect.PingParams.Timeout));
                         pingConnectTasks.Add(netConnect.Connect());
                     }
-                    await Task.Delay(timeToWait); 
+                    await Task.Delay(timeToWait);
                     // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
                     if (countDown < 1) countDown = 1;
                     timeToWait = (executionTime - (int)timerInner.ElapsedMilliseconds) / countDown;
@@ -399,7 +399,7 @@ namespace NetworkMonitor.Processor.Services
                         });
                     }
                 }
-                 string message = "";
+                string message = "";
                 List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
                 //Add and update
                 foreach (UpdateMonitorIP monIP in monitorIPQueue)
@@ -418,7 +418,14 @@ namespace NetworkMonitor.Processor.Services
                         try
                         {
                             _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
-                            _netConnectCollection.UpdateOrAdd(monitorPingInfo);
+                            if (monitorPingInfo.EndPointType != monIP.EndPointType)
+                            {
+                                message += _netConnectCollection.RemoveOrAdd(monitorPingInfo);
+                            }
+                            else
+                            {
+                                _netConnectCollection.UpdateOrAdd(monitorPingInfo);
+                            }
                         }
                         catch
                         {
