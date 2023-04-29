@@ -323,19 +323,22 @@ namespace NetworkMonitor.Processor.Services
                 int countDown = filteredNetConnects.Count();
                 foreach (var netConnect in filteredNetConnects)
                 {
+                    netConnect.Cts = new CancellationTokenSource();
                     netConnect.PiID = _piIDKey;
                     _piIDKey++;
                     if (netConnect.IsLongRunning)
                     {
-                        //Console.WriteLine($"Starting long running task for MonitorIPID {netConnect.MonitorPingInfo.MonitorIPID}");
-                        _ = _netConnectCollection.HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
+                        // Note we dont set a CancellationTokenSource here as it will be set when the task enters the semaphore
+                         _ = _netConnectCollection.HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
                     {
+                        // Set timeout via CancellationTokenSource
+                        netConnect.Cts.CancelAfter(TimeSpan.FromMilliseconds(netConnect.PingParams.Timeout));
                         pingConnectTasks.Add(netConnect.Connect());
                     }
-                    await Task.Delay(timeToWait); // Use 'await' here
-                                                  // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
+                    await Task.Delay(timeToWait); 
+                    // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
                     if (countDown < 1) countDown = 1;
                     timeToWait = (executionTime - (int)timerInner.ElapsedMilliseconds) / countDown;
                     if (timeToWait < 0)
