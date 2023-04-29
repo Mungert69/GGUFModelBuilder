@@ -63,9 +63,8 @@ namespace NetworkMonitor.Processor.Services
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
-                // Cancel all the tasks
-                _logger.Info(" Cancelling all tasks");
-                _netConnectCollection.CancelAllTasks();
+                // Wait till all the tasks cpmplete
+                _netConnectCollection.WaitAllTasks();
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
