@@ -20,9 +20,12 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
 namespace NetworkMonitor.Processor.Services
 {
+ 
     public class MonitorPingProcessor : IMonitorPingProcessor
     {
         private readonly object _lock = new object();
+
+        
         private bool _awake;
         private ILogger _logger;
         private string _appID = "1";
@@ -65,6 +68,7 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // Wait till all the tasks cpmplete
                 _netConnectCollection.WaitAllTasks();
+                
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
@@ -79,17 +83,19 @@ namespace NetworkMonitor.Processor.Services
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
         public void Init(ProcessorInitObj initObj)
         {
-            _netConnectCollection.Init();
+
             List<MonitorPingInfo> currentMonitorPingInfos;
             List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
             PingParams statePingParams = new PingParams();
             _monitorPingCollection.RemovePingInfos = new List<RemovePingInfo>();
             _removeMonitorPingInfoIDs = new List<int>();
+            bool initNetConnects = false;
             try
             {
                 //bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (initObj.TotalReset)
                 {
+                    initNetConnects = true;
                     _logger.Info("Resetting Processor MonitorPingInfos in statestore");
                     var processorDataObj = new ProcessorDataObj()
                     {
@@ -117,26 +123,15 @@ namespace NetworkMonitor.Processor.Services
                 {
                     if (initObj.Reset)
                     {
+                        initNetConnects = false;
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
-                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingCollection.MonitorPingInfos)
-                        {
-                            monitorPingInfo.DateStarted = DateTime.UtcNow;
-                            monitorPingInfo.PacketsLost = 0;
-                            monitorPingInfo.PacketsLostPercentage = 0;
-                            monitorPingInfo.PacketsRecieved = 0;
-                            monitorPingInfo.PacketsSent = 0;
-                            monitorPingInfo.PingInfos = new List<PingInfo>();
-                            monitorPingInfo.RoundTripTimeAverage = 0;
-                            monitorPingInfo.RoundTripTimeMaximum = 0;
-                            monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
-                            monitorPingInfo.RoundTripTimeTotal = 0;
-                            //monitorPingInfo.TimeOuts = 0;
-                        }
+                       _monitorPingCollection.ZeroMonitorPingInfos();
                         currentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.ToList();
                         _piIDKey = 1;
                     }
                     else
                     {
+                        initNetConnects = true;
                         string infoLog = "";
                         try
                         {
@@ -252,7 +247,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 _monitorPingCollection.SetVars(_appID, _pingParams);
                 _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos);
-                _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams);
+                _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
@@ -265,18 +260,18 @@ namespace NetworkMonitor.Processor.Services
             finally
             {
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
-                _netConnectCollection.IsLocked = false;
+                //_netConnectCollection.IsLocked = false;
             }
         }
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
-            while (_netConnectCollection.IsLocked)
+           /* while (_netConnectCollection.IsLocked)
             {
                 _logger.Warn("Warning : NetConnectCollection is locked. Waiting 1 second to try again.");
                 await Task.Delay(1000);
-            }
+            }*/
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.Debug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -305,7 +300,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                var pingConnectTasks = new List<Task>();
+                //var pingConnectTasks = new List<Task>();
                 result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.Collect();
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
@@ -329,13 +324,12 @@ namespace NetworkMonitor.Processor.Services
                     if (netConnect.IsLongRunning)
                     {
                         // Note we dont set a CancellationTokenSource here as it will be set when the task enters the semaphore
-                        _ = _netConnectCollection.HandleLongRunningTask(netConnect); // Call the new method to handle long-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleLongRunningTask(netConnect,_monitorPingCollection.Merge, _monitorPingCollection.Zero); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
                     {
                         // Set timeout via CancellationTokenSource
-                        netConnect.Cts.CancelAfter(TimeSpan.FromMilliseconds(netConnect.PingParams.Timeout));
-                        pingConnectTasks.Add(netConnect.Connect());
+                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle short-running tasks without awaiting it
                     }
                     await Task.Delay(timeToWait);
                     // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
@@ -664,7 +658,7 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
 
-        public async Task WaitInit(ProcessorInitObj initObj)
+       /* public async Task WaitInit(ProcessorInitObj initObj)
         {
             _netConnectCollection.IsLocked = true;
             while (_awake)
@@ -672,6 +666,6 @@ namespace NetworkMonitor.Processor.Services
                 await Task.Delay(1000);
             }
             Init(initObj);
-        }
+        }*/
     }
 }
