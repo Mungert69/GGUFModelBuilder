@@ -22,36 +22,35 @@ namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
     {
-        private PingParams _pingParams;
         private readonly object _lock = new object();
         private bool _awake;
         private ILogger _logger;
+           private string _appID = "1";
+        private PingParams _pingParams;
+        private List<int> _removeMonitorPingInfoIDs = new List<int>();
+        private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+       
         private NetConnectCollection _netConnectCollection;
-
+        private MonitorPingCollection _monitorPingCollection;
         private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         //private DaprClient _daprClient;
-        private string _appID = "1";
         private uint _piIDKey = 1;
         private RabbitListener _rabbitRepo;
-        private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
-        private IConnectFactory _connectFactory;
-        private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-        private List<int> _removeMonitorPingInfoIDs = new List<int>();
-        private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         public bool Awake { get => _awake; set => _awake = value; }
         public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
+            
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
             FileRepo.CheckFileExists("MonitorIPs", logger);
             FileRepo.CheckFileExists("PingParams", logger);
             _appID = config.GetValue<string>("AppID");
-            _connectFactory = connectFactory;
             SystemUrl systemUrl = config.GetSection("SystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("SystemUrl");
             _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
             _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
-            _netConnectCollection = new NetConnectCollection(_logger, config);
+            _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
+            _monitorPingCollection = new MonitorPingCollection(_logger);
             Init(new ProcessorInitObj());
         }
         public void OnStopping()
@@ -60,14 +59,14 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.Info(" Saving MonitorPingInfos to state");
-                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
-                _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
+                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // Cancel all the tasks
                 _logger.Info(" Cancelling all tasks");
                 _netConnectCollection.CancelAllTasks();
-                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
+                // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
             }
@@ -82,11 +81,10 @@ namespace NetworkMonitor.Processor.Services
         public void Init(ProcessorInitObj initObj)
         {
             _netConnectCollection.Init();
-            _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
             List<MonitorPingInfo> currentMonitorPingInfos;
             List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
             PingParams statePingParams = new PingParams();
-            _removePingInfos = new List<RemovePingInfo>();
+            _monitorPingCollection.RemovePingInfos = new List<RemovePingInfo>();
             _removeMonitorPingInfoIDs = new List<int>();
             try
             {
@@ -121,7 +119,7 @@ namespace NetworkMonitor.Processor.Services
                     if (initObj.Reset)
                     {
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
-                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+                        foreach (MonitorPingInfo monitorPingInfo in _monitorPingCollection.MonitorPingInfos)
                         {
                             monitorPingInfo.DateStarted = DateTime.UtcNow;
                             monitorPingInfo.PacketsLost = 0;
@@ -135,7 +133,7 @@ namespace NetworkMonitor.Processor.Services
                             monitorPingInfo.RoundTripTimeTotal = 0;
                             //monitorPingInfo.TimeOuts = 0;
                         }
-                        currentMonitorPingInfos = _monitorPingInfos.ToList();
+                        currentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.ToList();
                         _piIDKey = 1;
                     }
                     else
@@ -149,10 +147,10 @@ namespace NetworkMonitor.Processor.Services
                                 infoLog += " Got PiIDKey=" + _piIDKey + " . ";
                                 currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                                 _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                                _removePingInfos = processorDataObj.RemovePingInfos;
+                                _monitorPingCollection.RemovePingInfos = processorDataObj.RemovePingInfos;
                                 _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
                                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                                if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
+                                if (_monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new List<RemovePingInfo>();
                                 if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
                             }
                             if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
@@ -169,7 +167,7 @@ namespace NetworkMonitor.Processor.Services
                             _logger.Error("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
                             currentMonitorPingInfos = new List<MonitorPingInfo>();
                             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                            if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
+                            if (_monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new List<RemovePingInfo>();
                             if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
                         }
                         try
@@ -253,12 +251,13 @@ namespace NetworkMonitor.Processor.Services
                     _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
-                AddMonitorPingInfos(initObj.MonitorIPs, currentMonitorPingInfos).ForEach(info => _monitorPingInfos.Add(info));
-                _connectFactory.GetNetConnectList(_monitorPingInfos.ToList(), _pingParams).ForEach(connect => _netConnectCollection.NetConnects.Add(connect));
-                _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingInfos));
+                _monitorPingCollection.SetVars(_appID,_pingParams);
+                _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos);
+                _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams);
+                _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
             }
             catch (Exception e)
             {
@@ -269,103 +268,6 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
         }
-        //This method ProcessesMonitorReturnData receives an input object processorDataObj and updates class level variables _removeMonitorPingInfoIDs, _swapMonitorPingInfos, and _removePingInfos based on the data in processorDataObj. It removes items from _removeMonitorPingInfoIDs and _swapMonitorPingInfos and adds items to _removePingInfos.
-        public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
-        {
-            if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-            if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-            if (_removePingInfos == null) _removePingInfos = new List<RemovePingInfo>();
-            _removePingInfos.AddRange(processorDataObj.RemovePingInfos);
-            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
-            {
-                _removeMonitorPingInfoIDs.Remove(f);
-            });
-            if (processorDataObj.SwapMonitorPingInfos != null) processorDataObj.SwapMonitorPingInfos.ForEach(f =>
-            {
-                _swapMonitorPingInfos.Remove(f);
-            });
-        }
-        //This method removePublishedPingInfos removes PingInfos from _monitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
-        private ResultObj removePublishedPingInfos()
-        {
-            var result = new ResultObj();
-            int count = 0;
-            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
-            {
-                result.Success = false;
-                result.Message = " No PingInfos removed. ";
-                return result;
-            }
-            foreach (var f in _monitorPingInfos.ToList())
-            {
-                _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
-                     {
-                         f.PingInfos.RemoveAll(r => r.ID == p.ID);
-                         count++;
-                     });
-                _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
-            }
-            result.Success = true;
-            result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
-            return result;
-        }
-        //This is a method that adds MonitorPingInfos to a list of monitor IPs. If the MonitorPingInfo for a given monitor IP already exists, it updates it. Otherwise, it creates a new MonitorPingInfo object and fills it with data. The method returns a list of the newly added or updated MonitorPingInfos.
-        private List<MonitorPingInfo> AddMonitorPingInfos(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
-        {
-            var monitorPingInfos = new List<MonitorPingInfo>();
-            int i = 0;
-            foreach (MonitorIP monIP in monitorIPs)
-            {
-                MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-                if (monitorPingInfo != null)
-                {
-                    _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
-                    //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
-                }
-                else
-                {
-                    monitorPingInfo = new MonitorPingInfo();
-                    monitorPingInfo.MonitorIPID = monIP.ID;
-                    _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    monitorPingInfo.ID = monIP.ID;
-                    monitorPingInfo.UserID = monIP.UserID;
-                }
-                fillPingInfo(monitorPingInfo, monIP);
-                monitorPingInfos.Add(monitorPingInfo);
-                i++;
-            }
-            return monitorPingInfos;
-        }
-        //The method fillPingInfo populates the MonitorPingInfo object with values from the MonitorIP object. The MonitorPingInfo object properties are assigned the values of the corresponding properties of the MonitorIP object, except for Timeout property. If Timeout property of MonitorIP is 0, it will be assigned with the default value of _pingParams.Timeout.
-        private void fillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
-        {
-            monitorPingInfo.ID = monIP.ID;
-            monitorPingInfo.AppID = _appID;
-            monitorPingInfo.Address = monIP.Address;
-            monitorPingInfo.Port = monIP.Port;
-            monitorPingInfo.Enabled = monIP.Enabled;
-            monitorPingInfo.EndPointType = monIP.EndPointType;
-            //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
-            //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
-            if (monIP.Timeout == 0)
-            {
-                monitorPingInfo.Timeout = _pingParams.Timeout;
-            }
-            else
-            {
-                monitorPingInfo.Timeout = monIP.Timeout;
-            }
-            return;
-        }
-        // /This method GetNetConnect returns a Task object for a network connection with the given monitorPingInfoID. It searches the list of _netConnects for an object with the matching ID and returns the connect task from that object. If no match is found, a completed task is returned.
-        /*private Task GetNetConnect(int monitorPingInfoID)
-        {
-            var connectTask = _netConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfoID);
-            // return completed task if no netConnect found
-            if (connectTask == null) return Task.FromResult<object>(null);
-            return connectTask.connect();
-        }*/
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
@@ -387,7 +289,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message = " Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ";
                 _logger.Error(" Error : Failed to Process Monitor IP Queue. Error was : " + e.ToString() + " . ");
             }
-            if (_monitorPingInfos == null || _monitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
+            if (_monitorPingCollection.MonitorPingInfos == null || _monitorPingCollection.MonitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
             {
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
                 _logger.Warn(" Warning : There is no MonitorPingInfo data. ");
@@ -444,7 +346,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
                 // Check _netConnectCollection for any NetConnects that have RunningTime > _maxRunningTime and log them.
-                result.Message+=_netConnectCollection.LogInfo(filteredNetConnects);
+                result.Message += _netConnectCollection.LogInfo(filteredNetConnects);
             }
             catch (Exception e)
             {
@@ -454,10 +356,10 @@ namespace NetworkMonitor.Processor.Services
             }
             finally
             {
-                if (_monitorPingInfos.Count > 0)
+                if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
-                    result.Message += removePublishedPingInfos().Message;
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _removePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                    result.Message += _monitorPingCollection.RemovePublishedPingInfos().Message;
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
@@ -492,22 +394,20 @@ namespace NetworkMonitor.Processor.Services
                 // Reset Queue Dictionary
                 //if (monitorIPQueue.Count == 0) return "Info : No updates in monitorIP queue to process"; ;
                 // Get max MonitorPingInfo.ID
-                //int maxID = _monitorPingInfos.Max(m => m.ID);
+                //int maxID = MonitorPingInfos.Max(m => m.ID);
                 string message = "";
                 List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
                 //Add and update
                 foreach (UpdateMonitorIP monIP in monitorIPQueue)
                 {
-                    var monitorPingInfo = _monitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-
+                    var monitorPingInfo = _monitorPingCollection.MonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
                     // If monitorIP is contained in the list of monitorPingInfos then update it.
                     if (monitorPingInfo != null)
                     {
-                        var testNetConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
                         // We are not going to process if the NetConnect is still running.
-                        if (testNetConnect != null && testNetConnect.IsRunning)
+                        if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.ID))
                         {
-                            message += " Error : NetConnect with MonitorPingInfoID " + testNetConnect.MonitorPingInfo.ID + " is still running. ";
+                            message += " Error : NetConnect with MonitorPingInfoID " + monitorPingInfo.ID + " is still running. ";
                             addBackMonitorIPs.Add(monIP);
                             continue;
                         }
@@ -515,37 +415,13 @@ namespace NetworkMonitor.Processor.Services
                         {
                             if (monitorPingInfo.Port != monIP.Port || monitorPingInfo.Address != monIP.Address || monitorPingInfo.EndPointType != monIP.EndPointType || (monitorPingInfo.Enabled == false && monIP.Enabled == true))
                             {
-                                fillPingInfo(monitorPingInfo, monIP);
-                                NetConnect netConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
-                                if (netConnect != null)
-                                {
-                                    NetConnect newNetConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                                    if (_netConnectCollection.NetConnects.TryTake(out netConnect)) _netConnectCollection.NetConnects.Add(newNetConnect);
-                                    else
-                                    {
-                                        message += " Error : Failed to update NetConnect with PiID " + netConnect.PiID + " . ";
-                                        _logger.Error(" Error : Failed to update NetConnect with PiID " + netConnect.PiID + " . ");
-                                    }
-                                }
-                                else
-                                {
-                                    // recreate if it is missing
-                                    _netConnectCollection.NetConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
-                                }
+                                _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
+                                message += _netConnectCollection.ReplaceOrAdd(monitorPingInfo, _pingParams);
                             }
                             else
                             {
-                                NetConnect netConnect = _netConnectCollection.NetConnects.FirstOrDefault(w => w.MonitorPingInfo.ID == monitorPingInfo.ID);
-                                fillPingInfo(monitorPingInfo, monIP);
-                                if (netConnect != null)
-                                {
-                                    netConnect.MonitorPingInfo = monitorPingInfo;
-                                }
-                                else
-                                {
-                                    // recreate if its missing
-                                    _netConnectCollection.NetConnects.Add(_connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams));
-                                }
+                                _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
+                                _netConnectCollection.UpdateOrAdd(monitorPingInfo, _pingParams);
                             }
                         }
                         catch
@@ -563,7 +439,7 @@ namespace NetworkMonitor.Processor.Services
                             monitorPingInfo.MonitorIPID = monIP.ID;
                             monitorPingInfo.ID = monIP.ID;
                             monitorPingInfo.UserID = monIP.UserID; ;
-                            fillPingInfo(monitorPingInfo, monIP);
+                            _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
                             _logger.Info(" Just adding a new MonitorPingInfo with ID " + monitorPingInfo.ID);
                         }
                         else
@@ -577,9 +453,8 @@ namespace NetworkMonitor.Processor.Services
                             });
                             _logger.Info(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID);
                         }
-                        _monitorPingInfos.Add(monitorPingInfo);
-                        NetConnect netConnect = _connectFactory.GetNetConnectObj(monitorPingInfo, _pingParams);
-                        _netConnectCollection.NetConnects.Add(netConnect);
+                        _monitorPingCollection.MonitorPingInfos.Add(monitorPingInfo);
+                        _netConnectCollection.Add(monitorPingInfo, _pingParams);
                     }
                 }
                 //Delete
@@ -591,7 +466,7 @@ namespace NetworkMonitor.Processor.Services
                             // Skip if monitorIP is in addBackMonitorIPs ie NetConnect still running
                             if (!addBackMonitorIPs.Contains(f) && f.Delete)
                             {
-                                var del = _monitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
+                                var del = _monitorPingCollection.MonitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                                 delList.Add(del);
                                 _logger.Info(" Deleting MonitorIP with ID " + f.ID);
                                 if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
@@ -600,9 +475,8 @@ namespace NetworkMonitor.Processor.Services
                 }
                 foreach (MonitorPingInfo del in delList)
                 {
-                    // Skip if monitorIP is in addBackMonitorIPs
                     var removeMon = new MonitorPingInfo(del);
-                    if (!_monitorPingInfos.TryTake(out removeMon))
+                    if (!_monitorPingCollection.MonitorPingInfos.TryTake(out removeMon))
                     {
                         message += " Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ";
                         _logger.Error(" Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ");
@@ -623,9 +497,23 @@ namespace NetworkMonitor.Processor.Services
                 return message;
             }
         }
+        public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
+        {
+            if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+            if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+            if (_monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new List<RemovePingInfo>();
+            _monitorPingCollection.RemovePingInfos.AddRange(processorDataObj.RemovePingInfos);
+            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
+            {
+                _removeMonitorPingInfoIDs.Remove(f);
+            });
+            if (processorDataObj.SwapMonitorPingInfos != null) processorDataObj.SwapMonitorPingInfos.ForEach(f =>
+            {
+                _swapMonitorPingInfos.Remove(f);
+            });
+        }
         private string UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
         {
-
             string resultStr = "";
             try
             {
@@ -659,8 +547,6 @@ namespace NetworkMonitor.Processor.Services
                 throw e;
             }
             return resultStr;
-
-
         }
         //This method "UpdateMonitorPingInfosFromMonitorIPQueue()" updates the information in the "MonitorPingInfo" class from a queue of updates stored in "_monitorIPQueueDic". 
         public void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
@@ -671,17 +557,13 @@ namespace NetworkMonitor.Processor.Services
             _monitorIPQueueDic.Remove(queueDicObj.UserId);
             _monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
         }
-        private void ProcessMonitorIPDic()
-        {
-            // Get all MonitorIPs from the queue
-        }
-        // This method updates the AlertSent property of MonitorPingInfo objects in the _monitorPingInfos list, based on the provided monitorIPIDs list. For each id in monitorIPIDs, it retrieves the corresponding MonitorPingInfo object and sets its AlertSent property to alertSent. The method returns a list of ResultObj objects, where each object represents the result of updating the AlertSent property for a specific MonitorPingInfo object.
+        // This method updates the AlertSent property of MonitorPingInfo objects in the MonitorPingInfos list, based on the provided monitorIPIDs list. For each id in monitorIPIDs, it retrieves the corresponding MonitorPingInfo object and sets its AlertSent property to alertSent. The method returns a list of ResultObj objects, where each object represents the result of updating the AlertSent property for a specific MonitorPingInfo object.
         public List<ResultObj> UpdateAlertSent(List<int> monitorIPIDs, bool alertSent)
         {
             var results = new List<ResultObj>();
             foreach (int id in monitorIPIDs)
             {
-                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
+                var updateMonitorPingInfo = _monitorPingCollection.MonitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
                 var result = new ResultObj();
                 if (updateMonitorPingInfo != null)
                 {
@@ -698,13 +580,13 @@ namespace NetworkMonitor.Processor.Services
             }
             return results;
         }
-        // This method updates the AlertFlag field for multiple MonitorPingInfo objects based on the provided monitorIPIDs. The method returns a list of ResultObj objects indicating the success or failure of the update for each MonitorPingInfo. If the MonitorPingInfo with a given id is found in the _monitorPingInfos collection, the AlertFlag field is updated to the provided alertFlag value, and a success message is added to the ResultObj. If the MonitorPingInfo is not found, a failure message is added to the ResultObj.
+        // This method updates the AlertFlag field for multiple MonitorPingInfo objects based on the provided monitorIPIDs. The method returns a list of ResultObj objects indicating the success or failure of the update for each MonitorPingInfo. If the MonitorPingInfo with a given id is found in the MonitorPingInfos collection, the AlertFlag field is updated to the provided alertFlag value, and a success message is added to the ResultObj. If the MonitorPingInfo is not found, a failure message is added to the ResultObj.
         public List<ResultObj> UpdateAlertFlag(List<int> monitorIPIDs, bool alertFlag)
         {
             var results = new List<ResultObj>();
             foreach (int id in monitorIPIDs)
             {
-                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
+                var updateMonitorPingInfo = _monitorPingCollection.MonitorPingInfos.FirstOrDefault(w => w.MonitorIPID == id);
                 var result = new ResultObj();
                 if (updateMonitorPingInfo != null)
                 {
@@ -734,7 +616,7 @@ namespace NetworkMonitor.Processor.Services
                 alertFlagObj.ID = m;
                 alertFlagObj.AppID = _appID;
                 alertFlagObjs.Add(alertFlagObj);
-                var updateMonitorPingInfo = _monitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
+                var updateMonitorPingInfo = _monitorPingCollection.MonitorPingInfos.FirstOrDefault(w => w.MonitorIPID == alertFlagObj.ID && w.AppID == alertFlagObj.AppID);
                 if (updateMonitorPingInfo == null)
                 {
                     result.Success = false;
