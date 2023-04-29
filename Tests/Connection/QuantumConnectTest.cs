@@ -36,8 +36,9 @@ namespace NetworkMonitor.Tests
 
                List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
             // Arrange
-            var quantumConnect = new QuantumConnect(monitorPingInfo, pingParams, algorithmInfoList, oqsProviderPath);
-
+            var quantumConnect = new QuantumConnect( algorithmInfoList, oqsProviderPath);
+              quantumConnect.PingParams=pingParams;
+            quantumConnect.MonitorPingInfo=pingInfo;
             // Act
             await quantumConnect.Connect();
 
@@ -64,8 +65,9 @@ namespace NetworkMonitor.Tests
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
-            var quantumConnect = new QuantumConnect(pingInfo, pingParams, algorithmInfoList, oqsProviderPath);
-         
+            var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath);
+              quantumConnect.PingParams=pingParams;
+            quantumConnect.MonitorPingInfo=pingInfo;
 
             // Act
             await quantumConnect.Connect();

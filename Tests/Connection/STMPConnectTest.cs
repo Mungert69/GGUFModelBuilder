@@ -29,7 +29,9 @@ namespace NetworkMonitor.Tests
             pingInfo.Address = server;
             pingInfo.Port = port;
             // Act
-            var smtpConnect = new SMTPConnect(pingInfo, pingParams);
+            var smtpConnect = new SMTPConnect();
+            smtpConnect.PingParams = pingParams;
+            smtpConnect.MonitorPingInfo = pingInfo;
             var result = await smtpConnect.TestConnectionAsync(port);
             // Assert
             Assert.True(result.Success);
@@ -46,7 +48,9 @@ namespace NetworkMonitor.Tests
             pingInfo.Address = server;
             pingInfo.Port = port;
             // Act
-            var smtpConnect = new SMTPConnect(pingInfo, pingParams);
+            var smtpConnect = new SMTPConnect();
+            smtpConnect.PingParams = pingParams;
+            smtpConnect.MonitorPingInfo = pingInfo;
             await smtpConnect.Connect();
             // Assert
             Assert.Equal("Connect Ok", pingInfo.Status);
@@ -65,7 +69,9 @@ namespace NetworkMonitor.Tests
             pingInfo.Address = server;
             pingInfo.Port = port;
             // Act
-            var smtpConnect = new SMTPConnect(pingInfo, pingParams);
+            var smtpConnect = new SMTPConnect();
+            smtpConnect.PingParams = pingParams;
+            smtpConnect.MonitorPingInfo = pingInfo;
             await smtpConnect.Connect();
             // Assert
             Assert.NotEqual("Connect Ok", pingInfo.Status);
