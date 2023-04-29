@@ -102,9 +102,9 @@ namespace NetworkMonitor.Objects.Repository
                     case "processorInit":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
 
-                        rabbitMQObj.Consumer.Received += (model, ea) =>
+                        rabbitMQObj.Consumer.Received += async (model, ea) =>
                     {
-                        result = Init(ConvertToObject<ProcessorInitObj>(model, ea));
+                        result = await Init(ConvertToObject<ProcessorInitObj>(model, ea));
                         rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                     };
                         break;
@@ -211,14 +211,14 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public ResultObj Init(ProcessorInitObj initObj)
+        public async Task<ResultObj> Init(ProcessorInitObj initObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorInit : ";
             try
             {
-                _monitorPingProcessor.Init(initObj);
+                await _monitorPingProcessor.WaitInit(initObj);
                 result.Message += "Success ran ok ";
                 result.Success = true;
                 _logger.Info(result.Message);

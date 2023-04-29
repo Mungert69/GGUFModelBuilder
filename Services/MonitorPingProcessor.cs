@@ -266,12 +266,17 @@ namespace NetworkMonitor.Processor.Services
             finally
             {
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
+                _netConnectCollection.IsLocked = false;
             }
         }
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
+            while (_netConnectCollection.IsLocked){
+                _logger.Warn("Warning : NetConnectCollection is locked. Waiting 1 second to try again.");
+                await Task.Delay(1000);
+            }
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.Debug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -659,6 +664,14 @@ namespace NetworkMonitor.Processor.Services
                 result.Success = false;
             }
             return result;
+        }
+
+        public async Task WaitInit(ProcessorInitObj initObj){
+            _netConnectCollection.IsLocked=true;
+            while (_awake){
+                await Task.Delay(1000);
+            }
+            Init(initObj);
         }
     }
 }
