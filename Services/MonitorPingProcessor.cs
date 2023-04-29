@@ -309,7 +309,7 @@ namespace NetworkMonitor.Processor.Services
                 GC.Collect();
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.TryStartNoGCRegion(104857600, false);
-                var filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
+                List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
                 // Time interval between Now and NextRun
                 int executionTime = connectObj.NextRunInterval - connectObj.MaxBuffer;
                 int timeToWait = executionTime / filteredNetConnects.Count();
