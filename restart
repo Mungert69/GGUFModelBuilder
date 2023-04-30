@@ -1,0 +1,8 @@
+cd ~/code/NetworkMonitor/
+./git-get-all
+cd ~/code/NetworkMonitorProcessor/
+rm nohup.out
+pkill openssl
+./publish
+./run
+tail -f nohup.out
