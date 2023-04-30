@@ -329,7 +329,7 @@ namespace NetworkMonitor.Processor.Services
                     else
                     {
                         // Set timeout via CancellationTokenSource
-                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle short-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge, _monitorPingCollection.Zero); // Call the new method to handle short-running tasks without awaiting it
                     }
                     await Task.Delay(timeToWait);
                     // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
