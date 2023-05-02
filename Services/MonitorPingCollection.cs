@@ -14,7 +14,7 @@ namespace NetworkMonitor.Processor.Services
         private PingParams _pingParams;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-        public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; set => _monitorPingInfos = value; }
+        public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos;  }
         public List<RemovePingInfo> RemovePingInfos { get => _removePingInfos; set => _removePingInfos = value; }
         public MonitorPingCollection(ILogger logger)
         {
