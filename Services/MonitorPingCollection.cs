@@ -102,16 +102,11 @@ namespace NetworkMonitor.Processor.Services
                 if (monitorPingInfo != null)
                 {
                     _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
-                    //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
                 }
                 else
                 {
                     monitorPingInfo = new MonitorPingInfo();
-                    monitorPingInfo.MonitorIPID = monIP.ID;
                     _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    monitorPingInfo.ID = monIP.ID;
-                    monitorPingInfo.UserID = monIP.UserID;
                 }
                 FillPingInfo(monitorPingInfo, monIP);
                 _monitorPingInfos.Add(monitorPingInfo);
@@ -120,6 +115,8 @@ namespace NetworkMonitor.Processor.Services
         }
         public void FillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
+            monitorPingInfo.MonitorIPID = monIP.ID;
+            monitorPingInfo.UserID = monIP.UserID; ;
             monitorPingInfo.ID = monIP.ID;
             monitorPingInfo.AppID = _appID;
             monitorPingInfo.Address = monIP.Address;

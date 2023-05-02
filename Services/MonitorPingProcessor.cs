@@ -389,7 +389,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                 }
                 string message = "";
-                List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
+                //List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
                 //Add and update
                 foreach (UpdateMonitorIP monIP in monitorIPQueue)
                 {
@@ -398,12 +398,12 @@ namespace NetworkMonitor.Processor.Services
                     if (monitorPingInfo != null)
                     {
                         // We are not going to process if the NetConnect is still running.
-                        if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.MonitorIPID))
+                        /*if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.MonitorIPID))
                         {
                             message += " Error : NetConnect with MonitorPingInfoID " + monitorPingInfo.ID + " is still running. ";
                             addBackMonitorIPs.Add(monIP);
                             continue;
-                        }
+                        }*/
                         try
                         {
                             bool flag=false;
@@ -426,9 +426,6 @@ namespace NetworkMonitor.Processor.Services
                         if (!monIP.IsSwapping || monIP.MonitorPingInfo == null)
                         {
                             monitorPingInfo = new MonitorPingInfo();
-                            monitorPingInfo.MonitorIPID = monIP.ID;
-                            monitorPingInfo.ID = monIP.ID;
-                            monitorPingInfo.UserID = monIP.UserID; ;
                             _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
                             _logger.Info(" Just adding a new MonitorPingInfo with ID " + monitorPingInfo.ID);
                         }
@@ -454,7 +451,8 @@ namespace NetworkMonitor.Processor.Services
                     kvp.Value.ForEach(f =>
                         {
                             // Skip if monitorIP is in addBackMonitorIPs ie NetConnect still running
-                            if (!addBackMonitorIPs.Contains(f) && f.Delete)
+                            //if (!addBackMonitorIPs.Contains(f) && f.Delete)
+                            if ( f.Delete)
                             {
                                 var del = _monitorPingCollection.MonitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
                                 delList.Add(del);
@@ -471,19 +469,21 @@ namespace NetworkMonitor.Processor.Services
                         message += " Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ";
                         _logger.Error(" Error : Failed to remove MonitorPingInfo with ID " + removeMon.ID + " . ");
                     }
+                    _netConnectCollection.DisableAll(del.MonitorIPID);
                 }
                 message += " Success : Updated MonitorPingInfos. ";
                 // Update statestore with new MonitorIPs
                 // remove addBackMonitorIPs from monitorIPQueue
-                monitorIPQueue.RemoveAll(addBackMonitorIPs.Contains);
+                //monitorIPQueue.RemoveAll(addBackMonitorIPs.Contains);
                 message += UpdateMonitorIPsInStatestore(monitorIPQueue);
                 // remove all items from queue that are no in addBackMonitorIPs
-                foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
+                /*foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
                     kvp.Value.RemoveAll(r => !addBackMonitorIPs.Contains(r));
-                }
+                }*/
                 // remove all empty keys
-                _monitorIPQueueDic = _monitorIPQueueDic.Where(w => w.Value.Count > 0).ToDictionary(d => d.Key, d => d.Value);
+                //_monitorIPQueueDic = _monitorIPQueueDic.Where(w => w.Value.Count > 0).ToDictionary(d => d.Key, d => d.Value);
+                _monitorIPQueueDic.Clear(); 
                 return message;
             }
         }
@@ -544,9 +544,36 @@ namespace NetworkMonitor.Processor.Services
         {
             // Nothing to process so just return
             if (queueDicObj.MonitorIPs.Count == 0) return;
-            // replace any existing monitorIPs with the same userId
-            _monitorIPQueueDic.Remove(queueDicObj.UserId);
-            _monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
+            // replace any existing monitorIPs with the monitorIps in the queueDicObj if they exist in _monitorIPQueueDic. Dont replace any monitorIPs that have Delete = true.
+            if (_monitorIPQueueDic.ContainsKey(queueDicObj.UserId))
+            {
+                var existingMonitorIPs = _monitorIPQueueDic[queueDicObj.UserId];
+                var newMonitorIPs = queueDicObj.MonitorIPs;
+                foreach (var newMonitorIP in newMonitorIPs)
+                {
+                    var existingMonitorIP = existingMonitorIPs.Where(w => w.ID == newMonitorIP.ID).FirstOrDefault();
+                    if (existingMonitorIP != null)
+                    {
+                        if (!existingMonitorIP.Delete)
+                        {
+                            existingMonitorIPs.Remove(existingMonitorIP);
+                            existingMonitorIPs.Add(newMonitorIP);
+                        }
+                    }
+                    else
+                    {
+                        existingMonitorIPs.Add(newMonitorIP);
+                    }
+                }
+            }
+            else
+            {
+                _monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
+            }
+           
+            
+            //_monitorIPQueueDic.Remove(queueDicObj.UserId);
+            //_monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
         }
         // This method updates the AlertSent property of MonitorPingInfo objects in the MonitorPingInfos list, based on the provided monitorIPIDs list. For each id in monitorIPIDs, it retrieves the corresponding MonitorPingInfo object and sets its AlertSent property to alertSent. The method returns a list of ResultObj objects, where each object represents the result of updating the AlertSent property for a specific MonitorPingInfo object.
         public List<ResultObj> UpdateAlertSent(List<int> monitorIPIDs, bool alertSent)
