@@ -192,6 +192,7 @@ namespace NetworkMonitor.Processor.Services
                     initObj.MonitorIPs = stateMonitorIPs;
                     if (stateMonitorIPs == null || stateMonitorIPs.Count == 0)
                     {
+                        initObj.MonitorIPs = new List<MonitorIP>();
                         _logger.Error("Error : There are No MonitorIPs in statestore");
                     }
                 }
@@ -212,6 +213,7 @@ namespace NetworkMonitor.Processor.Services
                     _pingParams = statePingParams;
                     if (statePingParams == null)
                     {
+                        if (_pingParams == null) _pingParams = new PingParams();
                         _logger.Error("Error : There are No PingParams in statestore");
                     }
                 }
@@ -298,7 +300,7 @@ namespace NetworkMonitor.Processor.Services
                 GC.Collect();
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.TryStartNoGCRegion(104857600, false);
-                List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().Where(w => w.MonitorPingInfo.Enabled == true).ToList();
+                List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
                 // Time interval between Now and NextRun
                 int executionTime = connectObj.NextRunInterval - connectObj.MaxBuffer;
                 int timeToWait = executionTime / filteredNetConnects.Count();
@@ -408,7 +410,7 @@ namespace NetworkMonitor.Processor.Services
                             if (monitorPingInfo.EndPointType != monIP.EndPointType) flag = true;
                             _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
                             if (flag)
-                                message += _netConnectCollection.RemoveOrAdd(monitorPingInfo);
+                                message += _netConnectCollection.RemoveAndAdd(monitorPingInfo);
                             else
                                 _netConnectCollection.UpdateOrAdd(monitorPingInfo);
                         }
@@ -506,6 +508,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                if (stateMonitorIPs == null) stateMonitorIPs = new List<MonitorIP>();
                 foreach (var updateMonitorIP in updateMonitorIPs)
                 {
                     var monitorIP = stateMonitorIPs.Where(w => w.ID == updateMonitorIP.ID).FirstOrDefault();
