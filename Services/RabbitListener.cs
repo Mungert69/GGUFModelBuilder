@@ -19,12 +19,12 @@ namespace NetworkMonitor.Objects.Repository
     public class RabbitListener : RabbitListenerBase
     {
         private string _appID;
-         private IMonitorPingProcessor _monitorPingProcessor;
-          public RabbitListener(ILogger logger,  SystemUrl systemUrl, IMonitorPingProcessor monitorPingProcessor, string appID) : base(logger, systemUrl) 
+        private IMonitorPingProcessor _monitorPingProcessor;
+        public RabbitListener(ILogger logger, SystemUrl systemUrl, IMonitorPingProcessor monitorPingProcessor, string appID) : base(logger, systemUrl)
         {
-           _monitorPingProcessor=monitorPingProcessor;
-           _appID=appID;
-           Setup();
+            _monitorPingProcessor = monitorPingProcessor;
+            _appID = appID;
+            Setup();
         }
         protected override void InitRabbitMQObjs()
         {
@@ -32,7 +32,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorConnect" + _appID,
                 FuncName = "processorConnect",
-                MessageTimeout=60000
+                MessageTimeout = 60000
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
@@ -68,9 +68,8 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorWakeUp" + _appID,
                 FuncName = "processorWakeUp",
-                MessageTimeout=60000
+                MessageTimeout = 60000
             });
-          
         }
         protected override ResultObj DeclareConsumers()
         {
@@ -86,76 +85,124 @@ namespace NetworkMonitor.Objects.Repository
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
                         rabbitMQObj.Consumer.Received += async (model, ea) =>
                             {
-                                result = await Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                try
+                                {
+                                    result = await Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
+                                    rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.Error(" Error : RabbitListener.DeclareConsumers.processorConnect " + ex.Message);
+                                }
                             };
                         break;
                     case "removePingInfos":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.removePingInfos " + ex.Message);
+                        }
                     };
                         break;
                     case "processorInit":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
-                        rabbitMQObj.Consumer.Received +=  (model, ea) =>
+                        rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = Init(ConvertToObject<ProcessorInitObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = Init(ConvertToObject<ProcessorInitObj>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorInit " + ex.Message);
+                        }
                     };
                         break;
                     case "processorAlertFlag":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = AlertFlag(ConvertToList<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = AlertFlag(ConvertToList<List<int>>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorAlertFlag " + ex.Message);
+                        }
                     };
                         break;
                     case "processorAlertSent":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = AlertSent(ConvertToList<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = AlertSent(ConvertToList<List<int>>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorAlertSent " + ex.Message);
+                        }
                     };
                         break;
                     case "processorQueueDic":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorQueueDic " + ex.Message);
+                        }
                     };
                         break;
                     case "processorResetAlerts":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = ResetAlerts(ConvertToList<List<int>>(model, ea));
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = ResetAlerts(ConvertToList<List<int>>(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorResetAlerts " + ex.Message);
+                        }
                     };
                         break;
                     case "processorWakeUp":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-
                         rabbitMQObj.Consumer.Received += (model, ea) =>
                     {
-                        result = WakeUp();
-                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        try
+                        {
+                            result = WakeUp();
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(" Error : RabbitListener.DeclareConsumers.processorWakeUp " + ex.Message);
+                        }
                     };
                         break;
                 }
             });
-
                 result.Success = true;
                 result.Message += " Success : Declared all consumers ";
             }
@@ -168,7 +215,6 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-   
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             ResultObj result = new ResultObj();
@@ -218,7 +264,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : ProcessorInit : ";
             try
             {
-                 _monitorPingProcessor.Init(initObj);
+                _monitorPingProcessor.Init(initObj);
                 result.Message += "Success ran ok ";
                 result.Success = true;
                 _logger.Info(result.Message);
@@ -336,7 +382,7 @@ namespace NetworkMonitor.Objects.Repository
             result.Message = "MessageAPI : WakeUp : ";
             try
             {
-                result=_monitorPingProcessor.WakeUp();
+                result = _monitorPingProcessor.WakeUp();
                 _logger.Info(result.Message);
             }
             catch (Exception e)
@@ -348,5 +394,5 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-      }
+    }
 }
