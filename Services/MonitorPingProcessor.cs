@@ -31,7 +31,7 @@ namespace NetworkMonitor.Processor.Services
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         private NetConnectCollection _netConnectCollection;
         private MonitorPingCollection _monitorPingCollection;
-        private Dictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new Dictionary<string, List<UpdateMonitorIP>>();
+        private ConcurrentDictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         //private DaprClient _daprClient;
         private uint _piIDKey = 1;
@@ -118,7 +118,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         initNetConnects = false;
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
-                        _monitorPingCollection.ZeroMonitorPingInfos();
+                        _monitorPingCollection.ZeroMonitorPingInfos(_lock);
                         currentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.ToList();
                         _piIDKey = 1;
                     }
@@ -241,8 +241,10 @@ namespace NetworkMonitor.Processor.Services
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
                 _monitorPingCollection.SetVars(_appID, _pingParams);
-                _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos);
-                _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects);
+               
+                    _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos, _lock);
+                    _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects, _lock);
+
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
@@ -262,11 +264,7 @@ namespace NetworkMonitor.Processor.Services
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
-            /* while (_netConnectCollection.IsLocked)
-             {
-                 _logger.Warn("Warning : NetConnectCollection is locked. Waiting 1 second to try again.");
-                 await Task.Delay(1000);
-             }*/
+           
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.Debug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -355,7 +353,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
-                    result.Message += _monitorPingCollection.RemovePublishedPingInfos().Message;
+                    result.Message += _monitorPingCollection.RemovePublishedPingInfos(_lock).Message;
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
@@ -547,6 +545,7 @@ namespace NetworkMonitor.Processor.Services
         {
             // Nothing to process so just return
             if (queueDicObj.MonitorIPs.Count == 0) return;
+            bool flagFailed = false;
             // replace any existing monitorIPs with the monitorIps in the queueDicObj if they exist in _monitorIPQueueDic. Dont replace any monitorIPs that have Delete = true.
             if (_monitorIPQueueDic.ContainsKey(queueDicObj.UserId))
             {
@@ -571,10 +570,15 @@ namespace NetworkMonitor.Processor.Services
             }
             else
             {
-                _monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
+                // Add to _monitorIPQueueDic
+                if (!_monitorIPQueueDic.TryAdd(queueDicObj.UserId, queueDicObj.MonitorIPs)) flagFailed = true;
+                     
             }
 
-
+            if (flagFailed)
+            {
+                _logger.Error("Error : Failed to add MonitorIPs to _monitorIPQueueDic. for user " + queueDicObj.UserId + " .");
+            }
             //_monitorIPQueueDic.Remove(queueDicObj.UserId);
             //_monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
         }
@@ -647,7 +651,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     updateMonitorPingInfo.MonitorStatus.AlertFlag = false;
                     updateMonitorPingInfo.MonitorStatus.AlertSent = false;
-                    updateMonitorPingInfo.MonitorStatus.DownCount = 0;
+                    updateMonitorPingInfo.IsDirtyDownCount = true;
                     result.Success = true;
                     result.Message += " Success : updated MonitorPingInfo with MonitorIPID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }

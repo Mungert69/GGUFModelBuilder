@@ -14,7 +14,7 @@ namespace NetworkMonitor.Processor.Services
         private PingParams _pingParams;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-        public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos;  }
+        public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
         public List<RemovePingInfo> RemovePingInfos { get => _removePingInfos; set => _removePingInfos = value; }
         public MonitorPingCollection(ILogger logger)
         {
@@ -26,7 +26,7 @@ namespace NetworkMonitor.Processor.Services
             _pingParams = pingParams;
         }
 
-        public void Zero(MonitorPingInfo monitorPingInfo)
+        public void Zero(MonitorPingInfo monitorPingInfo, bool isZero)
         {
             monitorPingInfo.DateStarted = DateTime.UtcNow;
             monitorPingInfo.PacketsLost = 0;
@@ -38,27 +38,35 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.RoundTripTimeMaximum = 0;
             monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
             monitorPingInfo.RoundTripTimeTotal = 0;
-            monitorPingInfo.IsZero = false;
+            monitorPingInfo.IsZero = isZero;
         }
-        public void ZeroMonitorPingInfos()
+        public void ZeroMonitorPingInfos(object lockObj)
         {
-            foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+            lock (lockObj)
             {
-               Zero(monitorPingInfo);
+                foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+                {
+                    Zero(monitorPingInfo,true);
+                }
             }
         }
         public void Merge(MonitorPingInfo monitorPingInfo)
         {
             var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorPingInfo.MonitorIPID);
-            if (mergeMonitorPingInfo != null  )
+            if (mergeMonitorPingInfo != null)
             {
-                  mergeMonitorPingInfo.PacketsSent = monitorPingInfo.PacketsSent;
+                mergeMonitorPingInfo.PacketsSent = monitorPingInfo.PacketsSent;
                 mergeMonitorPingInfo.PacketsLost = monitorPingInfo.PacketsLost;
                 mergeMonitorPingInfo.PacketsRecieved = monitorPingInfo.PacketsRecieved;
                 mergeMonitorPingInfo.PingInfos.Add(monitorPingInfo.PingInfo);
-                mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
-                mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
-                mergeMonitorPingInfo.MonitorStatus.DownCount = monitorPingInfo.MonitorStatus.DownCount;
+                //mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
+                //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
+                if (mergeMonitorPingInfo.IsDirtyDownCount) {
+                    mergeMonitorPingInfo.MonitorStatus.DownCount = 0;
+                    mergeMonitorPingInfo.IsDirtyDownCount = false;
+                    }
+                else mergeMonitorPingInfo.MonitorStatus.DownCount = monitorPingInfo.MonitorStatus.DownCount;
+
                 mergeMonitorPingInfo.MonitorStatus.IsUp = monitorPingInfo.MonitorStatus.IsUp;
                 mergeMonitorPingInfo.MonitorStatus.EventTime = monitorPingInfo.MonitorStatus.EventTime;
                 mergeMonitorPingInfo.MonitorStatus.Message = monitorPingInfo.MonitorStatus.Message;
@@ -69,55 +77,62 @@ namespace NetworkMonitor.Processor.Services
                 mergeMonitorPingInfo.RoundTripTimeMaximum = monitorPingInfo.RoundTripTimeMaximum;
                 mergeMonitorPingInfo.RoundTripTimeMinimum = monitorPingInfo.RoundTripTimeMinimum;
                 mergeMonitorPingInfo.PacketsLostPercentage = monitorPingInfo.PacketsLostPercentage;
-                mergeMonitorPingInfo.IsZero = monitorPingInfo.IsZero;
             }
-           
+
         }
         //This method removePublishedPingInfos removes PingInfos from MonitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
-        public ResultObj RemovePublishedPingInfos()
+        public ResultObj RemovePublishedPingInfos(object lockObj)
         {
-            var result = new ResultObj();
-            int count = 0;
-            if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
+            lock (lockObj)
             {
-                result.Success = false;
-                result.Message = " No PingInfos removed. ";
+                var result = new ResultObj();
+                int count = 0;
+                if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
+                {
+                    result.Success = false;
+                    result.Message = " No PingInfos removed. ";
+                    return result;
+                }
+                foreach (var f in MonitorPingInfos.ToList())
+                {
+                    _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
+                         {
+                             f.PingInfos.RemoveAll(r => r.ID == p.ID);
+                             count++;
+                         });
+                    _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
+                }
+                result.Success = true;
+                result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
                 return result;
+
             }
-            foreach (var f in MonitorPingInfos.ToList())
-            {
-                _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
-                     {
-                         f.PingInfos.RemoveAll(r => r.ID == p.ID);
-                         count++;
-                     });
-                _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
-            }
-            result.Success = true;
-            result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
-            return result;
         }
         //This is a method that adds MonitorPingInfos to a list of monitor IPs. If the MonitorPingInfo for a given monitor IP already exists, it updates it. Otherwise, it creates a new MonitorPingInfo object and fills it with data. The method returns a list of the newly added or updated MonitorPingInfos.
-        public void MonitorPingInfoFactory(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos)
+        public void MonitorPingInfoFactory(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos, object lockObj)
         {
-            int i = 0;
-            _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-            foreach (MonitorIP monIP in monitorIPs)
+            lock (lockObj)
             {
-                MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-                if (monitorPingInfo != null)
+                int i = 0;
+                _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
+                foreach (MonitorIP monIP in monitorIPs)
                 {
-                    _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                    MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                    if (monitorPingInfo != null)
+                    {
+                        _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                    }
+                    else
+                    {
+                        monitorPingInfo = new MonitorPingInfo();
+                        _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                    }
+                    FillPingInfo(monitorPingInfo, monIP);
+                    _monitorPingInfos.Add(monitorPingInfo);
+                    i++;
                 }
-                else
-                {
-                    monitorPingInfo = new MonitorPingInfo();
-                    _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                }
-                FillPingInfo(monitorPingInfo, monIP);
-                _monitorPingInfos.Add(monitorPingInfo);
-                i++;
             }
+
         }
         public void FillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
