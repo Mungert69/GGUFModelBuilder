@@ -406,7 +406,7 @@ namespace NetworkMonitor.Processor.Services
                         }*/
                         try
                         {
-                            bool flag=false;
+                            bool flag = false;
                             if (monitorPingInfo.EndPointType != monIP.EndPointType) flag = true;
                             _monitorPingCollection.FillPingInfo(monitorPingInfo, monIP);
                             if (flag)
@@ -452,12 +452,15 @@ namespace NetworkMonitor.Processor.Services
                         {
                             // Skip if monitorIP is in addBackMonitorIPs ie NetConnect still running
                             //if (!addBackMonitorIPs.Contains(f) && f.Delete)
-                            if ( f.Delete)
+                            if (f.Delete)
                             {
                                 var del = _monitorPingCollection.MonitorPingInfos.Where(w => w.MonitorIPID == f.ID).FirstOrDefault();
-                                delList.Add(del);
-                                _logger.Info(" Deleting MonitorIP with ID " + f.ID);
-                                if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
+                                if (del != null)
+                                {
+                                    delList.Add(del);
+                                    _logger.Info(" Deleting MonitorIP with ID " + f.ID);
+                                    if (!f.IsSwapping) _removeMonitorPingInfoIDs.Add(del.MonitorIPID);
+                                }
                             }
                         });
                 }
@@ -483,7 +486,7 @@ namespace NetworkMonitor.Processor.Services
                 }*/
                 // remove all empty keys
                 //_monitorIPQueueDic = _monitorIPQueueDic.Where(w => w.Value.Count > 0).ToDictionary(d => d.Key, d => d.Value);
-                _monitorIPQueueDic.Clear(); 
+                _monitorIPQueueDic.Clear();
                 return message;
             }
         }
@@ -570,8 +573,8 @@ namespace NetworkMonitor.Processor.Services
             {
                 _monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
             }
-           
-            
+
+
             //_monitorIPQueueDic.Remove(queueDicObj.UserId);
             //_monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
         }
