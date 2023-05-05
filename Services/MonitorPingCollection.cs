@@ -55,8 +55,13 @@ namespace NetworkMonitor.Processor.Services
                   mergeMonitorPingInfo.PacketsSent = monitorPingInfo.PacketsSent;
                 mergeMonitorPingInfo.PacketsLost = monitorPingInfo.PacketsLost;
                 mergeMonitorPingInfo.PacketsRecieved = monitorPingInfo.PacketsRecieved;
-                mergeMonitorPingInfo.PingInfos = monitorPingInfo.PingInfos;
-                mergeMonitorPingInfo.MonitorStatus = monitorPingInfo.MonitorStatus;
+                mergeMonitorPingInfo.PingInfos.Add(monitorPingInfo.PingInfo);
+                mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
+                mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
+                mergeMonitorPingInfo.MonitorStatus.DownCount = monitorPingInfo.MonitorStatus.DownCount;
+                mergeMonitorPingInfo.MonitorStatus.IsUp = monitorPingInfo.MonitorStatus.IsUp;
+                mergeMonitorPingInfo.MonitorStatus.EventTime = monitorPingInfo.MonitorStatus.EventTime;
+                mergeMonitorPingInfo.MonitorStatus.Message = monitorPingInfo.MonitorStatus.Message;
                 mergeMonitorPingInfo.Status = monitorPingInfo.Status;
                 mergeMonitorPingInfo.PacketsRecieved = monitorPingInfo.PacketsRecieved;
                 mergeMonitorPingInfo.RoundTripTimeTotal = monitorPingInfo.RoundTripTimeTotal;
@@ -64,7 +69,7 @@ namespace NetworkMonitor.Processor.Services
                 mergeMonitorPingInfo.RoundTripTimeMaximum = monitorPingInfo.RoundTripTimeMaximum;
                 mergeMonitorPingInfo.RoundTripTimeMinimum = monitorPingInfo.RoundTripTimeMinimum;
                 mergeMonitorPingInfo.PacketsLostPercentage = monitorPingInfo.PacketsLostPercentage;
-                mergeMonitorPingInfo.IsZero=monitorPingInfo.IsZero;
+                mergeMonitorPingInfo.IsZero = monitorPingInfo.IsZero;
             }
            
         }
