@@ -26,7 +26,7 @@ namespace NetworkMonitor.Processor.Services
             _pingParams = pingParams;
         }
 
-        public void Zero(MonitorPingInfo monitorPingInfo, bool isZero = false)
+        public void Zero(MonitorPingInfo monitorPingInfo)
         {
             monitorPingInfo.DateStarted = DateTime.UtcNow;
             monitorPingInfo.PacketsLost = 0;
@@ -38,7 +38,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.RoundTripTimeMaximum = 0;
             monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
             monitorPingInfo.RoundTripTimeTotal = 0;
-            monitorPingInfo.IsZero = isZero;
+            monitorPingInfo.IsZero = false;
         }
         public void ZeroMonitorPingInfos()
         {
@@ -64,6 +64,7 @@ namespace NetworkMonitor.Processor.Services
                 mergeMonitorPingInfo.RoundTripTimeMaximum = monitorPingInfo.RoundTripTimeMaximum;
                 mergeMonitorPingInfo.RoundTripTimeMinimum = monitorPingInfo.RoundTripTimeMinimum;
                 mergeMonitorPingInfo.PacketsLostPercentage = monitorPingInfo.PacketsLostPercentage;
+                mergeMonitorPingInfo.IsZero=monitorPingInfo.IsZero;
             }
            
         }
