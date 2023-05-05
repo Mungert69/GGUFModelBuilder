@@ -44,7 +44,7 @@ namespace NetworkMonitor.Processor.Services
         {
             foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
             {
-               Zero(monitorPingInfo,true);
+               Zero(monitorPingInfo);
             }
         }
         public void Merge(MonitorPingInfo monitorPingInfo)
