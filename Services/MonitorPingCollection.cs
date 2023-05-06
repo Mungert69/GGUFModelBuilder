@@ -126,7 +126,10 @@ namespace NetworkMonitor.Processor.Services
                               if (f.PingInfos.TryTake(out r)) count++;
                               else failCount++;
                           });
-                     _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.MonitorIPID);
+                       _removePingInfos.Where(r => r.MonitorPingInfoID == f.MonitorIPID).ToList().ForEach(p =>
+                {
+                    _removePingInfos.TryTake(out p);
+                });
                  }
                  result.Success = true;
                  result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. Failed to remove " + failCount + " PingInfos.";
