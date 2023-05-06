@@ -59,7 +59,7 @@ namespace NetworkMonitor.Processor.Services
                 lockObj.Release();
             }
         }
-        public async Task Merge(MPIConnect mpiConnect, int monitorIPID)
+        public void Merge(MPIConnect mpiConnect, int monitorIPID)
         {
            
                 var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
