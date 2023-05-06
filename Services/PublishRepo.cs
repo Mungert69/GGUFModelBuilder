@@ -43,16 +43,16 @@ namespace NetworkMonitor.Objects.Repository
                 logger.Error(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
-        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
+        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos,List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState)
         {
             Thread thread = new Thread(delegate ()
                        {
-                           PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, appID, piIDKey, saveState);
+                           PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos,pingInfos, appID, piIDKey, saveState);
                        });
             thread.Priority = ThreadPriority.Lowest;
             thread.Start();
         }
-        public static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, string appID, uint piIDKey, bool saveState)
+        public static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos,List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
@@ -65,13 +65,13 @@ namespace NetworkMonitor.Objects.Repository
             {
                 if (monitorPingInfos != null && monitorPingInfos.Count() != 0)
                 {
-                    var cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
+                    //var cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
                     timerStr += " Event (Created Cut MonitorPingInfos) at " + timer.ElapsedMilliseconds + " : ";
-                    var pingInfos = new List<PingInfo>();
+                    //var pingInfos = new List<PingInfo>();
                     var monitorStatusAlerts = new List<MonitorStatusAlert>();
                     monitorPingInfos.ForEach(f =>
                     {
-                        pingInfos.AddRange(f.PingInfos.ToList());
+                        //pingInfos.AddRange(f.PingInfos.ToList());
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
                         monitorStatusAlert.AppID = f.AppID;
@@ -91,7 +91,7 @@ namespace NetworkMonitor.Objects.Repository
                     );
                     timerStr += " Event (Created All PingInfos as List) at " + timer.ElapsedMilliseconds + " : ";
                     var processorDataObj = new ProcessorDataObj();
-                    processorDataObj.MonitorPingInfos = cutMonitorPingInfos;
+                    processorDataObj.MonitorPingInfos = monitorPingInfos;
                     processorDataObj.RemoveMonitorPingInfoIDs = removeMonitorPingInfoIDs;
                     processorDataObj.SwapMonitorPingInfos = swapMonitorPingInfos;
                     processorDataObj.MonitorStatusAlerts = null;
@@ -110,9 +110,9 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     result.Message += " Published to MonitorService and AlertService. ";
                     var m = monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
-                    if (m != null && m.PingInfos != null)
+                    if (pingInfos != null )
                     {
-                        result.Message += " Count of first enabled PingInfos " + monitorPingInfos.Where(w => w.Enabled == true).First().PingInfos.Count() + " . ";
+                        result.Message += " Count of first enabled PingInfos " + pingInfos.Count() + " . ";
                     }
                     else
                     {
@@ -126,8 +126,8 @@ namespace NetworkMonitor.Objects.Repository
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
                     }
-                    pingInfos = null;
-                    cutMonitorPingInfos = null;
+                    //pingInfos = null;
+                    //cutMonitorPingInfos = null;
                     processorDataObj = null;
                     processorDataObjAlert = null;
                 }

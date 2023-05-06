@@ -30,7 +30,7 @@ namespace NetworkMonitor.Tests
                 MonitorIPID = 1,
                 Address = "pq.cloudflareresearch.com",
                 EndPointType = "Quantum",
-                PingInfos = new BlockingCollection<PingInfo>(),
+                PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
           
@@ -64,7 +64,7 @@ namespace NetworkMonitor.Tests
                 Address = "srv1.mahadeva.co.uk",
                 Port = 4433,
                 EndPointType = "Quantum",
-                PingInfos = new BlockingCollection<PingInfo>(),
+                PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
             var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath);

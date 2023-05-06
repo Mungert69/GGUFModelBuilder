@@ -38,7 +38,7 @@ namespace NetworkMonitor.Processor.Services
         private uint _piIDKey = 1;
         private RabbitListener _rabbitRepo;
         public bool Awake { get => _awake; set => _awake = value; }
-        public  MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
+        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
@@ -50,7 +50,6 @@ namespace NetworkMonitor.Processor.Services
             _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
             _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
             _monitorPingCollection = new MonitorPingCollection(_logger);
-           
         }
         public async Task OnStoppingAsync()
         {
@@ -58,7 +57,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.Info(" Saving MonitorPingInfos to state");
-                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos,_monitorPingCollection.PingInfos.ToList(), _appID, _piIDKey, true);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
@@ -78,40 +77,15 @@ namespace NetworkMonitor.Processor.Services
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
         public async Task Init(ProcessorInitObj initObj)
         {
-            List<MonitorPingInfo> currentMonitorPingInfos;
-            List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
-            PingParams statePingParams = new PingParams();
-            _monitorPingCollection.RemovePingInfos = new BlockingCollection<RemovePingInfo>();
+            var stateSetup =new StateSetup(_logger, _monitorPingCollection, _lock);
             _removeMonitorPingInfoIDs = new List<int>();
+            _pingParams = new PingParams();
             bool initNetConnects = false;
             try
             {
-                //bool isDaprReady = _daprClient.CheckHealthAsync().Result;
                 if (initObj.TotalReset)
                 {
-                    initNetConnects = true;
-                    _logger.Info("Resetting Processor MonitorPingInfos in statestore");
-                    var processorDataObj = new ProcessorDataObj()
-                    {
-                        MonitorPingInfos = new List<MonitorPingInfo>(),
-                        RemoveMonitorPingInfoIDs = new List<int>(),
-                        SwapMonitorPingInfos = new List<SwapMonitorPingInfo>(),
-                        RemovePingInfos = new List<RemovePingInfo>(),
-                        PingInfos = new List<PingInfo>(),
-                        PiIDKey = 1
-                    };
-                    currentMonitorPingInfos = new List<MonitorPingInfo>();
-                    try
-                    {
-                        FileRepo.SaveStateJsonZ("ProcessorDataObj", processorDataObj);
-                        FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
-                        FileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
-                        _logger.Info("Reset Processor Objects in statestore ");
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error("Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
-                    }
+                    stateSetup.TotalReset(initNetConnects);
                 }
                 else
                 {
@@ -120,133 +94,31 @@ namespace NetworkMonitor.Processor.Services
                         initNetConnects = false;
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
                         await _monitorPingCollection.ZeroMonitorPingInfos(_lock);
-                        currentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.ToList();
+                         stateSetup.CurrentMonitorPingInfos= _monitorPingCollection.MonitorPingInfos.ToList();
+                         stateSetup.CurrentPingInfos = _monitorPingCollection.PingInfos.ToList();
                         _piIDKey = 1;
                     }
                     else
-                    {
-                        initNetConnects = true;
-                        string infoLog = "";
-                        try
-                        {
-                            using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
-                            {
-                                _piIDKey = processorDataObj.PiIDKey;
-                                infoLog += " Got PiIDKey=" + _piIDKey + " . ";
-                                currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
-                                _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                                processorDataObj.RemovePingInfos.ToList().ForEach(f => _monitorPingCollection.RemovePingInfos.Add(f));
-                                _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
-                                if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                                if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-                            }
-                            if (currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault() != null)
-                            {
-                                infoLog += (" Success : Building MonitorPingInfos from ProcessorDataObj in statestore. First Enabled PingInfo Count = " + currentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault().PingInfos.Count()) + " ";
-                            }
-                            else
-                            {
-                                _logger.Warn("Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            _logger.Error("Error : Building MonitorPingInfos from ProcessorDataObj in statestore");
-                            currentMonitorPingInfos = new List<MonitorPingInfo>();
-                            if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                            if (_monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new BlockingCollection<RemovePingInfo>();
-                            if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-                        }
-                        try
-                        {
-                            stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
-                            if (stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + stateMonitorIPs.Count()) + " . ";
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Warn("Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
-                        }
-                        try
-                        {
-                            statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
-                            infoLog += ("Got PingParams from statestore . ");
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.Warn("Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
-                        }
-                        _logger.Info(infoLog);
+                    { 
+                        stateSetup.LoadFromState( initNetConnects,  _piIDKey,  _removeMonitorPingInfoIDs,  _swapMonitorPingInfos,_monitorPingCollection);
                     }
                 }
             }
             catch (Exception e)
             {
                 _logger.Error("Failed : Loading statestore : Error was : " + e.ToString());
-                currentMonitorPingInfos = new List<MonitorPingInfo>();
+                stateSetup.CurrentMonitorPingInfos = new List<MonitorPingInfo>();
+                stateSetup.CurrentPingInfos = new List<PingInfo>();
             }
-            try
-            {
-                if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
-                {
-                    _logger.Warn("Warning : There are No MonitorIPs using statestore");
-                    initObj.MonitorIPs = stateMonitorIPs;
-                    if (stateMonitorIPs == null || stateMonitorIPs.Count == 0)
-                    {
-                        initObj.MonitorIPs = new List<MonitorIP>();
-                        _logger.Error("Error : There are No MonitorIPs in statestore");
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", initObj.MonitorIPs);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error(" Error : Unable to Save MonitorIPs to statestore. Error was : " + e.Message);
-                    }
-                }
-                if (initObj.PingParams == null)
-                {
-                    _logger.Warn("Warning : There are No PingParams using statestore");
-                    _pingParams = statePingParams;
-                    if (statePingParams == null)
-                    {
-                        if (_pingParams == null) _pingParams = new PingParams();
-                        _logger.Error("Error : There are No PingParams in statestore");
-                    }
-                }
-                else
-                {
-                    _pingParams = initObj.PingParams;
-                    try
-                    {
-                        FileRepo.SaveStateJsonZ<PingParams>("PingParams", initObj.PingParams);
-                    }
-                    catch (Exception e)
-                    {
-                        if (_pingParams == null) _pingParams = new PingParams();
-                        _logger.Error(" Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
-                    }
-                }
-                if (SystemParamsHelper.IsSystemElevatedPrivilege)
-                {
-                    _logger.Info("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
-                    if (_pingParams != null) _pingParams.IsAdmin = true;
-                }
-                else
-                {
-                    _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
-                    if (_pingParams != null) _pingParams.IsAdmin = false;
-                }
+            try {
+                stateSetup.MergeState(_pingParams, initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
                 _monitorPingCollection.SetVars(_appID, _pingParams);
-                await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos, _lock);
+                await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos,stateSetup.CurrentPingInfos, _lock);
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects, _lock);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _appID, _piIDKey, false);
+                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos,stateSetup.CurrentPingInfos, _appID, _piIDKey, false);
             }
             catch (Exception e)
             {
@@ -342,7 +214,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.ToList(), _swapMonitorPingInfos, _appID, _piIDKey, true);
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.ToList(), _swapMonitorPingInfos,_monitorPingCollection.PingInfos.ToList(), _appID, _piIDKey, true);
                     var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
                     result.Message += removeResult.Message;
                 }
@@ -497,10 +369,10 @@ namespace NetworkMonitor.Processor.Services
             {
                 _monitorPingCollection.RemovePingInfos.Add(f);
             });
-             processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
-            {
-                _removeMonitorPingInfoIDs.Remove(f);
-            });
+            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
+           {
+               _removeMonitorPingInfoIDs.Remove(f);
+           });
             if (processorDataObj.SwapMonitorPingInfos != null) processorDataObj.SwapMonitorPingInfos.ForEach(f =>
             {
                 _swapMonitorPingInfos.Remove(f);
