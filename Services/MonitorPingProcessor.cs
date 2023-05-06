@@ -307,12 +307,12 @@ namespace NetworkMonitor.Processor.Services
                     if (netConnect.IsLongRunning)
                     {
                         // Note we dont set a CancellationTokenSource here as it will be set when the task enters the semaphore
-                        _ = _netConnectCollection.HandleLongRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle long-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleLongRunningTask(netConnect, _monitorPingCollection.Merge, _monitorPingCollection.RemovePublishedPingInfosForID); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
                     {
                         // Set timeout via CancellationTokenSource
-                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle short-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge,_monitorPingCollection.RemovePublishedPingInfosForID); // Call the new method to handle short-running tasks without awaiting it
                     }
                     await Task.Delay(timeToWait);
                     // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
@@ -344,8 +344,8 @@ namespace NetworkMonitor.Processor.Services
                 if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
-                    var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
-                    result.Message += removeResult.Message;
+                    //var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
+                    //result.Message += removeResult.Message;
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
