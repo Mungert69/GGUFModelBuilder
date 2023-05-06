@@ -22,7 +22,8 @@ namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingProcessor : IMonitorPingProcessor
     {
-        private readonly object _lock = new object();
+        //private readonly object _lock = new object();
+        SemaphoreSlim _lock = new SemaphoreSlim(1);
         private bool _awake;
         private ILogger _logger;
         private string _appID = "1";
@@ -37,7 +38,7 @@ namespace NetworkMonitor.Processor.Services
         private uint _piIDKey = 1;
         private RabbitListener _rabbitRepo;
         public bool Awake { get => _awake; set => _awake = value; }
-        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
+        public  MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
         {
             _logger = logger;
             FileRepo.CheckFileExists("ProcessorDataObj", logger);
@@ -49,9 +50,9 @@ namespace NetworkMonitor.Processor.Services
             _rabbitRepo = new RabbitListener(_logger, systemUrl, this, _appID);
             _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
             _monitorPingCollection = new MonitorPingCollection(_logger);
-            Init(new ProcessorInitObj());
+           
         }
-        public void OnStopping()
+        public async Task OnStoppingAsync()
         {
             _logger.Warn("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
             try
@@ -62,7 +63,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.Info(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
                 // Wait till all the tasks cpmplete
-                _netConnectCollection.WaitAllTasks();
+                await _netConnectCollection.WaitAllTasks();
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
                 _logger.Info("Published event ProcessorItitObj.IsProcessorReady = false");
                 _logger.Warn("PROCESSOR SHUTDOWN : Complete");
@@ -75,7 +76,7 @@ namespace NetworkMonitor.Processor.Services
         }
         /*
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
-        public void Init(ProcessorInitObj initObj)
+        public async Task Init(ProcessorInitObj initObj)
         {
             List<MonitorPingInfo> currentMonitorPingInfos;
             List<MonitorIP> stateMonitorIPs = new List<MonitorIP>();
@@ -118,7 +119,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         initNetConnects = false;
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
-                        _monitorPingCollection.ZeroMonitorPingInfos(_lock);
+                        await _monitorPingCollection.ZeroMonitorPingInfos(_lock);
                         currentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.ToList();
                         _piIDKey = 1;
                     }
@@ -241,10 +242,8 @@ namespace NetworkMonitor.Processor.Services
                     if (_pingParams != null) _pingParams.IsAdmin = false;
                 }
                 _monitorPingCollection.SetVars(_appID, _pingParams);
-               
-                    _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos, _lock);
-                    _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects, _lock);
-
+                await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, currentMonitorPingInfos, _lock);
+                await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects, _lock);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
@@ -264,7 +263,6 @@ namespace NetworkMonitor.Processor.Services
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
             _awake = true;
-           
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.Debug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
@@ -273,15 +271,7 @@ namespace NetworkMonitor.Processor.Services
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
             _logger.Info(" SERVICE : MonitorPingProcessor.Connect() ");
-            try
-            {
-                result.Message += UpdateMonitorPingInfosFromMonitorIPQueue();
-            }
-            catch (Exception e)
-            {
-                result.Message = " Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ";
-                _logger.Error(" Error : Failed to Process Monitor IP Queue. Error was : " + e.ToString() + " . ");
-            }
+            result.Message += await UpdateMonitorPingInfosFromMonitorIPQueue();
             if (_monitorPingCollection.MonitorPingInfos == null || _monitorPingCollection.MonitorPingInfos.Where(x => x.Enabled == true).Count() == 0)
             {
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
@@ -317,12 +307,12 @@ namespace NetworkMonitor.Processor.Services
                     if (netConnect.IsLongRunning)
                     {
                         // Note we dont set a CancellationTokenSource here as it will be set when the task enters the semaphore
-                        _ = _netConnectCollection.HandleLongRunningTask(netConnect, _monitorPingCollection.Merge, _monitorPingCollection.Zero); // Call the new method to handle long-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleLongRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle long-running tasks without awaiting it
                     }
                     else
                     {
                         // Set timeout via CancellationTokenSource
-                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge, _monitorPingCollection.Zero); // Call the new method to handle short-running tasks without awaiting it
+                        _ = _netConnectCollection.HandleShortRunningTask(netConnect, _monitorPingCollection.Merge); // Call the new method to handle short-running tasks without awaiting it
                     }
                     await Task.Delay(timeToWait);
                     // recalculate the timeToWait based on the timmerInner.Elapsed and countDown
@@ -353,8 +343,9 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
-                    result.Message += _monitorPingCollection.RemovePublishedPingInfos(_lock).Message;
                     PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos, _swapMonitorPingInfos, _appID, _piIDKey, true);
+                    var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
+                    result.Message += removeResult.Message;
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
@@ -369,10 +360,12 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
-        private string UpdateMonitorPingInfosFromMonitorIPQueue()
+        private async Task<string> UpdateMonitorPingInfosFromMonitorIPQueue()
         {
             // lock the rest of the method
-            lock (_lock)
+            await _lock.WaitAsync();
+            string message = "";
+            try
             {
                 var monitorIPQueue = new List<UpdateMonitorIP>();
                 if (_monitorIPQueueDic.Count() == 0) return " No Data in Queue . ";
@@ -386,7 +379,6 @@ namespace NetworkMonitor.Processor.Services
                         });
                     }
                 }
-                string message = "";
                 //List<UpdateMonitorIP> addBackMonitorIPs = new List<UpdateMonitorIP>();
                 //Add and update
                 foreach (UpdateMonitorIP monIP in monitorIPQueue)
@@ -485,8 +477,17 @@ namespace NetworkMonitor.Processor.Services
                 // remove all empty keys
                 //_monitorIPQueueDic = _monitorIPQueueDic.Where(w => w.Value.Count > 0).ToDictionary(d => d.Key, d => d.Value);
                 _monitorIPQueueDic.Clear();
-                return message;
             }
+            catch (Exception e)
+            {
+                message += " Error : Failed to Process Monitor IP Queue. Error was : " + e.Message.ToString() + " . ";
+                _logger.Error(" Error : Failed to Process Monitor IP Queue. Error was : " + e.ToString() + " . ");
+            }
+            finally
+            {
+                _lock.Release();
+            }
+            return message;
         }
         public void ProcessesMonitorReturnData(ProcessorDataObj processorDataObj)
         {
@@ -572,9 +573,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 // Add to _monitorIPQueueDic
                 if (!_monitorIPQueueDic.TryAdd(queueDicObj.UserId, queueDicObj.MonitorIPs)) flagFailed = true;
-                     
             }
-
             if (flagFailed)
             {
                 _logger.Error("Error : Failed to add MonitorIPs to _monitorIPQueueDic. for user " + queueDicObj.UserId + " .");

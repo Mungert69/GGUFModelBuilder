@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using NetworkMonitor.Objects;
-using NetworkMonitor.Objects.ServiceMessage;
+using System.Threading;
+using System.Threading.Tasks;
 using MetroLog;
 namespace NetworkMonitor.Processor.Services
 {
@@ -11,7 +12,7 @@ namespace NetworkMonitor.Processor.Services
     {
         private readonly ILogger _logger;
         private string _appID;
-        private object _localLock = new object();
+        private SemaphoreSlim _localLock = new SemaphoreSlim(1);
         private PingParams _pingParams;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
@@ -26,7 +27,6 @@ namespace NetworkMonitor.Processor.Services
             _appID = appID;
             _pingParams = pingParams;
         }
-
         public void Zero(MonitorPingInfo monitorPingInfo)
         {
             monitorPingInfo.DateStarted = DateTime.UtcNow;
@@ -40,19 +40,29 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
             monitorPingInfo.RoundTripTimeTotal = 0;
         }
-        public void ZeroMonitorPingInfos(object lockObj)
+        public async Task ZeroMonitorPingInfos(SemaphoreSlim lockObj)
         {
-            lock (lockObj)
+            await lockObj.WaitAsync();
+            try
             {
                 foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                 {
                     Zero(monitorPingInfo);
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.Error(" ZeroMonitorPingInfos " + ex.Message + " " + ex.StackTrace);
+            }
+            finally
+            {
+                lockObj.Release();
+            }
         }
-        public void Merge(MPIConnect mpiConnect, int monitorIPID)
+        public async Task Merge(MPIConnect mpiConnect, int monitorIPID)
         {
-            lock (_localLock)
+            await _localLock.WaitAsync();
+            try
             {
                 var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
                 if (mergeMonitorPingInfo != null)
@@ -72,7 +82,6 @@ namespace NetworkMonitor.Processor.Services
                             mergeMonitorPingInfo.RoundTripTimeMinimum = RoundTrip;
                         }
                         mergeMonitorPingInfo.RoundTripTimeAverage = mergeMonitorPingInfo.RoundTripTimeTotal / (float)mergeMonitorPingInfo.PacketsRecieved;
-
                     }
                     else
                     {
@@ -80,8 +89,6 @@ namespace NetworkMonitor.Processor.Services
                         mergeMonitorPingInfo.MonitorStatus.DownCount++;
                     }
                     mergeMonitorPingInfo.PacketsLostPercentage = (float)((double)mergeMonitorPingInfo.PacketsLost / (double)(mergeMonitorPingInfo.PacketsSent) * 100);
-
-
                     mergeMonitorPingInfo.PingInfos.Add(mpiConnect.PingInfo);
                     //mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
                     //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
@@ -90,22 +97,28 @@ namespace NetworkMonitor.Processor.Services
                         mergeMonitorPingInfo.MonitorStatus.DownCount = 0;
                         mergeMonitorPingInfo.IsDirtyDownCount = false;
                     }
-
                     mergeMonitorPingInfo.MonitorStatus.IsUp = mpiConnect.IsUp;
                     mergeMonitorPingInfo.MonitorStatus.EventTime = mpiConnect.EventTime;
                     mergeMonitorPingInfo.MonitorStatus.Message = mpiConnect.Message;
                     mergeMonitorPingInfo.Status = mpiConnect.Message;
                 }
-
             }
-
+            catch (Exception ex)
+            {
+                _logger.Error(" Merge " + ex.Message + " " + ex.StackTrace);
+            }
+            finally
+            {
+                _localLock.Release();
+            }
         }
         //This method removePublishedPingInfos removes PingInfos from MonitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
-        public ResultObj RemovePublishedPingInfos(object lockObj)
+        public async Task<ResultObj> RemovePublishedPingInfos(SemaphoreSlim lockObj)
         {
-            lock (lockObj)
+            await lockObj.WaitAsync();
+            var result = new ResultObj();
+            try
             {
-                var result = new ResultObj();
                 int count = 0;
                 if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
                 {
@@ -124,40 +137,52 @@ namespace NetworkMonitor.Processor.Services
                 }
                 result.Success = true;
                 result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
-                return result;
-
             }
+            catch (Exception ex)
+            {
+                _logger.Error("RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
+            }
+            finally
+            {
+                lockObj.Release();
+            }
+            return result;
         }
         //This is a method that adds MonitorPingInfos to a list of monitor IPs. If the MonitorPingInfo for a given monitor IP already exists, it updates it. Otherwise, it creates a new MonitorPingInfo object and fills it with data. The method returns a list of the newly added or updated MonitorPingInfos.
-        public void MonitorPingInfoFactory(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos, object lockObj)
+        public async Task MonitorPingInfoFactory(List<MonitorIP> monitorIPs, List<MonitorPingInfo> currentMonitorPingInfos, SemaphoreSlim lockObj)
         {
-            lock (lockObj)
+            await lockObj.WaitAsync();
+            try
             {
-                lock (_localLock)
+                await _localLock.WaitAsync();
+                int i = 0;
+                _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
+                foreach (MonitorIP monIP in monitorIPs)
                 {
-                    int i = 0;
-                    _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-                    foreach (MonitorIP monIP in monitorIPs)
+                    MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                    if (monitorPingInfo != null)
                     {
-                        MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-                        if (monitorPingInfo != null)
-                        {
-                            _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                        }
-                        else
-                        {
-                            monitorPingInfo = new MonitorPingInfo();
-                            _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                        }
-                        FillPingInfo(monitorPingInfo, monIP);
-                        _monitorPingInfos.Add(monitorPingInfo);
-                        i++;
+                        _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     }
-
+                    else
+                    {
+                        monitorPingInfo = new MonitorPingInfo();
+                        _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                    }
+                    FillPingInfo(monitorPingInfo, monIP);
+                    _monitorPingInfos.Add(monitorPingInfo);
+                    i++;
                 }
-
             }
-
+            catch (Exception ex)
+            {
+                _logger.Error("MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace);
+            }
+            finally
+            {
+                _localLock.Release();
+            }
+            lockObj.Release();
         }
         public void FillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
