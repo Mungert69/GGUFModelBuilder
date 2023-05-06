@@ -213,9 +213,10 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (_monitorPingCollection.MonitorPingInfos.Count > 0)
                 {
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.ToList(), _swapMonitorPingInfos,_monitorPingCollection.PingInfos.ToList(), _appID, _piIDKey, true);
-                    var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
+                     var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
                     result.Message += removeResult.Message;
+                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.ToList(), _swapMonitorPingInfos,_monitorPingCollection.PingInfos.ToList(), _appID, _piIDKey, true);
+                   
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
             }
@@ -257,13 +258,6 @@ namespace NetworkMonitor.Processor.Services
                     // If monitorIP is contained in the list of monitorPingInfos then update it.
                     if (monitorPingInfo != null)
                     {
-                        // We are not going to process if the NetConnect is still running.
-                        /*if (_netConnectCollection.IsNetConnectRunning(monitorPingInfo.MonitorIPID))
-                        {
-                            message += " Error : NetConnect with MonitorPingInfoID " + monitorPingInfo.ID + " is still running. ";
-                            addBackMonitorIPs.Add(monIP);
-                            continue;
-                        }*/
                         try
                         {
                             bool flag = false;
