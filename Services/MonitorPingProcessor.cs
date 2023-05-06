@@ -27,7 +27,7 @@ namespace NetworkMonitor.Processor.Services
         private bool _awake;
         private ILogger _logger;
         private string _appID = "1";
-        private PingParams _pingParams;
+        //private PingParams _pingParams;
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         private NetConnectCollection _netConnectCollection;
@@ -79,7 +79,6 @@ namespace NetworkMonitor.Processor.Services
         {
             var stateSetup =new StateSetup(_logger, _monitorPingCollection, _lock);
             _removeMonitorPingInfoIDs = new List<int>();
-            _pingParams = new PingParams();
             bool initNetConnects = false;
             try
             {
@@ -111,13 +110,13 @@ namespace NetworkMonitor.Processor.Services
                 stateSetup.CurrentPingInfos = new List<PingInfo>();
             }
             try {
-                stateSetup.MergeState(_pingParams, initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
-                _monitorPingCollection.SetVars(_appID, _pingParams);
+                stateSetup.MergeState( initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
+                _monitorPingCollection.SetVars(_appID, initObj.PingParams);
                 await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos,stateSetup.CurrentPingInfos, _lock);
-                await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), _pingParams, initNetConnects, _lock);
+                await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.ToList(), initObj.PingParams, initNetConnects, _lock);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
-                _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(_pingParams));
+                _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
                 PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos,stateSetup.CurrentPingInfos, _appID, _piIDKey, false);
             }
             catch (Exception e)

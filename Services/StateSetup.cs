@@ -126,10 +126,8 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public void MergeState(PingParams pingParams,ProcessorInitObj initObj, bool isSystemElevatedPrivilege ){
+        public void MergeState(ProcessorInitObj initObj, bool isSystemElevatedPrivilege ){
 
-            try
-            {
                 if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
                 {
                     _logger.Warn("Warning : There are No MonitorIPs using statestore");
@@ -153,42 +151,40 @@ namespace NetworkMonitor.Processor.Services
                 }
                 if (initObj.PingParams == null)
                 {
-                    _logger.Warn("Warning : There are No PingParams using statestore");
-                    pingParams = _statePingParams;
+                  
                     if (_statePingParams == null)
                     {
-                        if (pingParams == null) pingParams = new PingParams();
                         _logger.Error("Error : There are No PingParams in statestore");
+                        throw new ArgumentNullException(" PingParams is null");
+                    }
+                    else{
+                        initObj.PingParams = _statePingParams;
+                          _logger.Warn("Warning : There are No PingParams using statestore");
                     }
                 }
                 else
                 {
-                    pingParams = initObj.PingParams;
+                  
                     try
                     {
                         FileRepo.SaveStateJsonZ<PingParams>("PingParams", initObj.PingParams);
                     }
                     catch (Exception e)
                     {
-                        if (pingParams == null) pingParams = new PingParams();
                         _logger.Error(" Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
                     }
                 }
                 if (isSystemElevatedPrivilege)
                 {
                     _logger.Info("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
-                    if (pingParams != null) pingParams.IsAdmin = true;
+                    if (initObj.PingParams != null) initObj.PingParams.IsAdmin = true;
                 }
                 else
                 {
                     _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
-                    if (pingParams != null) pingParams.IsAdmin = false;
+                    if (initObj.PingParams != null) initObj.PingParams.IsAdmin = false;
                 }
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Error : Unable to Merge State. Error was : " + e.Message);   
-            }
+           
             
         }
     }
