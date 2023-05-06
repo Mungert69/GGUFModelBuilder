@@ -132,7 +132,7 @@ namespace NetworkMonitor.Processor.Services
                 _removePingInfos.ToList().ForEach(p =>
                      {
                          var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
-                         if (r != null && PingInfos.TryTake(out r)) count++;
+                         if (r != null && PingInfos.TryTake(out r, 1)) count++;
                          else failCount++;
                      });
                 _removePingInfos.ToList().ForEach(p =>
