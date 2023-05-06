@@ -103,7 +103,7 @@ namespace NetworkMonitor.Processor.Services
 
         }
         //This method removePublishedPingInfos removes PingInfos from MonitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
-        /* public async Task<ResultObj> RemovePublishedPingInfos(SemaphoreSlim lockObj)
+         public async Task<ResultObj> RemovePublishedPingInfos(SemaphoreSlim lockObj)
          {
              await lockObj.WaitAsync();
              var result = new ResultObj();
@@ -140,7 +140,7 @@ namespace NetworkMonitor.Processor.Services
                  lockObj.Release();
              }
              return result;
-         }*/
+         }
 
 
         //This method removePublishedPingInfos removes PingInfos from MonitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
