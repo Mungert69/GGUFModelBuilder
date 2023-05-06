@@ -10,7 +10,7 @@ namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingCollection
     {
-      
+
         private readonly ILogger _logger;
         private string _appID;
         private SemaphoreSlim _localLock = new SemaphoreSlim(1);
@@ -32,14 +32,15 @@ namespace NetworkMonitor.Processor.Services
             _appID = appID;
             _pingParams = pingParams;
         }
-        public void Zero(MonitorPingInfo monitorPingInfo)
+        private void Zero(MonitorPingInfo monitorPingInfo)
         {
             monitorPingInfo.DateStarted = DateTime.UtcNow;
             monitorPingInfo.PacketsLost = 0;
             monitorPingInfo.PacketsLostPercentage = 0;
             monitorPingInfo.PacketsRecieved = 0;
             monitorPingInfo.PacketsSent = 0;
-            _pingInfos.Where(w => w.MonitorPingInfoID==monitorPingInfo.MonitorIPID).ToList().ForEach(f => {
+            _pingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList().ForEach(f =>
+            {
                 _pingInfos.TryTake(out f);
             });
             //monitorPingInfo.PingInfos = new BlockingCollection<PingInfo>();
@@ -131,12 +132,12 @@ namespace NetworkMonitor.Processor.Services
                 _removePingInfos.ToList().ForEach(p =>
                      {
                          var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
-                         if (r!=null && PingInfos.TryTake(out r)) count++;
+                         if (r != null && PingInfos.TryTake(out r)) count++;
                          else failCount++;
                      });
                 _removePingInfos.ToList().ForEach(p =>
                     {
-                        _removePingInfos.TryTake(out p); 
+                        _removePingInfos.TryTake(out p);
 
                     });
                 //}
@@ -172,6 +173,9 @@ namespace NetworkMonitor.Processor.Services
                     if (monitorPingInfo != null)
                     {
                         _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID);
+                        fillPingInfo.ToList().ForEach(f => PingInfos.Add(f));
+
                     }
                     else
                     {
@@ -179,9 +183,8 @@ namespace NetworkMonitor.Processor.Services
                         _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     }
                     FillPingInfo(monitorPingInfo, monIP);
-                    var fillPingInfo= currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID);
-                    fillPingInfo.ToList().ForEach(f => PingInfos.Add(f));
                     _monitorPingInfos.Add(monitorPingInfo);
+
                     i++;
                 }
             }
