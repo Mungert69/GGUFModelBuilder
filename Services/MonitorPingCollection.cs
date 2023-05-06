@@ -34,7 +34,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.PacketsLostPercentage = 0;
             monitorPingInfo.PacketsRecieved = 0;
             monitorPingInfo.PacketsSent = 0;
-            monitorPingInfo.PingInfos = new List<PingInfo>();
+            monitorPingInfo.PingInfos = new BlockingCollection<PingInfo>();
             monitorPingInfo.RoundTripTimeAverage = 0;
             monitorPingInfo.RoundTripTimeMaximum = 0;
             monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
@@ -120,6 +120,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 int count = 0;
+                int failCount = 0;
                 if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
                 {
                     result.Success = false;
@@ -128,19 +129,21 @@ namespace NetworkMonitor.Processor.Services
                 }
                 foreach (var f in MonitorPingInfos.ToList())
                 {
-                    _removePingInfos.Where(w => w.MonitorPingInfoID == f.ID).ToList().ForEach(p =>
+                    
+                    _removePingInfos.Where(w => w.MonitorPingInfoID == f.MonitorIPID).ToList().ForEach(p =>
                          {
-                             f.PingInfos.RemoveAll(r => r.ID == p.ID);
-                             count++;
+                          var r =f.PingInfos.FirstOrDefault(f => f.ID == p.ID);  
+                             if (f.PingInfos.TryTake(out r)) count++;
+                             else failCount++;
                          });
                     _removePingInfos.RemoveAll(r => r.MonitorPingInfoID == f.ID);
                 }
                 result.Success = true;
-                result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. ";
+                result.Message = " Removed " + count + " PingInfos from MonitorPingInfos. Failed to remove " + failCount + " PingInfos.";
             }
             catch (Exception ex)
             {
-                _logger.Error("RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
+                _logger.Error(" RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
             }
             finally
             {
@@ -156,7 +159,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 await _localLock.WaitAsync();
                 int i = 0;
-                _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
+                while (_monitorPingInfos.TryTake(out _)){}
                 foreach (MonitorIP monIP in monitorIPs)
                 {
                     MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);

@@ -71,7 +71,7 @@ namespace NetworkMonitor.Objects.Repository
                     var monitorStatusAlerts = new List<MonitorStatusAlert>();
                     monitorPingInfos.ForEach(f =>
                     {
-                        pingInfos.AddRange(f.PingInfos.ConvertAll(x => new PingInfo(x)));
+                        pingInfos.AddRange(f.PingInfos.ToList());
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
                         monitorStatusAlert.AppID = f.AppID;

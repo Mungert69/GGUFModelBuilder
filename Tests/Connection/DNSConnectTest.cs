@@ -3,6 +3,9 @@ using NetworkMonitor.Connection;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 namespace NetworkMonitor.Tests.Connection
 {
     public class DNSConnectTests
@@ -35,8 +38,8 @@ namespace NetworkMonitor.Tests.Connection
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("Found :", pingInfo.Status);
             Assert.NotEmpty(pingInfo.PingInfos);
-            Assert.Equal("Success", pingInfo.PingInfos[0].Status);
-            Assert.NotEqual<ushort?>(0, pingInfo.PingInfos[0].RoundTripTime);
+            Assert.Equal("Success", pingInfo.PingInfos.ToList()[0].Status);
+            Assert.NotEqual<ushort?>(0, pingInfo.PingInfos.ToList()[0].RoundTripTime);
         }
         [Fact]
         public async Task Test_DNSConnect_Timeout()
@@ -58,7 +61,8 @@ namespace NetworkMonitor.Tests.Connection
             Assert.Equal(true, dnsConnect.MpiConnect.IsUp);
             Assert.Contains("Timeout", pingInfo.Status);
             Assert.NotEmpty(pingInfo.PingInfos);
-            Assert.Equal("Timeout", pingInfo.PingInfos[0].Status);
+            var pingInfos = pingInfo.PingInfos.ToList();
+            Assert.Equal("Timeout", pingInfo.PingInfos.ToList()[0].Status);
         }
         [Fact]
         public async Task Test_DNSConnect_No_IP_Addresses_Found()
@@ -79,7 +83,7 @@ namespace NetworkMonitor.Tests.Connection
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("DNS:Failed to connect", pingInfo.Status);
             Assert.NotEmpty(pingInfo.PingInfos);
-            Assert.Contains("Name or service not known", pingInfo.PingInfos[0].Status);
+            Assert.Contains("Name or service not known", pingInfo.PingInfos.ToList()[0].Status);
         }
     }
 }

@@ -1,6 +1,8 @@
 using NetworkMonitor.Objects;
 using NetworkMonitor.Connection;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace NetworkMonitor.Tests
@@ -28,7 +30,7 @@ namespace NetworkMonitor.Tests
                 MonitorIPID = 1,
                 Address = "pq.cloudflareresearch.com",
                 EndPointType = "Quantum",
-                PingInfos = new List<PingInfo>(),
+                PingInfos = new BlockingCollection<PingInfo>(),
                 Timeout = 5000
             };
           
@@ -46,7 +48,7 @@ namespace NetworkMonitor.Tests
             Assert.Equal(1, monitorPingInfo.PacketsSent);
             Assert.Contains("Using quantum safe handshake", monitorPingInfo.Status);
             Assert.Single(monitorPingInfo.PingInfos);
-            Assert.Equal("Success", monitorPingInfo.PingInfos[0].Status);
+            Assert.Equal("Success", monitorPingInfo.PingInfos.ToList()[0].Status);
             }
 
         [Fact]
@@ -62,7 +64,7 @@ namespace NetworkMonitor.Tests
                 Address = "srv1.mahadeva.co.uk",
                 Port = 4433,
                 EndPointType = "Quantum",
-                PingInfos = new List<PingInfo>(),
+                PingInfos = new BlockingCollection<PingInfo>(),
                 Timeout = 5000
             };
             var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath);
@@ -76,7 +78,7 @@ namespace NetworkMonitor.Tests
             Assert.Equal(1, pingInfo.PacketsSent);
             Assert.Contains("Could not negotiate quantum safe handshake", pingInfo.Status);
             Assert.Single(pingInfo.PingInfos);
-            Assert.Contains("Could not negotiate quantum safe handshake", pingInfo.PingInfos[0].Status);
+            Assert.Contains("Could not negotiate quantum safe handshake", pingInfo.PingInfos.ToList()[0].Status);
            
         }
 
