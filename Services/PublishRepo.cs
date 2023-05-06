@@ -109,10 +109,9 @@ namespace NetworkMonitor.Objects.Repository
                     rabbitListener.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     result.Message += " Published to MonitorService and AlertService. ";
-                    var m = monitorPingInfos.FirstOrDefault(w => w.Enabled == true);
                     if (pingInfos != null )
                     {
-                        result.Message += " Count of first enabled PingInfos " + pingInfos.Count() + " . ";
+                        result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
                     }
                     else
                     {
