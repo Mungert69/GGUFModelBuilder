@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using NetworkMonitor.Objects;
+using NetworkMonitor.Utils;
 using System.Threading;
 using System.Threading.Tasks;
 using MetroLog;
@@ -18,7 +19,7 @@ namespace NetworkMonitor.Processor.Services
         private BlockingCollection<RemovePingInfo> _removePingInfos = new BlockingCollection<RemovePingInfo>();
         private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
 
-        private BlockingCollection<PingInfo> _pingInfos = new BlockingCollection<PingInfo>();
+        private RetryBlockingCollection<PingInfo> _pingInfos = new RetryBlockingCollection<PingInfo>();
         public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
         public BlockingCollection<RemovePingInfo> RemovePingInfos { get => _removePingInfos; set => _removePingInfos = value; }
         public BlockingCollection<PingInfo> PingInfos { get => _pingInfos; }
@@ -129,11 +130,18 @@ namespace NetworkMonitor.Processor.Services
                 //foreach (var f in MonitorPingInfos.ToList())
                 //{
 
-                _removePingInfos.ToList().ForEach(p =>
+                _removePingInfos.ToList().ForEach(async p =>
                      {
                          var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
-                         if (r != null && PingInfos.TryTake(out r, 10)) count++;
-                         else failCount++;
+                         if (r != null){
+                            var (success, item) = await  _pingInfos.TryTakeWithRetryAsync(r);
+                            if(success) count++;
+                            else failCount++;
+                         }
+                         
+
+                        // if (r != null && PingInfos.TryTake(out r)) count++;
+                        // else failCount++;
                      });
                 _removePingInfos.ToList().ForEach(p =>
                     {
