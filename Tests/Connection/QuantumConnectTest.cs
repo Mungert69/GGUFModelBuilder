@@ -38,7 +38,7 @@ namespace NetworkMonitor.Tests
             // Arrange
             var quantumConnect = new QuantumConnect( algorithmInfoList, oqsProviderPath);
               quantumConnect.PingParams=pingParams;
-            quantumConnect.MonitorPingInfo=pingInfo;
+                        quantumConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
             await quantumConnect.Connect();
 
@@ -67,7 +67,7 @@ namespace NetworkMonitor.Tests
             };
             var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath);
               quantumConnect.PingParams=pingParams;
-            quantumConnect.MonitorPingInfo=pingInfo;
+            quantumConnect.MpiStatic=new MPIStatic(pingInfo);
 
             // Act
             await quantumConnect.Connect();

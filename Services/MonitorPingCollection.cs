@@ -11,6 +11,7 @@ namespace NetworkMonitor.Processor.Services
     {
         private readonly ILogger _logger;
         private string _appID;
+        private object _localLock = new object();
         private PingParams _pingParams;
         private List<RemovePingInfo> _removePingInfos = new List<RemovePingInfo>();
         private BlockingCollection<MonitorPingInfo> _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
@@ -26,7 +27,7 @@ namespace NetworkMonitor.Processor.Services
             _pingParams = pingParams;
         }
 
-        public void Zero(MonitorPingInfo monitorPingInfo, bool isZero)
+        public void Zero(MonitorPingInfo monitorPingInfo)
         {
             monitorPingInfo.DateStarted = DateTime.UtcNow;
             monitorPingInfo.PacketsLost = 0;
@@ -38,7 +39,6 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.RoundTripTimeMaximum = 0;
             monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
             monitorPingInfo.RoundTripTimeTotal = 0;
-            monitorPingInfo.IsZero = isZero;
         }
         public void ZeroMonitorPingInfos(object lockObj)
         {
@@ -46,37 +46,57 @@ namespace NetworkMonitor.Processor.Services
             {
                 foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
                 {
-                    Zero(monitorPingInfo,true);
+                    Zero(monitorPingInfo);
                 }
             }
         }
-        public void Merge(MonitorPingInfo monitorPingInfo)
+        public void Merge(MPIConnect mpiConnect, int monitorIPID)
         {
-            var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorPingInfo.MonitorIPID);
-            if (mergeMonitorPingInfo != null)
+            lock (_localLock)
             {
-                mergeMonitorPingInfo.PacketsSent = monitorPingInfo.PacketsSent;
-                mergeMonitorPingInfo.PacketsLost = monitorPingInfo.PacketsLost;
-                mergeMonitorPingInfo.PacketsRecieved = monitorPingInfo.PacketsRecieved;
-                mergeMonitorPingInfo.PingInfos.Add(monitorPingInfo.PingInfo);
-                //mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
-                //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
-                if (mergeMonitorPingInfo.IsDirtyDownCount) {
-                    mergeMonitorPingInfo.MonitorStatus.DownCount = 0;
-                    mergeMonitorPingInfo.IsDirtyDownCount = false;
-                    }
-                else mergeMonitorPingInfo.MonitorStatus.DownCount = monitorPingInfo.MonitorStatus.DownCount;
+                var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
+                if (mergeMonitorPingInfo != null)
+                {
+                    mergeMonitorPingInfo.PacketsSent++;
+                    if (mpiConnect.IsUp)
+                    {
+                        ushort RoundTrip = (ushort)mpiConnect.PingInfo.RoundTripTime;
+                        mergeMonitorPingInfo.PacketsRecieved++;
+                        mergeMonitorPingInfo.RoundTripTimeTotal += (int)mpiConnect.PingInfo.RoundTripTime;
+                        if (mergeMonitorPingInfo.RoundTripTimeMaximum < RoundTrip)
+                        {
+                            mergeMonitorPingInfo.RoundTripTimeMaximum = RoundTrip;
+                        }
+                        if (mergeMonitorPingInfo.RoundTripTimeMinimum > RoundTrip)
+                        {
+                            mergeMonitorPingInfo.RoundTripTimeMinimum = RoundTrip;
+                        }
+                        mergeMonitorPingInfo.RoundTripTimeAverage = mergeMonitorPingInfo.RoundTripTimeTotal / (float)mergeMonitorPingInfo.PacketsRecieved;
 
-                mergeMonitorPingInfo.MonitorStatus.IsUp = monitorPingInfo.MonitorStatus.IsUp;
-                mergeMonitorPingInfo.MonitorStatus.EventTime = monitorPingInfo.MonitorStatus.EventTime;
-                mergeMonitorPingInfo.MonitorStatus.Message = monitorPingInfo.MonitorStatus.Message;
-                mergeMonitorPingInfo.Status = monitorPingInfo.Status;
-                mergeMonitorPingInfo.PacketsRecieved = monitorPingInfo.PacketsRecieved;
-                mergeMonitorPingInfo.RoundTripTimeTotal = monitorPingInfo.RoundTripTimeTotal;
-                mergeMonitorPingInfo.RoundTripTimeAverage = monitorPingInfo.RoundTripTimeAverage;
-                mergeMonitorPingInfo.RoundTripTimeMaximum = monitorPingInfo.RoundTripTimeMaximum;
-                mergeMonitorPingInfo.RoundTripTimeMinimum = monitorPingInfo.RoundTripTimeMinimum;
-                mergeMonitorPingInfo.PacketsLostPercentage = monitorPingInfo.PacketsLostPercentage;
+                    }
+                    else
+                    {
+                        mergeMonitorPingInfo.PacketsLost++;
+                        mergeMonitorPingInfo.MonitorStatus.DownCount++;
+                    }
+                    mergeMonitorPingInfo.PacketsLostPercentage = (float)((double)mergeMonitorPingInfo.PacketsLost / (double)(mergeMonitorPingInfo.PacketsSent) * 100);
+
+
+                    mergeMonitorPingInfo.PingInfos.Add(mpiConnect.PingInfo);
+                    //mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
+                    //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
+                    if (mergeMonitorPingInfo.IsDirtyDownCount)
+                    {
+                        mergeMonitorPingInfo.MonitorStatus.DownCount = 0;
+                        mergeMonitorPingInfo.IsDirtyDownCount = false;
+                    }
+
+                    mergeMonitorPingInfo.MonitorStatus.IsUp = mpiConnect.IsUp;
+                    mergeMonitorPingInfo.MonitorStatus.EventTime = mpiConnect.EventTime;
+                    mergeMonitorPingInfo.MonitorStatus.Message = mpiConnect.Message;
+                    mergeMonitorPingInfo.Status = mpiConnect.Message;
+                }
+
             }
 
         }
@@ -113,24 +133,29 @@ namespace NetworkMonitor.Processor.Services
         {
             lock (lockObj)
             {
-                int i = 0;
-                _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
-                foreach (MonitorIP monIP in monitorIPs)
+                lock (_localLock)
                 {
-                    MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
-                    if (monitorPingInfo != null)
+                    int i = 0;
+                    _monitorPingInfos = new BlockingCollection<MonitorPingInfo>();
+                    foreach (MonitorIP monIP in monitorIPs)
                     {
-                        _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                        if (monitorPingInfo != null)
+                        {
+                            _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        }
+                        else
+                        {
+                            monitorPingInfo = new MonitorPingInfo();
+                            _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        }
+                        FillPingInfo(monitorPingInfo, monIP);
+                        _monitorPingInfos.Add(monitorPingInfo);
+                        i++;
                     }
-                    else
-                    {
-                        monitorPingInfo = new MonitorPingInfo();
-                        _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                    }
-                    FillPingInfo(monitorPingInfo, monIP);
-                    _monitorPingInfos.Add(monitorPingInfo);
-                    i++;
+
                 }
+
             }
 
         }

@@ -31,7 +31,7 @@ namespace NetworkMonitor.Tests
             // Act
             var smtpConnect = new SMTPConnect();
             smtpConnect.PingParams = pingParams;
-            smtpConnect.MonitorPingInfo = pingInfo;
+                        smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             var result = await smtpConnect.TestConnectionAsync(port);
             // Assert
             Assert.True(result.Success);
@@ -50,7 +50,7 @@ namespace NetworkMonitor.Tests
             // Act
             var smtpConnect = new SMTPConnect();
             smtpConnect.PingParams = pingParams;
-            smtpConnect.MonitorPingInfo = pingInfo;
+            smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             await smtpConnect.Connect();
             // Assert
             Assert.Equal("Connect Ok", pingInfo.Status);
@@ -71,7 +71,7 @@ namespace NetworkMonitor.Tests
             // Act
             var smtpConnect = new SMTPConnect();
             smtpConnect.PingParams = pingParams;
-            smtpConnect.MonitorPingInfo = pingInfo;
+                       smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             await smtpConnect.Connect();
             // Assert
             Assert.NotEqual("Connect Ok", pingInfo.Status);

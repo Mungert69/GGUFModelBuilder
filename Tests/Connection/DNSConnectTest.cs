@@ -27,7 +27,7 @@ namespace NetworkMonitor.Tests.Connection
             pingInfo.Address="www.google.com";
             DNSConnect dnsConnect = new DNSConnect();
             dnsConnect.PingParams=pingParams;
-            dnsConnect.MonitorPingInfo=pingInfo;
+            dnsConnect.MpiStatic=new MPIStatic(pingInfo);
 
             // Act
             await dnsConnect.Connect();
@@ -48,13 +48,14 @@ namespace NetworkMonitor.Tests.Connection
                 Timeout = 1,
                 EndPointType="DNS"
             };
+           
             DNSConnect dnsConnect = new DNSConnect();
               dnsConnect.PingParams=pingParams;
-            dnsConnect.MonitorPingInfo=pingInfo;
+            dnsConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
             await dnsConnect.Connect();
             // Assert
-            Assert.Equal(1, pingInfo.PacketsSent);
+            Assert.Equal(true, dnsConnect.MpiConnect.IsUp);
             Assert.Contains("Timeout", pingInfo.Status);
             Assert.NotEmpty(pingInfo.PingInfos);
             Assert.Equal("Timeout", pingInfo.PingInfos[0].Status);
@@ -71,7 +72,7 @@ namespace NetworkMonitor.Tests.Connection
             };
             DNSConnect dnsConnect = new DNSConnect();
               dnsConnect.PingParams=pingParams;
-            dnsConnect.MonitorPingInfo=pingInfo;
+            dnsConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
             await dnsConnect.Connect();
             // Assert
