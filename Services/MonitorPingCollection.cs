@@ -61,9 +61,7 @@ namespace NetworkMonitor.Processor.Services
         }
         public async Task Merge(MPIConnect mpiConnect, int monitorIPID)
         {
-            await _localLock.WaitAsync();
-            try
-            {
+           
                 var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
                 if (mergeMonitorPingInfo != null)
                 {
@@ -102,15 +100,7 @@ namespace NetworkMonitor.Processor.Services
                     mergeMonitorPingInfo.MonitorStatus.Message = mpiConnect.Message;
                     mergeMonitorPingInfo.Status = mpiConnect.Message;
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(" Merge " + ex.Message + " " + ex.StackTrace);
-            }
-            finally
-            {
-                _localLock.Release();
-            }
+          
         }
         //This method removePublishedPingInfos removes PingInfos from MonitorPingInfos based on the _removePingInfos list. The method returns a ResultObj with a success flag and message indicating the number of removed PingInfos.
         public async Task<ResultObj> RemovePublishedPingInfos(SemaphoreSlim lockObj)
@@ -157,7 +147,7 @@ namespace NetworkMonitor.Processor.Services
             await lockObj.WaitAsync();
             try
             {
-                await _localLock.WaitAsync();
+   
                 int i = 0;
                 while (_monitorPingInfos.TryTake(out _)){}
                 foreach (MonitorIP monIP in monitorIPs)
@@ -183,9 +173,9 @@ namespace NetworkMonitor.Processor.Services
             }
             finally
             {
-                _localLock.Release();
+                   lockObj.Release();
             }
-            lockObj.Release();
+       
         }
         public void FillPingInfo(MonitorPingInfo monitorPingInfo, MonitorIP monIP)
         {
