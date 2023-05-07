@@ -1,0 +1,42 @@
+Date : 2023-05-07 04:37:14
+Directory : /home/mahadeva/code/NetworkMonitorProcessor
+Total : 12 files,  1877 codes, 118 comments, 72 blanks, all 2067 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| C#                 |         10 |      1,829 |        118 |         63 |      2,010 |
+| XML                |          1 |         37 |          0 |          9 |         46 |
+| JSON with Comments |          1 |         11 |          0 |          0 |         11 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         12 |      1,877 |        118 |         72 |      2,067 |
+| . (Files)                                                                          |          3 |         82 |          0 |         13 |         95 |
+| Services                                                                           |          6 |      1,578 |         94 |         41 |      1,713 |
+| Tests                                                                              |          3 |        217 |         24 |         18 |        259 |
+| Tests/Connection                                                                   |          3 |        217 |         24 |         18 |        259 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                           | language           | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| /home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor.code-workspace | JSON with Comments |         11 |          0 |          0 |         11 |
+| /home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessorApp.csproj      | XML                |         37 |          0 |          9 |         46 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Program.cs                             | C#                 |         34 |          0 |          4 |         38 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/IMonitorPingProcessor.cs      | C#                 |         21 |          0 |          0 |         21 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingCollection.cs      | C#                 |        330 |         13 |         19 |        362 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingProcessor.cs       | C#                 |        508 |         54 |          1 |        563 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/PublishRepo.cs                | C#                 |        151 |         26 |          4 |        181 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/RabbitListener.cs             | C#                 |        398 |          0 |          0 |        398 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Services/StateSetup.cs                 | C#                 |        170 |          1 |         17 |        188 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/DNSConnectTest.cs     | C#                 |         77 |          9 |          4 |         90 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/QuantumConnectTest.cs | C#                 |         67 |          6 |         13 |         86 |
+| /home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/STMPConnectTest.cs    | C#                 |         73 |          9 |          1 |         83 |
+| Total                                                                              |                    |      1,877 |        118 |         72 |      2,067 |
++------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

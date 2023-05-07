@@ -1,0 +1,19 @@
+"filename", "language", "XML", "C#", "JSON with Comments", "Markdown", "JSON", "comment", "blank", "total"
+"/home/mahadeva/code/NetworkMonitorProcessor/.VSCodeCounter/2023-05-07_04-37-14/details.md", "Markdown", 0, 0, 0, 21, 0, 0, 6, 27
+"/home/mahadeva/code/NetworkMonitorProcessor/.VSCodeCounter/2023-05-07_04-37-14/diff-details.md", "Markdown", 0, 0, 0, 9, 0, 0, 6, 15
+"/home/mahadeva/code/NetworkMonitorProcessor/.VSCodeCounter/2023-05-07_04-37-14/diff.md", "Markdown", 0, 0, 0, 12, 0, 0, 7, 19
+"/home/mahadeva/code/NetworkMonitorProcessor/.VSCodeCounter/2023-05-07_04-37-14/results.json", "JSON", 0, 0, 0, 0, 1, 0, 0, 1
+"/home/mahadeva/code/NetworkMonitorProcessor/.VSCodeCounter/2023-05-07_04-37-14/results.md", "Markdown", 0, 0, 0, 20, 0, 0, 7, 27
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor.code-workspace", "JSON with Comments", 0, 0, 11, 0, 0, 0, 0, 11
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessorApp.csproj", "XML", 37, 0, 0, 0, 0, 0, 9, 46
+"/home/mahadeva/code/NetworkMonitorProcessor/Program.cs", "C#", 0, 34, 0, 0, 0, 0, 4, 38
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/IMonitorPingProcessor.cs", "C#", 0, 21, 0, 0, 0, 0, 0, 21
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingCollection.cs", "C#", 0, 330, 0, 0, 0, 13, 19, 362
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingProcessor.cs", "C#", 0, 508, 0, 0, 0, 54, 1, 563
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/PublishRepo.cs", "C#", 0, 151, 0, 0, 0, 26, 4, 181
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/RabbitListener.cs", "C#", 0, 398, 0, 0, 0, 0, 0, 398
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/StateSetup.cs", "C#", 0, 170, 0, 0, 0, 1, 17, 188
+"/home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/DNSConnectTest.cs", "C#", 0, 77, 0, 0, 0, 9, 4, 90
+"/home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/QuantumConnectTest.cs", "C#", 0, 67, 0, 0, 0, 6, 13, 86
+"/home/mahadeva/code/NetworkMonitorProcessor/Tests/Connection/STMPConnectTest.cs", "C#", 0, 73, 0, 0, 0, 9, 1, 83
+"Total", "-", 37, 1829, 11, 62, 1, 118, 98, 2156
