@@ -124,12 +124,16 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            _pingInfos.ToList().ForEach(async p =>
-              {
-                  var (success, item) = await _pingInfos.TryTakeWithRetryAsync(p);
-                  if (success) count++;
-                  else failCount++;
-              });
+            await Task.Run(() =>
+            {
+                _pingInfos.ToList().ForEach(async p =>
+                            {
+                                var (success, item) = await _pingInfos.TryTakeWithRetryAsync(p);
+                                if (success) count++;
+                                else failCount++;
+                            });
+            });
+
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
@@ -148,19 +152,24 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            _monitorPingInfos.ToList().ForEach(async p =>
-              {
-                  var (success, item) = await _monitorPingInfos.TryTakeWithRetryAsync(p);
-                  if (success) count++;
-                  else failCount++;
-              });
+            await Task.Run(() =>
+            {
+                _monitorPingInfos.ToList().ForEach(async p =>
+                            {
+                                var (success, item) = await _monitorPingInfos.TryTakeWithRetryAsync(p);
+                                if (success) count++;
+                                else failCount++;
+                            });
+            });
+
+
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
                 result.Message = " Removed " + count + " MonitorPingInfos from MonitorPingInfos. Failed to remove " + failCount + " MonitorPingInfos.";
                 return result;
             }
-             if (failCount == 0 && count == 0)
+            if (failCount == 0 && count == 0)
             {
                 result.Success = true;
                 result.Message = " Nothing removed ";
@@ -170,24 +179,30 @@ namespace NetworkMonitor.Processor.Services
             result.Message = " Failed to remove " + failCount + " MonitorPingInfos from MonitorPingInfos. Removed " + count + " MonitorPingInfos.";
             return result;
         }
+
         public async Task<ResultObj> ClearRemovePingInfos()
         {
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            _removePingInfos.ToList().ForEach(async p =>
-              {
-                  var (success, item) = await _removePingInfos.TryTakeWithRetryAsync(p);
-                  if (success) count++;
-                  else failCount++;
-              });
+            await Task.Run(async () =>
+            {
+                foreach (var p in _removePingInfos)
+                {
+                    var (success, item) = await _removePingInfos.TryTakeWithRetryAsync(p);
+                    if (success) count++;
+                    else failCount++;
+                }
+            });
+
+
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
                 result.Message = " Removed " + count + " PingInfos from RemovePingInfos. Failed to remove " + failCount + " PingInfos.";
                 return result;
             }
-             if (failCount == 0 && count == 0)
+            if (failCount == 0 && count == 0)
             {
                 result.Success = true;
                 result.Message = " Nothing removed ";
@@ -203,24 +218,28 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            _removePingInfos.ToList().ForEach(async p =>
-                      {
-                          var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
-                          if (r != null)
-                          {
-                              var (success, item) = await _pingInfos.TryTakeWithRetryAsync(r);
-                              if (success) count++;
-                              else failCount++;
-                          }
+            await Task.Run(() =>
+            {
+                _removePingInfos.ToList().ForEach(async p =>
+                                    {
+                                        var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
+                                        if (r != null)
+                                        {
+                                            var (success, item) = await _pingInfos.TryTakeWithRetryAsync(r);
+                                            if (success) count++;
+                                            else failCount++;
+                                        }
 
-                      });
+                                    });
+            });
+
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
                 result.Message = " Removed " + count + " PingInfos from RemovePingInfos. Failed to remove " + failCount + " PingInfos.";
                 return result;
             }
-             if (failCount == 0 && count == 0)
+            if (failCount == 0 && count == 0)
             {
                 result.Success = true;
                 result.Message = " Nothing removed ";
@@ -238,10 +257,6 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             try
             {
-                int count = 0;
-                int failCount = 0;
-                int countRemoves = 0;
-                int failCountRemoves = 0;
                 if (_removePingInfos == null || _removePingInfos.Count() == 0 || _monitorPingInfos == null || _monitorPingInfos.Count() == 0)
                 {
                     result.Success = false;
