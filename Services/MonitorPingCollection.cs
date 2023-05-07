@@ -160,6 +160,12 @@ namespace NetworkMonitor.Processor.Services
                 result.Message = " Removed " + count + " MonitorPingInfos from MonitorPingInfos. Failed to remove " + failCount + " MonitorPingInfos.";
                 return result;
             }
+             if (failCount == 0 && count == 0)
+            {
+                result.Success = true;
+                result.Message = " Nothing removed ";
+                return result;
+            }
             result.Success = false;
             result.Message = " Failed to remove " + failCount + " MonitorPingInfos from MonitorPingInfos. Removed " + count + " MonitorPingInfos.";
             return result;
@@ -179,6 +185,12 @@ namespace NetworkMonitor.Processor.Services
             {
                 result.Success = true;
                 result.Message = " Removed " + count + " PingInfos from RemovePingInfos. Failed to remove " + failCount + " PingInfos.";
+                return result;
+            }
+             if (failCount == 0 && count == 0)
+            {
+                result.Success = true;
+                result.Message = " Nothing removed ";
                 return result;
             }
             result.Success = false;
@@ -206,6 +218,12 @@ namespace NetworkMonitor.Processor.Services
             {
                 result.Success = true;
                 result.Message = " Removed " + count + " PingInfos from RemovePingInfos. Failed to remove " + failCount + " PingInfos.";
+                return result;
+            }
+             if (failCount == 0 && count == 0)
+            {
+                result.Success = true;
+                result.Message = " Nothing removed ";
                 return result;
             }
             result.Success = false;
