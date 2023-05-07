@@ -9,7 +9,7 @@ namespace NetworkMonitor.Tests
 {
     public class QuantumConnectTests
     {
-        private MonitorPingInfo pingInfo;
+        private MonitorPingInfo pingInfo=new MonitorPingInfo();
         private PingParams pingParams;
         private string csvFilePath = "/home/mahadeva/code/NetworkMonitorProcessor/AlgoTable-test.csv";
 
