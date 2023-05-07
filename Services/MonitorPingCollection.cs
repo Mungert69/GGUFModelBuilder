@@ -38,15 +38,19 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.PacketsRecieved = 0;
             monitorPingInfo.PacketsSent = 0;
             bool failFlag = false;
-            _pingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList().ForEach(async f =>
+            await Task.Run(() =>
             {
-                var (success, item) = await _pingInfos.TryTakeWithRetryAsync(f);
-                if (!success && !failFlag)
-                {
-                    failFlag = true;
-                }
+                _pingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList().ForEach(async f =>
+                           {
+                               var (success, item) = await _pingInfos.TryTakeWithRetryAsync(f);
+                               if (!success && !failFlag)
+                               {
+                                   failFlag = true;
+                               }
 
+                           });
             });
+
             if (failFlag)
             {
                 _logger.Error(" ZeroMonitorPingInfos failed to Zero PingInfos for MonitorPingInfo.MonitorIPID  " + monitorPingInfo.MonitorIPID);
