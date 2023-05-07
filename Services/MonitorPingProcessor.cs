@@ -357,8 +357,7 @@ namespace NetworkMonitor.Processor.Services
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
             if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-            if (_monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new BlockingCollection<RemovePingInfo>();
-            processorDataObj.RemovePingInfos.ForEach(f =>
+              processorDataObj.RemovePingInfos.ForEach(f =>
             {
                 _monitorPingCollection.RemovePingInfos.Add(f);
             });

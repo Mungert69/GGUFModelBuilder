@@ -29,8 +29,6 @@ namespace NetworkMonitor.Processor.Services
             _logger = logger;
             _monitorPingCollection = monitorPingCollection;
             _lockObj = lockObj;
-
-            _monitorPingCollection.RemovePingInfos = new BlockingCollection<RemovePingInfo>();
         }
 
         public  void TotalReset(bool initNetConnects)
@@ -101,7 +99,6 @@ namespace NetworkMonitor.Processor.Services
                 _currentMonitorPingInfos = new List<MonitorPingInfo>();
                 _currentPingInfos = new List<PingInfo>();
                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                if (monitorPingCollection.RemovePingInfos == null) _monitorPingCollection.RemovePingInfos = new BlockingCollection<RemovePingInfo>();
                 if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
             }
             try
