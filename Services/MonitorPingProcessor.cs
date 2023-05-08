@@ -517,6 +517,7 @@ namespace NetworkMonitor.Processor.Services
                     updateMonitorPingInfo.MonitorStatus.AlertFlag = false;
                     updateMonitorPingInfo.MonitorStatus.AlertSent = false;
                     updateMonitorPingInfo.IsDirtyDownCount = true;
+                    updateMonitorPingInfo.MonitorStatus.ResetDownCount();
                     result.Success = true;
                     result.Message += " Success : updated MonitorPingInfo with MonitorIPID " + alertFlagObj.ID + " with AppID " + alertFlagObj.AppID + " . ";
                 }

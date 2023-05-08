@@ -1,2 +1,4 @@
 {
+    "omnisharp.preferSystemRuntimeFramework": true,
+    "omnisharp.enablePreprocessorDirectives": true
 }

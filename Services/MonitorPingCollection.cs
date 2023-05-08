@@ -104,7 +104,7 @@ namespace NetworkMonitor.Processor.Services
                 else
                 {
                     mergeMonitorPingInfo.PacketsLost++;
-                    mergeMonitorPingInfo.MonitorStatus.DownCount++;
+                    mergeMonitorPingInfo.MonitorStatus.IncrementDownCount();
                 }
                 mergeMonitorPingInfo.PacketsLostPercentage = (float)((double)mergeMonitorPingInfo.PacketsLost / (double)(mergeMonitorPingInfo.PacketsSent) * 100);
                 PingInfos.Add(mpiConnect.PingInfo);
@@ -112,7 +112,7 @@ namespace NetworkMonitor.Processor.Services
                 //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
                 if (mergeMonitorPingInfo.IsDirtyDownCount)
                 {
-                    mergeMonitorPingInfo.MonitorStatus.DownCount = 0;
+                    mergeMonitorPingInfo.MonitorStatus.ResetDownCount();
                     mergeMonitorPingInfo.IsDirtyDownCount = false;
                 }
                 mergeMonitorPingInfo.MonitorStatus.IsUp = mpiConnect.IsUp;

@@ -1,0 +1,13 @@
+{
+    "RoslynExtensionsOptions": {
+        "AdditionalReferenceSearchPaths": [
+            "bin",
+            "obj",
+            "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "AddAndRemoveAnalyzers": true,
+        "PreprocessorSymbolNames": [
+            "NetworkMonitorProcessor"
+        ]
+    }
+}
