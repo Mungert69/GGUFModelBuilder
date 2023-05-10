@@ -30,7 +30,7 @@ namespace NetworkMonitor.Tests
             pingInfo.Port = port;
             // Act
             var smtpConnect = new SMTPConnect();
-            smtpConnect.PingParams = pingParams;
+            //smtpConnect.PingParams = pingParams;
                         smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             var result = await smtpConnect.TestConnectionAsync(port);
             // Assert
@@ -49,7 +49,7 @@ namespace NetworkMonitor.Tests
             pingInfo.Port = port;
             // Act
             var smtpConnect = new SMTPConnect();
-            smtpConnect.PingParams = pingParams;
+            //smtpConnect.PingParams = pingParams;
             smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             await smtpConnect.Connect();
             // Assert
@@ -70,7 +70,7 @@ namespace NetworkMonitor.Tests
             pingInfo.Port = port;
             // Act
             var smtpConnect = new SMTPConnect();
-            smtpConnect.PingParams = pingParams;
+            //smtpConnect.PingParams = pingParams;
                        smtpConnect.MpiStatic=new MPIStatic(pingInfo);
             await smtpConnect.Connect();
             // Assert

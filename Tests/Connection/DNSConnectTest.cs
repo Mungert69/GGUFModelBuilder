@@ -29,7 +29,7 @@ namespace NetworkMonitor.Tests.Connection
             };
             pingInfo.Address="www.google.com";
             DNSConnect dnsConnect = new DNSConnect();
-            dnsConnect.PingParams=pingParams;
+            //dnsConnect.PingParams=pingParams;
             dnsConnect.MpiStatic=new MPIStatic(pingInfo);
 
             // Act
@@ -53,7 +53,7 @@ namespace NetworkMonitor.Tests.Connection
             };
            
             DNSConnect dnsConnect = new DNSConnect();
-              dnsConnect.PingParams=pingParams;
+              //dnsConnect.PingParams=pingParams;
             dnsConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
             await dnsConnect.Connect();
@@ -75,7 +75,7 @@ namespace NetworkMonitor.Tests.Connection
                 EndPointType="DNS"
             };
             DNSConnect dnsConnect = new DNSConnect();
-              dnsConnect.PingParams=pingParams;
+              //dnsConnect.PingParams=pingParams;
             dnsConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
             await dnsConnect.Connect();
