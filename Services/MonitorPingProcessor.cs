@@ -161,8 +161,16 @@ namespace NetworkMonitor.Processor.Services
                 GC.TryStartNoGCRegion(104857600, false);
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
                 // Time interval between Now and NextRun
+                int count=filteredNetConnects.Count();
+                if (count == 0)
+                {
+                    result.Message += " Warning : There are no NetConnects to process. ";
+                    _logger.Warn(" Warning : There are no NetConnects to process. ");
+                    count=1;
+                   
+                }
                 int executionTime = connectObj.NextRunInterval - connectObj.MaxBuffer;
-                int timeToWait = executionTime / filteredNetConnects.Count();
+                int timeToWait = executionTime / count;
                 if (timeToWait < 25)
                 {
                     result.Message += " Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ";
