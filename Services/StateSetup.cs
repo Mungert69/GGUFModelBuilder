@@ -77,7 +77,7 @@ namespace NetworkMonitor.Processor.Services
                     //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                     CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
                     _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                    processorDataObj.RemovePingInfos.ToList().ForEach(f => _monitorPingCollection.RemovePingInfos.Add(f));
+                    processorDataObj.RemovePingInfos.ToList().ForEach(f => _monitorPingCollection.RemovePingInfos.TryAdd(f.ID,f));
                     _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
                     if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
                     if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();

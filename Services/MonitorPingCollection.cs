@@ -15,12 +15,12 @@ namespace NetworkMonitor.Processor.Services
         private string _appID;
         private SemaphoreSlim _localLock = new SemaphoreSlim(1);
         private PingParams _pingParams;
-        private RetryBlockingCollection<RemovePingInfo> _removePingInfos = new RetryBlockingCollection<RemovePingInfo>();
-        private RetryBlockingCollection<MonitorPingInfo> _monitorPingInfos = new RetryBlockingCollection<MonitorPingInfo>();
-        private RetryBlockingCollection<PingInfo> _pingInfos = new RetryBlockingCollection<PingInfo>();
-        public BlockingCollection<MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
-        public BlockingCollection<RemovePingInfo> RemovePingInfos { get => _removePingInfos; }
-        public BlockingCollection<PingInfo> PingInfos { get => _pingInfos; }
+        private ConcurrentDictionary<uint,RemovePingInfo> _removePingInfos = new ConcurrentDictionary<uint,RemovePingInfo>();
+        private ConcurrentDictionary<int, MonitorPingInfo> _monitorPingInfos = new ConcurrentDictionary<int, MonitorPingInfo>();
+        private ConcurrentDictionary<uint,PingInfo> _pingInfos = new ConcurrentDictionary<uint,PingInfo>();
+        public ConcurrentDictionary<int, MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
+        public ConcurrentDictionary<uint,RemovePingInfo> RemovePingInfos { get => _removePingInfos; }
+        public ConcurrentDictionary<uint,PingInfo> PingInfos { get => _pingInfos; }
         public MonitorPingCollection(ILogger logger)
         {
             _logger = logger;
@@ -40,9 +40,9 @@ namespace NetworkMonitor.Processor.Services
             bool failFlag = false;
             await Task.Run(() =>
             {
-                _pingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList().ForEach(async f =>
+                _pingInfos.Values.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList().ForEach(async f =>
                            {
-                               var (success, item) = await _pingInfos.TryTakeWithRetryAsync(f);
+                               bool success = _pingInfos.TryRemove(f.ID, out _);
                                if (!success && !failFlag)
                                {
                                    failFlag = true;
@@ -66,7 +66,7 @@ namespace NetworkMonitor.Processor.Services
             await lockObj.WaitAsync();
             try
             {
-                foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos)
+                foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos.Values.ToList())
                 {
                     await Zero(monitorPingInfo);
                 }
@@ -82,7 +82,7 @@ namespace NetworkMonitor.Processor.Services
         }
         public void Merge(MPIConnect mpiConnect, int monitorIPID)
         {
-            var mergeMonitorPingInfo = _monitorPingInfos.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
+            var mergeMonitorPingInfo = _monitorPingInfos.Values.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
             if (mergeMonitorPingInfo != null)
             {
                 mergeMonitorPingInfo.PacketsSent++;
@@ -107,7 +107,7 @@ namespace NetworkMonitor.Processor.Services
                     mergeMonitorPingInfo.MonitorStatus.IncrementDownCount();
                 }
                 mergeMonitorPingInfo.PacketsLostPercentage = (float)((double)mergeMonitorPingInfo.PacketsLost / (double)(mergeMonitorPingInfo.PacketsSent) * 100);
-                PingInfos.Add(mpiConnect.PingInfo);
+                PingInfos.TryAdd(mpiConnect.PingInfo.ID,mpiConnect.PingInfo);
                 //mergeMonitorPingInfo.MonitorStatus.AlertFlag = monitorPingInfo.MonitorStatus.AlertFlag;
                 //mergeMonitorPingInfo.MonitorStatus.AlertSent = monitorPingInfo.MonitorStatus.AlertSent;
                 if (mergeMonitorPingInfo.IsDirtyDownCount)
@@ -128,15 +128,21 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            await Task.Run(() =>
+              var keysToRemove = _pingInfos.Keys.ToList();
+
+            foreach (var key in keysToRemove)
             {
-                _pingInfos.ToList().ForEach(async p =>
-                            {
-                                var (success, item) = await _pingInfos.TryTakeWithRetryAsync(p);
-                                if (success) count++;
-                                else failCount++;
-                            });
-            });
+                if (!_pingInfos.TryRemove(key, out _))
+                {
+                    failCount++;
+                }
+                else
+                {
+                    count++;
+                }
+
+            }
+           
 
             if (failCount == 0 && count > 0)
             {
@@ -156,15 +162,22 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            await Task.Run(() =>
+            // a List of keys from _monitorPingInfos you want to remove
+            var keysToRemove = _monitorPingInfos.Keys.ToList();
+
+            foreach (var key in keysToRemove)
             {
-                _monitorPingInfos.ToList().ForEach(async p =>
-                            {
-                                var (success, item) = await _monitorPingInfos.TryTakeWithRetryAsync(p);
-                                if (success) count++;
-                                else failCount++;
-                            });
-            });
+                if (!_monitorPingInfos.TryRemove(key, out _))
+                {
+                    failCount++;
+                }
+                else
+                {
+                    count++;
+                }
+
+            }
+
 
 
             if (failCount == 0 && count > 0)
@@ -189,15 +202,20 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            await Task.Run(async () =>
+                var keysToRemove = _removePingInfos.Keys.ToList();
+
+            foreach (var key in keysToRemove)
             {
-                foreach (var p in _removePingInfos)
+                if (!_removePingInfos.TryRemove(key, out _))
                 {
-                    var (success, item) = await _removePingInfos.TryTakeWithRetryAsync(p);
-                    if (success) count++;
-                    else failCount++;
+                    failCount++;
                 }
-            });
+                else
+                {
+                    count++;
+                }
+
+            }
 
 
             if (failCount == 0 && count > 0)
@@ -222,21 +240,20 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             int count = 0;
             int failCount = 0;
-            await Task.Run(() =>
+              var keysToRemove = _removePingInfos.Keys.ToList();
+
+            foreach (var key in keysToRemove)
             {
-                _removePingInfos.ToList().ForEach(async p =>
-                                    {
-                                        var r = PingInfos.FirstOrDefault(f => f.ID == p.ID);
-                                        if (r != null)
-                                        {
-                                            var (success, item) = await _pingInfos.TryTakeWithRetryAsync(r);
-                                            if (success) count++;
-                                            else failCount++;
-                                        }
+                if (!_pingInfos.TryRemove(key, out _))
+                {
+                    failCount++;
+                }
+                else
+                {
+                    count++;
+                }
 
-                                    });
-            });
-
+            }
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
@@ -307,7 +324,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                         var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID);
-                        fillPingInfo.ToList().ForEach(f => PingInfos.Add(f));
+                        fillPingInfo.ToList().ForEach(f => PingInfos.TryAdd(f.ID,f));
                     }
                     else
                     {
@@ -315,7 +332,10 @@ namespace NetworkMonitor.Processor.Services
                         _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     }
                     FillPingInfo(monitorPingInfo, monIP);
-                    _monitorPingInfos.Add(monitorPingInfo);
+                   if ( !_monitorPingInfos.TryAdd(monitorPingInfo.MonitorIPID, monitorPingInfo)) {
+                        _logger.Error("MonitorPingInfoFactory failed to add MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                      
+                   };
                     i++;
                 }
                 result.Success = resultPingInfos.Success && resultRemovePingInfos.Success;
