@@ -80,26 +80,32 @@ namespace NetworkMonitor.Processor.Services
             var stateSetup = new StateSetup(_logger, _monitorPingCollection, _lock);
             _removeMonitorPingInfoIDs = new List<int>();
             bool initNetConnects = false;
+            bool disableNetConnects=false;
             try
             {
                 if (initObj.TotalReset)
                 {
-                    stateSetup.TotalReset(initNetConnects);
+                    initNetConnects=stateSetup.TotalReset();
                 }
                 else
                 {
                     if (initObj.Reset)
                     {
-                        initNetConnects = false;
+
                         _logger.Info("Zeroing MonitorPingInfos for new DataSet");
                         await _monitorPingCollection.ZeroMonitorPingInfos(_lock);
                         stateSetup.CurrentMonitorPingInfos = _monitorPingCollection.MonitorPingInfos.Values.ToList();
                         stateSetup.CurrentPingInfos = _monitorPingCollection.PingInfos.Values.ToList();
                         _piIDKey = 1;
+                        initNetConnects=false;
+                        disableNetConnects=true;
                     }
                     else
                     {
                         stateSetup.LoadFromState(initNetConnects, _piIDKey, _removeMonitorPingInfoIDs, _swapMonitorPingInfos, _monitorPingCollection);
+                                                initNetConnects=false;
+                        initNetConnects=false;
+                        disableNetConnects=false;
                     }
                 }
             }
@@ -114,7 +120,7 @@ namespace NetworkMonitor.Processor.Services
                 stateSetup.MergeState(initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
                 _monitorPingCollection.SetVars(_appID, initObj.PingParams);
                 await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos, stateSetup.CurrentPingInfos, _lock);
-                await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects, _lock);
+                await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects,disableNetConnects, _lock);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));

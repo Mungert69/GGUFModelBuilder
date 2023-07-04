@@ -31,12 +31,12 @@ namespace NetworkMonitor.Processor.Services
             _lockObj = lockObj;
         }
 
-        public  void TotalReset(bool initNetConnects)
+        public  bool TotalReset()
         {
-            initNetConnects = true;
+            bool initNetConnects = false;
             CurrentMonitorPingInfos = new List<MonitorPingInfo>();
             CurrentPingInfos = new List<PingInfo>();
-            _logger.Info("Resetting Processor MonitorPingInfos in statestore");
+            _logger.Info(" State Setup : Success : Resetting Processor MonitorPingInfos in statestore");
             var processorDataObj = new ProcessorDataObj()
             {
                 MonitorPingInfos = new List<MonitorPingInfo>(),
@@ -52,12 +52,15 @@ namespace NetworkMonitor.Processor.Services
                 FileRepo.SaveStateJsonZ("ProcessorDataObj", processorDataObj);
                 FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
                 FileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
-                _logger.Info("Reset Processor Objects in statestore ");
+                _logger.Info(" State Setup : Success : Reset Processor Objects in statestore ");
+                initNetConnects=true;
             }
             catch (Exception e)
             {
-                _logger.Error("Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
+                _logger.Error(" State Setup : Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
             }
+
+            return initNetConnects;
 
         }
 
@@ -72,7 +75,7 @@ namespace NetworkMonitor.Processor.Services
                 using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
                 {
                     piIDKey = processorDataObj.PiIDKey;
-                    infoLog += " Got PiIDKey=" + piIDKey + " . ";
+                    infoLog += " State Setup : Got PiIDKey=" + piIDKey + " . ";
                     CurrentPingInfos= processorDataObj.PingInfos;
                     //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                     CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
@@ -90,12 +93,12 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    _logger.Warn("Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
+                    _logger.Warn(" State Setup : Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
                 }
             }
             catch (Exception e)
             {
-                _logger.Error("Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : "+e.ToString());
+                _logger.Error(" State Setup :Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : "+e.ToString());
                 _currentMonitorPingInfos = new List<MonitorPingInfo>();
                 _currentPingInfos = new List<PingInfo>();
                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
@@ -108,16 +111,16 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                _logger.Warn("Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
+                _logger.Warn(" State Setup :Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
             }
             try
             {
                 _statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
-                infoLog += ("Got PingParams from statestore . ");
+                infoLog += (" State Setup :Got PingParams from statestore . ");
             }
             catch (Exception e)
             {
-                _logger.Warn("Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
+                _logger.Warn(" State Setup :Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
             }
             _logger.Info(infoLog);
 
@@ -127,12 +130,12 @@ namespace NetworkMonitor.Processor.Services
 
                 if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
                 {
-                    _logger.Warn("Warning : There are No MonitorIPs using statestore");
+                    _logger.Warn(" State Setup : Warning : There are No MonitorIPs using statestore");
                     initObj.MonitorIPs = _stateMonitorIPs;
                     if (_stateMonitorIPs == null || _stateMonitorIPs.Count == 0)
                     {
                         initObj.MonitorIPs = new List<MonitorIP>();
-                        _logger.Error("Error : There are No MonitorIPs in statestore");
+                        _logger.Error(" State Setup :Error : There are No MonitorIPs in statestore");
                     }
                 }
                 else
@@ -143,7 +146,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     catch (Exception e)
                     {
-                        _logger.Error(" Error : Unable to Save MonitorIPs to statestore. Error was : " + e.Message);
+                        _logger.Error(" State Setup : Error : Unable to Save MonitorIPs to statestore. Error was : " + e.Message);
                     }
                 }
                 if (initObj.PingParams == null)
@@ -151,12 +154,12 @@ namespace NetworkMonitor.Processor.Services
                   
                     if (_statePingParams == null)
                     {
-                        _logger.Error("Error : There are No PingParams in statestore");
+                        _logger.Error(" State Setup : Error : There are No PingParams in statestore");
                         throw new ArgumentNullException(" PingParams is null");
                     }
                     else{
                         initObj.PingParams = _statePingParams;
-                          _logger.Warn("Warning : There are No PingParams using statestore");
+                          _logger.Warn(" State Setup : Warning : There are No PingParams using statestore");
                     }
                 }
                 else
@@ -168,17 +171,17 @@ namespace NetworkMonitor.Processor.Services
                     }
                     catch (Exception e)
                     {
-                        _logger.Error(" Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
+                        _logger.Error(" State Setup : Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
                     }
                 }
                 if (isSystemElevatedPrivilege)
                 {
-                    _logger.Info("Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
+                    _logger.Info(" State Setup : Ping Payload can be customised.  Program is running under privileged user account or is granted cap_net_raw capability using setcap");
                     if (initObj.PingParams != null) initObj.PingParams.IsAdmin = true;
                 }
                 else
                 {
-                    _logger.Warn(" Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
+                    _logger.Warn(" State Setup : Unable to send custom ping payload. Run program under privileged user account or grant cap_net_raw capability using setcap.");
                     if (initObj.PingParams != null) initObj.PingParams.IsAdmin = false;
                 }
            
