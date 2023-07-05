@@ -7,5 +7,7 @@
 			"path": "../NetworkMonitor"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"dotnet.defaultSolution": "/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor.sln"
+	}
 }

@@ -100,6 +100,8 @@ namespace NetworkMonitor.Processor.Services
                         mergeMonitorPingInfo.RoundTripTimeMinimum = RoundTrip;
                     }
                     mergeMonitorPingInfo.RoundTripTimeAverage = mergeMonitorPingInfo.RoundTripTimeTotal / (float)mergeMonitorPingInfo.PacketsRecieved;
+                    mergeMonitorPingInfo.MonitorStatus.ResetDownCount();
+                    mergeMonitorPingInfo.IsDirtyDownCount = false;
                 }
                 else
                 {
