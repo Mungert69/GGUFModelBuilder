@@ -1,0 +1,2 @@
+sudo tail -n 500 /var/log/syslog -f | grep NetworkMonitorProcessor
+
