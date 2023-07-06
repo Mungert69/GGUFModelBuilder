@@ -1,1 +1,6 @@
-dotnet publish NetworkMonitorProcessorApp.csproj --os linux --arch x64  --output ../services/processor -c Release --self-contained true 
+systemctl stop NetworkMonitorProcessor.service
+dotnet publish NetworkMonitorProcessor.csproj --os linux --arch x64  --output ../services/processor -c Release --self-contained true 
+cp ./AlgoTable.csv ../services/processor/
+cp ./curves ../services/processor/
+systemctl start NetworkMonitorProcessor.service
+

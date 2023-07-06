@@ -1,0 +1,31 @@
+[Unit]
+Description=Network Monitor Processor Service
+
+[Service]
+# will set the Current Working Directory (CWD)
+WorkingDirectory=/home/mahadeva/code/services/processor
+# systemd will run this executable to start the service
+# if /usr/bin/dotnet doesn't work, use `which dotnet` to find correct dotnet executable path
+ExecStart=/usr/bin/dotnet /home/mahadeva/code/services/processor/NetworkMonitorProcessor.dll
+# to query logs using journalctl, set a logical name here  
+SyslogIdentifier=NetworkMonitorProcessor
+
+# Use your username to keep things simple, for production scenario's I recommend a dedicated user/group.
+# If you pick a different user, make sure dotnet and all permissions are set correctly to run the app.
+# To update permissions, use 'chown yourusername -R /srv/AspNetSite' to take ownership of the folder and files,
+#       Use 'chmod +x /srv/AspNetSite/AspNetSite' to allow execution of the executable file.
+User=root
+
+# ensure the service restarts after crashing
+Restart=always
+# amount of time to wait before restarting the service              
+RestartSec=5
+
+# copied from dotnet documentation at
+# https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/linux-nginx
+KillSignal=SIGINT
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+[Install]
+WantedBy=multi-user.target
