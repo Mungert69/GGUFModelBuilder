@@ -1,1 +1,1 @@
-dotnet publish --os linux --arch x64  --output ../services/ -c Release --self-contained true 
+dotnet publish NetworkMonitorProcessorApp.csproj --os linux --arch x64  --output ../services/ -c Release --self-contained true 
