@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.001.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkMonitorProcessorApp", "NetworkMonitorProcessorApp.csproj", "{13D73D3C-34DC-4229-A324-D92F6F9FE64E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkMonitorProcessor", "NetworkMonitorProcessor.csproj", "{13D73D3C-34DC-4229-A324-D92F6F9FE64E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
