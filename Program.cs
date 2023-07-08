@@ -22,7 +22,7 @@ namespace NetworkMonitor.Processor
                  .AddCommandLine(args)
                  .Build();
             var loggerFactory = new NetLoggerFactory();
-            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config);
+            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config,loggerFactory.GetLogger("ConnectFactory"));
             _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.GetLogger("Processor"), _connectFactory);
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);

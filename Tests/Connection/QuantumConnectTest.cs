@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using MetroLog;
 
 namespace NetworkMonitor.Tests
 {
@@ -12,6 +13,7 @@ namespace NetworkMonitor.Tests
         private MonitorPingInfo pingInfo=new MonitorPingInfo();
         private PingParams pingParams;
         private string csvFilePath = "/home/mahadeva/code/NetworkMonitorProcessor/AlgoTable-test.csv";
+         private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<QuantumConnectTests>();
 
         public QuantumConnectTests()
         {
@@ -38,7 +40,7 @@ namespace NetworkMonitor.Tests
 
                List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
             // Arrange
-            var quantumConnect = new QuantumConnect( algorithmInfoList, oqsProviderPath);
+            var quantumConnect = new QuantumConnect( algorithmInfoList, oqsProviderPath,_logger);
               //quantumConnect.PingParams=pingParams;
                         quantumConnect.MpiStatic=new MPIStatic(pingInfo);
             // Act
@@ -67,7 +69,7 @@ namespace NetworkMonitor.Tests
                 PingInfos = new List<PingInfo>(),
                 Timeout = 5000
             };
-            var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath);
+            var quantumConnect = new QuantumConnect(algorithmInfoList, oqsProviderPath,_logger);
              // quantumConnect.PingParams=pingParams;
             quantumConnect.MpiStatic=new MPIStatic(pingInfo);
 
