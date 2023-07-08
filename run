@@ -1,1 +1,1 @@
-nohup ../services/processor/NetworkMonitorProcessorApp &
+nohup ../services/processor/NetworkMonitorProcessor &
