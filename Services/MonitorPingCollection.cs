@@ -368,6 +368,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.Port = monIP.Port;
             monitorPingInfo.Enabled = monIP.Enabled;
             monitorPingInfo.EndPointType = monIP.EndPointType;
+            monitorPingInfo.AddUserEmail=monIP.AddUserEmail;
             //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
             //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
             if (monIP.Timeout == 0)

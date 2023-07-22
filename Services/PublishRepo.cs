@@ -86,6 +86,7 @@ namespace NetworkMonitor.Objects.Repository
                         monitorStatusAlert.UserID = f.UserID;
                         monitorStatusAlert.EndPointType = f.EndPointType;
                         monitorStatusAlert.Timeout = f.Timeout;
+                        monitorStatusAlert.AddUserEmail=f.AddUserEmail;
                         monitorStatusAlerts.Add(monitorStatusAlert);
                     }
                     );
