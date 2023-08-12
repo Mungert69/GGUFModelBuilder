@@ -71,6 +71,7 @@ namespace NetworkMonitor.Objects.Repository
                     var monitorStatusAlerts = new List<MonitorStatusAlert>();
                     monitorPingInfos.ForEach(f =>
                     {
+                        f.DateEnded=DateTime.UtcNow;
                         //pingInfos.AddRange(f.PingInfos.ToList());
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
