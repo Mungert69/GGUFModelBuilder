@@ -37,13 +37,15 @@ namespace NetworkMonitor.Processor.Services
         //private DaprClient _daprClient;
         private uint _piIDKey = 1;
         private RabbitListener _rabbitRepo;
+        private IFileRepo _fileRepo;
         public bool Awake { get => _awake; set => _awake = value; }
-        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory)
+        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory, IFileRepo fileRepo)
         {
             _logger = logger;
-            FileRepo.CheckFileExists("ProcessorDataObj", logger);
-            FileRepo.CheckFileExists("MonitorIPs", logger);
-            FileRepo.CheckFileExists("PingParams", logger);
+            _fileRepo=fileRepo;
+            _fileRepo.CheckFileExists("ProcessorDataObj", logger);
+            _fileRepo.CheckFileExists("MonitorIPs", logger);
+            _fileRepo.CheckFileExists("PingParams", logger);
             _appID = config.GetValue<string>("AppID");
             SystemUrl systemUrl = config.GetSection("SystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("SystemUrl");
             _logger.Info(" Starting Processor with AppID = " + _appID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
@@ -57,7 +59,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.Info(" Saving MonitorPingInfos to state");
-                PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _appID, _piIDKey, true);
+                await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _appID, _piIDKey, true,_fileRepo);
                 _logger.Debug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Info(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, false);
@@ -77,7 +79,7 @@ namespace NetworkMonitor.Processor.Services
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
         public async Task Init(ProcessorInitObj initObj)
         {
-            var stateSetup = new StateSetup(_logger, _monitorPingCollection, _lock);
+            var stateSetup = new StateSetup(_logger, _monitorPingCollection, _lock, _fileRepo);
             _removeMonitorPingInfoIDs = new List<int>();
             bool initNetConnects = false;
             bool disableNetConnects=false;
@@ -85,7 +87,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (initObj.TotalReset)
                 {
-                    initNetConnects=stateSetup.TotalReset();
+                    initNetConnects=await stateSetup.TotalReset();
                 }
                 else
                 {
@@ -102,7 +104,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     else
                     {
-                        stateSetup.LoadFromState(initNetConnects, _piIDKey, _removeMonitorPingInfoIDs, _swapMonitorPingInfos, _monitorPingCollection);
+                        await stateSetup.LoadFromState(initNetConnects, _piIDKey, _removeMonitorPingInfoIDs, _swapMonitorPingInfos, _monitorPingCollection);
                                                 initNetConnects=false;
                         initNetConnects=false;
                         disableNetConnects=false;
@@ -117,14 +119,14 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                stateSetup.MergeState(initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
+                await stateSetup.MergeState(initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
                 _monitorPingCollection.SetVars(_appID, initObj.PingParams);
                 await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos, stateSetup.CurrentPingInfos, _lock);
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects,disableNetConnects, _lock);
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
-                PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _appID, _piIDKey, false);
+                await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _appID, _piIDKey, false, _fileRepo);
             }
             catch (Exception e)
             {
@@ -230,7 +232,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
                     result.Message += removeResult.Message;
-                    PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _appID, _piIDKey, true);
+                    await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _appID, _piIDKey, true,_fileRepo);
 
                 }
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _appID, true);
@@ -359,7 +361,7 @@ namespace NetworkMonitor.Processor.Services
                 // Update statestore with new MonitorIPs
                 // remove addBackMonitorIPs from monitorIPQueue
                 //monitorIPQueue.RemoveAll(addBackMonitorIPs.Contains);
-                message += UpdateMonitorIPsInStatestore(monitorIPQueue);
+                message += await UpdateMonitorIPsInStatestore(monitorIPQueue);
                 // remove all items from queue that are not in failRemove List.
                 foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
@@ -402,12 +404,12 @@ namespace NetworkMonitor.Processor.Services
                 _swapMonitorPingInfos.Remove(f);
             });
         }
-        private string UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
+        private async Task<string> UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
         {
             string resultStr = "";
             try
             {
-                var stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                var stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
                 if (stateMonitorIPs == null) stateMonitorIPs = new List<MonitorIP>();
                 foreach (var updateMonitorIP in updateMonitorIPs)
                 {
@@ -429,7 +431,7 @@ namespace NetworkMonitor.Processor.Services
                         if (f.Delete) stateMonitorIPs.RemoveAll(r => r.ID == f.ID);
                     });
                 }
-                FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
+                await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
                 resultStr += " Success : saved MonitorIP queue into statestore. ";
             }
             catch (Exception e)

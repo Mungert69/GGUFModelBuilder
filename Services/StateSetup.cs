@@ -16,6 +16,7 @@ namespace NetworkMonitor.Processor.Services
         private ILogger _logger;
         private MonitorPingCollection _monitorPingCollection;
         private SemaphoreSlim _lockObj ;
+        private IFileRepo _fileRepo;
          List<MonitorPingInfo> _currentMonitorPingInfos;
             List<PingInfo> _currentPingInfos;
             List<MonitorIP> _stateMonitorIPs = new List<MonitorIP>();
@@ -24,14 +25,15 @@ namespace NetworkMonitor.Processor.Services
         public List<MonitorPingInfo> CurrentMonitorPingInfos { get => _currentMonitorPingInfos; set => _currentMonitorPingInfos = value; }
         public List<PingInfo> CurrentPingInfos { get => _currentPingInfos; set => _currentPingInfos = value; }
 
-        public StateSetup(ILogger logger, MonitorPingCollection monitorPingCollection, SemaphoreSlim lockObj)
+        public StateSetup(ILogger logger, MonitorPingCollection monitorPingCollection, SemaphoreSlim lockObj, IFileRepo fileRepo)
         {
             _logger = logger;
+            _fileRepo=fileRepo;
             _monitorPingCollection = monitorPingCollection;
             _lockObj = lockObj;
         }
 
-        public  bool TotalReset()
+        public  async Task<bool> TotalReset()
         {
             bool initNetConnects = false;
             CurrentMonitorPingInfos = new List<MonitorPingInfo>();
@@ -49,9 +51,9 @@ namespace NetworkMonitor.Processor.Services
 
             try
             {
-                FileRepo.SaveStateJsonZ("ProcessorDataObj", processorDataObj);
-                FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
-                FileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
+                await _fileRepo.SaveStateJsonZAsync("ProcessorDataObj", processorDataObj);
+                await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+                await _fileRepo.SaveStateJsonZAsync<PingParams>("PingParams", new PingParams());
                 _logger.Info(" State Setup : Success : Reset Processor Objects in statestore ");
                 initNetConnects=true;
             }
@@ -65,14 +67,14 @@ namespace NetworkMonitor.Processor.Services
         }
 
 
-        public void  LoadFromState(bool initNetConnects, uint piIDKey, List<int> _removeMonitorPingInfoIDs, List<SwapMonitorPingInfo> _swapMonitorPingInfos, MonitorPingCollection monitorPingCollection)
+        public async Task  LoadFromState(bool initNetConnects, uint piIDKey, List<int> _removeMonitorPingInfoIDs, List<SwapMonitorPingInfo> _swapMonitorPingInfos, MonitorPingCollection monitorPingCollection)
         {
            
             initNetConnects = true;
             string infoLog = "";
             try
             {
-                using (var processorDataObj = FileRepo.GetStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj"))
+                using (var processorDataObj = await _fileRepo.GetStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj"))
                 {
                     piIDKey = processorDataObj.PiIDKey;
                     infoLog += " State Setup : Got PiIDKey=" + piIDKey + " . ";
@@ -106,7 +108,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                _stateMonitorIPs = FileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                _stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
                 if (_stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + _stateMonitorIPs.Count()) + " . ";
             }
             catch (Exception e)
@@ -115,7 +117,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                _statePingParams = FileRepo.GetStateJsonZ<PingParams>("PingParams");
+                _statePingParams = await _fileRepo.GetStateJsonZAsync<PingParams>("PingParams");
                 infoLog += (" State Setup :Got PingParams from statestore . ");
             }
             catch (Exception e)
@@ -126,7 +128,7 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public void MergeState(ProcessorInitObj initObj, bool isSystemElevatedPrivilege ){
+        public async Task MergeState(ProcessorInitObj initObj, bool isSystemElevatedPrivilege ){
 
                 if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
                 {
@@ -142,7 +144,7 @@ namespace NetworkMonitor.Processor.Services
                 {
                     try
                     {
-                        FileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", initObj.MonitorIPs);
+                        await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", initObj.MonitorIPs);
                     }
                     catch (Exception e)
                     {
@@ -167,7 +169,7 @@ namespace NetworkMonitor.Processor.Services
                   
                     try
                     {
-                        FileRepo.SaveStateJsonZ<PingParams>("PingParams", initObj.PingParams);
+                        await _fileRepo.SaveStateJsonZAsync<PingParams>("PingParams", initObj.PingParams);
                     }
                     catch (Exception e)
                     {

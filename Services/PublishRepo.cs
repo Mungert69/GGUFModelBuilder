@@ -5,12 +5,14 @@ using NetworkMonitor.Objects.ServiceMessage;
 using System.Diagnostics;
 using MetroLog;
 using System.Threading;
+using System.Threading.Tasks;
 namespace NetworkMonitor.Objects.Repository
 {
     public class PublishRepo
     {
 
-        public static ResultObj AlertMessgeResetAlerts(RabbitListener rabbitRepo, List<AlertFlagObj> alertFlagObjs){
+        public static ResultObj AlertMessgeResetAlerts(RabbitListener rabbitRepo, List<AlertFlagObj> alertFlagObjs)
+        {
             var result = new ResultObj();
             try
             {
@@ -43,16 +45,32 @@ namespace NetworkMonitor.Objects.Repository
                 logger.Error(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
-        public static void MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos,List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState)
+
+
+        public static Task MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
         {
-            Thread thread = new Thread(delegate ()
-                       {
-                           PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos,pingInfos, appID, piIDKey, saveState);
-                       });
+            var tcs = new TaskCompletionSource<bool>();
+
+            Thread thread = new Thread(async () =>
+            {
+                try
+                {
+                    await PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, pingInfos, appID, piIDKey, saveState, fileRepo);
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
             thread.Priority = ThreadPriority.Lowest;
             thread.Start();
+
+            return tcs.Task;
         }
-        public static ResultObj MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos,List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState)
+
+        public static async Task<ResultObj> MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
@@ -71,7 +89,7 @@ namespace NetworkMonitor.Objects.Repository
                     var monitorStatusAlerts = new List<MonitorStatusAlert>();
                     monitorPingInfos.ForEach(f =>
                     {
-                        f.DateEnded=DateTime.UtcNow;
+                        f.DateEnded = DateTime.UtcNow;
                         //pingInfos.AddRange(f.PingInfos.ToList());
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
@@ -87,7 +105,7 @@ namespace NetworkMonitor.Objects.Repository
                         monitorStatusAlert.UserID = f.UserID;
                         monitorStatusAlert.EndPointType = f.EndPointType;
                         monitorStatusAlert.Timeout = f.Timeout;
-                        monitorStatusAlert.AddUserEmail=f.AddUserEmail;
+                        monitorStatusAlert.AddUserEmail = f.AddUserEmail;
                         monitorStatusAlerts.Add(monitorStatusAlert);
                     }
                     );
@@ -111,7 +129,7 @@ namespace NetworkMonitor.Objects.Repository
                     rabbitListener.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     result.Message += " Published to MonitorService and AlertService. ";
-                    if (pingInfos != null )
+                    if (pingInfos != null)
                     {
                         result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
                     }
@@ -122,8 +140,8 @@ namespace NetworkMonitor.Objects.Repository
                     if (saveState)
                     {
                         processorDataObj.RemovePingInfos = removePingInfos;
-                        string jsonZ = rabbitListener.PublishJsonZWithID<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj,appID);
-                        FileRepo.SaveStateString("ProcessorDataObj", jsonZ);
+                        string jsonZ = rabbitListener.PublishJsonZWithID<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj, appID);
+                        await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
                     }
