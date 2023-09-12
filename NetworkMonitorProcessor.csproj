@@ -5,7 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0-jammy-amd64</ContainerBaseImage>
-    <ContainerImageTag>0.7.0</ContainerImageTag>
+    <ContainerImageTag>0.7.1</ContainerImageTag>
      <GenerateProgramFile>false</GenerateProgramFile>
      <DefineConstants>NetworkMonitorProcessor</DefineConstants>
 
