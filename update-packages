@@ -1,0 +1,9 @@
+#!/bin/bash
+
+projectPath="./NetworkMonitorProcessor.csproj"
+packages=$(dotnet list $projectPath package --outdated | grep -E '\s>\s' | awk '{print $2}')
+
+for package in $packages; do
+    dotnet add $projectPath package $package
+done
+

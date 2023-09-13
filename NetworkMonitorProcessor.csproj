@@ -14,24 +14,19 @@
 
 
   <ItemGroup>
-   <PackageReference Include="bouncycastle.cryptography" Version="2.2.1" />
-   <PackageReference Include="CloudNative.CloudEvents" Version="2.5.1" />
-    <PackageReference Include="CloudNative.CloudEvents.AspNetCore" Version="2.5.1" />
-    <PackageReference Include="CloudNative.CloudEvents.NewtonsoftJson" Version="2.5.1" />
-    <PackageReference Include="MetroLog.MAUI" Version="2.1.0" />
-    <PackageReference Include="MetroLog.NET6" Version="2.1.0" />
+  
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="7.0.0" />
-    <PackageReference Include="PuppeteerSharp" Version="10.0.0" />
-    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" /> 
-    <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.2.7" />
-    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-    <PackageReference Include="RestSharp" Version="108.0.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+
+
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+    <PackageReference Include="xunit" Version="2.5.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
      
 
   </ItemGroup>
