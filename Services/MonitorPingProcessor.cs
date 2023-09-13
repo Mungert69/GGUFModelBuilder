@@ -119,7 +119,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                await stateSetup.MergeState(initObj, SystemParamsHelper.IsSystemElevatedPrivilege);
+                await stateSetup.MergeState(initObj);
                 _monitorPingCollection.SetVars(_appID, initObj.PingParams);
                 await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos, stateSetup.CurrentPingInfos, _lock);
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects,disableNetConnects, _lock);
