@@ -12,9 +12,6 @@ using System.Threading;
 using System.Runtime;
 using System.Diagnostics;
 using MetroLog;
-using MetroLog.MicrosoftExtensions;
-using MetroLog.Targets;
-using MetroLog.Internal;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Concurrent;
 namespace NetworkMonitor.Processor.Services
