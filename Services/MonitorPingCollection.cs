@@ -369,6 +369,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.Username = monIP.Username;
             monitorPingInfo.Password = monIP.Password;
             monitorPingInfo.AddUserEmail = monIP.AddUserEmail;
+            monitorPingInfo.IsEmailVerified=monIP.IsEmailVerified;
             //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
             //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
             if (monIP.Timeout == 0)
