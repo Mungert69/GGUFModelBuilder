@@ -106,7 +106,7 @@ namespace NetworkMonitor.Objects.Repository
                         monitorStatusAlert.EndPointType = f.EndPointType;
                         monitorStatusAlert.Timeout = f.Timeout;
                         monitorStatusAlert.AddUserEmail = f.AddUserEmail;
-                     monitorStatusAlert.IsEmailVerified = f?.IsEmailVerified ?? false;
+                     monitorStatusAlert.IsEmailVerified = f.IsEmailVerified;
                         monitorStatusAlerts.Add(monitorStatusAlert);
                     }
                     );
