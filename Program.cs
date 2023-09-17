@@ -6,6 +6,7 @@ using NetworkMonitor.Objects.Factory;
 using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Processor.Services;
+using NetworkMonitor.Utils.Helpers;
 
 namespace NetworkMonitor.Processor
 {
@@ -23,8 +24,12 @@ namespace NetworkMonitor.Processor
                  .Build();
             var loggerFactory = new NetLoggerFactory();
             var  fileRepo=new FileRepo();
+            var systemParamsHelper=new SystemParamsHelper(config,loggerFactory);
+            IRabbitRepo rabbitRepo=new RabbitRepo(loggerFactory,systemParamsHelper);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config,loggerFactory.GetLogger("ConnectFactory"));
-            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.GetLogger("Processor"), _connectFactory, fileRepo);
+            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory, _connectFactory, fileRepo, rabbitRepo);
+            IRabbitListener rabbitListener  = new RabbitListener(_monitorPingProcessor,loggerFactory,systemParamsHelper);
+           
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);
 

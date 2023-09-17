@@ -14,17 +14,43 @@ using System.Text;
 using System.Linq;
 using NetworkMonitor.Utils;
 using MetroLog;
+using NetworkMonitor.Utils.Helpers;
+using NetworkMonitor.Objects.Factory;
 namespace NetworkMonitor.Objects.Repository
 {
-    public class RabbitListener : RabbitListenerBase
+    public interface IRabbitListener
+{
+    Task<ResultObj> Connect(ProcessorConnectObj connectObj);
+    ResultObj RemovePingInfos(ProcessorDataObj processorDataObj);
+    Task<ResultObj> Init(ProcessorInitObj initObj);
+    ResultObj AlertFlag(List<int> monitorPingInfoIds);
+    ResultObj AlertSent(List<int> monitorIPIDs);
+    ResultObj ResetAlerts(List<int> monitorIPIDs);
+    ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
+    ResultObj WakeUp();
+}
+
+
+    public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
         private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        public RabbitListener(ILogger logger, SystemUrl systemUrl, IMonitorPingProcessor monitorPingProcessor, string appID) : base(logger, systemUrl)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, INetLoggerFactory loggerFactory, SystemParamsHelper systemParamsHelper) : base(DeriveLogger(loggerFactory), DeriveSystemUrl(systemParamsHelper))
+
         {
             _monitorPingProcessor = monitorPingProcessor;
-            _appID = appID;
+            _appID = monitorPingProcessor.AppID;
             Setup();
+        }
+
+            private static ILogger DeriveLogger(INetLoggerFactory loggerFactory)
+        {
+            return loggerFactory.GetLogger("RabbitListener"); 
+        }
+
+        private static SystemUrl DeriveSystemUrl(SystemParamsHelper systemParamsHelper)
+        {
+            return systemParamsHelper.GetSystemParams().ThisSystemUrl;
         }
         protected override void InitRabbitMQObjs()
         {

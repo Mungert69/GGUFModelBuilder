@@ -11,7 +11,7 @@ namespace NetworkMonitor.Objects.Repository
     public class PublishRepo
     {
 
-        public static ResultObj AlertMessgeResetAlerts(RabbitListener rabbitRepo, List<AlertFlagObj> alertFlagObjs)
+        public static ResultObj AlertMessgeResetAlerts(IRabbitRepo rabbitRepo, List<AlertFlagObj> alertFlagObjs)
         {
             var result = new ResultObj();
             try
@@ -29,7 +29,7 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        public static void ProcessorResetAlerts(ILogger logger, RabbitListener rabbitListener, Dictionary<string, List<int>> monitorIPDic)
+        public static void ProcessorResetAlerts(ILogger logger, IRabbitRepo rabbitRepo, Dictionary<string, List<int>> monitorIPDic)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace NetworkMonitor.Objects.Repository
                 {
                     var monitorIPIDs = new List<int>(kvp.Value);
                     // Dont publish this at the moment as its causing alerts to refire.
-                    rabbitListener.Publish<List<int>>("processorResetAlerts" + kvp.Key, monitorIPIDs);
+                    rabbitRepo.Publish<List<int>>("processorResetAlerts" + kvp.Key, monitorIPIDs);
                 }
             }
             catch (Exception e)
@@ -47,7 +47,7 @@ namespace NetworkMonitor.Objects.Repository
         }
 
 
-        public static Task MonitorPingInfosLowPriorityThread(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
+        public static Task MonitorPingInfosLowPriorityThread(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
         {
             var tcs = new TaskCompletionSource<bool>();
 
@@ -55,7 +55,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 try
                 {
-                    await PublishRepo.MonitorPingInfos(logger, rabbitListener, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, pingInfos, appID, piIDKey, saveState, fileRepo);
+                    await PublishRepo.MonitorPingInfos(logger, rabbitRepo, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, pingInfos, appID, piIDKey, saveState, fileRepo);
                     tcs.SetResult(true);
                 }
                 catch (Exception ex)
@@ -70,7 +70,7 @@ namespace NetworkMonitor.Objects.Repository
             return tcs.Task;
         }
 
-        public static async Task<ResultObj> MonitorPingInfos(ILogger logger, RabbitListener rabbitListener, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
+        public static async Task<ResultObj> MonitorPingInfos(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
@@ -127,7 +127,7 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     timerStr += " Event (Published MonitorPingInfos to monitorservice) at " + timer.ElapsedMilliseconds + " : ";
                     //DaprRepo.PublishEventJsonZ<ProcessorDataObj>(daprClient, "alertUpdateMonitorStatusAlerts", processorDataObjAlert);
-                    rabbitListener.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
+                    rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     result.Message += " Published to MonitorService and AlertService. ";
                     if (pingInfos != null)
@@ -141,7 +141,7 @@ namespace NetworkMonitor.Objects.Repository
                     if (saveState)
                     {
                         processorDataObj.RemovePingInfos = removePingInfos;
-                        string jsonZ = rabbitListener.PublishJsonZWithID<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj, appID);
+                        string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("monitorUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         result.Message += " Saved MonitorPingInfos to State. ";
@@ -181,14 +181,14 @@ namespace NetworkMonitor.Objects.Repository
             DaprRepo.PublishEvent<ProcessorInitObj>(daprClient, "processorReady", processorObj);
             logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = false ");
         }*/
-        public static void ProcessorReady(ILogger logger, RabbitListener rabbitListener, string appID, bool isReady)
+        public static void ProcessorReady(ILogger logger, IRabbitRepo rabbitRepo, string appID, bool isReady)
         {
             try
             {
                 var processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = isReady;
                 processorObj.AppID = appID;
-                rabbitListener.Publish<ProcessorInitObj>("processorReady", processorObj);
+                rabbitRepo.Publish<ProcessorInitObj>("processorReady", processorObj);
                 logger.Info(" Published event ProcessorItitObj.IsProcessorReady = " + isReady);
             }
             catch (Exception e)

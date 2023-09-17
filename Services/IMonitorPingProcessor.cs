@@ -17,5 +17,6 @@ namespace NetworkMonitor.Processor.Services
         List<ResultObj> ResetAlerts(List<int> monitorIPIDs);
         void  ProcessesMonitorReturnData(ProcessorDataObj processorDataObj);
         bool Awake{get;set;}
+         string AppID { get;  }
     }
 }
