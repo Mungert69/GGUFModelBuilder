@@ -24,7 +24,7 @@ namespace NetworkMonitor.Processor
                  .Build();
             var loggerFactory = new NetLoggerFactory();
             var  fileRepo=new FileRepo();
-            var systemParamsHelper=new SystemParamsHelper(config,loggerFactory);
+            ISystemParamsHelper  systemParamsHelper=new SystemParamsHelper(config,loggerFactory);
             IRabbitRepo rabbitRepo=new RabbitRepo(loggerFactory,systemParamsHelper);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config,loggerFactory.GetLogger("ConnectFactory"));
             _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory, _connectFactory, fileRepo, rabbitRepo);

@@ -35,7 +35,7 @@ namespace NetworkMonitor.Objects.Repository
     {
         private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, INetLoggerFactory loggerFactory, SystemParamsHelper systemParamsHelper) : base(DeriveLogger(loggerFactory), DeriveSystemUrl(systemParamsHelper))
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, INetLoggerFactory loggerFactory, ISystemParamsHelper systemParamsHelper) : base(DeriveLogger(loggerFactory), DeriveSystemUrl(systemParamsHelper))
 
         {
             _monitorPingProcessor = monitorPingProcessor;
@@ -48,7 +48,7 @@ namespace NetworkMonitor.Objects.Repository
             return loggerFactory.GetLogger("RabbitListener"); 
         }
 
-        private static SystemUrl DeriveSystemUrl(SystemParamsHelper systemParamsHelper)
+        private static SystemUrl DeriveSystemUrl(ISystemParamsHelper systemParamsHelper)
         {
             return systemParamsHelper.GetSystemParams().ThisSystemUrl;
         }
