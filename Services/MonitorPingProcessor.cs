@@ -303,13 +303,13 @@ namespace NetworkMonitor.Processor.Services
                         else
                         {
                             monitorPingInfo = monIP.MonitorPingInfo;
-                            monitorPingInfo.AppID = AppID;
+                            monitorPingInfo.AppID = _appID;
                             _swapMonitorPingInfos.Add(new SwapMonitorPingInfo()
                             {
                                 ID = monitorPingInfo.ID,
-                                AppID = AppID
+                                AppID = _appID
                             });
-                            _logger.Info(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID);
+                            _logger.Info(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID+ " AppID "+_appID);
                         }
                         if (!_monitorPingCollection.MonitorPingInfos.TryAdd(monitorPingInfo.MonitorIPID, monitorPingInfo)){
                             _logger.Error(" Error : Failed to add MonitorPingInfo with ID " + monitorPingInfo.ID + " to MonitorPingCollection. ");
