@@ -47,7 +47,7 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
             _appID = config.GetValue<string>("AppID");
-            SystemUrl systemUrl = config.GetSection("SystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("SystemUrl");
+            SystemUrl systemUrl = config.GetSection("LocalSystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("LocalSystemUrl");
             _logger.Info(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
             _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
