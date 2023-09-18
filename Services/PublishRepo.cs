@@ -93,11 +93,10 @@ namespace NetworkMonitor.Objects.Repository
                         //pingInfos.AddRange(f.PingInfos.ToList());
                         var monitorStatusAlert = new MonitorStatusAlert();
                         monitorStatusAlert.ID = f.MonitorIPID;
-                        monitorStatusAlert.AppID = f.AppID;
+                        monitorStatusAlert.AppID = appID;
                         monitorStatusAlert.Address = f.Address;
                         monitorStatusAlert.AlertFlag = f.MonitorStatus.AlertFlag;
                         monitorStatusAlert.AlertSent = f.MonitorStatus.AlertSent;
-                        monitorStatusAlert.AppID = f.AppID;
                         monitorStatusAlert.DownCount = f.MonitorStatus.DownCount;
                         monitorStatusAlert.EventTime = f.MonitorStatus.EventTime;
                         monitorStatusAlert.IsUp = f.MonitorStatus.IsUp;
