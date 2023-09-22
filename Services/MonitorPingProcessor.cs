@@ -337,10 +337,10 @@ namespace NetworkMonitor.Processor.Services
                                     if (!f.IsSwapping)
                                     {
                                         _removeMonitorPingInfoIDs.Add(del.Value.MonitorIPID);
-                                        _logger.Info(" Not swapping so adding to remove from MontiorService for MonitorPingInfo with MonitorIPID " + f.ID);
+                                        _logger.Info(" This Not a swap so adding to removeMonitorPingInfosIDS for MonitorPingInfo with MonitorIPID " + f.ID);
                                     }
                                     else
-                                        _logger.Info(" Swapping so not adding to remove from MonitorService for MonitorPingInfo with MonitorIPID " + f.ID);
+                                        _logger.Info(" This is a swap so not adding to remove removeMonitorPingInfosIDS for MonitorPingInfo with MonitorIPID " + f.ID);
 
                                 }
                             }
@@ -413,6 +413,7 @@ namespace NetworkMonitor.Processor.Services
                 if (stateMonitorIPs == null) stateMonitorIPs = new List<MonitorIP>();
                 foreach (var updateMonitorIP in updateMonitorIPs)
                 {
+                    //updateMonitorIP.MonitorPingInfo=null;
                     var monitorIP = stateMonitorIPs.Where(w => w.ID == updateMonitorIP.ID).FirstOrDefault();
                     if (monitorIP == null)
                     {
