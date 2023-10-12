@@ -15,12 +15,12 @@ namespace NetworkMonitor.Processor.Services
         private string _appID;
         private SemaphoreSlim _localLock = new SemaphoreSlim(1);
         private PingParams _pingParams;
-        private ConcurrentDictionary<uint, RemovePingInfo> _removePingInfos = new ConcurrentDictionary<uint, RemovePingInfo>();
+        private ConcurrentDictionary<ulong, RemovePingInfo> _removePingInfos = new ConcurrentDictionary<ulong, RemovePingInfo>();
         private ConcurrentDictionary<int, MonitorPingInfo> _monitorPingInfos = new ConcurrentDictionary<int, MonitorPingInfo>();
-        private ConcurrentDictionary<uint, PingInfo> _pingInfos = new ConcurrentDictionary<uint, PingInfo>();
+        private ConcurrentDictionary<ulong, PingInfo> _pingInfos = new ConcurrentDictionary<ulong, PingInfo>();
         public ConcurrentDictionary<int, MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
-        public ConcurrentDictionary<uint, RemovePingInfo> RemovePingInfos { get => _removePingInfos; }
-        public ConcurrentDictionary<uint, PingInfo> PingInfos { get => _pingInfos; }
+        public ConcurrentDictionary<ulong, RemovePingInfo> RemovePingInfos { get => _removePingInfos; }
+        public ConcurrentDictionary<ulong, PingInfo> PingInfos { get => _pingInfos; }
         public MonitorPingCollection(ILogger logger)
         {
             _logger = logger;
