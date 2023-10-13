@@ -7,6 +7,7 @@ using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Utils.Helpers;
+using MetroLog;
 
 namespace NetworkMonitor.Processor
 {
@@ -22,14 +23,28 @@ namespace NetworkMonitor.Processor
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
-            var loggerFactory = new NetLoggerFactory();
-            var  fileRepo=new FileRepo();
-            ISystemParamsHelper  systemParamsHelper=new SystemParamsHelper(config,loggerFactory);
-            IRabbitRepo rabbitRepo=new RabbitRepo(loggerFactory,systemParamsHelper);
-            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config,loggerFactory.GetLogger("ConnectFactory"));
+            string logLevelConfig = config["Logging:LogLevel:Default"];
+            LogLevel defaultLogLevel;
+            INetLoggerFactory loggerFactory;
+
+            if (Enum.TryParse(logLevelConfig, true, out defaultLogLevel))
+            {
+                // Successfully converted to LogLevel enum
+                  loggerFactory= new NetLoggerFactory(defaultLogLevel);
+            }
+            else
+            {
+                // Failed to convert, handle error or provide a default log level
+                // For example, use LogLevel.Debug as a default
+                loggerFactory = new NetLoggerFactory();
+            }
+            var fileRepo = new FileRepo();
+            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory);
+            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory, systemParamsHelper);
+            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config, loggerFactory.GetLogger("ConnectFactory"));
             _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory, _connectFactory, fileRepo, rabbitRepo);
-            IRabbitListener rabbitListener  = new RabbitListener(_monitorPingProcessor,loggerFactory,systemParamsHelper);
-           
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory, systemParamsHelper);
+
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);
 
