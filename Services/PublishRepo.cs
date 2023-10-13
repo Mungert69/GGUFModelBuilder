@@ -83,6 +83,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 if (monitorPingInfos != null && monitorPingInfos.Count() != 0)
                 {
+                    int countMonPingInfos=monitorPingInfos.Count();
                     //var cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
                     timerStr += " Event (Created Cut MonitorPingInfos) at " + timer.ElapsedMilliseconds + " : ";
                     //var pingInfos = new List<PingInfo>();
@@ -118,17 +119,15 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj.PingInfos = pingInfos;
                     processorDataObj.AppID = appID;
                     processorDataObj.PiIDKey = piIDKey;
-                    int countMonPingInfos=monitorPingInfos.Count;
+
 
                     var processorDataObjAlert = new ProcessorDataObj();
                     processorDataObjAlert.MonitorPingInfos = null;
                     processorDataObjAlert.MonitorStatusAlerts = monitorStatusAlerts;
                     processorDataObjAlert.PingInfos = new List<PingInfo>();
                     processorDataObjAlert.AppID = appID;
-                    var countMonStatusAlerts=monitorStatusAlerts.Count;
+                    int countMonStatusAlerts=monitorStatusAlerts.Count();
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
-                    timerStr += " Event (Published MonitorPingInfos to monitorservice) at " + timer.ElapsedMilliseconds + " : ";
-                    //DaprRepo.PublishEventJsonZ<ProcessorDataObj>(daprClient, "alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     if (pingInfos != null)
