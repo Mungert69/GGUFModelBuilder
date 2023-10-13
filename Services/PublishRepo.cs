@@ -85,7 +85,7 @@ namespace NetworkMonitor.Objects.Repository
                 {
                     int countMonPingInfos=monitorPingInfos.Count();
                     //var cutMonitorPingInfos = monitorPingInfos.ConvertAll(x => new MonitorPingInfo(x));
-                    timerStr += " Event (Created Cut MonitorPingInfos) at " + timer.ElapsedMilliseconds + " : ";
+                    //timerStr += " Event (Created Cut MonitorPingInfos) at " + timer.ElapsedMilliseconds + " : ";
                     //var pingInfos = new List<PingInfo>();
                     var monitorStatusAlerts = new List<MonitorStatusAlert>();
                     monitorPingInfos.ForEach(f =>
@@ -110,7 +110,7 @@ namespace NetworkMonitor.Objects.Repository
                         monitorStatusAlerts.Add(monitorStatusAlert);
                     }
                     );
-                    timerStr += " Event (Created All PingInfos as List) at " + timer.ElapsedMilliseconds + " : ";
+                    //timerStr += " Event (Created All PingInfos as List) at " + timer.ElapsedMilliseconds + " : ";
                     var processorDataObj = new ProcessorDataObj();
                     processorDataObj.MonitorPingInfos = monitorPingInfos;
                     processorDataObj.RemoveMonitorPingInfoIDs = removeMonitorPingInfoIDs;
