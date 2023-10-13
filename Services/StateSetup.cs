@@ -70,7 +70,7 @@ namespace NetworkMonitor.Processor.Services
         {
 
             initNetConnects = true;
-            string infoLog = "";
+            string infoLog = " Starting Load From State ";
             try
             {
                 using (var processorDataObj = await _fileRepo.GetStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj"))
@@ -81,7 +81,11 @@ namespace NetworkMonitor.Processor.Services
                     //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
                     CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
                     _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                    processorDataObj.RemovePingInfos.ToList().ForEach(f => _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f));
+                    var removePingInfos = processorDataObj.RemovePingInfos.ToList();
+                    foreach (var f in removePingInfos)
+                    {
+                        _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
+                    }
                     _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
                     if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
                     if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
@@ -99,7 +103,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                _logger.Error(" State Setup :Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : " + e.ToString());
+                _logger.Error(" Logged so far : " + infoLog + " : State Setup :Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : " + e.ToString());
                 _currentMonitorPingInfos = new List<MonitorPingInfo>();
                 _currentPingInfos = new List<PingInfo>();
                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
