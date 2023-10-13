@@ -38,7 +38,7 @@ namespace NetworkMonitor.Tests
           
           string oqsProviderPath="/usr/local/lib/";
 
-               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
+               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseAlgorithmInfoCsv(csvFilePath);
             // Arrange
             var quantumConnect = new QuantumConnect( algorithmInfoList, oqsProviderPath,_logger);
               //quantumConnect.PingParams=pingParams;
@@ -58,7 +58,7 @@ namespace NetworkMonitor.Tests
         {
             // Arrange
               string oqsProviderPath="/usr/local/lib/";
-               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseCsv(csvFilePath);
+               List<AlgorithmInfo> algorithmInfoList = CsvParser.ParseAlgorithmInfoCsv(csvFilePath);
      
             var pingInfo = new MonitorPingInfo
             {
