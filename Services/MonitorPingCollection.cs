@@ -322,8 +322,11 @@ namespace NetworkMonitor.Processor.Services
                     if (monitorPingInfo != null)
                     {
                         _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
-                        var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID);
-                        fillPingInfo.ToList().ForEach(f => PingInfos.TryAdd(f.ID, f));
+                        var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList();
+                        foreach (var f in fillPingInfo)
+                        {
+                            PingInfos.TryAdd(f.ID, f);
+                        }
                     }
                     else
                     {
@@ -369,7 +372,7 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.Username = monIP.Username;
             monitorPingInfo.Password = monIP.Password;
             monitorPingInfo.AddUserEmail = monIP.AddUserEmail;
-            monitorPingInfo.IsEmailVerified=monIP.IsEmailVerified;
+            monitorPingInfo.IsEmailVerified = monIP.IsEmailVerified;
             //monitorPingInfo.MonitorStatus.MonitorPingInfo = null;
             //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
             if (monIP.Timeout == 0)
