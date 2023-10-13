@@ -6,6 +6,7 @@ using System.Diagnostics;
 using MetroLog;
 using System.Threading;
 using System.Threading.Tasks;
+using NetworkMonitor.Utils;
 namespace NetworkMonitor.Objects.Repository
 {
     public class PublishRepo
@@ -130,6 +131,7 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
+                    logger.Debug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
                     if (pingInfos != null)
                     {
                         result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
@@ -144,6 +146,8 @@ namespace NetworkMonitor.Objects.Repository
                         string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += $" Event (Saved {countMonPingInfos} MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
+                        logger.Debug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObj));
+                    
                     }
                     //pingInfos = null;
                     //cutMonitorPingInfos = null;
