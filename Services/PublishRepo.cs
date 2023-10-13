@@ -118,17 +118,19 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj.PingInfos = pingInfos;
                     processorDataObj.AppID = appID;
                     processorDataObj.PiIDKey = piIDKey;
+                    int countMonPingInfos=monitorPingInfos.Count;
+
                     var processorDataObjAlert = new ProcessorDataObj();
                     processorDataObjAlert.MonitorPingInfos = null;
                     processorDataObjAlert.MonitorStatusAlerts = monitorStatusAlerts;
                     processorDataObjAlert.PingInfos = new List<PingInfo>();
                     processorDataObjAlert.AppID = appID;
+                    var countMonStatusAlerts=monitorStatusAlerts.Count;
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     timerStr += " Event (Published MonitorPingInfos to monitorservice) at " + timer.ElapsedMilliseconds + " : ";
                     //DaprRepo.PublishEventJsonZ<ProcessorDataObj>(daprClient, "alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
-                    timerStr += " Event (Published MonitorPingInfos to alertservice) at " + timer.ElapsedMilliseconds + " : ";
-                    result.Message += " Published to MonitorService and AlertService. ";
+                    timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     if (pingInfos != null)
                     {
                         result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
@@ -142,8 +144,7 @@ namespace NetworkMonitor.Objects.Repository
                         processorDataObj.RemovePingInfos = removePingInfos;
                         string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
-                        timerStr += " Event (Saved MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
-                        result.Message += " Saved MonitorPingInfos to State. ";
+                        timerStr += $" Event (Saved {countMonPingInfos} MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                     }
                     //pingInfos = null;
                     //cutMonitorPingInfos = null;
