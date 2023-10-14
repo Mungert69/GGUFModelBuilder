@@ -1,0 +1,6 @@
+cp  ProcessorDataObj ../services/processor/
+cp MonitorIPs ../services/processor/
+cp PingParams ../services/processor/
+cp AlgoTable.csv ../services/processor/
+cp appsettings.json ../services/processor/
+../services/processor/NetworkMonitorProcessor
