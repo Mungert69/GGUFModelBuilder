@@ -129,7 +129,7 @@ namespace NetworkMonitor.Processor.Services
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects, disableNetConnects, _lock);
                 _logger.Debug(" NetConnectCollection NetConnectFactory Complete");
 
-                _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
+                _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos.Values.ToList()));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
                 await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, AppID, _piIDKey, false, _fileRepo);
