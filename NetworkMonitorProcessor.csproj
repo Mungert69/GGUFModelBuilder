@@ -11,9 +11,7 @@
 
 
   </PropertyGroup>
-<PropertyGroup>
-    <PublishAot>true</PublishAot>
-</PropertyGroup>
+
 
 
   <ItemGroup>
