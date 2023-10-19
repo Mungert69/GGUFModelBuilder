@@ -128,7 +128,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.Debug(" MonitorPingCollection MonitorPingInfoFactory Complete");
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects, disableNetConnects, _lock);
                 _logger.Debug(" NetConnectCollection NetConnectFactory Complete");
-                var monitorPingInfos=_monitorPingCollection.MonitorPingInfos.Values.ToList();
+                var monitorPingInfos = _monitorPingCollection.MonitorPingInfos.Values.ToList();
                 _logger.Debug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
                 _logger.Debug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.Debug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
@@ -169,10 +169,14 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 //var pingConnectTasks = new List<Task>();
+#if !ANDROID
                 result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                 GC.Collect();
                 result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
-                GC.TryStartNoGCRegion(104857600, false);
+                GC.TryStartNoGCRegion(504857600, true);
+
+#endif
+
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
                 // Time interval between Now and NextRun
                 int count = filteredNetConnects.Count();
@@ -218,8 +222,11 @@ namespace NetworkMonitor.Processor.Services
                     }
                     countDown--;
                 };
+#if !ANDROID
                 if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                     GC.EndNoGCRegion();
+#endif
+
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
