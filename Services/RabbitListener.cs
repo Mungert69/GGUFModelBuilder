@@ -24,25 +24,16 @@ namespace NetworkMonitor.Objects.Repository
     ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
     ResultObj WakeUp();
 }
-
-
     public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
         private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, INetLoggerFactory loggerFactory, ISystemParamsHelper systemParamsHelper) : base(DeriveLogger(loggerFactory), DeriveSystemUrl(systemParamsHelper))
-
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, ISystemParamsHelper systemParamsHelper) : base(logger, DeriveSystemUrl(systemParamsHelper))
         {
             _monitorPingProcessor = monitorPingProcessor;
             _appID = monitorPingProcessor.AppID;
             Setup();
         }
-
-            private static ILogger DeriveLogger(INetLoggerFactory loggerFactory)
-        {
-            return loggerFactory.GetLogger("RabbitListener"); 
-        }
-
         private static SystemUrl DeriveSystemUrl(ISystemParamsHelper systemParamsHelper)
         {
             return systemParamsHelper.GetSystemParams().ThisSystemUrl;
