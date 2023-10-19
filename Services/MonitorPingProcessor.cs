@@ -179,7 +179,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.Warn(" Warning : Can not collect garbage or start No GC region");
+                    _logger.Warn(" Warning : Can not collect garbage or start No GC region. ");
 
                 }
 #endif
@@ -237,7 +237,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.Warn(" Warning : Can not collect garbage or start No GC region");
+                    _logger.Warn(" Warning : Can end GC region. ");
 
                 }
 #endif
