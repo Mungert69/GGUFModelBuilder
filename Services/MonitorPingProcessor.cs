@@ -170,11 +170,18 @@ namespace NetworkMonitor.Processor.Services
             {
                 //var pingConnectTasks = new List<Task>();
 #if !ANDROID
-                result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
-                GC.Collect();
-                result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
-                GC.TryStartNoGCRegion(504857600, true);
+                try
+                {
+                    result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
+                    GC.Collect();
+                    result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
+                    GC.TryStartNoGCRegion(504857600, true);
+                }
+                catch (Exception e)
+                {
+                    _logger.Warn(" Warning : Can not collect garbage or start No GC region");
 
+                }
 #endif
 
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
@@ -223,8 +230,16 @@ namespace NetworkMonitor.Processor.Services
                     countDown--;
                 };
 #if !ANDROID
-                if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
-                    GC.EndNoGCRegion();
+                try
+                {
+                    if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
+                        GC.EndNoGCRegion();
+                }
+                catch (Exception e)
+                {
+                    _logger.Warn(" Warning : Can not collect garbage or start No GC region");
+
+                }
 #endif
 
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
