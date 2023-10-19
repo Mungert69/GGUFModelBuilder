@@ -38,15 +38,15 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public string AppID { get => _appID; }
 
-        public MonitorPingProcessor(IConfiguration config, INetLoggerFactory loggerFactory, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
+        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
         {
-            _logger = loggerFactory.GetLogger("Processor");
+            _logger = logger;
             _fileRepo = fileRepo;
             _rabbitRepo = rabbitRepo;
             _fileRepo.CheckFileExists("ProcessorDataObj", _logger);
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
-            _appID = config.GetValue<string>("AppID");
+            _appID = config["AppID"];
             SystemUrl systemUrl = config.GetSection("LocalSystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("LocalSystemUrl");
             _logger.Info(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
@@ -177,7 +177,7 @@ namespace NetworkMonitor.Processor.Services
                     result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
                     GC.TryStartNoGCRegion(504857600, true);
                 }
-                catch (Exception e)
+                catch
                 {
                     _logger.Warn(" Warning : Can not collect garbage or start No GC region. ");
 
@@ -235,7 +235,7 @@ namespace NetworkMonitor.Processor.Services
                     if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                         GC.EndNoGCRegion();
                 }
-                catch (Exception e)
+                catch 
                 {
                     _logger.Warn(" Warning : Can end GC region. ");
 
