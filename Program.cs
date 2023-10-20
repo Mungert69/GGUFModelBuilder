@@ -26,32 +26,18 @@ namespace NetworkMonitor.Processor
               using var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
-                .AddFilter("Microsoft", LogLevel.Warning)  // Log only warnings from Microsoft namespaces
-                .AddFilter("System", LogLevel.Warning)     // Log only warnings from System namespaces
+                .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
+                .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
                 .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
                 .AddConsole();                             // Add console logger
         });
 
-        var logger = loggerFactory.CreateLogger<Program>();
-            
-           
-            /*if (Enum.TryParse(logLevelConfig, true, out defaultLogLevel))
-            {
-                // Successfully converted to LogLevel enum
-                  loggerFactory= new LoggerFactory();
-            }
-            else
-            {
-                // Failed to convert, handle error or provide a default log level
-                // For example, use LogLevel.LogDebug as a default
-                loggerFactory = new LoggerFactory();
-            }*/
             var fileRepo = new FileRepo();
-            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, logger);
-            IRabbitRepo rabbitRepo = new RabbitRepo(logger, systemParamsHelper);
-            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config, logger);
-            _monitorPingProcessor = new MonitorPingProcessor(config, logger, _connectFactory, fileRepo, rabbitRepo);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, logger, systemParamsHelper);
+            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
+            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), systemParamsHelper);
+            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config, loggerFactory.CreateLogger<ConnectFactory>());
+            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.CreateLogger<MonitorPingProcessor>(), _connectFactory, fileRepo, rabbitRepo);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), systemParamsHelper);
 
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);
