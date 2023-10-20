@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetworkMonitor.Objects.ServiceMessage;
 using System.Diagnostics;
-using MetroLog;
+using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 using NetworkMonitor.Utils;
@@ -43,7 +43,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             catch (Exception e)
             {
-                logger.Error(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
+                logger.LogError(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
         }
 
@@ -131,7 +131,7 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
-                    logger.Debug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
+                    logger.LogDebug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
                     if (pingInfos != null)
                     {
                         result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
@@ -146,7 +146,7 @@ namespace NetworkMonitor.Objects.Repository
                         string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += $" Event (Saved {countMonPingInfos} MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
-                        logger.Debug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObj));
+                        logger.LogDebug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObj));
                     
                     }
                     //pingInfos = null;
@@ -154,17 +154,17 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj = null;
                     processorDataObjAlert = null;
                 }
-                logger.Info(timerStr);
+                logger.LogInformation(timerStr);
                 timer.Stop();
                 result.Message += " Published event ProcessorItitObj.IsProcessorReady = true ";
                 result.Success = true;
-                logger.Info(result.Message);
+                logger.LogInformation(result.Message);
             }
             catch (Exception e)
             {
                 result.Message += " Error : Failed to publish events and save data to statestore. Error was : " + e.Message.ToString() + " . ";
                 result.Success = false;
-                logger.Error(result.Message);
+                logger.LogError(result.Message);
             }
             return result;
         }
@@ -192,11 +192,11 @@ namespace NetworkMonitor.Objects.Repository
                 processorObj.IsProcessorReady = isReady;
                 processorObj.AppID = appID;
                 rabbitRepo.Publish<ProcessorInitObj>("processorReady", processorObj);
-                logger.Info(" Published event ProcessorItitObj.IsProcessorReady = " + isReady);
+                logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = " + isReady);
             }
             catch (Exception e)
             {
-                logger.Error(" Error : Could not Publish event ProcessorItitObj.IsProcessorReady . Erro was : " + e.Message);
+                logger.LogError(" Error : Could not Publish event ProcessorItitObj.IsProcessorReady . Erro was : " + e.Message);
             }
         }
 

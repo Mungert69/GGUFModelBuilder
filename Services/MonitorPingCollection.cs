@@ -6,7 +6,7 @@ using NetworkMonitor.Objects;
 using NetworkMonitor.Utils;
 using System.Threading;
 using System.Threading.Tasks;
-using MetroLog;
+using Microsoft.Extensions.Logging;
 namespace NetworkMonitor.Processor.Services
 {
     public class MonitorPingCollection
@@ -50,7 +50,7 @@ namespace NetworkMonitor.Processor.Services
 
             if (failFlag)
             {
-                _logger.Error(" ZeroMonitorPingInfos failed to Zero PingInfos for MonitorPingInfo.MonitorIPID  " + monitorPingInfo.MonitorIPID);
+                _logger.LogError(" ZeroMonitorPingInfos failed to Zero PingInfos for MonitorPingInfo.MonitorIPID  " + monitorPingInfo.MonitorIPID);
             }
             //monitorPingInfo.PingInfos = new BlockingCollection<PingInfo>();
             monitorPingInfo.RoundTripTimeAverage = 0;
@@ -70,7 +70,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception ex)
             {
-                _logger.Error(" ZeroMonitorPingInfos " + ex.Message + " " + ex.StackTrace);
+                _logger.LogError(" ZeroMonitorPingInfos " + ex.Message + " " + ex.StackTrace);
             }
             finally
             {
@@ -296,7 +296,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception ex)
             {
-                _logger.Error(" RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
+                _logger.LogError(" RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
             }
             finally
             {
@@ -315,13 +315,13 @@ namespace NetworkMonitor.Processor.Services
                 var resultRemovePingInfos = ClearMonitorPingInfos();
                 var resultPingInfos = ClearPingInfos();
                 result.Message = resultPingInfos.Message + " " + resultRemovePingInfos.Message;
-                _logger.Info(result.Message);
+                _logger.LogInformation(result.Message);
                 foreach (MonitorIP monIP in monitorIPs)
                 {
                     MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
                     if (monitorPingInfo != null)
                     {
-                        _logger.Debug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogDebug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                         var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList();
                         foreach (var f in fillPingInfo)
                         {
@@ -331,26 +331,26 @@ namespace NetworkMonitor.Processor.Services
                     else
                     {
                         monitorPingInfo = new MonitorPingInfo();
-                        _logger.Debug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogDebug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     }
                     FillPingInfo(monitorPingInfo, monIP);
                     if (!_monitorPingInfos.TryAdd(monitorPingInfo.MonitorIPID, monitorPingInfo))
                     {
-                        _logger.Error("MonitorPingInfoFactory failed to add MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogError("MonitorPingInfoFactory failed to add MonitorPingInfo for MonitorIP ID=" + monIP.ID);
 
                     };
                     i++;
                 }
                 result.Success = resultPingInfos.Success && resultRemovePingInfos.Success;
 
-                _logger.Info("MonitorPingInfoFactory added " + i + " MonitorPingInfos.");
-                _logger.Info("MonitorPingInfoFactory added " + PingInfos.Count() + " PingInfos.");
+                _logger.LogInformation("MonitorPingInfoFactory added " + i + " MonitorPingInfos.");
+                _logger.LogInformation("MonitorPingInfoFactory added " + PingInfos.Count() + " PingInfos.");
 
             }
             catch (Exception ex)
             {
                 result.Success = false;
-                _logger.Error("MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace);
+                _logger.LogError("MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace);
                 result.Message = "MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace;
             }
             finally

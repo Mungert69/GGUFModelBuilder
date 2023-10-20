@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using MetroLog;
+using Microsoft.Extensions.Logging;
 
 namespace NetworkMonitor.Tests
 {
@@ -13,10 +13,13 @@ namespace NetworkMonitor.Tests
         private MonitorPingInfo pingInfo=new MonitorPingInfo();
         private PingParams pingParams;
         private string csvFilePath = "/home/mahadeva/code/NetworkMonitorProcessor/AlgoTable-test.csv";
-         private static ILogger _logger = LogManagerFactory.DefaultLogManager.GetLogger<QuantumConnectTests>();
+         private  ILogger _logger ;
 
         public QuantumConnectTests()
         {
+               using ILoggerFactory loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+    ILogger logger = loggerFactory.CreateLogger<QuantumConnectTests>();
+  
             
             pingParams = new PingParams
             {

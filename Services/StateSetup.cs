@@ -6,7 +6,7 @@ using System.Threading;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Objects.Repository;
-using MetroLog;
+using Microsoft.Extensions.Logging;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -37,7 +37,7 @@ namespace NetworkMonitor.Processor.Services
             bool initNetConnects = false;
             CurrentMonitorPingInfos = new List<MonitorPingInfo>();
             CurrentPingInfos = new List<PingInfo>();
-            _logger.Info(" State Setup : Success : Resetting Processor MonitorPingInfos in statestore");
+            _logger.LogInformation(" State Setup : Success : Resetting Processor MonitorPingInfos in statestore");
             var processorDataObj = new ProcessorDataObj()
             {
                 MonitorPingInfos = new List<MonitorPingInfo>(),
@@ -53,12 +53,12 @@ namespace NetworkMonitor.Processor.Services
                 await _fileRepo.SaveStateJsonZAsync("ProcessorDataObj", processorDataObj);
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
                 await _fileRepo.SaveStateJsonZAsync<PingParams>("PingParams", new PingParams());
-                _logger.Info(" State Setup : Success : Reset Processor Objects in statestore ");
+                _logger.LogInformation(" State Setup : Success : Reset Processor Objects in statestore ");
                 initNetConnects = true;
             }
             catch (Exception e)
             {
-                _logger.Error(" State Setup : Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
+                _logger.LogError(" State Setup : Error : Could not reset Processor Objects to statestore. Error was : " + e.Message.ToString());
             }
 
             return initNetConnects;
@@ -98,12 +98,12 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    _logger.Warn(" State Setup : Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
+                    _logger.LogWarning(" State Setup : Warning : MonitorPingInfos from ProcessorDataObj in statestore contains no Data .");
                 }
             }
             catch (Exception e)
             {
-                _logger.Error(" Logged so far : " + infoLog + " : State Setup :Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : " + e.ToString());
+                _logger.LogError(" Logged so far : " + infoLog + " : State Setup :Error : Building MonitorPingInfos from ProcessorDataObj in statestore . Error was : " + e.ToString());
                 _currentMonitorPingInfos = new List<MonitorPingInfo>();
                 _currentPingInfos = new List<PingInfo>();
                 if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
@@ -116,7 +116,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                _logger.Warn(" State Setup :Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
+                _logger.LogWarning(" State Setup :Warning : Could get MonitorIPs from statestore. Error was : " + e.Message.ToString());
             }
             try
             {
@@ -125,9 +125,9 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                _logger.Warn(" State Setup :Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
+                _logger.LogWarning(" State Setup :Warning : Could get PingParms from statestore. Error was : " + e.Message.ToString());
             }
-            _logger.Info(infoLog);
+            _logger.LogInformation(infoLog);
 
         }
 
@@ -136,12 +136,12 @@ namespace NetworkMonitor.Processor.Services
 
             if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
             {
-                _logger.Warn(" State Setup : Warning : There are No MonitorIPs using statestore");
+                _logger.LogWarning(" State Setup : Warning : There are No MonitorIPs using statestore");
                 initObj.MonitorIPs = _stateMonitorIPs;
                 if (_stateMonitorIPs == null || _stateMonitorIPs.Count == 0)
                 {
                     initObj.MonitorIPs = new List<MonitorIP>();
-                    _logger.Error(" State Setup :Error : There are No MonitorIPs in statestore");
+                    _logger.LogError(" State Setup :Error : There are No MonitorIPs in statestore");
                 }
             }
             else
@@ -152,7 +152,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(" State Setup : Error : Unable to Save MonitorIPs to statestore. Error was : " + e.Message);
+                    _logger.LogError(" State Setup : Error : Unable to Save MonitorIPs to statestore. Error was : " + e.Message);
                 }
             }
             if (initObj.PingParams == null)
@@ -160,13 +160,13 @@ namespace NetworkMonitor.Processor.Services
 
                 if (_statePingParams == null)
                 {
-                    _logger.Error(" State Setup : Error : There are No PingParams in statestore");
+                    _logger.LogError(" State Setup : Error : There are No PingParams in statestore");
                     throw new ArgumentNullException(" PingParams is null");
                 }
                 else
                 {
                     initObj.PingParams = _statePingParams;
-                    _logger.Warn(" State Setup : Warning : There are No PingParams using statestore");
+                    _logger.LogWarning(" State Setup : Warning : There are No PingParams using statestore");
                 }
             }
             else
@@ -178,7 +178,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(" State Setup : Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
+                    _logger.LogError(" State Setup : Error : Unable to Save PingParams to statestore. Error was : " + e.Message);
                 }
             }
 
