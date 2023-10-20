@@ -39,11 +39,11 @@ namespace NetworkMonitor.Processor
                 loggerFactory = new NetLoggerFactory();
             }
             var fileRepo = new FileRepo();
-            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory);
-            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory, systemParamsHelper);
+            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.GetLogger("SystemParamsHelper"));
+            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.GetLogger("RabbitRepo"), systemParamsHelper);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config, loggerFactory.GetLogger("ConnectFactory"));
-            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory, _connectFactory, fileRepo, rabbitRepo);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory, systemParamsHelper);
+            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.GetLogger("Processor"), _connectFactory, fileRepo, rabbitRepo);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.GetLogger("RabbitListener"), systemParamsHelper);
 
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);
