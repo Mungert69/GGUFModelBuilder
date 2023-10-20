@@ -23,9 +23,7 @@ namespace NetworkMonitor.Processor
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
-            string logLevelConfig = config["Logging:LogLevel:Default"];
-            LogLevel defaultLogLevel;
-             using var loggerFactory = LoggerFactory.Create(builder =>
+              using var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
                 .AddFilter("Microsoft", LogLevel.Warning)  // Log only warnings from Microsoft namespaces
