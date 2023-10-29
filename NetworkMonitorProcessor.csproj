@@ -9,7 +9,7 @@
 
   </PropertyGroup>
 <PropertyGroup>
-    <PublishAot>false</PublishAot>
+    <PublishAot>true</PublishAot>
 </PropertyGroup>
 
 
