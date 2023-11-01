@@ -1,3 +1,4 @@
+dotnet clean
 dotnet publish NetworkMonitorProcessor.csproj --os android  --arch arm64  --output ../services/processor-arm -c Release --self-contained true 
 cp ./AlgoTable.csv ../services/processor-arm/
 cp ./curves ../services/processor-arm/

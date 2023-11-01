@@ -1,4 +1,5 @@
 rm -r ../services/processor/*
+dotnet clean
 dotnet publish NetworkMonitorProcessor.csproj --os linux --arch x64  --output ../services/processor -c Release --self-contained true 
 cp ./AlgoTable.csv ../services/processor/
 cp ./curves ../services/processor/
