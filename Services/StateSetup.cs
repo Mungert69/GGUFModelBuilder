@@ -37,7 +37,6 @@ namespace NetworkMonitor.Processor.Services
             bool initNetConnects = false;
             CurrentMonitorPingInfos = new List<MonitorPingInfo>();
             CurrentPingInfos = new List<PingInfo>();
-            _logger.LogInformation(" State Setup : Success : Resetting Processor MonitorPingInfos in statestore");
             var processorDataObj = new ProcessorDataObj()
             {
                 MonitorPingInfos = new List<MonitorPingInfo>(),
@@ -51,9 +50,14 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 await _fileRepo.SaveStateJsonZAsync("ProcessorDataObj", processorDataObj);
+                  _logger.LogInformation(" State Setup : Success : Resetting Processor ProcessorDataObj in statestore");
+          
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+                 _logger.LogInformation(" State Setup : Success : Reset Processor MonitorIPs in statestore ");
+               
                 await _fileRepo.SaveStateJsonZAsync<PingParams>("PingParams", new PingParams());
-                _logger.LogInformation(" State Setup : Success : Reset Processor Objects in statestore ");
+                 _logger.LogInformation(" State Setup : Success : Reset Processor PingPamrms in statestore ");
+               
                 initNetConnects = true;
             }
             catch (Exception e)
