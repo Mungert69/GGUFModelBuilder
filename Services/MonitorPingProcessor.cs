@@ -88,6 +88,11 @@ namespace NetworkMonitor.Processor.Services
                 if (initObj.TotalReset)
                 {
                     initNetConnects = await stateSetup.TotalReset();
+                    if (!initNetConnects){
+                        _logger.LogCritical($" Error : Unable to perform TotalReset exiting Init() .");
+                        return;
+                    }
+                    disableNetConnects = true;
                 }
                 else
                 {
@@ -106,7 +111,6 @@ namespace NetworkMonitor.Processor.Services
                     {
                         await stateSetup.LoadFromState(initNetConnects, _piIDKey, _removeMonitorPingInfoIDs, _swapMonitorPingInfos, _monitorPingCollection);
                         initNetConnects = false;
-                        initNetConnects = false;
                         disableNetConnects = false;
                     }
                 }
@@ -119,6 +123,8 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
+                // Clearing MonitorIP update queue if Total Reset.
+                if (initNetConnects) _monitorIPQueueDic=new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
                 await stateSetup.MergeState(initObj);
                 _logger.LogDebug(" Merge State Complete ");
 
