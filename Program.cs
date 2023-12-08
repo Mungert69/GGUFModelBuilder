@@ -7,6 +7,7 @@ using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Utils.Helpers;
+using NetworkMonitor.Objects;
 using Microsoft.Extensions.Logging;
 
 namespace NetworkMonitor.Processor
@@ -23,21 +24,25 @@ namespace NetworkMonitor.Processor
                  .AddEnvironmentVariables()
                  .AddCommandLine(args)
                  .Build();
-              using var loggerFactory = LoggerFactory.Create(builder =>
-        {
-            builder
-                .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
-                .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
-                .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
-                .AddConsole();                             // Add console logger
-        });
+
+
+
+            var netConfig = new NetConnectConfig(config);
+            using var loggerFactory = LoggerFactory.Create(builder =>
+                  {
+                      builder
+                            .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
+                            .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
+                            .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
+                            .AddConsole();                             // Add console logger
+                  });
 
             var fileRepo = new FileRepo();
-            ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
-            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), systemParamsHelper);
-            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(config, loggerFactory.CreateLogger<ConnectFactory>());
-            _monitorPingProcessor = new MonitorPingProcessor(config, loggerFactory.CreateLogger<MonitorPingProcessor>(), _connectFactory, fileRepo, rabbitRepo);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), systemParamsHelper);
+            //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
+            IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig.LocalSystemUrl);
+            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
+            _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig.LocalSystemUrl);
 
             await _monitorPingProcessor.Init(new ProcessorInitObj());
             await Task.Delay(-1);
@@ -49,4 +54,6 @@ namespace NetworkMonitor.Processor
             };
         }
     }
+
+
 }

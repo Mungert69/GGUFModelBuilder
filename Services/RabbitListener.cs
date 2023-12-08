@@ -27,6 +27,13 @@ namespace NetworkMonitor.Objects.Repository
     {
         private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
+
+          public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, SystemUrl systemUrl) : base(logger, systemUrl)
+        {
+            _monitorPingProcessor = monitorPingProcessor;
+            _appID = monitorPingProcessor.AppID;
+            Setup();
+        }
         public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, ISystemParamsHelper systemParamsHelper) : base(logger, DeriveSystemUrl(systemParamsHelper))
         {
             _monitorPingProcessor = monitorPingProcessor;

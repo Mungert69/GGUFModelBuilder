@@ -38,7 +38,7 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public string AppID { get => _appID; }
 
-        public MonitorPingProcessor(IConfiguration config, ILogger logger, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
+        public MonitorPingProcessor( ILogger logger, NetConnectConfig config, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
         {
             _logger = logger;
             _fileRepo = fileRepo;
@@ -46,8 +46,8 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo.CheckFileExists("ProcessorDataObj", _logger);
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
-            _appID = config["AppID"];
-            SystemUrl systemUrl = config.GetSection("LocalSystemUrl").Get<SystemUrl>() ?? throw new ArgumentNullException("LocalSystemUrl");
+            _appID = config.AppID;
+            SystemUrl systemUrl = config.LocalSystemUrl;
             _logger.LogInformation(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
             _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
