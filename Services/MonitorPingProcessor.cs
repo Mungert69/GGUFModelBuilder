@@ -340,7 +340,7 @@ namespace NetworkMonitor.Processor.Services
                             monitorPingInfo.AppID = _appID;
                             _swapMonitorPingInfos.Add(new SwapMonitorPingInfo()
                             {
-                                ID = monitorPingInfo.ID,
+                                ID = monitorPingInfo.MonitorIPID,
                                 AppID = _appID
                             });
                             _logger.LogInformation(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID + " AppID " + _appID);
@@ -375,7 +375,7 @@ namespace NetworkMonitor.Processor.Services
                                         _logger.LogInformation(" This Not a swap so adding to removeMonitorPingInfosIDS for MonitorPingInfo with MonitorIPID " + f.ID);
                                     }
                                     else
-                                        _logger.LogInformation(" This is a swap so not adding to remove removeMonitorPingInfosIDS for MonitorPingInfo with MonitorIPID " + f.ID);
+                                        _logger.LogInformation(" This is a swap so not adding to removeMonitorPingInfosIDS for MonitorPingInfo with MonitorIPID " + f.ID);
 
                                 }
                             }
