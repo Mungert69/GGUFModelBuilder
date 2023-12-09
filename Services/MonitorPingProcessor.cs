@@ -23,7 +23,8 @@ namespace NetworkMonitor.Processor.Services
         SemaphoreSlim _lock = new SemaphoreSlim(1);
         private bool _awake;
         private ILogger _logger;
-        private string _appID = "1";
+        //private string _appID = "1";
+        private NetConnectConfig _netConfig;
         //private PingParams _pingParams;
         private List<int> _removeMonitorPingInfoIDs = new List<int>();
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
@@ -36,9 +37,9 @@ namespace NetworkMonitor.Processor.Services
         private IRabbitRepo _rabbitRepo;
         private IFileRepo _fileRepo;
         public bool Awake { get => _awake; set => _awake = value; }
-        public string AppID { get => _appID; }
+        public string AppID { get => _netConfig.AppID; }
 
-        public MonitorPingProcessor( ILogger logger, NetConnectConfig config, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
+        public MonitorPingProcessor( ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
         {
             _logger = logger;
             _fileRepo = fileRepo;
@@ -46,11 +47,11 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo.CheckFileExists("ProcessorDataObj", _logger);
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
-            _appID = config.AppID;
-            SystemUrl systemUrl = config.LocalSystemUrl;
+            _netConfig=netConfig;
+            SystemUrl systemUrl = netConfig.LocalSystemUrl;
             _logger.LogInformation(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
-            _netConnectCollection = new NetConnectCollection(_logger, config, connectFactory);
+            _netConnectCollection = new NetConnectCollection(_logger, _netConfig, connectFactory);
             _monitorPingCollection = new MonitorPingCollection(_logger);
         }
         public async Task OnStoppingAsync()
@@ -337,13 +338,13 @@ namespace NetworkMonitor.Processor.Services
                         else
                         {
                             monitorPingInfo = monIP.MonitorPingInfo;
-                            monitorPingInfo.AppID = _appID;
+                            monitorPingInfo.AppID = _netConfig.AppID;
                             _swapMonitorPingInfos.Add(new SwapMonitorPingInfo()
                             {
                                 ID = monitorPingInfo.MonitorIPID,
-                                AppID = _appID
+                                AppID = _netConfig.AppID
                             });
-                            _logger.LogInformation(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID + " AppID " + _appID);
+                            _logger.LogInformation(" Adding SwapMonitorPingInfo with ID " + monitorPingInfo.ID + " AppID " + _netConfig.AppID);
                         }
                         if (!_monitorPingCollection.MonitorPingInfos.TryAdd(monitorPingInfo.MonitorIPID, monitorPingInfo))
                         {

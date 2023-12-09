@@ -1,7 +1,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using NetworkMonitor.Objects.ServiceMessage;
-using NetworkMonitor.Objects;
+using NetworkMonitor.Connection;
 using NetworkMonitor.Processor.Services;
 using System.Collections.Generic;
 using System;
@@ -13,78 +13,88 @@ using Microsoft.Extensions.Logging;
 namespace NetworkMonitor.Objects.Repository
 {
     public interface IRabbitListener
-{
-    Task<ResultObj> Connect(ProcessorConnectObj connectObj);
-    ResultObj RemovePingInfos(ProcessorDataObj processorDataObj);
-    Task<ResultObj> Init(ProcessorInitObj initObj);
-    ResultObj AlertFlag(List<int> monitorPingInfoIds);
-    ResultObj AlertSent(List<int> monitorIPIDs);
-    ResultObj ResetAlerts(List<int> monitorIPIDs);
-    ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
-    ResultObj WakeUp();
-}
+    {
+        Task<ResultObj> Connect(ProcessorConnectObj connectObj);
+        ResultObj RemovePingInfos(ProcessorDataObj processorDataObj);
+        Task<ResultObj> Init(ProcessorInitObj initObj);
+        ResultObj AlertFlag(List<int> monitorPingInfoIds);
+        ResultObj AlertSent(List<int> monitorIPIDs);
+        ResultObj ResetAlerts(List<int> monitorIPIDs);
+        ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
+        ResultObj WakeUp();
+    }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
-        private string _appID;
+        //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
+        NetConnectConfig _netConfig;
 
-          public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, SystemUrl systemUrl) : base(logger, systemUrl)
+       
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig) : base(logger, DeriveSystemUrl(netConnectConfig))
         {
             _monitorPingProcessor = monitorPingProcessor;
-            _appID = monitorPingProcessor.AppID;
+            //_appID = monitorPingProcessor.AppID;
+            _netConfig = netConnectConfig;
+            _netConfig.OnSystemUrlChanged += HandleSystemUrlChanged;
+
             Setup();
         }
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, ISystemParamsHelper systemParamsHelper) : base(logger, DeriveSystemUrl(systemParamsHelper))
+
+        private void HandleSystemUrlChanged(SystemUrl newSystemUrl)
         {
-            _monitorPingProcessor = monitorPingProcessor;
-            _appID = monitorPingProcessor.AppID;
-            Setup();
+            _systemUrl = newSystemUrl;
+            Reconnect();
         }
-        private static SystemUrl DeriveSystemUrl(ISystemParamsHelper systemParamsHelper)
+        public void Dispose()
         {
-            return systemParamsHelper.GetSystemParams().ThisSystemUrl;
+            _netConfig.OnSystemUrlChanged -= HandleSystemUrlChanged;
+        }
+        private static SystemUrl DeriveSystemUrl(NetConnectConfig netConnectConfig)
+        {
+            return netConnectConfig.LocalSystemUrl;
         }
         protected override void InitRabbitMQObjs()
         {
+            _rabbitMQObjs=new List<RabbitMQObj>();
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorConnect" + _appID,
+                ExchangeName = "processorConnect" + _netConfig.AppID,
                 FuncName = "processorConnect",
                 MessageTimeout = 60000
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "removePingInfos" + _appID,
+                ExchangeName = "removePingInfos" + _netConfig.AppID,
                 FuncName = "removePingInfos"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorInit" + _appID,
+                ExchangeName = "processorInit" + _netConfig.AppID,
                 FuncName = "processorInit"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorAlertFlag" + _appID,
+                ExchangeName = "processorAlertFlag" + _netConfig.AppID,
                 FuncName = "processorAlertFlag"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorAlertSent" + _appID,
+                ExchangeName = "processorAlertSent" + _netConfig.AppID,
                 FuncName = "processorAlertSent"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorQueueDic" + _appID,
+                ExchangeName = "processorQueueDic" + _netConfig.AppID,
                 FuncName = "processorQueueDic"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorResetAlerts" + _appID,
+                ExchangeName = "processorResetAlerts" + _netConfig.AppID,
                 FuncName = "processorResetAlerts"
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
-                ExchangeName = "processorWakeUp" + _appID,
+                ExchangeName = "processorWakeUp" + _netConfig.AppID,
                 FuncName = "processorWakeUp",
                 MessageTimeout = 60000
             });
