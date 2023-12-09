@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
+using NetworkMonitor.Objects.Repository;
 
 
 namespace NetworkMonitor.Processor.Services
@@ -26,11 +27,14 @@ namespace NetworkMonitor.Processor.Services
         private NetConnectConfig _netConfig;
         private ILogger _logger;
 
+        private IRabbitRepo _rabbitRepo;
 
-        public AuthService(ILogger logger, NetConnectConfig netConfig)
+
+        public AuthService(ILogger logger, NetConnectConfig netConfig, IRabbitRepo rabbitRepo)
         {
             _netConfig = netConfig;
             _logger = logger;
+            _rabbitRepo = rabbitRepo;
         }
 
         public async Task InitializeAsync()
@@ -101,17 +105,18 @@ namespace NetworkMonitor.Processor.Services
                 var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
                 if (tokenResponse.IsSuccessStatusCode)
                 {
+                    var oldAppID = _netConfig.AppID;
                     var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
                     var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
                     var accessToken = tokenData.GetProperty("access_token").GetString();
-                    var userInfo=await GetUserInfoFromToken(accessToken);
+                    var userInfo = await GetUserInfoFromToken(accessToken);
                     var updatedSystemUrl = new SystemUrl
                     {
                         ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
                         IPAddress = _netConfig.LocalSystemUrl.IPAddress,
                         RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
                         RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                        RabbitInstanceName = $"monitorProcessor{userInfo.UserID}.local",
+                        RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
                         RabbitUserName = userInfo.UserID,
                         RabbitPassword = accessToken,
                         RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
@@ -120,6 +125,24 @@ namespace NetworkMonitor.Processor.Services
                     _netConfig.LocalSystemUrl = updatedSystemUrl;
 
                     _logger.LogInformation(" Success : Token successfully received.");
+                    var processorObj = new ProcessorObj();
+
+                    processorObj.Location = userInfo.Name + " - Local";
+
+
+                    if (oldAppID != _netConfig.AppID)
+                    {
+                        processorObj.AppID = userInfo.UserID;
+                        processorObj.DateCreated = DateTime.UtcNow;
+                        processorObj.IsPrivate = true;
+                        _rabbitRepo.PublishAsync<ProcessorObj>("userAddProcessor", processorObj);
+                    }
+                    else
+                    {
+                        _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
+                    }
+
+
                     break;
                 }
                 else
@@ -133,7 +156,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-          private async Task<UserInfo> GetUserInfoFromToken(string accessToken)
+        private async Task<UserInfo> GetUserInfoFromToken(string accessToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -142,37 +165,37 @@ namespace NetworkMonitor.Processor.Services
                 // Decode the JWT without validating it
                 var jwt = tokenHandler.ReadJwtToken(accessToken);
 
-  
-                 var userInfo = new UserInfo();
 
-            foreach (var claim in jwt.Claims)
-            {
-                switch (claim.Type)
+                var userInfo = new UserInfo();
+
+                foreach (var claim in jwt.Claims)
                 {
-                    case "sub":
-                        userInfo.UserID = claim.Value;
-                        userInfo.Sub = claim.Value;
-                        break;
-                    case "email":
-                        userInfo.Email = claim.Value;
-                        break;
-                    case "verified":
-                        userInfo.Email_verified = bool.Parse(claim.Value);
-                        break;
-                     case "fullName":
-                        userInfo.Name = claim.Value;
-                        break;
-                    case "name":
-                        userInfo.Name = claim.Value;
-                        break;
-                    case "imageUrl":
-                        userInfo.Picture = claim.Value;
-                        break;
+                    switch (claim.Type)
+                    {
+                        case "sub":
+                            userInfo.UserID = claim.Value;
+                            userInfo.Sub = claim.Value;
+                            break;
+                        case "email":
+                            userInfo.Email = claim.Value;
+                            break;
+                        case "verified":
+                            userInfo.Email_verified = bool.Parse(claim.Value);
+                            break;
+                        case "fullName":
+                            userInfo.Name = claim.Value;
+                            break;
+                        case "name":
+                            userInfo.Name = claim.Value;
+                            break;
+                        case "imageUrl":
+                            userInfo.Picture = claim.Value;
+                            break;
 
-                        // Add more cases for other claim types as needed
+                            // Add more cases for other claim types as needed
+                    }
                 }
-            }
-      
+
 
                 return userInfo;
             }
