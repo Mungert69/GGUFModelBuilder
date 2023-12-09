@@ -121,28 +121,28 @@ namespace NetworkMonitor.Processor.Services
                         RabbitPassword = accessToken,
                         RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
                     };
-                    _netConfig.AppID = userInfo.UserID;
-                    _netConfig.LocalSystemUrl = updatedSystemUrl;
-
-                    _logger.LogInformation(" Success : Token successfully received.");
+                  
                     var processorObj = new ProcessorObj();
 
                     processorObj.Location = userInfo.Name + " - Local";
 
 
-                    if (oldAppID != _netConfig.AppID)
+                    if (oldAppID != userInfo.UserID)
                     {
                         processorObj.AppID = userInfo.UserID;
                         processorObj.DateCreated = DateTime.UtcNow;
                         processorObj.IsPrivate = true;
-                        _rabbitRepo.PublishAsync<ProcessorObj>("userAddProcessor", processorObj);
+                        await _rabbitRepo.PublishAsync<ProcessorObj>("userAddProcessor", processorObj);
                     }
                     else
                     {
-                        _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
+                        await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
                     }
 
+                    _netConfig.AppID = userInfo.UserID;
+                    _netConfig.LocalSystemUrl = updatedSystemUrl;
 
+                    _logger.LogInformation(" Success : Token successfully received.");
                     break;
                 }
                 else
