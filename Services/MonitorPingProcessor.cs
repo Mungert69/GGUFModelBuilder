@@ -39,7 +39,7 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public string AppID { get => _netConfig.AppID; }
 
-        public MonitorPingProcessor( ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
+        public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
         {
             _logger = logger;
             _fileRepo = fileRepo;
@@ -47,7 +47,8 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo.CheckFileExists("ProcessorDataObj", _logger);
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
-            _netConfig=netConfig;
+            _netConfig = netConfig;
+            _netConfig.OnAppIDChanged += HandleAppIDChanged;
             SystemUrl systemUrl = netConfig.LocalSystemUrl;
             _logger.LogInformation(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
@@ -76,6 +77,29 @@ namespace NetworkMonitor.Processor.Services
                 Console.WriteLine();
             }
         }
+
+        private async Task HandleAppIDChanged(string appID)
+        {
+            string infoLog = " HandleAppIDChange : ";
+            List<MonitorIP> oldMonitorIPs = new List<MonitorIP>();
+            try
+            {
+                oldMonitorIPs = _fileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                oldMonitorIPs.ForEach(f => f.AppID = appID);
+                await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
+                if (oldMonitorIPs != null) infoLog += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()} , Changned AppID to {appID} and Save MonitorIPs back to statestore . ";
+                _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
+                await _monitorPingCollection.ChangeAppID(_lock,appID);
+                infoLog+=" Success : Set all MonitorPingInfo AppIDs . ";
+               
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(" Error : Could not complete AppID change . Error was : " + e.Message.ToString());
+            }
+            _logger.LogInformation(infoLog);
+
+        }
         /*
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
         public async Task Init(ProcessorInitObj initObj)
@@ -89,7 +113,8 @@ namespace NetworkMonitor.Processor.Services
                 if (initObj.TotalReset)
                 {
                     initNetConnects = await stateSetup.TotalReset();
-                    if (!initNetConnects){
+                    if (!initNetConnects)
+                    {
                         _logger.LogCritical($" Error : Unable to perform TotalReset exiting Init() .");
                         return;
                     }
@@ -125,7 +150,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 // Clearing MonitorIP update queue if Total Reset.
-                if (initNetConnects) _monitorIPQueueDic=new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
+                if (initNetConnects) _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
                 await stateSetup.MergeState(initObj);
                 _logger.LogDebug(" Merge State Complete ");
 
@@ -242,7 +267,7 @@ namespace NetworkMonitor.Processor.Services
                     if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
                         GC.EndNoGCRegion();
                 }
-                catch 
+                catch
                 {
                     _logger.LogWarning(" Warning : Can end GC region. ");
 

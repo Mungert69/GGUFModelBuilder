@@ -132,12 +132,11 @@ namespace NetworkMonitor.Processor.Services
                         processorObj.AppID = userInfo.UserID;
                         processorObj.DateCreated = DateTime.UtcNow;
                         processorObj.IsPrivate = true;
-                        await _rabbitRepo.PublishAsync<ProcessorObj>("userAddProcessor", processorObj);
-                    }
-                    else
-                    {
-                        await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
-                    }
+                         await _rabbitRepo.PublishAsync<Tuple<string,string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID,userInfo.UserID));
+                             }
+                    
+                     await _rabbitRepo.PublishAsync<ProcessorObj>("updateProcessor", processorObj);
+              
 
                     _netConfig.AppID = userInfo.UserID;
                     _netConfig.LocalSystemUrl = updatedSystemUrl;

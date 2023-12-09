@@ -21,6 +21,8 @@ namespace NetworkMonitor.Processor.Services
         public ConcurrentDictionary<int, MonitorPingInfo> MonitorPingInfos { get => _monitorPingInfos; }
         public ConcurrentDictionary<ulong, RemovePingInfo> RemovePingInfos { get => _removePingInfos; }
         public ConcurrentDictionary<ulong, PingInfo> PingInfos { get => _pingInfos; }
+        public PingParams PingParams { get => _pingParams; set => _pingParams = value; }
+
         public MonitorPingCollection(ILogger logger)
         {
             _logger = logger;
@@ -28,7 +30,7 @@ namespace NetworkMonitor.Processor.Services
         public void SetVars(string appID, PingParams pingParams)
         {
             _appID = appID;
-            _pingParams = pingParams;
+            PingParams = pingParams;
         }
         private void Zero(MonitorPingInfo monitorPingInfo)
         {
@@ -55,7 +57,7 @@ namespace NetworkMonitor.Processor.Services
             //monitorPingInfo.PingInfos = new BlockingCollection<PingInfo>();
             monitorPingInfo.RoundTripTimeAverage = 0;
             monitorPingInfo.RoundTripTimeMaximum = 0;
-            monitorPingInfo.RoundTripTimeMinimum = _pingParams.Timeout;
+            monitorPingInfo.RoundTripTimeMinimum = PingParams.Timeout;
             monitorPingInfo.RoundTripTimeTotal = 0;
         }
         public async Task ZeroMonitorPingInfos(SemaphoreSlim lockObj)
@@ -70,13 +72,35 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(" ZeroMonitorPingInfos " + ex.Message + " " + ex.StackTrace);
+                _logger.LogError(" Error : ZeroMonitorPingInfos " + ex.Message + " " + ex.StackTrace);
             }
             finally
             {
                 lockObj.Release();
             }
         }
+
+          public async Task ChangeAppID(SemaphoreSlim lockObj, string appID)
+        {
+            await lockObj.WaitAsync();
+            _appID=appID;
+            try
+            {
+                foreach (MonitorPingInfo monitorPingInfo in _monitorPingInfos.Values.ToList())
+                {
+                    monitorPingInfo.AppID=appID;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(" Error : setting AppID " + ex.Message + " " + ex.StackTrace);
+            }
+            finally
+            {
+                lockObj.Release();
+            }
+        }
+      
         public void Merge(MPIConnect mpiConnect, int monitorIPID)
         {
             var mergeMonitorPingInfo = _monitorPingInfos.Values.FirstOrDefault(p => p.MonitorIPID == monitorIPID);
@@ -377,7 +401,7 @@ namespace NetworkMonitor.Processor.Services
             //monitorPingInfo.MonitorStatus.MonitorPingInfoID = 0;
             if (monIP.Timeout == 0)
             {
-                monitorPingInfo.Timeout = _pingParams.Timeout;
+                monitorPingInfo.Timeout = PingParams.Timeout;
             }
             else
             {
