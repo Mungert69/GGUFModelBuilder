@@ -29,7 +29,7 @@ namespace NetworkMonitor.Objects.Repository
         private IMonitorPingProcessor _monitorPingProcessor;
         NetConnectConfig _netConfig;
 
-       
+
         public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig) : base(logger, DeriveSystemUrl(netConnectConfig))
         {
             _monitorPingProcessor = monitorPingProcessor;
@@ -55,7 +55,7 @@ namespace NetworkMonitor.Objects.Repository
         }
         protected override void InitRabbitMQObjs()
         {
-            _rabbitMQObjs=new List<RabbitMQObj>();
+            _rabbitMQObjs = new List<RabbitMQObj>();
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorConnect" + _netConfig.AppID,
@@ -96,6 +96,12 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorWakeUp" + _netConfig.AppID,
                 FuncName = "processorWakeUp",
+                MessageTimeout = 60000
+            });
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorAuthKey" + _netConfig.AppID,
+                FuncName = "processorAuthKey",
                 MessageTimeout = 60000
             });
         }
@@ -226,6 +232,21 @@ namespace NetworkMonitor.Objects.Repository
                         catch (Exception ex)
                         {
                             _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorWakeUp " + ex.Message);
+                        }
+                    };
+                        break;
+                    case "processorAuthKey":
+                        rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                        rabbitMQObj.Consumer.Received += (model, ea) =>
+                    {
+                        try
+                        {
+                            result = AddAuthKey(ConvertToString(model, ea));
+                            rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAuthKey " + ex.Message);
                         }
                     };
                         break;
@@ -393,6 +414,28 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += "Success ran ok ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+
+        public ResultObj AddAuthKey(string? authKey)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : AddAuthKey : ";
+            try
+            {       
+                    _monitorPingProcessor.SetAuthKey(authKey);
+                    result.Message += "Success : updated authKey .";
+                    result.Success = true;
+                    _logger.LogInformation(result.Message);             
             }
             catch (Exception e)
             {

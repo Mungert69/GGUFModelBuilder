@@ -39,6 +39,7 @@ namespace NetworkMonitor.Processor.Services
         public bool Awake { get => _awake; set => _awake = value; }
         public string AppID { get => _netConfig.AppID; }
 
+
         public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
         {
             _logger = logger;
@@ -89,15 +90,37 @@ namespace NetworkMonitor.Processor.Services
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
                 if (oldMonitorIPs != null) infoLog += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()} , Changned AppID to {appID} and Save MonitorIPs back to statestore . ";
                 _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
-                await _monitorPingCollection.ChangeAppID(_lock,appID);
-                infoLog+=" Success : Set all MonitorPingInfo AppIDs . ";
-               
+                await _monitorPingCollection.ChangeAppID(_lock, appID);
+                infoLog += " Success : Set all MonitorPingInfo AppIDs . ";
+
             }
             catch (Exception e)
             {
                 _logger.LogError(" Error : Could not complete AppID change . Error was : " + e.Message.ToString());
             }
             _logger.LogInformation(infoLog);
+
+        }
+
+        public ResultObj SetAuthKey(string authkey)
+        {
+            var result = new ResultObj();
+            result.Message = " SetAuthKey : ";
+            try
+            {
+                _netConfig.AuthKey = authkey;
+
+                JsonUtils.WriteObjectToFile<NetConnectConfig>("appsettings.json", _netConfig);
+                result.Success = true;
+                result.Message += " Success : Saved NetConnectConfig to appsettings.json";
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += $" Error : Could not save NetConnectConfig to appsettings.json . Error was {e.Message}";
+
+            }
+            return result;
 
         }
         /*

@@ -9,6 +9,7 @@ namespace NetworkMonitor.Processor.Services
     public interface IMonitorPingProcessor
     {
         Task Init(ProcessorInitObj initObj);
+        ResultObj SetAuthKey(string authkey);
         void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         Task<ResultObj> Connect(ProcessorConnectObj connectObj);
         ResultObj WakeUp();

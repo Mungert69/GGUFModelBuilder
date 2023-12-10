@@ -135,7 +135,7 @@ namespace NetworkMonitor.Processor.Services
                          await _rabbitRepo.PublishAsync<Tuple<string,string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID,userInfo.UserID));
                              }
                     
-                     await _rabbitRepo.PublishAsync<ProcessorObj>("updateProcessor", processorObj);
+                     await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
               
 
                     _netConfig.AppID = userInfo.UserID;
@@ -146,11 +146,11 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
+                    /*var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
                     var errorData = JsonUtils.GetJsonElementFromString(errorDataString);
-                    _logger.LogError($" Error  : during polling: {errorDataString}");
+                    _logger.LogError($" Error  : during polling: {errorDataString}");*/
                 }
-                _logger.LogInformation("Polling device auth endpoint, please wait...");
+                //_logger.LogInformation("Polling device auth endpoint, please wait...");
                 await Task.Delay(_intervalSeconds * 1000);
             }
         }
