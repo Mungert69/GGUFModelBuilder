@@ -15,7 +15,13 @@ using NetworkMonitor.Objects.Repository;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class AuthService
+
+     public interface IAuthService
+    {
+        Task InitializeAsync();
+        Task ConnectDeviceAsync();
+    }
+    public class AuthService : IAuthService
     {
         private readonly string _baseFusionAuthURL = "https://auth.freenetworkmonitor.click:2096";
         private readonly string _grantType = "urn:ietf:params:oauth:grant-type:device_code";
