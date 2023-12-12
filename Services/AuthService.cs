@@ -101,17 +101,18 @@ namespace NetworkMonitor.Processor.Services
             _logger.LogInformation("Starting polling device auth endpoint, please wait...");
 
            
-            var pollingContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("device_code", _deviceCode),
-                new KeyValuePair<string, string>("grant_type", _grantType),
-                new KeyValuePair<string, string>("client_id", _clientId)
-            });
+          
 
             while (true)
             {
                 try
                 {
+                      var pollingContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("device_code", _deviceCode),
+                new KeyValuePair<string, string>("grant_type", _grantType),
+                new KeyValuePair<string, string>("client_id", _clientId)
+            });
                     var httpClient = new HttpClient();
                     var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
                     if (tokenResponse.IsSuccessStatusCode)
