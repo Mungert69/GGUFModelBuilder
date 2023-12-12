@@ -16,10 +16,11 @@ using NetworkMonitor.Objects.Repository;
 namespace NetworkMonitor.Processor.Services
 {
 
-     public interface IAuthService
+    public interface IAuthService
     {
         Task InitializeAsync();
         Task ConnectDeviceAsync();
+        Task PollForTokenAsync();
     }
     public class AuthService : IAuthService
     {
@@ -93,12 +94,13 @@ namespace NetworkMonitor.Processor.Services
             _netConfig.ClientAuthUrl = deviceAuthData.GetProperty("verification_uri_complete").GetString();
             _logger.LogInformation($"Complete verification URL: {_netConfig.ClientAuthUrl}");
 
-            await PollForTokenAsync();
         }
 
-        private async Task PollForTokenAsync()
+        public async Task PollForTokenAsync()
         {
-            using var httpClient = new HttpClient();
+            _logger.LogInformation("Starting polling device auth endpoint, please wait...");
+
+           
             var pollingContent = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("device_code", _deviceCode),
@@ -108,56 +110,64 @@ namespace NetworkMonitor.Processor.Services
 
             while (true)
             {
-                var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
-                if (tokenResponse.IsSuccessStatusCode)
+                try
                 {
-                    var oldAppID = _netConfig.AppID;
-                    var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
-                    var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
-                    var accessToken = tokenData.GetProperty("access_token").GetString();
-                    var userInfo = await GetUserInfoFromToken(accessToken);
-                    var updatedSystemUrl = new SystemUrl
+                    var httpClient = new HttpClient();
+                    var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
+                    if (tokenResponse.IsSuccessStatusCode)
                     {
-                        ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
-                        IPAddress = _netConfig.LocalSystemUrl.IPAddress,
-                        RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
-                        RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                        RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
-                        RabbitUserName = userInfo.UserID,
-                        RabbitPassword = accessToken,
-                        RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
-                    };
-                  
-                    var processorObj = new ProcessorObj();
+                        var oldAppID = _netConfig.AppID;
+                        var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
+                        var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
+                        var accessToken = tokenData.GetProperty("access_token").GetString();
+                        var userInfo = await GetUserInfoFromToken(accessToken);
+                        var updatedSystemUrl = new SystemUrl
+                        {
+                            ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
+                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
+                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
+                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
+                            RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
+                            RabbitUserName = userInfo.UserID,
+                            RabbitPassword = accessToken,
+                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
+                        };
 
-                    processorObj.Location = userInfo.Name + " - Local";
+                        var processorObj = new ProcessorObj();
+
+                        processorObj.Location = userInfo.Name + " - Local";
 
 
-                    if (oldAppID != userInfo.UserID)
+                        if (oldAppID != userInfo.UserID)
+                        {
+                            processorObj.AppID = userInfo.UserID;
+                            processorObj.DateCreated = DateTime.UtcNow;
+                            processorObj.IsPrivate = true;
+                            await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, userInfo.UserID));
+                        }
+
+                        await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
+
+
+                        _netConfig.AppID = userInfo.UserID;
+                        _netConfig.LocalSystemUrl = updatedSystemUrl;
+
+                        _logger.LogInformation(" Success : Token successfully received.");
+                        break;
+                    }
+                    else
                     {
-                        processorObj.AppID = userInfo.UserID;
-                        processorObj.DateCreated = DateTime.UtcNow;
-                        processorObj.IsPrivate = true;
-                         await _rabbitRepo.PublishAsync<Tuple<string,string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID,userInfo.UserID));
-                             }
-                    
-                     await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
-              
-
-                    _netConfig.AppID = userInfo.UserID;
-                    _netConfig.LocalSystemUrl = updatedSystemUrl;
-
-                    _logger.LogInformation(" Success : Token successfully received.");
-                    break;
+                        var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
+                        var errorData = JsonUtils.GetJsonElementFromString(errorDataString);
+                        _logger.LogError($" Error  : during polling: {errorDataString}");
+                    }
+                    //_logger.LogInformation("Polling device auth endpoint, please wait...");
+                    await Task.Delay(_intervalSeconds * 1000);
                 }
-                else
+                catch (Exception ex)
                 {
-                    /*var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
-                    var errorData = JsonUtils.GetJsonElementFromString(errorDataString);
-                    _logger.LogError($" Error  : during polling: {errorDataString}");*/
+                    _logger.LogError($" Error : An error occurred during the token request: {ex.Message}");
                 }
-                //_logger.LogInformation("Polling device auth endpoint, please wait...");
-                await Task.Delay(_intervalSeconds * 1000);
             }
         }
 
