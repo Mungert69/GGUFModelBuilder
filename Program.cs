@@ -47,12 +47,16 @@ namespace NetworkMonitor.Processor
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig);
-            AuthService authService=new AuthService(loggerFactory.CreateLogger<AuthService>(),netConfig, rabbitRepo);
-   
+            AuthService authService;
             await _monitorPingProcessor.Init(new ProcessorInitObj());
-            await authService.InitializeAsync();
-            await authService.ConnectDeviceAsync();
-            
+            if (config["AuthDevice"] == "true")
+            {
+                authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo);
+                await authService.InitializeAsync();
+                await authService.ConnectDeviceAsync();
+            }
+
+
             await Task.Delay(-1);
 
             Console.CancelKeyPress += async (o, e) =>
