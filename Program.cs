@@ -34,7 +34,11 @@ namespace NetworkMonitor.Processor
                             .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
                             .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
                             .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
-                            .AddConsole();                             // Add console logger
+                            .AddSimpleConsole(options =>
+                        {
+                            options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+                            options.IncludeScopes = true;
+                        });
                   });
 
             var fileRepo = new FileRepo();
