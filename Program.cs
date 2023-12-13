@@ -54,6 +54,7 @@ namespace NetworkMonitor.Processor
                 authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo);
                 await authService.InitializeAsync();
                 await authService.ConnectDeviceAsync();
+                await authService.PollForTokenAsync();
             }
 
 
