@@ -237,11 +237,11 @@ namespace NetworkMonitor.Objects.Repository
                         break;
                     case "processorAuthKey":
                         rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                        rabbitMQObj.Consumer.Received += (model, ea) =>
+                        rabbitMQObj.Consumer.Received += async (model, ea) =>
                     {
                         try
                         {
-                            result = AddAuthKey(ConvertToString(model, ea));
+                            result = await AddAuthKey(ConvertToString(model, ea));
                             rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                         }
                         catch (Exception ex)
@@ -425,14 +425,14 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        public ResultObj AddAuthKey(string? authKey)
+        public async Task<ResultObj> AddAuthKey(string? authKey)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : AddAuthKey : ";
             try
             {       
-                    _monitorPingProcessor.SetAuthKey(authKey);
+                    await _monitorPingProcessor.SetAuthKey(authKey);
                     result.Message += "Success : updated authKey .";
                     result.Success = true;
                     _logger.LogInformation(result.Message);             

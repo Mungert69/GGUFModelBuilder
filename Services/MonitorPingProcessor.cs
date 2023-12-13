@@ -63,7 +63,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
-                _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
+                _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.LogInformation(" Sending ProcessorReady = false");
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
                 // Wait till all the tasks cpmplete
@@ -102,15 +102,14 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public ResultObj SetAuthKey(string authkey)
+        public async Task<ResultObj> SetAuthKey(string authkey)
         {
             var result = new ResultObj();
             result.Message = " SetAuthKey : ";
             try
             {
                 _netConfig.AuthKey = authkey;
-
-                JsonUtils.WriteObjectToFile<NetConnectConfig>("appsettings.json", _netConfig);
+                _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json",_netConfig);
                 result.Success = true;
                 result.Message += " Success : Saved NetConnectConfig to appsettings.json";
             }
@@ -184,9 +183,9 @@ namespace NetworkMonitor.Processor.Services
                 await _netConnectCollection.NetConnectFactory(_monitorPingCollection.MonitorPingInfos.Values.ToList(), initObj.PingParams, initNetConnects, disableNetConnects, _lock);
                 _logger.LogDebug(" NetConnectCollection NetConnectFactory Complete");
                 var monitorPingInfos = _monitorPingCollection.MonitorPingInfos.Values.ToList();
-                _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
-                _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
-                _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
+                _logger.LogDebug("MonitorPingInfos : " + JsonUtils.WriteJsonObjectToString(monitorPingInfos));
+                _logger.LogDebug("MonitorIPs : " + JsonUtils.WriteJsonObjectToString(initObj.MonitorIPs));
+                _logger.LogDebug("PingParams : " + JsonUtils.WriteJsonObjectToString(initObj.PingParams));
                 await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _netConfig.AppID, _piIDKey, false, _fileRepo, _netConfig.AuthKey);
             }
             catch (Exception e)
@@ -205,7 +204,7 @@ namespace NetworkMonitor.Processor.Services
             _awake = true;
             var timerInner = new Stopwatch();
             timerInner.Start();
-            _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
+            _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
             PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
             var result = new ResultObj();
             result.Success = false;

@@ -138,7 +138,7 @@ namespace NetworkMonitor.Objects.Repository
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
-                    logger.LogDebug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
+                    logger.LogDebug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.WriteJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
                     if (pingInfos != null)
                     {
                         result.Message += " Count of PingInfos " + pingInfos.Count() + " . ";
@@ -153,7 +153,7 @@ namespace NetworkMonitor.Objects.Repository
                         string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += $" Event (Saved {countMonPingInfos} MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
-                        logger.LogDebug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.writeJsonObjectToString<ProcessorDataObj>(processorDataObj));
+                        logger.LogDebug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.WriteJsonObjectToString<ProcessorDataObj>(processorDataObj));
                     
                     }
                     //pingInfos = null;
