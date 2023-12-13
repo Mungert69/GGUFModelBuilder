@@ -62,10 +62,10 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
-                await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), AppID, _piIDKey, true, _fileRepo);
+                await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.writeJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
                 _logger.LogInformation(" Sending ProcessorReady = false");
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, false);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
                 // Wait till all the tasks cpmplete
                 await _netConnectCollection.WaitAllTasks();
                 // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
@@ -187,7 +187,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.writeJsonObjectToString(monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.writeJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.writeJsonObjectToString(initObj.PingParams));
-                await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, AppID, _piIDKey, false, _fileRepo);
+                await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _netConfig.AppID, _piIDKey, false, _fileRepo, _netConfig.AuthKey);
             }
             catch (Exception e)
             {
@@ -195,7 +195,7 @@ namespace NetworkMonitor.Processor.Services
             }
             finally
             {
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 //_netConnectCollection.IsLocked = false;
             }
         }
@@ -206,7 +206,7 @@ namespace NetworkMonitor.Processor.Services
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.writeJsonObjectToString(connectObj));
-            PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, false);
+            PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
@@ -218,7 +218,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
                 _awake = false;
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 return result;
             }
             try
@@ -315,10 +315,10 @@ namespace NetworkMonitor.Processor.Services
                 {
                     var removeResult = await _monitorPingCollection.RemovePublishedPingInfos(_lock);
                     result.Message += removeResult.Message;
-                    await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), AppID, _piIDKey, true, _fileRepo);
+                    await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
 
                 }
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, true);
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
@@ -642,7 +642,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 results.Add(result);
             });
-            results.Add(PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs));
+            results.Add(PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs, _netConfig.AppID, _netConfig.AuthKey));
             return results;
         }
         public ResultObj WakeUp()
@@ -658,7 +658,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    PublishRepo.ProcessorReady(_logger, _rabbitRepo, AppID, true);
+                    PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                     result.Message += "Received WakeUp so Published event processorReady = true";
                     result.Success = true;
                 }

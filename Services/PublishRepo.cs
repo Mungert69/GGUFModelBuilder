@@ -12,12 +12,18 @@ namespace NetworkMonitor.Objects.Repository
     public class PublishRepo
     {
 
-        public static ResultObj AlertMessgeResetAlerts(IRabbitRepo rabbitRepo, List<AlertFlagObj> alertFlagObjs)
+        public static ResultObj AlertMessgeResetAlerts(IRabbitRepo rabbitRepo, List<AlertFlagObj> alertFlagObjs, string appID, string authKey)
         {
             var result = new ResultObj();
             try
             {
-                rabbitRepo.Publish<List<AlertFlagObj>>("alertMessageResetAlerts", alertFlagObjs);
+                var alertServiceAlertObj=new AlertServiceAlertObj(){
+                    AppID=appID,
+                    AuthKey=authKey,
+                    AlertFlagObjs=alertFlagObjs
+                };
+
+                rabbitRepo.Publish<AlertServiceAlertObj>("alertMessageResetAlerts", alertServiceAlertObj);
                 //DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
                 result.Success = true;
                 result.Message = " Success : sent alertMessageResetAlert message . ";
@@ -30,7 +36,7 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        public static void ProcessorResetAlerts(ILogger logger, IRabbitRepo rabbitRepo, Dictionary<string, List<int>> monitorIPDic)
+       /* public static void ProcessorResetAlerts(ILogger logger, IRabbitRepo rabbitRepo, Dictionary<string, List<int>> monitorIPDic)
         {
             try
             {
@@ -45,10 +51,9 @@ namespace NetworkMonitor.Objects.Repository
             {
                 logger.LogError(" Error : failed to publish ProcessResetAlerts. Error was :" + e.ToString());
             }
-        }
+        }*/
 
-
-        public static Task MonitorPingInfosLowPriorityThread(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
+        public static Task MonitorPingInfosLowPriorityThread(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo, string authKey)
         {
             var tcs = new TaskCompletionSource<bool>();
 
@@ -56,7 +61,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 try
                 {
-                    await PublishRepo.MonitorPingInfos(logger, rabbitRepo, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, pingInfos, appID, piIDKey, saveState, fileRepo);
+                    await PublishRepo.MonitorPingInfos(logger, rabbitRepo, monitorPingInfos, removeMonitorPingInfoIDs, removePingInfos, swapMonitorPingInfos, pingInfos, appID, piIDKey, saveState, fileRepo, authKey);
                     tcs.SetResult(true);
                 }
                 catch (Exception ex)
@@ -71,7 +76,7 @@ namespace NetworkMonitor.Objects.Repository
             return tcs.Task;
         }
 
-        public static async Task<ResultObj> MonitorPingInfos(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo)
+        public static async Task<ResultObj> MonitorPingInfos(ILogger logger, IRabbitRepo rabbitRepo, List<MonitorPingInfo> monitorPingInfos, List<int> removeMonitorPingInfoIDs, List<RemovePingInfo> removePingInfos, List<SwapMonitorPingInfo> swapMonitorPingInfos, List<PingInfo> pingInfos, string appID, uint piIDKey, bool saveState, IFileRepo fileRepo, string authKey)
         {
             // var _daprMetadata = new Dictionary<string, string>();
             //_daprMetadata.Add("ttlInSeconds", "120");
@@ -120,6 +125,7 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj.PingInfos = pingInfos;
                     processorDataObj.AppID = appID;
                     processorDataObj.PiIDKey = piIDKey;
+                    processorDataObj.AuthKey=authKey;
 
 
                     var processorDataObjAlert = new ProcessorDataObj();
@@ -127,6 +133,7 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObjAlert.MonitorStatusAlerts = monitorStatusAlerts;
                     processorDataObjAlert.PingInfos = new List<PingInfo>();
                     processorDataObjAlert.AppID = appID;
+                    processorDataObjAlert.AuthKey=authKey;
                     int countMonStatusAlerts=monitorStatusAlerts.Count();
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
                     rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
