@@ -10,7 +10,7 @@ namespace NetworkMonitor.Processor.Services
     {
         Task Init(ProcessorInitObj initObj);
         Task<ResultObj> SetAuthKey(string authkey);
-        void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
+        ResultObj AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         Task<ResultObj> Connect(ProcessorConnectObj connectObj);
         ResultObj WakeUp();
         List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);

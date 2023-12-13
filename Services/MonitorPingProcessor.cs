@@ -81,24 +81,55 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task HandleAppIDChanged(string appID)
         {
-            string infoLog = " HandleAppIDChange : ";
-            List<MonitorIP> oldMonitorIPs = new List<MonitorIP>();
+            var result=new ResultObj();
+            result.Message = " HandleAppIDChange : ";
+            result.Success=true;
+            List<MonitorIP>? oldMonitorIPs = null;
             try
             {
+
                 oldMonitorIPs = _fileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
                 oldMonitorIPs.ForEach(f => f.AppID = appID);
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
-                if (oldMonitorIPs != null) infoLog += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()} , Changned AppID to {appID} and Save MonitorIPs back to statestore . ";
-                _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
-                await _monitorPingCollection.ChangeAppID(_lock, appID);
-                infoLog += " Success : Set all MonitorPingInfo AppIDs . ";
+                if (oldMonitorIPs != null) result.Message += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()}  and Save MonitorIPs back to statestore with new AppID {appID} . ";
 
             }
             catch (Exception e)
             {
-                _logger.LogError(" Error : Could not complete AppID change . Error was : " + e.Message.ToString());
+                result.Message+=" Error : Could not updated MonitorIPs is state store . Error was : " + e.Message;
+                result.Success=false;
             }
-            _logger.LogInformation(infoLog);
+            try
+            {
+                if (oldMonitorIPs == null)
+                {
+                    result.Message += " MonitorIPs state is empty . Creating empty State . ";
+                    oldMonitorIPs = new List<MonitorIP>();
+                    await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                result.Message+=" Error : Could not reset MonitorIPs is state store . Error was : " + e.Message;
+                result.Success=false;
+                }
+
+            try
+            {
+                _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
+                await _monitorPingCollection.ChangeAppID(_lock, appID);
+                result.Message += $" Success : Set all MonitorPingInfo AppIDs to {_netConfig.AppID} ";
+
+            }
+            catch (Exception e)
+            {
+                 result.Message+="  Error : Could change MonitorPingInfo AppIDs . Error was : " + e.Message;
+                result.Success=false;
+               }
+               if (result.Success) _logger.LogInformation(result.Message);
+               else _logger.LogError(result.Message);
 
         }
 
@@ -109,9 +140,9 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _netConfig.AuthKey = authkey;
-                _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json",_netConfig);
+                await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
                 result.Success = true;
-                result.Message += " Success : Saved NetConnectConfig to appsettings.json";
+                result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json";
             }
             catch (Exception e)
             {
@@ -526,10 +557,16 @@ namespace NetworkMonitor.Processor.Services
             return resultStr;
         }
         //This method "UpdateMonitorPingInfosFromMonitorIPQueue()" updates the information in the "MonitorPingInfo" class from a queue of updates stored in "_monitorIPQueueDic". 
-        public void AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
+        public ResultObj AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
         {
+            var result = new ResultObj();
+            result.Message = " AddMonitorIPsToQueueDic : ";
             // Nothing to process so just return
-            if (queueDicObj.MonitorIPs.Count == 0) return;
+            if (queueDicObj.MonitorIPs == null || queueDicObj.MonitorIPs.Count == 0)
+            {
+                result.Success = true;
+                result.Message += " Nothing to do : No Data .";
+            }
             bool flagFailed = false;
             // replace any existing monitorIPs with the monitorIps in the queueDicObj if they exist in _monitorIPQueueDic. Dont replace any monitorIPs that have Delete = true.
             if (_monitorIPQueueDic.ContainsKey(queueDicObj.UserId))
@@ -560,8 +597,14 @@ namespace NetworkMonitor.Processor.Services
             }
             if (flagFailed)
             {
-                _logger.LogError("Error : Failed to add MonitorIPs to _monitorIPQueueDic. for user " + queueDicObj.UserId + " .");
+                result.Message += " Error : Failed to add MonitorIPs to _monitorIPQueueDic. for user " + queueDicObj.UserId + " .";
+                result.Success = false;
+                return result;
             }
+
+            result.Success = true;
+            result.Message += $" Success : Added {queueDicObj.MonitorIPs.Count } MonitorIPs Queue . ";
+            return result;
             //_monitorIPQueueDic.Remove(queueDicObj.UserId);
             //_monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);
         }
