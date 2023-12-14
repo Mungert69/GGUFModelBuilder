@@ -35,19 +35,19 @@ namespace NetworkMonitor.Objects.Repository
             _monitorPingProcessor = monitorPingProcessor;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
-            _netConfig.OnSystemUrlChanged += HandleSystemUrlChanged;
+            _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
 
             Setup();
         }
 
-        private void HandleSystemUrlChanged(SystemUrl newSystemUrl)
+        private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
-            Reconnect();
+             await Task.Run(() => Reconnect());
         }
         public void Dispose()
         {
-            _netConfig.OnSystemUrlChanged -= HandleSystemUrlChanged;
+            _netConfig.OnSystemUrlChangedAsync -= HandleSystemUrlChangedAsync;
         }
         private static SystemUrl DeriveSystemUrl(NetConnectConfig netConnectConfig)
         {

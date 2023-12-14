@@ -49,7 +49,7 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo.CheckFileExists("MonitorIPs", _logger);
             _fileRepo.CheckFileExists("PingParams", _logger);
             _netConfig = netConfig;
-            _netConfig.OnAppIDChanged += HandleAppIDChanged;
+            _netConfig.OnAppIDChangedAsync += HandleAppIDChangedAsync;
             SystemUrl systemUrl = netConfig.LocalSystemUrl;
             _logger.LogInformation(" Starting Processor with AppID = " + AppID + " instanceName=" + systemUrl.RabbitInstanceName + " connecting to RabbitMQ at " + systemUrl.RabbitHostName + ":" + systemUrl.RabbitPort);
 
@@ -79,7 +79,12 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        private async Task HandleAppIDChanged(string appID)
+         public void Dispose()
+        {
+            _netConfig.OnAppIDChangedAsync -= HandleAppIDChangedAsync;
+        }
+
+        private async Task HandleAppIDChangedAsync(string appID)
         {
             var result=new ResultObj();
             result.Message = " HandleAppIDChange : ";

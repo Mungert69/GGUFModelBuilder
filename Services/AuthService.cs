@@ -100,15 +100,15 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.LogInformation("Starting polling device auth endpoint, please wait...");
 
-           
-          
+
+
 
             while (true)
             {
                 try
                 {
-                      var pollingContent = new FormUrlEncodedContent(new[]
-            {
+                    var pollingContent = new FormUrlEncodedContent(new[]
+          {
                 new KeyValuePair<string, string>("device_code", _deviceCode),
                 new KeyValuePair<string, string>("grant_type", _grantType),
                 new KeyValuePair<string, string>("client_id", _clientId)
@@ -136,22 +136,21 @@ namespace NetworkMonitor.Processor.Services
 
                         var processorObj = new ProcessorObj();
 
-                        processorObj.Location = userInfo.Name + " - Local";
-
-
+                        processorObj.Location = userInfo.Email + " - Local";
+                        processorObj.AppID = userInfo.UserID;
+                        processorObj.IsPrivate = true;
                         if (oldAppID != userInfo.UserID)
                         {
-                            processorObj.AppID = userInfo.UserID;
                             processorObj.DateCreated = DateTime.UtcNow;
-                            processorObj.IsPrivate = true;
-                            await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, userInfo.UserID));
+                            await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
                         }
 
+                        // Update the AppID and LocalSystemUrl
+                        await _netConfig.SetAppIDAsync(processorObj.AppID);
+                        await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
+
+                        // Now publish the message
                         await _rabbitRepo.PublishAsync<ProcessorObj>("userUpdateProcessor", processorObj);
-
-
-                        _netConfig.AppID = userInfo.UserID;
-                        _netConfig.LocalSystemUrl = updatedSystemUrl;
 
                         _logger.LogInformation(" Success : Token successfully received.");
                         break;
