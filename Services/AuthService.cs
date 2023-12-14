@@ -138,6 +138,7 @@ namespace NetworkMonitor.Processor.Services
 
                         processorObj.Location = userInfo.Email + " - Local";
                         processorObj.AppID = userInfo.UserID;
+                        processorObj.Owner=userInfo.UserID;
                         processorObj.IsPrivate = true;
                         if (oldAppID != userInfo.UserID)
                         {
