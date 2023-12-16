@@ -143,6 +143,7 @@ namespace NetworkMonitor.Processor.Services
                             await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
                         }
 
+                        _netConfig.Owner=userInfo.UserID;
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
