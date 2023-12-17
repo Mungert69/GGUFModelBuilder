@@ -59,36 +59,73 @@ namespace NetworkMonitor.Processor.Services
         public async Task OnStoppingAsync()
         {
             _logger.LogWarning("PROCESSOR SHUTDOWN : starting shutdown of MonitorPingService");
+
             try
             {
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
-                _logger.LogInformation(" Sending ProcessorReady = false");
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
-                // Wait till all the tasks cpmplete
-                await _netConnectCollection.WaitAllTasks();
-                // DaprRepo.PublishEvent<ProcessorInitObj>(_daprClient, "processorReady", processorObj);
-                _logger.LogInformation("Published event ProcessorItitObj.IsProcessorReady = false");
-                _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
             }
             catch (Exception e)
             {
-                _logger.LogCritical("Error : Failed to run SaveState before shutdown : Error Was : " + e.ToString());
-                Console.WriteLine();
+                _logger.LogError("Error during saving MonitorPingInfos: " + e.ToString());
             }
+
+            try
+            {
+                _logger.LogInformation(" Sending ProcessorReady = false");
+                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
+                _logger.LogInformation(" Success : Published event ProcessorItitObj.IsProcessorReady = false");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error during sending ProcessorReady: " + e.ToString());
+            }
+
+            try
+            {
+                await _netConnectCollection.WaitAllTasks();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error during waiting for all tasks: " + e.ToString());
+            }
+
+            try
+            {
+                _logger.LogInformation("Shutting down RabbitRepo.");
+                _rabbitRepo?.Shutdown();
+                _logger.LogInformation(" Success : Shutdown RabbitRepo.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error during shutting down RabbitRepo: " + e.ToString());
+            }
+
+            try
+            {
+                _logger.LogInformation("Shutting down FileRepo.");
+                await _fileRepo.ShutdownAsync();
+                _logger.LogInformation(" Success : Shutdown FileRepo.");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error during shutting down FileRepo: " + e.ToString());
+            }
+
+            _logger.LogWarning("PROCESSOR SHUTDOWN : Complete");
         }
 
-         public void Dispose()
+        public void Dispose()
         {
             _netConfig.OnAppIDChangedAsync -= HandleAppIDChangedAsync;
         }
 
         private async Task HandleAppIDChangedAsync(string appID)
         {
-            var result=new ResultObj();
+            var result = new ResultObj();
             result.Message = " HandleAppIDChange : ";
-            result.Success=true;
+            result.Success = true;
             List<MonitorIP>? oldMonitorIPs = null;
             try
             {
@@ -101,8 +138,8 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                result.Message+=" Error : Could not updated MonitorIPs is state store . Error was : " + e.Message;
-                result.Success=false;
+                result.Message += " Error : Could not updated MonitorIPs is state store . Error was : " + e.Message;
+                result.Success = false;
             }
             try
             {
@@ -117,9 +154,9 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                result.Message+=" Error : Could not reset MonitorIPs is state store . Error was : " + e.Message;
-                result.Success=false;
-                }
+                result.Message += " Error : Could not reset MonitorIPs is state store . Error was : " + e.Message;
+                result.Success = false;
+            }
 
             try
             {
@@ -130,11 +167,11 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                 result.Message+="  Error : Could change MonitorPingInfo AppIDs . Error was : " + e.Message;
-                result.Success=false;
-               }
-               if (result.Success) _logger.LogInformation(result.Message);
-               else _logger.LogError(result.Message);
+                result.Message += "  Error : Could change MonitorPingInfo AppIDs . Error was : " + e.Message;
+                result.Success = false;
+            }
+            if (result.Success) _logger.LogInformation(result.Message);
+            else _logger.LogError(result.Message);
 
         }
 
@@ -608,7 +645,7 @@ namespace NetworkMonitor.Processor.Services
             }
 
             result.Success = true;
-            result.Message += $" Success : Added {queueDicObj.MonitorIPs.Count } MonitorIPs Queue . ";
+            result.Message += $" Success : Added {queueDicObj.MonitorIPs.Count} MonitorIPs Queue . ";
             return result;
             //_monitorIPQueueDic.Remove(queueDicObj.UserId);
             //_monitorIPQueueDic.Add(queueDicObj.UserId, queueDicObj.MonitorIPs);

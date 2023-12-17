@@ -22,6 +22,7 @@ namespace NetworkMonitor.Objects.Repository
         ResultObj ResetAlerts(List<int> monitorIPIDs);
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
         ResultObj WakeUp();
+        void Shutdown();
     }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
