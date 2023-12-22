@@ -6,11 +6,12 @@
     <GenerateProgramFile>false</GenerateProgramFile>
     <DefineConstants>NetworkMonitorProcessor</DefineConstants>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>true</Optimize>
+  <PropertyGroup>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>Link</TrimMode>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>true</Optimize>
     <!-- Other Release configuration settings -->
   </PropertyGroup>
 
