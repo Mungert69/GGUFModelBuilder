@@ -11,7 +11,6 @@
   <TrimMode>Link</TrimMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <Optimize>true</Optimize>
     <!-- Other Release configuration settings -->
   </PropertyGroup>
 
