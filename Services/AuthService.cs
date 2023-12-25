@@ -24,9 +24,7 @@ namespace NetworkMonitor.Processor.Services
     }
     public class AuthService : IAuthService
     {
-        private readonly string _baseFusionAuthURL = "https://auth.freenetworkmonitor.click:2096";
         private readonly string _grantType = "urn:ietf:params:oauth:grant-type:device_code";
-        private readonly string _clientId = "e37f9939-3500-4133-ac56-c571a9a969b9";
         private string _tokenEndpoint;
         private string _deviceAuthEndpoint;
         private string _deviceCode;
@@ -47,7 +45,7 @@ namespace NetworkMonitor.Processor.Services
         public async Task InitializeAsync()
         {
             using var httpClient = new HttpClient();
-            var discoveryUrl = $"{_baseFusionAuthURL}/.well-known/openid-configuration";
+            var discoveryUrl = $"{_netConfig.BaseFusionAuthURL}/.well-known/openid-configuration";
             var discoveryResponse = await httpClient.GetAsync(discoveryUrl);
 
             if (!discoveryResponse.IsSuccessStatusCode)
@@ -74,7 +72,7 @@ namespace NetworkMonitor.Processor.Services
             using var httpClient = new HttpClient();
             var content = new FormUrlEncodedContent(new[]
             {
-                new KeyValuePair<string, string>("client_id", _clientId),
+                new KeyValuePair<string, string>("client_id", _netConfig.ClientId),
                 new KeyValuePair<string, string>("scope", "offline_access")
             });
 
@@ -108,7 +106,7 @@ namespace NetworkMonitor.Processor.Services
                         {
                             new KeyValuePair<string, string>("device_code", _deviceCode),
                             new KeyValuePair<string, string>("grant_type", _grantType),
-                            new KeyValuePair<string, string>("client_id", _clientId)
+                            new KeyValuePair<string, string>("client_id", _netConfig.ClientId)
                             });
                     var httpClient = new HttpClient();
                     var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
