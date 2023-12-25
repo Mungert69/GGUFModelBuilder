@@ -78,6 +78,12 @@ namespace NetworkMonitor.Processor.Services
 
             var deviceAuthResponse = await httpClient.PostAsync(_deviceAuthEndpoint, content);
             var deviceAuthDataString = await deviceAuthResponse.Content.ReadAsStringAsync();
+
+            if (!deviceAuthResponse.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Error: {deviceAuthResponse.StatusCode}  Data {deviceAuthDataString} . ");
+                return;
+            }
             var deviceAuthData = JsonUtils.GetJsonElementFromString(deviceAuthDataString);
 
             _intervalSeconds = deviceAuthData.GetProperty("interval").GetInt32();
