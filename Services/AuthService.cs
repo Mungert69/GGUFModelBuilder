@@ -25,10 +25,10 @@ namespace NetworkMonitor.Processor.Services
     public class AuthService : IAuthService
     {
         private readonly string _grantType = "urn:ietf:params:oauth:grant-type:device_code";
-        private string _tokenEndpoint;
-        private string _deviceAuthEndpoint;
-        private string _deviceCode;
-        private int _intervalSeconds = 5;
+        private string _tokenEndpoint = "";
+        private string _deviceAuthEndpoint = "";
+        private string _deviceCode = "";
+        private int _intervalSeconds = 10;
         private NetConnectConfig _netConfig;
         private ILogger _logger;
 
@@ -55,16 +55,39 @@ namespace NetworkMonitor.Processor.Services
             }
 
             var discoveryDataString = await discoveryResponse.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(discoveryDataString))
+            {
+                _logger.LogError("Discovery data string is null or empty.");
+                return;
+            }
+
             try
             {
                 var discoveryData = JsonUtils.GetJsonElementFromString(discoveryDataString);
-                _deviceAuthEndpoint = discoveryData.GetProperty("device_authorization_endpoint").GetString();
-                _tokenEndpoint = discoveryData.GetProperty("token_endpoint").GetString();
+
+                if (discoveryData.TryGetProperty("device_authorization_endpoint", out var deviceAuthEndpointElement))
+                {
+                    _deviceAuthEndpoint = deviceAuthEndpointElement.GetString()!;
+                }
+                else
+                {
+                    _logger.LogError("Device authorization endpoint not found in JSON.");
+                }
+
+                if (discoveryData.TryGetProperty("token_endpoint", out var tokenEndpointElement))
+                {
+                    _tokenEndpoint = tokenEndpointElement.GetString()!;
+                }
+                else
+                {
+                    _logger.LogError("Token endpoint not found in JSON.");
+                }
             }
             catch (JsonException ex)
             {
                 _logger.LogError($"JSON Parsing Error: {ex.Message}");
             }
+
         }
 
         public async Task ConnectDeviceAsync()
@@ -72,9 +95,9 @@ namespace NetworkMonitor.Processor.Services
             using var httpClient = new HttpClient();
             var content = new FormUrlEncodedContent(new[]
             {
-                new KeyValuePair<string, string>("client_id", _netConfig.ClientId),
-                new KeyValuePair<string, string>("scope", "offline_access")
-            });
+        new KeyValuePair<string, string>("client_id", _netConfig.ClientId),
+        new KeyValuePair<string, string>("scope", "offline_access")
+    });
 
             var deviceAuthResponse = await httpClient.PostAsync(_deviceAuthEndpoint, content);
             var deviceAuthDataString = await deviceAuthResponse.Content.ReadAsStringAsync();
@@ -84,20 +107,70 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogError($"Error: {deviceAuthResponse.StatusCode}  Data {deviceAuthDataString} . ");
                 return;
             }
-            var deviceAuthData = JsonUtils.GetJsonElementFromString(deviceAuthDataString);
 
-            _intervalSeconds = deviceAuthData.GetProperty("interval").GetInt32();
-            _deviceCode = deviceAuthData.GetProperty("device_code").GetString();
+            if (string.IsNullOrEmpty(deviceAuthDataString))
+            {
+                _logger.LogError("Device auth data string is null or empty.");
+                return;
+            }
 
-            string userCode = deviceAuthData.GetProperty("user_code").GetString();
-            int ucLen = userCode.Length / 2;
-            userCode = userCode.Substring(0, ucLen) + "-" + userCode.Substring(ucLen);
+            try
+            {
+                var deviceAuthData = JsonUtils.GetJsonElementFromString(deviceAuthDataString);
 
-            _logger.LogInformation($"User code: {userCode}");
-            _logger.LogInformation($"Verification URL: {deviceAuthData.GetProperty("verification_uri").GetString()}");
-            _netConfig.ClientAuthUrl = deviceAuthData.GetProperty("verification_uri_complete").GetString();
-            _logger.LogInformation($"Complete verification URL: {_netConfig.ClientAuthUrl}");
+                if (deviceAuthData.TryGetProperty("interval", out var intervalElement))
+                {
+                    _intervalSeconds = intervalElement.GetInt32();
+                }
+                else
+                {
+                    _logger.LogError("Interval not found in JSON.");
+                }
 
+                if (deviceAuthData.TryGetProperty("device_code", out var deviceCodeElement))
+                {
+                    _deviceCode = deviceCodeElement.GetString()!;
+                }
+                else
+                {
+                    _logger.LogError("Device code not found in JSON.");
+                }
+
+                if (deviceAuthData.TryGetProperty("user_code", out var userCodeElement))
+                {
+                    string userCode = userCodeElement.GetString()!;
+                    int ucLen = userCode.Length / 2;
+                    userCode = userCode.Substring(0, ucLen) + "-" + userCode.Substring(ucLen);
+                    _logger.LogInformation($"User code: {userCode}");
+                }
+                else
+                {
+                    _logger.LogError("User code not found in JSON.");
+                }
+
+                if (deviceAuthData.TryGetProperty("verification_uri", out var verificationUriElement))
+                {
+                    _logger.LogInformation($"Verification URL: {verificationUriElement.GetString()}");
+                }
+                else
+                {
+                    _logger.LogError("Verification URI not found in JSON.");
+                }
+
+                if (deviceAuthData.TryGetProperty("verification_uri_complete", out var verificationUriCompleteElement))
+                {
+                    _netConfig.ClientAuthUrl = verificationUriCompleteElement.GetString()!;
+                    _logger.LogInformation($"Complete verification URL: {_netConfig.ClientAuthUrl}");
+                }
+                else
+                {
+                    _logger.LogError("Complete verification URI not found in JSON.");
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError($"JSON Parsing Error: {ex.Message}");
+            }
         }
 
         public async Task PollForTokenAsync()
@@ -122,7 +195,22 @@ namespace NetworkMonitor.Processor.Services
                         var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
                         var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
                         var accessToken = tokenData.GetProperty("access_token").GetString();
-                        var userInfo = await GetUserInfoFromToken(accessToken);
+                        if (accessToken == null)
+                        {
+                            _logger.LogError(" Error : The return data did not contain access_token string .");
+                            return;
+                        }
+                        var userInfo = GetUserInfoFromToken(accessToken);
+                        if (userInfo == null)
+                        {
+                            _logger.LogError(" Error : Could not get User from token .");
+                            return;
+                        }
+                        if (userInfo.UserID == null)
+                        {
+                            _logger.LogError(" Error : Could not get UserID from token .");
+                            return;
+                        }
                         var updatedSystemUrl = new SystemUrl
                         {
                             ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
@@ -147,7 +235,7 @@ namespace NetworkMonitor.Processor.Services
                             await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
                         }
 
-                        _netConfig.Owner=userInfo.UserID;
+                        _netConfig.Owner = userInfo.UserID;
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
@@ -174,7 +262,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        private async Task<UserInfo> GetUserInfoFromToken(string accessToken)
+        private UserInfo? GetUserInfoFromToken(string accessToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 

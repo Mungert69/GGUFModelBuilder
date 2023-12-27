@@ -121,7 +121,7 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObj.MonitorPingInfos = monitorPingInfos;
                     processorDataObj.RemoveMonitorPingInfoIDs = removeMonitorPingInfoIDs;
                     processorDataObj.SwapMonitorPingInfos = swapMonitorPingInfos;
-                    processorDataObj.MonitorStatusAlerts = null;
+                    //processorDataObj.MonitorStatusAlerts = null;
                     processorDataObj.PingInfos = pingInfos;
                     processorDataObj.AppID = appID;
                     processorDataObj.PiIDKey = piIDKey;
@@ -129,7 +129,7 @@ namespace NetworkMonitor.Objects.Repository
 
 
                     var processorDataObjAlert = new ProcessorDataObj();
-                    processorDataObjAlert.MonitorPingInfos = null;
+                    //processorDataObjAlert.MonitorPingInfos = null;
                     processorDataObjAlert.MonitorStatusAlerts = monitorStatusAlerts;
                     processorDataObjAlert.PingInfos = new List<PingInfo>();
                     processorDataObjAlert.AppID = appID;

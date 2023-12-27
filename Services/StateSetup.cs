@@ -16,10 +16,10 @@ namespace NetworkMonitor.Processor.Services
         private MonitorPingCollection _monitorPingCollection;
         private SemaphoreSlim _lockObj;
         private IFileRepo _fileRepo;
-        List<MonitorPingInfo> _currentMonitorPingInfos;
-        List<PingInfo> _currentPingInfos;
-        List<MonitorIP> _stateMonitorIPs = new List<MonitorIP>();
-        PingParams _statePingParams = new PingParams();
+        List<MonitorPingInfo> _currentMonitorPingInfos = new List<MonitorPingInfo>();
+        List<PingInfo> _currentPingInfos = new List<PingInfo>();
+        List<MonitorIP>? _stateMonitorIPs ;
+        PingParams? _statePingParams;
 
         public List<MonitorPingInfo> CurrentMonitorPingInfos { get => _currentMonitorPingInfos; set => _currentMonitorPingInfos = value; }
         public List<PingInfo> CurrentPingInfos { get => _currentPingInfos; set => _currentPingInfos = value; }
@@ -50,14 +50,14 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 await _fileRepo.SaveStateJsonZAsync("ProcessorDataObj", processorDataObj);
-                  _logger.LogInformation(" State Setup : Success : Resetting Processor ProcessorDataObj in statestore");
-          
+                _logger.LogInformation(" State Setup : Success : Resetting Processor ProcessorDataObj in statestore");
+
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
-                 _logger.LogInformation(" State Setup : Success : Reset Processor MonitorIPs in statestore ");
-               
+                _logger.LogInformation(" State Setup : Success : Reset Processor MonitorIPs in statestore ");
+
                 await _fileRepo.SaveStateJsonZAsync<PingParams>("PingParams", new PingParams());
-                 _logger.LogInformation(" State Setup : Success : Reset Processor PingPamrms in statestore ");
-               
+                _logger.LogInformation(" State Setup : Success : Reset Processor PingPamrms in statestore ");
+
                 initNetConnects = true;
             }
             catch (Exception e)
@@ -79,20 +79,29 @@ namespace NetworkMonitor.Processor.Services
             {
                 using (var processorDataObj = await _fileRepo.GetStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj"))
                 {
-                    piIDKey = processorDataObj.PiIDKey;
-                    infoLog += " State Setup : Got PiIDKey=" + piIDKey + " . ";
-                    CurrentPingInfos = processorDataObj.PingInfos;
-                    //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
-                    CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
-                    _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                    var removePingInfos = processorDataObj.RemovePingInfos.ToList();
-                    foreach (var f in removePingInfos)
+                    if (processorDataObj != null)
                     {
-                        _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
+                        piIDKey = processorDataObj.PiIDKey;
+                        CurrentPingInfos = processorDataObj.PingInfos;
+                        //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
+                        CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
+                        _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
+                        var removePingInfos = processorDataObj.RemovePingInfos.ToList();
+                        foreach (var f in removePingInfos)
+                        {
+                            _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
+                        }
+                        _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
+                        infoLog += " State Setup : Got PiIDKey=" + piIDKey + " and loaded ProcessorDataObj from state . ";
                     }
-                    _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
+                    else
+                    {
+                        infoLog+=" Error : ProcessorDataObj null from state .";
+
+                    }
                     if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
                     if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+
                 }
                 var firstEnabledPingInfo = CurrentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault();
 
@@ -115,7 +124,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                _stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
+                _stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs"); 
                 if (_stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + _stateMonitorIPs.Count()) + " . ";
             }
             catch (Exception e)
@@ -141,7 +150,7 @@ namespace NetworkMonitor.Processor.Services
             if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
             {
                 _logger.LogWarning(" State Setup : Warning : There are No MonitorIPs using statestore");
-                initObj.MonitorIPs = _stateMonitorIPs;
+                if (_stateMonitorIPs!=null) initObj.MonitorIPs = _stateMonitorIPs;
                 if (_stateMonitorIPs == null || _stateMonitorIPs.Count == 0)
                 {
                     initObj.MonitorIPs = new List<MonitorIP>();
@@ -165,7 +174,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_statePingParams == null)
                 {
                     _logger.LogError(" State Setup : Error : There are No PingParams in statestore");
-                    throw new ArgumentNullException(" PingParams is null");
+                    throw new ArgumentNullException(" PingParams in state is null");
                 }
                 else
                 {

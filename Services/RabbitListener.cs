@@ -268,11 +268,19 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
+        public async Task<ResultObj> Connect(ProcessorConnectObj? connectObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorConnect : ";
+             if (connectObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : connectObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             try
             {
                 ResultObj connectResult = await _monitorPingProcessor.Connect(connectObj);
