@@ -63,7 +63,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
-                await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
+                await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
             }
             catch (Exception e)
@@ -131,10 +131,12 @@ namespace NetworkMonitor.Processor.Services
             {
 
                 oldMonitorIPs = _fileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
-                oldMonitorIPs.ForEach(f => f.AppID = appID);
-                await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
-                if (oldMonitorIPs != null) result.Message += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()}  and Save MonitorIPs back to statestore with new AppID {appID} . ";
-
+                if (oldMonitorIPs != null)
+                {
+                    oldMonitorIPs.ForEach(f => f.AppID = appID);
+                    await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", oldMonitorIPs);
+                    result.Message += $" Success : Got MonitorIPS from statestore count ={oldMonitorIPs.Count()}  and Save MonitorIPs back to statestore with new AppID {appID} . ";
+                }
             }
             catch (Exception e)
             {
@@ -248,7 +250,16 @@ namespace NetworkMonitor.Processor.Services
                 if (initNetConnects) _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
                 await stateSetup.MergeState(initObj);
                 _logger.LogDebug(" Merge State Complete ");
-
+                if (initObj.PingParams == null )
+                {
+                    _logger.LogCritical(" Critical Error : Can not continue Init. PingParms is null . ");
+                    return;
+                }
+                 if (_netConfig.AppID == null )
+                {
+                    _logger.LogCritical(" Critical Error : Can not continue Init. AppID is null . ");
+                    return;
+                }
                 _monitorPingCollection.SetVars(AppID, initObj.PingParams);
                 _logger.LogDebug("  MonitorPingCollection Set Vars Complete ");
                 await _monitorPingCollection.MonitorPingInfoFactory(initObj.MonitorIPs, stateSetup.CurrentMonitorPingInfos, stateSetup.CurrentPingInfos, _lock);
@@ -259,7 +270,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogDebug("MonitorPingInfos : " + JsonUtils.WriteJsonObjectToString(monitorPingInfos));
                 _logger.LogDebug("MonitorIPs : " + JsonUtils.WriteJsonObjectToString(initObj.MonitorIPs));
                 _logger.LogDebug("PingParams : " + JsonUtils.WriteJsonObjectToString(initObj.PingParams));
-                await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, monitorPingInfos, _removeMonitorPingInfoIDs, null, _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _netConfig.AppID, _piIDKey, false, _fileRepo, _netConfig.AuthKey);
+                await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, monitorPingInfos, _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, stateSetup.CurrentPingInfos, _netConfig.AppID, _piIDKey, false, _fileRepo, _netConfig.AuthKey);
             }
             catch (Exception e)
             {
@@ -608,6 +619,7 @@ namespace NetworkMonitor.Processor.Services
             {
                 result.Success = true;
                 result.Message += " Nothing to do : No Data .";
+                return result;
             }
             bool flagFailed = false;
             // replace any existing monitorIPs with the monitorIps in the queueDicObj if they exist in _monitorIPQueueDic. Dont replace any monitorIPs that have Delete = true.

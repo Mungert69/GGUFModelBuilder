@@ -12,9 +12,9 @@ namespace NetworkMonitor.Processor.Services
     public class MonitorPingCollection
     {
         private readonly ILogger _logger;
-        private string _appID;
+        private string _appID="";
         private SemaphoreSlim _localLock = new SemaphoreSlim(1);
-        private PingParams _pingParams;
+        private PingParams _pingParams= new PingParams();
         private ConcurrentDictionary<ulong, RemovePingInfo> _removePingInfos = new ConcurrentDictionary<ulong, RemovePingInfo>();
         private ConcurrentDictionary<int, MonitorPingInfo> _monitorPingInfos = new ConcurrentDictionary<int, MonitorPingInfo>();
         private ConcurrentDictionary<ulong, PingInfo> _pingInfos = new ConcurrentDictionary<ulong, PingInfo>();
@@ -109,7 +109,7 @@ namespace NetworkMonitor.Processor.Services
                 mergeMonitorPingInfo.PacketsSent++;
                 if (mpiConnect.IsUp)
                 {
-                    ushort RoundTrip = (ushort)mpiConnect.PingInfo.RoundTripTime;
+                    ushort RoundTrip = (ushort)mpiConnect.PingInfo.RoundTripTime!;
                     mergeMonitorPingInfo.PacketsRecieved++;
                     mergeMonitorPingInfo.RoundTripTimeTotal += (int)mpiConnect.PingInfo.RoundTripTime;
                     if (mergeMonitorPingInfo.RoundTripTimeMaximum < RoundTrip)
@@ -342,7 +342,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation(result.Message);
                 foreach (MonitorIP monIP in monitorIPs)
                 {
-                    MonitorPingInfo monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
+                    var monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
                     if (monitorPingInfo != null)
                     {
                         _logger.LogDebug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
@@ -389,10 +389,10 @@ namespace NetworkMonitor.Processor.Services
             monitorPingInfo.UserID = monIP.UserID; ;
             monitorPingInfo.ID = monIP.ID;
             monitorPingInfo.AppID = _appID;
-            monitorPingInfo.Address = monIP.Address;
+            monitorPingInfo.Address = monIP.Address!;
             monitorPingInfo.Port = monIP.Port;
             monitorPingInfo.Enabled = monIP.Enabled;
-            monitorPingInfo.EndPointType = monIP.EndPointType;
+            monitorPingInfo.EndPointType = monIP.EndPointType!;
             monitorPingInfo.Username = monIP.Username;
             monitorPingInfo.Password = monIP.Password;
             monitorPingInfo.AddUserEmail = monIP.AddUserEmail;
