@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+
+    <TargetFramework>net8.0</TargetFramework>
+    <DefineConstants>NetworkMonitorProcessor</DefineConstants>
+    <Nullable>enable</Nullable>
+
+  </PropertyGroup>
+
+ 
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+    
+
+
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkMonitor\NetworkMonitor-Maui.csproj" />
+  </ItemGroup>
+</Project>
