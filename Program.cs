@@ -21,6 +21,7 @@ namespace NetworkMonitor.Processor
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("Start");
             IConfiguration config = new ConfigurationBuilder()
                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                  .AddEnvironmentVariables()
