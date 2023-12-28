@@ -14,8 +14,10 @@ namespace NetworkMonitor.Processor
 {
     class Program
     {
+#pragma warning disable CS8618
         private static ConnectFactory _connectFactory;
         private static MonitorPingProcessor _monitorPingProcessor;
+ #pragma warning restore CS8618
 
         static async Task Main(string[] args)
         {

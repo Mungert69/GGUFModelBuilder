@@ -250,12 +250,12 @@ namespace NetworkMonitor.Processor.Services
                 if (initNetConnects) _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
                 await stateSetup.MergeState(initObj);
                 _logger.LogDebug(" Merge State Complete ");
-                if (initObj.PingParams == null )
+                if (initObj.PingParams == null)
                 {
                     _logger.LogCritical(" Critical Error : Can not continue Init. PingParms is null . ");
                     return;
                 }
-                 if (_netConfig.AppID == null )
+                if (_netConfig.AppID == null)
                 {
                     _logger.LogCritical(" Critical Error : Can not continue Init. AppID is null . ");
                     return;
@@ -528,20 +528,25 @@ namespace NetworkMonitor.Processor.Services
                 // Update statestore with new MonitorIPs
                 // remove addBackMonitorIPs from monitorIPQueue
                 //monitorIPQueue.RemoveAll(addBackMonitorIPs.Contains);
-                message += await UpdateMonitorIPsInStatestore(monitorIPQueue);
-                // remove all items from queue that are not in failRemove List.
-                foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
+                var resultStateUpdated = await UpdateMonitorIPsInStatestore(monitorIPQueue);
+                message += resultStateUpdated.Message;
+                if (resultStateUpdated.Success)
                 {
-                    kvp.Value.RemoveAll(r => !failRemove.Contains(r.ID));
-                }
-                // remove all empty keys from _monitorIPQueueDic
-                foreach (var key in _monitorIPQueueDic.Keys.ToList())
-                {
-                    if (_monitorIPQueueDic.TryGetValue(key, out var value) && value.Count == 0)
+                    // remove all items from queue that are not in failRemove List.
+                    foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                     {
-                        _monitorIPQueueDic.TryRemove(key, out _);
+                        kvp.Value.RemoveAll(r => !failRemove.Contains(r.ID));
                     }
-                }  //_monitorIPQueueDic.Clear();
+                    // remove all empty keys from _monitorIPQueueDic
+                    foreach (var key in _monitorIPQueueDic.Keys.ToList())
+                    {
+                        if (_monitorIPQueueDic.TryGetValue(key, out var value) && value.Count == 0)
+                        {
+                            _monitorIPQueueDic.TryRemove(key, out _);
+                        }
+                    }  //_monitorIPQueueDic.Clear();
+                }
+
             }
             catch (Exception e)
             {
@@ -571,9 +576,10 @@ namespace NetworkMonitor.Processor.Services
                 _swapMonitorPingInfos.Remove(f);
             });
         }
-        private async Task<string> UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
+        private async Task<ResultObj> UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
         {
-            string resultStr = "";
+            var result = new ResultObj();
+            result.Message = "";
             try
             {
                 var stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
@@ -600,14 +606,16 @@ namespace NetworkMonitor.Processor.Services
                     });
                 }
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", stateMonitorIPs);
-                resultStr += " Success : saved MonitorIP queue into statestore. ";
+                result.Message += " Success : saved MonitorIP queue into statestore. ";
+                result.Success = true;
             }
             catch (Exception e)
             {
+                result.Message = "Error : Failed to update MonitorIP queue to statestore. Error was : " + e.Message;
                 _logger.LogError("Error : Failed to update MonitorIP queue to statestore. Error was : " + e.Message.ToString());
-                throw e;
+                result.Success = false;
             }
-            return resultStr;
+            return result;
         }
         //This method "UpdateMonitorPingInfosFromMonitorIPQueue()" updates the information in the "MonitorPingInfo" class from a queue of updates stored in "_monitorIPQueueDic". 
         public ResultObj AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueDicObj)
