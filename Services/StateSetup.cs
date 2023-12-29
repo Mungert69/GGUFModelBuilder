@@ -174,7 +174,7 @@ namespace NetworkMonitor.Processor.Services
                 if (_statePingParams == null)
                 {
                     _logger.LogError(" State Setup : Error : There are No PingParams in statestore");
-                    throw new ArgumentNullException(" PingParams in state is null");
+                    //throw new ArgumentNullException(" PingParams in state is null");
                 }
                 else
                 {
