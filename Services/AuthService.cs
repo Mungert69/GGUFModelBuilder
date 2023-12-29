@@ -310,6 +310,7 @@ namespace NetworkMonitor.Processor.Services
                         }
 
                         _netConfig.Owner = userInfo.UserID;
+                        _netConfig.MonitorLocation=userInfo.Email+" - Local";
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
