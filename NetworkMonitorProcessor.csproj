@@ -9,6 +9,7 @@
     <TrimMode>Link</TrimMode>
     <Optimize>true</Optimize>
     <PublishAot>true</PublishAot>
+      <SelfContained>true</SelfContained>
   </PropertyGroup>
 
  
