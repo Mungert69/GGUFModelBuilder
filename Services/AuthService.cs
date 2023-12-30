@@ -28,7 +28,7 @@ namespace NetworkMonitor.Processor.Services
         private string _tokenEndpoint = "";
         private string _deviceAuthEndpoint = "";
         private string _deviceCode = "";
-        private int _intervalSeconds = 10;
+        private int _intervalSeconds = 5;
         private NetConnectConfig _netConfig;
         private ILogger _logger;
 
