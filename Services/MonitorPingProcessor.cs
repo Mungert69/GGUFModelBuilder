@@ -563,18 +563,31 @@ namespace NetworkMonitor.Processor.Services
         {
             if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
             if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
-            processorDataObj.RemovePingInfos.ForEach(f =>
-          {
-              _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
-          });
-            processorDataObj.RemoveMonitorPingInfoIDs.ForEach(f =>
-           {
-               _removeMonitorPingInfoIDs.Remove(f);
-           });
-            if (processorDataObj.SwapMonitorPingInfos != null) processorDataObj.SwapMonitorPingInfos.ForEach(f =>
+
+            try
             {
-                _swapMonitorPingInfos.Remove(f);
-            });
+                processorDataObj.RemovePingInfos.ForEach(f =>
+                    {
+                        _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
+                    });
+            }
+            catch { }
+            try
+            {
+                _removeMonitorPingInfoIDs = _removeMonitorPingInfoIDs.Except(processorDataObj.RemoveMonitorPingInfoIDs).ToList();
+
+            }
+            catch { }
+            try
+            {
+                _swapMonitorPingInfos = _swapMonitorPingInfos.Except(processorDataObj.SwapMonitorPingInfos).ToList();
+
+            }
+            catch { }
+
+
+
+
         }
         private async Task<ResultObj> UpdateMonitorIPsInStatestore(List<UpdateMonitorIP> updateMonitorIPs)
         {
