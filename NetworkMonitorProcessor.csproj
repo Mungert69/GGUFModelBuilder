@@ -3,15 +3,13 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <DefineConstants>NetworkMonitorProcessor</DefineConstants>
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>Link</TrimMode>
     <Optimize>true</Optimize>
     <PublishAot>true</PublishAot>
-    <PublishProfile>DefaultContainer</PublishProfile>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:8.0</ContainerBaseImage>
-    <ContainerImageName>mungert/networkmonitorprocessor</ContainerImageName>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:8.0</ContainerBaseImage>
+    <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
     <ContainerImageTag>1.0.0</ContainerImageTag>
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
   </PropertyGroup>
@@ -25,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="8.0.100" />
 
 
 
