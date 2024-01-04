@@ -1,0 +1,2 @@
+export LD_LIBRARY_PATH=/home/mahadeva/openssl/lib64:$LD_LIBRARY_PATH
+
