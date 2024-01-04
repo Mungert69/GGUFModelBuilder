@@ -37,6 +37,7 @@ namespace NetworkMonitor.Processor
                             .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
                             .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
                             .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
+                            .AddFilter("NetworkMonitor.Connection", LogLevel.Debug)
                             .AddSimpleConsole(options =>
                         {
                             options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
