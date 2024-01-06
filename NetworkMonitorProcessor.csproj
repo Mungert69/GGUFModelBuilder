@@ -32,10 +32,15 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-
-
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetworkMonitor\NetworkMonitor.csproj" />
   </ItemGroup>
+  <ItemGroup>
+  <Content Include="openssl\**">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
+
 </Project>
