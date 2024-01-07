@@ -10,6 +10,8 @@ using NetworkMonitor.Processor.Services;
 using NetworkMonitor.Utils.Helpers;
 using NetworkMonitor.Objects;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace NetworkMonitor.Processor
 {
@@ -62,17 +64,49 @@ namespace NetworkMonitor.Processor
                             options.IncludeScopes = true;
                         });
                   });
+            var logger = loggerFactory.CreateLogger<Program>();
             FileRepo fileRepo;
             if (Directory.Exists("./state"))
             {
                 fileRepo = new FileRepo(true, "./state");
-                if (!File.Exists("./state/ProcessorDataObj")) File.Create("./state/ProcessorDataObj");
-                if (!File.Exists("./state/MonitorIPs")) File.Create("./state/MonitorIPs");
-                if (!File.Exists("./state/PingParams")) File.Create("./state/PingParams");
+                if (!File.Exists("./state/ProcessorDataObj"))
+                {
+                    File.Create("./state/ProcessorDataObj");
+                    fileRepo.SaveStateJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
+                }
+                if (!File.Exists("./state/MonitorIPs"))
+                {
+                    File.Create("./state/MonitorIPs");
+                    fileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+
+                }
+                if (!File.Exists("./state/PingParams"))
+                {
+                    File.Create("./state/PingParams");
+                    fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
+
+                }
             }
             else
             {
                 fileRepo = new FileRepo();
+                  if (!File.Exists("ProcessorDataObj"))
+                {
+                    File.Create("ProcessorDataObj");
+                    fileRepo.SaveStateJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
+                }
+                if (!File.Exists("MonitorIPs"))
+                {
+                    File.Create("MonitorIPs");
+                    fileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+
+                }
+                if (!File.Exists("PingParams"))
+                {
+                    File.Create("PingParams");
+                    fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
+
+                }
             }
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig.LocalSystemUrl);
