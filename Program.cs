@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NetworkMonitor.Connection;
@@ -17,16 +18,33 @@ namespace NetworkMonitor.Processor
 #pragma warning disable CS8618
         private static ConnectFactory _connectFactory;
         private static MonitorPingProcessor _monitorPingProcessor;
- #pragma warning restore CS8618
+#pragma warning restore CS8618
 
         static async Task Main(string[] args)
         {
             Console.WriteLine("Start");
-            IConfiguration config = new ConfigurationBuilder()
-                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                 .AddEnvironmentVariables()
-                 .AddCommandLine(args)
-                 .Build();
+            IConfiguration config;
+            string stateDirAppSettings = "./state/appsettings.json";
+
+            if (File.Exists(stateDirAppSettings))
+            {
+                // Use the appsettings.json from the state directory
+                config = new ConfigurationBuilder()
+                    .AddJsonFile(stateDirAppSettings, optional: false, reloadOnChange: false)
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(args)
+                    .Build();
+            }
+            else
+            {
+                // Use the default appsettings.json
+                config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(args)
+                    .Build();
+            }
+
 
 
 
@@ -37,15 +55,25 @@ namespace NetworkMonitor.Processor
                             .AddFilter("Microsoft", LogLevel.Information)  // Log only warnings from Microsoft namespaces
                             .AddFilter("System", LogLevel.Information)     // Log only warnings from System namespaces
                             .AddFilter("Program", LogLevel.Debug)      // Log all messages from Program class
-                            //.AddFilter("NetworkMonitor.Connection", LogLevel.Debug)
+                                                                       //.AddFilter("NetworkMonitor.Connection", LogLevel.Debug)
                             .AddSimpleConsole(options =>
                         {
                             options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
                             options.IncludeScopes = true;
                         });
                   });
-
-            var fileRepo = new FileRepo();
+            FileRepo fileRepo;
+            if (Directory.Exists("./state"))
+            {
+                fileRepo = new FileRepo(true, "./state");
+                if (!File.Exists("./state/ProcessorDataObj")) File.Create("./state/ProcessorDataObj");
+                if (!File.Exists("./state/MonitorIPs")) File.Create("./state/MonitorIPs");
+                if (!File.Exists("./state/PingParams")) File.Create("./state/PingParams");
+            }
+            else
+            {
+                fileRepo = new FileRepo();
+            }
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig.LocalSystemUrl);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
