@@ -49,7 +49,7 @@ namespace NetworkMonitor.Processor.Services
 
             try
             {
-                await _fileRepo.SaveStateJsonZAsync("ProcessorDataObj", processorDataObj);
+                await _fileRepo.SaveStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj", processorDataObj);
                 _logger.LogInformation(" State Setup : Success : Resetting Processor ProcessorDataObj in statestore");
 
                 await _fileRepo.SaveStateJsonZAsync<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());

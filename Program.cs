@@ -71,18 +71,18 @@ namespace NetworkMonitor.Processor
                 fileRepo = new FileRepo(true, "./state");
                 if (!File.Exists("./state/ProcessorDataObj"))
                 {
-                    File.Create("./state/ProcessorDataObj");
-                    fileRepo.SaveStateJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
+                    File.Create("./state/ProcessorDataObj").Close();
+                    fileRepo.SaveStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
                 }
                 if (!File.Exists("./state/MonitorIPs"))
                 {
-                    File.Create("./state/MonitorIPs");
+                    File.Create("./state/MonitorIPs").Close();
                     fileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
 
                 }
                 if (!File.Exists("./state/PingParams"))
                 {
-                    File.Create("./state/PingParams");
+                    File.Create("./state/PingParams").Close();
                     fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
 
                 }
