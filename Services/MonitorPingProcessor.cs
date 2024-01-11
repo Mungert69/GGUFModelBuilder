@@ -184,6 +184,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _netConfig.AuthKey = authkey;
+                _netConfig.IsAuthorized=true;
                 _fileRepo.CheckFileExists("appsettings.json",_logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
                 result.Success = true;
