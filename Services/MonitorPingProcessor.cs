@@ -5,6 +5,7 @@ using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Utils;
 using NetworkMonitor.Utils.Helpers;
 using NetworkMonitor.Objects.ServiceMessage;
+using NetworkMonitor.DTOs;
 using System.Linq;
 using NetworkMonitor.Connection;
 using NetworkMonitor.Objects.Factory;
@@ -30,6 +31,17 @@ namespace NetworkMonitor.Processor.Services
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         private NetConnectCollection _netConnectCollection;
         private MonitorPingCollection _monitorPingCollection;
+        private MonitorPingInfoView _monitoPingInfoView;
+        private void SetMonitorPingInfoView()
+        {
+            var monitorPingInfos =new List<MonitorPingInfo>();;
+            foreach (var monitorPingInfo in _monitorPingCollection.MonitorPingInfos.ToList()){
+                monitorPingInfo.Value.PingInfos=null;
+                monitorPingInfos.Add(monitorPingInfo.Value);
+            }
+            _monitoPingInfoView.MonitorPingInfos = monitorPingInfos;
+            _monitoPingInfoView.Update();
+        }
         private ConcurrentDictionary<string, List<UpdateMonitorIP>> _monitorIPQueueDic = new ConcurrentDictionary<string, List<UpdateMonitorIP>>();
         // private List<MonitorIP> _monitorIPQueue = new List<MonitorIP>();
         //private DaprClient _daprClient;
@@ -40,7 +52,7 @@ namespace NetworkMonitor.Processor.Services
         public string AppID { get => _netConfig.AppID; }
 
 
-        public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo)
+        public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo, MonitorPingInfoView? monitorPingInfoView = null)
         {
             _logger = logger;
             _fileRepo = fileRepo;
@@ -55,6 +67,7 @@ namespace NetworkMonitor.Processor.Services
 
             _netConnectCollection = new NetConnectCollection(_logger, _netConfig, connectFactory);
             _monitorPingCollection = new MonitorPingCollection(_logger);
+            _monitoPingInfoView = monitorPingInfoView;
         }
         public async Task OnStoppingAsync()
         {
@@ -184,8 +197,8 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _netConfig.AuthKey = authkey;
-                _netConfig.AgentUserFlow.IsAuthorized=true;
-                _fileRepo.CheckFileExists("appsettings.json",_logger);
+                _netConfig.AgentUserFlow.IsAuthorized = true;
+                _fileRepo.CheckFileExists("appsettings.json", _logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
                 result.Success = true;
                 result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json";
@@ -199,22 +212,26 @@ namespace NetworkMonitor.Processor.Services
             return result;
 
         }
-        public ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj){
-            var result=new ResultObj();
-            if (processorUserEventObj.IsLoggedInWebsite!=null) {
-                _netConfig.AgentUserFlow.IsLoggedInWebsite=(bool)processorUserEventObj.IsLoggedInWebsite;
-                result.Success=true;
-                result.Message+=$" Success : Updated AgentUserFlow.IsLoggedInWebsite to {_netConfig.AgentUserFlow.IsLoggedInWebsite}";
-                }
-            if (processorUserEventObj.IsHostsAdded!=null) {
-                _netConfig.AgentUserFlow.IsHostsAdded=(bool)processorUserEventObj.IsHostsAdded;
-                 result.Success=true;
-                result.Message+=$" Success : Updated AgentUserFlow.IsHostsAdded to {_netConfig.AgentUserFlow.IsHostsAdded}";
-              }
-              if (result.Success==false){
-                result.Message+=" No ProcessorUserEvent properties set . ";
-              }
-              return result;
+        public ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj)
+        {
+            var result = new ResultObj();
+            if (processorUserEventObj.IsLoggedInWebsite != null)
+            {
+                _netConfig.AgentUserFlow.IsLoggedInWebsite = (bool)processorUserEventObj.IsLoggedInWebsite;
+                result.Success = true;
+                result.Message += $" Success : Updated AgentUserFlow.IsLoggedInWebsite to {_netConfig.AgentUserFlow.IsLoggedInWebsite}";
+            }
+            if (processorUserEventObj.IsHostsAdded != null)
+            {
+                _netConfig.AgentUserFlow.IsHostsAdded = (bool)processorUserEventObj.IsHostsAdded;
+                result.Success = true;
+                result.Message += $" Success : Updated AgentUserFlow.IsHostsAdded to {_netConfig.AgentUserFlow.IsHostsAdded}";
+            }
+            if (result.Success == false)
+            {
+                result.Message += " No ProcessorUserEvent properties set . ";
+            }
+            return result;
         }
         /*
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
@@ -430,6 +447,17 @@ namespace NetworkMonitor.Processor.Services
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
             _awake = false;
+            try
+            {
+                if (_monitoPingInfoView != null) SetMonitorPingInfoView();
+
+            }
+            catch (Exception e)
+            {
+                result.Message += $" Error : Could not set MonitorPingInfoView . Error was : {e.Message()}";
+                result.Success = false;
+                _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
+            }
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.

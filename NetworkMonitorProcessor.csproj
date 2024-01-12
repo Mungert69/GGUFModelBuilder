@@ -10,7 +10,7 @@
     <PublishAot>true</PublishAot>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:8.0</ContainerBaseImage>
     <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
-    <ContainerImageTag>1.0.0</ContainerImageTag>
+    <ContainerImageTag>1.0.1</ContainerImageTag>
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
   </PropertyGroup>
 
