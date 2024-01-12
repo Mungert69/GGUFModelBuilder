@@ -262,7 +262,7 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                         case "processorUserEvent":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
                         {
                             try
                             {
@@ -554,7 +554,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-public ResultObj ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj)
+        public ResultObj ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
@@ -567,7 +567,7 @@ public ResultObj ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj
                 return result;
 
             }
-           
+
             try
             {
                 ResultObj connectResult = await _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
