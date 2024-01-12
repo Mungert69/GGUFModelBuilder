@@ -22,6 +22,7 @@ namespace NetworkMonitor.Objects.Repository
         ResultObj ResetAlerts(List<int> monitorIPIDs);
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
         ResultObj WakeUp();
+        ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
         void Shutdown();
     }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
@@ -44,7 +45,7 @@ namespace NetworkMonitor.Objects.Repository
         private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
-             await Task.Run(() => Reconnect());
+            await Task.Run(() => Reconnect());
         }
         public void Dispose()
         {
@@ -103,6 +104,12 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorAuthKey" + _netConfig.AppID,
                 FuncName = "processorAuthKey",
+                MessageTimeout = 600000
+            });
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorUserEvent" + _netConfig.AppID,
+                FuncName = "processorUserEvent",
                 MessageTimeout = 600000
             });
         }
@@ -253,6 +260,21 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                        case "processorUserEvent":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
+                        {
+                            try
+                            {
+                                result = ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorUserEvent " + ex.Message);
+                            }
+                        };
+                            break;
                     }
                 }
             });
@@ -273,7 +295,7 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorConnect : ";
-             if (connectObj == null)
+            if (connectObj == null)
             {
                 result.Success = false;
                 result.Message += "Error : connectObj was null .";
@@ -532,6 +554,40 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
+public ResultObj ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorUserEvent : ";
+            if (processorUserEventObj == null)
+            {
+                result.Success = false;
+                result.Message += " Error : processorUserEventObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+           
+            try
+            {
+                ResultObj connectResult = await _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
+                result.Message += connectResult.Message;
+                result.Success = connectResult.Success;
+                result.Data = connectResult.Data;
+                if (result.Success == true)
+                    _logger.LogInformation(result.Message);
+                else _logger.LogError(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += " Error : Failed to receive message : Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+
         public ResultObj WakeUp()
         {
             ResultObj result = new ResultObj();
