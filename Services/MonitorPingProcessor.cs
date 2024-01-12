@@ -200,8 +200,21 @@ namespace NetworkMonitor.Processor.Services
 
         }
         public ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj){
-            if (processorUserEventObj.IsLoggedInWebsite!=null) _netConfig.AgentUserFlow.IsLoggedInWebsite=processorUserEventObj.IsLoggedInWebsite;
-            if (processorUserEventObj.IsHostsAdded!=null) _netConfig.AgentUserFlow.IsHostsAdded=processorUserEventObj.IsHostsAdded;
+            var result=new ResultObj();
+            if (processorUserEventObj.IsLoggedInWebsite!=null) {
+                _netConfig.AgentUserFlow.IsLoggedInWebsite=(bool)processorUserEventObj.IsLoggedInWebsite;
+                result.Success=true;
+                result.Message+=$" Success : Updated AgentUserFlow.IsLoggedInWebsite to {_netConfig.AgentUserFlow.IsLoggedInWebsite}";
+                }
+            if (processorUserEventObj.IsHostsAdded!=null) {
+                _netConfig.AgentUserFlow.IsHostsAdded=(bool)processorUserEventObj.IsHostsAdded;
+                 result.Success=true;
+                result.Message+=$" Success : Updated AgentUserFlow.IsHostsAdded to {_netConfig.AgentUserFlow.IsHostsAdded}";
+              }
+              if (result.Success==false){
+                result.Message+=" No ProcessorUserEvent properties set . ";
+              }
+              return result;
         }
         /*
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/

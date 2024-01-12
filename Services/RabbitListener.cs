@@ -500,6 +500,12 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;
+                if (connectResult.Success)
+                {
+                    var processorUserEventObj = new ProcessorUserEventObj();
+                    processorUserEventObj.IsHostsAdded = true;
+                    _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
+                }
                 if (result.Success == true)
                     _logger.LogInformation(result.Message);
                 else _logger.LogError(result.Message);
@@ -570,7 +576,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                ResultObj connectResult = await _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
+                ResultObj connectResult = _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;
