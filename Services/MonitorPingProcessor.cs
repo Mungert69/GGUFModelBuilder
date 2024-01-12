@@ -31,7 +31,7 @@ namespace NetworkMonitor.Processor.Services
         private List<SwapMonitorPingInfo> _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
         private NetConnectCollection _netConnectCollection;
         private MonitorPingCollection _monitorPingCollection;
-        private MonitorPingInfoView _monitoPingInfoView;
+        private IMonitorPingInfoView _monitoPingInfoView;
         private void SetMonitorPingInfoView()
         {
             var monitorPingInfos =new List<MonitorPingInfo>();;
@@ -52,7 +52,7 @@ namespace NetworkMonitor.Processor.Services
         public string AppID { get => _netConfig.AppID; }
 
 
-        public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo, MonitorPingInfoView? monitorPingInfoView = null)
+        public MonitorPingProcessor(ILogger logger, NetConnectConfig netConfig, IConnectFactory connectFactory, IFileRepo fileRepo, IRabbitRepo rabbitRepo, IMonitorPingInfoView? monitorPingInfoView = null)
         {
             _logger = logger;
             _fileRepo = fileRepo;
@@ -454,7 +454,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                result.Message += $" Error : Could not set MonitorPingInfoView . Error was : {e.Message()}";
+                result.Message += $" Error : Could not set MonitorPingInfoView . Error was : {e.Message}";
                 result.Success = false;
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
