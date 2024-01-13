@@ -317,6 +317,15 @@ namespace NetworkMonitor.Processor.Services
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 //_netConnectCollection.IsLocked = false;
             }
+              try
+            {
+                if (_monitoPingInfoView != null) SetMonitorPingInfoView();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
+            }
         }
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
