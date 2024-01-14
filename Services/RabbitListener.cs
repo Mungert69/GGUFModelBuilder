@@ -22,7 +22,7 @@ namespace NetworkMonitor.Objects.Repository
         ResultObj ResetAlerts(List<int> monitorIPIDs);
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
         ResultObj WakeUp();
-        ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
+        Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
         void Shutdown();
     }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
@@ -262,11 +262,11 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                         case "processorUserEvent":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
                         {
                             try
                             {
-                                result = ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
+                                result = await ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -560,7 +560,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public ResultObj ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj)
+        public async Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj? processorUserEventObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
@@ -576,7 +576,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                ResultObj connectResult = _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
+                ResultObj connectResult = await _monitorPingProcessor.ProcessorUserEvent(processorUserEventObj);
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;

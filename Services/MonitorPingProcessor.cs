@@ -212,25 +212,32 @@ namespace NetworkMonitor.Processor.Services
             return result;
 
         }
-        public ResultObj ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj)
+        public async Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj)
         {
             var result = new ResultObj();
-            if (processorUserEventObj.IsLoggedInWebsite != null)
+            bool isValueChanged=false;
+            if (processorUserEventObj.IsLoggedInWebsite != null && _netConfig.AgentUserFlow.IsLoggedInWebsite!=(bool)processorUserEventObj.IsLoggedInWebsite)
             {
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = (bool)processorUserEventObj.IsLoggedInWebsite;
                 result.Success = true;
                 result.Message += $" Success : Updated AgentUserFlow.IsLoggedInWebsite to {_netConfig.AgentUserFlow.IsLoggedInWebsite}";
+                isValueChanged=true;
             }
-            if (processorUserEventObj.IsHostsAdded != null)
-            {
+            if (processorUserEventObj.IsHostsAdded != null && _netConfig.AgentUserFlow.IsHostsAdded != (bool)processorUserEventObj.IsHostsAdded)
+            {         
                 _netConfig.AgentUserFlow.IsHostsAdded = (bool)processorUserEventObj.IsHostsAdded;
                 result.Success = true;
                 result.Message += $" Success : Updated AgentUserFlow.IsHostsAdded to {_netConfig.AgentUserFlow.IsHostsAdded}";
+                isValueChanged=true;
             }
             if (result.Success == false)
             {
+                result.Success=true;
                 result.Message += " No ProcessorUserEvent properties set . ";
             }
+             if (isValueChanged){ _fileRepo.CheckFileExists("appsettings.json", _logger);
+                await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);}
+             
             return result;
         }
         /*
