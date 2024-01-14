@@ -8,7 +8,7 @@ namespace NetworkMonitor.Processor.Services
 {
     public interface IMonitorPingProcessor
     {
-        Task Init(ProcessorInitObj initObj);
+        Task<ResultObj> Init(ProcessorInitObj initObj);
         Task<ResultObj> SetAuthKey(string authkey);
         ResultObj AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         Task<ResultObj> Connect(ProcessorConnectObj connectObj);
@@ -19,7 +19,7 @@ namespace NetworkMonitor.Processor.Services
         void  ProcessesMonitorReturnData(ProcessorDataObj processorDataObj);
 
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
-        bool Awake{get;set;}
+        //bool Awake{get;set;}
          string AppID { get;  }
     }
 }

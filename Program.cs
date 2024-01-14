@@ -108,13 +108,15 @@ namespace NetworkMonitor.Processor
 
                 }
             }
+            var processorStates=new LocalProcessorStates();
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig.LocalSystemUrl);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
-            _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig);
+            _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates);
             AuthService authService;
-            await _monitorPingProcessor.Init(new ProcessorInitObj());
+            var result=await _monitorPingProcessor.Init(new ProcessorInitObj());
+            processorStates.IsSetup=result.Success;
             if (config["AuthDevice"] == "true")
             {
                 authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo);

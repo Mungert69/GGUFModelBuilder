@@ -30,11 +30,15 @@ namespace NetworkMonitor.Objects.Repository
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
         NetConnectConfig _netConfig;
+        LocalProcessorStates _localProcessorStates;
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig) : base(logger, DeriveSystemUrl(netConnectConfig))
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates) : base(logger, DeriveSystemUrl(netConnectConfig))
         {
             _monitorPingProcessor = monitorPingProcessor;
+            _localProcessorStates=localProcessorStates;
+            _localProcessorStates.IsRabbitConnected=_isConnected;
+            _localProcessorStates.RabbitSetupMessage=_setupMessage;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
