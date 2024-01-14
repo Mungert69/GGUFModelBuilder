@@ -30,22 +30,19 @@ namespace NetworkMonitor.Objects.Repository
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
         NetConnectConfig _netConfig;
-        LocalProcessorStates _localProcessorStates;
 
-
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates) : base(logger, DeriveSystemUrl(netConnectConfig))
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState)
         {
             _monitorPingProcessor = monitorPingProcessor;
-            _localProcessorStates=localProcessorStates;
-            _localProcessorStates.IsRabbitConnected=_isConnected;
-            _localProcessorStates.RabbitSetupMessage=_setupMessage;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
+     
 
             Setup();
         }
 
+ 
         private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
@@ -59,6 +56,7 @@ namespace NetworkMonitor.Objects.Repository
         {
             return netConnectConfig.LocalSystemUrl;
         }
+        
         protected override void InitRabbitMQObjs()
         {
             _rabbitMQObjs = new List<RabbitMQObj>();

@@ -365,6 +365,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
             _processorStates.IsSetup = result.Success;
+            if (result.Success) result.Message+=" Success : Setup completed."
             _processorStates.SetupMessage = result.Message;
             return result;
         }
