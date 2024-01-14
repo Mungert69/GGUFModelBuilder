@@ -6,10 +6,11 @@ using NetworkMonitor.Connection;
 using NetworkMonitor.Utils;
 using NetworkMonitor.Objects;
 using System.Text.Json;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using NetworkMonitor.Objects.Repository;
 
 
@@ -47,7 +48,7 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             result.Message = " InitializeAsync : ";
             using var httpClient = new HttpClient();
-            if (_netConfig.ClientId.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(_netConfig.ClientId))
             {
                 result.Message += $" Error: No BaseFusionAuthUrl set . ";
                 result.Success = false;
@@ -119,7 +120,7 @@ namespace NetworkMonitor.Processor.Services
         {
             var result = new ResultObj { Message = " SendAuthRequestAsync: " };
 
-            if (_netConfig.ClientId.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(_netConfig.ClientId))
             {
                 result.Message += " Error: No ClientId set.";
                 result.Success = false;
