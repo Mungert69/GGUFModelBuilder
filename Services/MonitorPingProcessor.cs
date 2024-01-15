@@ -377,6 +377,7 @@ namespace NetworkMonitor.Processor.Services
         {
 
             _processorStates.IsConnectRunning = true;
+            //_processorStates.IsConnectWaiting=false;
             _processorStates.ConnectRunningMessage=" Success : Monitor running ";
             var timerInner = new Stopwatch();
             timerInner.Start();
@@ -385,14 +386,15 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
-            _logger.LogInformation(" SERVICE : MonitorPingProcessor.Connect() ");
+            //_logger.LogInformation(" SERVICE : MonitorPingProcessor.Connect() ");
             result.Message += await UpdateMonitorPingInfosFromMonitorIPQueue();
             if (_monitorPingCollection.MonitorPingInfos == null || _monitorPingCollection.MonitorPingInfos.Values.Where(x => x.Enabled == true).Count() == 0)
             {
                 result.Message += " Warning : There is no MonitorPingInfo data. ";
-                _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
+                //_logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
                 _processorStates.IsConnectRunning = false;
+                //_processorStates.IsConnectWaiting=false;
                 _processorStates.ConnectRunningMessage=result.Message;
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 return result;
@@ -430,7 +432,7 @@ namespace NetworkMonitor.Processor.Services
                 if (timeToWait < 25)
                 {
                     result.Message += " Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ";
-                    _logger.LogWarning(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
+                    //_logger.LogWarning(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
                 }
                 result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
                 int countDown = filteredNetConnects.Count();
@@ -456,7 +458,7 @@ namespace NetworkMonitor.Processor.Services
                     if (timeToWait < 0)
                     {
                         timeToWait = 0;
-                        _logger.LogWarning(" Warning : Time to wait is less than 0ms.  This may cause problems with the service.  Please check the schedule settings. ");
+                        result.Message+=" Warning : Time to wait is less than 0ms.  This may cause problems with the service.  Please check the schedule settings. ";
                     }
                     countDown--;
                 };
@@ -468,7 +470,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 catch
                 {
-                    _logger.LogWarning(" Warning : Can end GC region. ");
+                    _logger.LogWarning(" Warning : Can not end GC region. ");
 
                 }
 #endif
@@ -500,11 +502,11 @@ namespace NetworkMonitor.Processor.Services
             if (timeTakenInnerInt > connectObj.NextRunInterval)
             {
                 result.Message += " Warning : Time to execute greater than next schedule time. ";
-                _logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
+                //_logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
-            _processorStates.IsConnectRunning = false;
-             _processorStates.ConnectRunningMessage=result.Message;
+          
+
             try
             {
                 if (_monitoPingInfoView != null) SetMonitorPingInfoView();
@@ -516,6 +518,11 @@ namespace NetworkMonitor.Processor.Services
                 result.Success = false;
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
+            _processorStates.IsConnectWaiting=result.Success;
+            _processorStates.IsConnectRunning = false;
+             _processorStates.ConnectRunningMessage=result.Message;
+             if (result.Success) _logger.LogInformation(result.Message);
+             else _logger.LogError(result.Message);
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
