@@ -75,6 +75,7 @@ namespace NetworkMonitor.Processor.Services
             _monitoPingInfoView = monitorPingInfoView;
             _processorStates = processorStates;
             _processorStates.IsRunning = true;
+            _processorStates.RunningMessage=" Success : Agent started ";
         }
         public async Task OnStoppingAsync()
         {
@@ -83,6 +84,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _processorStates.IsRunning = false;
+                _processorStates.RunningMessage=" Success : Agent shutdown ";
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
@@ -273,6 +275,7 @@ namespace NetworkMonitor.Processor.Services
                         result.Message += $" Error : Unable to perform TotalReset exiting Init() .";
                         _logger.LogCritical(result.Message);
                         result.Success = false;
+                        _processorStates.IsSetup=result.Success;
                         _processorStates.SetupMessage = result.Message;
                         return result;
                     }
@@ -365,7 +368,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
             _processorStates.IsSetup = result.Success;
-            if (result.Success) result.Message+=" Success : Setup completed.";
+            if (result.Success) result.Message+=" Success : Setup completed ";
             _processorStates.SetupMessage = result.Message;
             return result;
         }
@@ -374,6 +377,7 @@ namespace NetworkMonitor.Processor.Services
         {
 
             _processorStates.IsConnectRunning = true;
+            _processorStates.ConnectRunningMessage=" Success : Monitor running ";
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
@@ -389,6 +393,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
                 _processorStates.IsConnectRunning = false;
+                _processorStates.ConnectRunningMessage=result.Message;
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 return result;
             }
@@ -499,6 +504,7 @@ namespace NetworkMonitor.Processor.Services
             }
             result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
             _processorStates.IsConnectRunning = false;
+             _processorStates.ConnectRunningMessage=result.Message;
             try
             {
                 if (_monitoPingInfoView != null) SetMonitorPingInfoView();
