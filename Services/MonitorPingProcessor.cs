@@ -75,7 +75,7 @@ namespace NetworkMonitor.Processor.Services
             _monitoPingInfoView = monitorPingInfoView;
             _processorStates = processorStates;
             _processorStates.IsRunning = true;
-            _processorStates.RunningMessage=" Success : Agent started ";
+            _processorStates.RunningMessage = " Success : Agent started ";
         }
         public async Task OnStoppingAsync()
         {
@@ -84,7 +84,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _processorStates.IsRunning = false;
-                _processorStates.RunningMessage=" Success : Agent shutdown ";
+                _processorStates.RunningMessage = " Success : Agent shutdown ";
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
                 _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
@@ -275,7 +275,7 @@ namespace NetworkMonitor.Processor.Services
                         result.Message += $" Error : Unable to perform TotalReset exiting Init() .";
                         _logger.LogCritical(result.Message);
                         result.Success = false;
-                        _processorStates.IsSetup=result.Success;
+                        _processorStates.IsSetup = result.Success;
                         _processorStates.SetupMessage = result.Message;
                         return result;
                     }
@@ -368,7 +368,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
             _processorStates.IsSetup = result.Success;
-            if (result.Success) result.Message+=" Success : Setup completed ";
+            if (result.Success) result.Message += " Success : Setup completed ";
             _processorStates.SetupMessage = result.Message;
             return result;
         }
@@ -377,8 +377,8 @@ namespace NetworkMonitor.Processor.Services
         {
 
             _processorStates.IsConnectRunning = true;
-            //_processorStates.IsConnectWaiting=false;
-            _processorStates.ConnectRunningMessage=" Success : Monitor running ";
+            _processorStates.IsConnectState = ConnectState.Running;
+            _processorStates.ConnectRunningMessage = " Success : Monitor running ";
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
@@ -394,8 +394,8 @@ namespace NetworkMonitor.Processor.Services
                 //_logger.LogWarning(" Warning : There is no MonitorPingInfo data. ");
                 result.Success = false;
                 _processorStates.IsConnectRunning = false;
-                //_processorStates.IsConnectWaiting=false;
-                _processorStates.ConnectRunningMessage=result.Message;
+                _processorStates.IsConnectState = ConnectState.Error;
+                _processorStates.ConnectRunningMessage = result.Message;
                 PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 return result;
             }
@@ -405,16 +405,32 @@ namespace NetworkMonitor.Processor.Services
 #if !ANDROID
                 try
                 {
-                    result.Message += " MEMINFO Before : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
-                    GC.Collect();
-                    result.Message += " MEMINFO After : " + GC.GetGCMemoryInfo().TotalCommittedBytes + " : ";
-                    GC.TryStartNoGCRegion(504857600, true);
-                }
-                catch
-                {
-                    _logger.LogWarning(" Warning : Can not collect garbage or start No GC region. ");
+                    var message = "";
+                    long memoryBeforeGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
+                    double memoryBeforeGCMb = (double)memoryBeforeGCBytes / (1024 * 1024);
+                    message += $" Info : Memory Info Before GC: {memoryBeforeGCMb:F2} MB : ";
 
+                    GC.Collect();
+
+                    long memoryAfterGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
+                    double memoryAfterGCMb = (double)memoryAfterGCBytes / (1024 * 1024);
+                    message += $" Memory Info After GC: {memoryAfterGCMb:F2} MB : ";
+
+                    long noGCRegionSizeBytes = 256 * 1024 * 1024; // 256 MB
+                    bool succeeded = GC.TryStartNoGCRegion(noGCRegionSizeBytes, true);
+
+
+                    if (!succeeded)
+                    {
+                        _logger.LogWarning(" Warning: Unable to collect garbage or start No GC region.");
+                    }
+                    result.Message += message;
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error: {ex.Message}");
+                }
+
 #endif
 
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
@@ -431,10 +447,10 @@ namespace NetworkMonitor.Processor.Services
                 int timeToWait = executionTime / count;
                 if (timeToWait < 25)
                 {
-                    result.Message += " Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ";
+                    result.Message += " Warning : Time to wait between monitor events is less than 25ms.  This may cause problems with the agent.  Reduce the number of hosts monitored. ";
                     //_logger.LogWarning(" Warning : Time to wait is less than 25ms.  This may cause problems with the service.  Please check the schedule settings. ");
                 }
-                result.Message += " Info : Time to wait : " + timeToWait + "ms. ";
+                result.Message += " Info : Time to wait between monitor events : " + timeToWait + "ms. ";
                 int countDown = filteredNetConnects.Count();
                 foreach (var netConnect in filteredNetConnects)
                 {
@@ -458,7 +474,7 @@ namespace NetworkMonitor.Processor.Services
                     if (timeToWait < 0)
                     {
                         timeToWait = 0;
-                        result.Message+=" Warning : Time to wait is less than 0ms.  This may cause problems with the service.  Please check the schedule settings. ";
+                        result.Message += " Warning : Time to wait is less than 0ms.  This may cause problems with the service.  Please check the schedule settings. ";
                     }
                     countDown--;
                 };
@@ -466,17 +482,20 @@ namespace NetworkMonitor.Processor.Services
                 try
                 {
                     if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
+                    {
                         GC.EndNoGCRegion();
+                        _logger.LogInformation("No GC Region ended successfully.");
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    _logger.LogWarning(" Warning : Can not end GC region. ");
-
+                    _logger.LogWarning($"Warning: Unable to end No GC Region - {ex.Message}");
                 }
+
 #endif
 
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
-                result.Message += " Success : Completed all NetConnect tasks in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
+                result.Message += " Success : Completed all connections in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
                 // Check _netConnectCollection for any NetConnects that have RunningTime > _maxRunningTime and log them.
                 result.Message += _netConnectCollection.LogInfo(filteredNetConnects);
@@ -501,10 +520,9 @@ namespace NetworkMonitor.Processor.Services
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
             {
-                result.Message += " Warning : Time to execute greater than next schedule time. ";
+                result.Message += " Warning : Time to execute the monitor tasks was greater than next schedule time. One schedule will be missed.";
                 //_logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
-            result.Message += " Success : MonitorPingProcessor.Connect Executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
           
 
             try
@@ -514,15 +532,22 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception e)
             {
-                result.Message += $" Error : Could not set MonitorPingInfoView . Error was : {e.Message}";
+                result.Message += $" Error : Could not set UI data view . Error was : {e.Message}";
                 result.Success = false;
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
-            _processorStates.IsConnectWaiting=result.Success;
+             if (result.Success) {
+                 result.Message += " Success : All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
+          
+                _processorStates.IsConnectState = ConnectState.Waiting;
+                }
+            else {
+                 result.Message += " All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms with Errors ."; 
+                _processorStates.IsConnectState = ConnectState.Error;}
             _processorStates.IsConnectRunning = false;
-             _processorStates.ConnectRunningMessage=result.Message;
-             if (result.Success) _logger.LogInformation(result.Message);
-             else _logger.LogError(result.Message);
+            _processorStates.ConnectRunningMessage = result.Message;
+            if (result.Success) _logger.LogInformation(result.Message);
+            else _logger.LogError(result.Message);
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
@@ -534,7 +559,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 var monitorIPQueue = new List<UpdateMonitorIP>();
-                if (_monitorIPQueueDic.Count() == 0) return " No Data in Queue . ";
+                if (_monitorIPQueueDic.Count() == 0) return " No host config changes to Process . ";
                 foreach (KeyValuePair<string, List<UpdateMonitorIP>> kvp in _monitorIPQueueDic)
                 {
                     if (!kvp.Value[0].DeleteAll)
@@ -565,7 +590,7 @@ namespace NetworkMonitor.Processor.Services
                         }
                         catch
                         {
-                            message += "Error : Failed to update Host list check Values.";
+                            message += "Error : Failed to update Host list check Values .";
                         }
                         _logger.LogInformation(" Updating MonitorPingInfo with ID " + monitorPingInfo.ID);
                     }

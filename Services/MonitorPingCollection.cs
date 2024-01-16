@@ -52,7 +52,7 @@ namespace NetworkMonitor.Processor.Services
 
             if (failFlag)
             {
-                _logger.LogError(" ZeroMonitorPingInfos failed to Zero PingInfos for MonitorPingInfo.MonitorIPID  " + monitorPingInfo.MonitorIPID);
+                _logger.LogError(" Error : ZeroMonitorPingInfos failed to Zero PingInfos for MonitorPingInfo.MonitorIPID  " + monitorPingInfo.MonitorIPID);
             }
             //monitorPingInfo.PingInfos = new BlockingCollection<PingInfo>();
             monitorPingInfo.RoundTripTimeAverage = 0;
@@ -170,11 +170,11 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message = " Removed " + count + " PingInfos from PingInfos. Failed to remove " + failCount + " PingInfos.";
+                result.Message = " Success : Removed " + count + " PingInfos from PingInfos. ";
                 return result;
             }
             result.Success = false;
-            result.Message = " Failed to remove " + failCount + " PingInfos from PingInfos. Removed " + count + " PingInfos.";
+            result.Message = " Error : Failed to remove " + failCount+ " PingInfos from PingInfos. Removed " + count + " PingInfos.";
             return result;
 
         }
@@ -206,7 +206,7 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message = " Removed " + count + " MonitorPingInfos from MonitorPingInfos. Failed to remove " + failCount + " MonitorPingInfos.";
+                result.Message = " Success : Removed " + count + " MonitorPingInfos from MonitorPingInfos. ";
                 return result;
             }
             if (failCount == 0 && count == 0)
@@ -216,7 +216,7 @@ namespace NetworkMonitor.Processor.Services
                 return result;
             }
             result.Success = false;
-            result.Message = " Failed to remove " + failCount + " MonitorPingInfos from MonitorPingInfos. Removed " + count + " MonitorPingInfos.";
+            result.Message =  " Error : Failed to remove " + failCount+ " MonitorPingInfos from MonitorPingInfos. Removed " + count + " MonitorPingInfos.";
             return result;
         }
 
@@ -244,7 +244,7 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message = " Removed " + count + " PingInfos. Failed to remove " + failCount + " PingInfos.";
+                result.Message =  count + " Success : Monitor events sent to Monitor Service .";
                 return result;
             }
             if (failCount == 0 && count == 0)
@@ -254,7 +254,7 @@ namespace NetworkMonitor.Processor.Services
                 return result;
             }
             result.Success = false;
-            result.Message = " Failed to remove " + failCount + " PingInfos . Removed " + count + " PingInfos.";
+            result.Message = " Error : Failed to remove " + failCount + " PingInfos . Removed " + count + " PingInfos.";
             return result;
         }
 
@@ -280,7 +280,7 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message = " Removed " + count + " PingInfos from RemovePingInfos. ";
+                result.Message =  count + " Success : Monitor events sent to Monitor Service .";
                 return result;
             }
             if (failCount == 0 && count == 0)
@@ -290,7 +290,7 @@ namespace NetworkMonitor.Processor.Services
                 return result;
             }
             result.Success = false;
-            result.Message = " Failed to remove " + failCount + " PingInfos from RemovePingInfos. Removed " + count + " PingInfos.";
+            result.Message = " Error : Failed to remove " + failCount + " PingInfos from RemovePingInfos. Removed " + count + " PingInfos.";
             return result;
         }
 
@@ -320,7 +320,7 @@ namespace NetworkMonitor.Processor.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(" RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
+                _logger.LogError(" Error : could not RemovePublishedPingInfos " + ex.Message + " " + ex.StackTrace);
             }
             finally
             {
@@ -345,7 +345,7 @@ namespace NetworkMonitor.Processor.Services
                     var monitorPingInfo = currentMonitorPingInfos.FirstOrDefault(m => m.MonitorIPID == monIP.ID);
                     if (monitorPingInfo != null)
                     {
-                        _logger.LogDebug("Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogDebug(" Debug : Updatating MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                         var fillPingInfo = currentPingInfos.Where(w => w.MonitorPingInfoID == monitorPingInfo.MonitorIPID).ToList();
                         foreach (var f in fillPingInfo)
                         {
@@ -355,27 +355,27 @@ namespace NetworkMonitor.Processor.Services
                     else
                     {
                         monitorPingInfo = new MonitorPingInfo();
-                        _logger.LogDebug("Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogDebug(" Debug : Adding new MonitorPingInfo for MonitorIP ID=" + monIP.ID);
                     }
                     FillPingInfo(monitorPingInfo, monIP);
                     if (!_monitorPingInfos.TryAdd(monitorPingInfo.MonitorIPID, monitorPingInfo))
                     {
-                        _logger.LogError("MonitorPingInfoFactory failed to add MonitorPingInfo for MonitorIP ID=" + monIP.ID);
+                        _logger.LogError(" Error : MonitorPingInfoFactory failed to add MonitorPingInfo for MonitorIP ID=" + monIP.ID);
 
                     };
                     i++;
                 }
                 result.Success = resultPingInfos.Success && resultRemovePingInfos.Success;
 
-                _logger.LogInformation("MonitorPingInfoFactory added " + i + " MonitorPingInfos.");
-                _logger.LogInformation("MonitorPingInfoFactory added " + PingInfos.Count() + " PingInfos.");
+                _logger.LogInformation(" Info : MonitorPingInfoFactory added " + i + " MonitorPingInfos.");
+                _logger.LogInformation(" Info : MonitorPingInfoFactory added " + PingInfos.Count() + " PingInfos.");
 
             }
             catch (Exception ex)
             {
                 result.Success = false;
-                _logger.LogError("MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace);
-                result.Message = "MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace;
+                _logger.LogError(" Error : MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace);
+                result.Message = " Error : MonitorPingInfoFactory error: " + ex.Message + " " + ex.StackTrace;
             }
             finally
             {
