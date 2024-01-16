@@ -244,7 +244,7 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message =  count + " Success : Monitor events sent to Monitor Service .";
+                result.Message =  $" Success : {count} monitor events cleared from send queue.";
                 return result;
             }
             if (failCount == 0 && count == 0)
@@ -280,7 +280,7 @@ namespace NetworkMonitor.Processor.Services
             if (failCount == 0 && count > 0)
             {
                 result.Success = true;
-                result.Message =  count + " Success : Monitor events sent to Monitor Service .";
+                result.Message =  $" Success : {count} Monitor events sent to Monitor Service .";
                 return result;
             }
             if (failCount == 0 && count == 0)
