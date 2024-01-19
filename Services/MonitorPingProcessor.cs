@@ -206,8 +206,10 @@ namespace NetworkMonitor.Processor.Services
             result.Message = " SetAuthKey : ";
             try
             {
-                _netConfig.AuthKey = processorInitObj.Authkey;
+                _netConfig.AuthKey = processorInitObj.AuthKey;
                 _netConfig.AgentUserFlow.IsAuthorized = true;
+                _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
+                _netConfig.AgentUserFlow.IsHostsAdded = false;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
                 result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json.";

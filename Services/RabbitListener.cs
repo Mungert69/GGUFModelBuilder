@@ -253,7 +253,7 @@ namespace NetworkMonitor.Objects.Repository
                         {
                             try
                             {
-                                result = await SetAuthKey(ConvertToObject<ProcessorOInitbj>(model, ea));
+                                result = await SetAuthKey(ConvertToObject<ProcessorInitObj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
