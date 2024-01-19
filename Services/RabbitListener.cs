@@ -253,7 +253,7 @@ namespace NetworkMonitor.Objects.Repository
                         {
                             try
                             {
-                                result = await SetAuthKey(ConvertToObject<ProcessorObj>(model, ea));
+                                result = await SetAuthKey(ConvertToObject<ProcessorOInitbj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -522,20 +522,20 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        public async Task<ResultObj> SetAuthKey(ProcessorObj? processorObj)
+        public async Task<ResultObj> SetAuthKey(ProcessorInitObj? processorInitObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : SetAuthKey : ";
-            if (processorObj == null)
+            if (processorInitObj == null)
             {
                 result.Success = false;
-                result.Message += " Error : processorObj was null .";
+                result.Message += " Error : processorInitObj was null .";
                 _logger.LogError(result.Message);
                 return result;
 
             }
-            if (processorObj.AuthKey == null)
+            if (processorInitObj.AuthKey == null)
             {
                 result.Success = false;
                 result.Message += " Error : authKey was null .";
@@ -545,7 +545,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                ResultObj connectResult = await _monitorPingProcessor.SetAuthKey(processorObj.AuthKey);
+                ResultObj connectResult = await _monitorPingProcessor.SetAuthKey(processorInitObj);
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;

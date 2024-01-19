@@ -200,23 +200,34 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public async Task<ResultObj> SetAuthKey(string authkey)
+        public async Task<ResultObj> SetAuthKey(ProcessorInitObj processorInitObj)
         {
             var result = new ResultObj();
             result.Message = " SetAuthKey : ";
             try
             {
-                _netConfig.AuthKey = authkey;
+                _netConfig.AuthKey = processorInitObj.Authkey;
                 _netConfig.AgentUserFlow.IsAuthorized = true;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
-                result.Success = true;
-                result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json";
+                result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json.";
             }
             catch (Exception e)
             {
                 result.Success = false;
                 result.Message += $" Error : Could not save NetConnectConfig to appsettings.json . Error was {e.Message}";
+
+            }
+             try
+            {
+                Init(processorInitObj);
+                result.Success = true;
+                result.Message += " Success : Ran Processor Init after Setting AuthKey.";
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += $" Error : Could  run Processor Init . Error was {e.Message}";
 
             }
             return result;
