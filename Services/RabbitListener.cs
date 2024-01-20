@@ -30,6 +30,9 @@ namespace NetworkMonitor.Objects.Repository
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
         NetConnectConfig _netConfig;
+        private System.Timers.Timer _pollingTimer;
+        private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
+
 
         public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState)
         {
@@ -37,12 +40,31 @@ namespace NetworkMonitor.Objects.Repository
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
-     
+
 
             Setup();
+            // Set up the polling timer
+            _pollingTimer = new System.Timers.Timer(_pollingInterval.TotalMilliseconds);
+            _pollingTimer.Elapsed += (sender, e) => PollingTick();
+            _pollingTimer.AutoReset = true;
+            _pollingTimer.Start();
+        }
+        private async Task PollingTick()
+        {
+            try
+            {
+                var processorConnectObj = new ProcessorConnectObj
+                {
+                    NextRunInterval = (int)_pollingInterval.TotalMilliseconds
+                };
+                await InternalConnect(processorConnectObj).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in PollingTick: {ex.Message}", ex);
+            }
         }
 
- 
         private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
@@ -56,7 +78,7 @@ namespace NetworkMonitor.Objects.Repository
         {
             return netConnectConfig.LocalSystemUrl;
         }
-        
+
         protected override void InitRabbitMQObjs()
         {
             _rabbitMQObjs = new List<RabbitMQObj>();
@@ -69,7 +91,8 @@ namespace NetworkMonitor.Objects.Repository
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "removePingInfos" + _netConfig.AppID,
-                FuncName = "removePingInfos"
+                FuncName = "removePingInfos",
+                MessageTimeout = 60000
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
@@ -297,6 +320,58 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorConnect : ";
+            if (connectObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : connectObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                if (connectObj.NextRunInterval != null && connectObj.NextRunInterval != _pollingInterval.TotalMilliseconds)
+                {
+                    // Update the interval and restart the timer if necessary
+                    _pollingInterval = TimeSpan.FromSeconds(connectObj.NextRunInterval);
+                    _pollingTimer.Interval = _pollingInterval.TotalMilliseconds;
+                    _pollingTimer.Stop();
+                    _pollingTimer.Start();
+                    result.Message += $" Success : Reset schedule interval to {connectObj.NextRunInterval}";
+                }
+                else
+                {
+                    // Check if the timer is running; if not, start it.
+                    if (!_pollingTimer.Enabled)
+                    {
+                        _pollingTimer.Start();
+                        result.Message += " Warning : Timer was not running and has been started.";
+                    }
+                    else
+                    {
+                        result.Message += " Success : Timer is already running. No change to schedule interval.";
+                    }
+                }
+
+                result.Success = true;
+            }
+            catch (Exception e)
+            {
+                result.Data = null;
+                result.Success = false;
+                result.Message += "Error : Failed to run Connect : Error was : " + e.ToString() + " ";
+            }
+            if (result.Success == true)
+                _logger.LogInformation(result.Message);
+            else _logger.LogError(result.Message);
+            return result;
+        }
+
+        private async Task<ResultObj> InternalConnect(ProcessorConnectObj? connectObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "RabbitListener : InternalConnect : ";
             if (connectObj == null)
             {
                 result.Success = false;

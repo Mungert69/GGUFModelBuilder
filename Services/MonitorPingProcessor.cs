@@ -220,7 +220,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += $" Error : Could not save NetConnectConfig to appsettings.json . Error was {e.Message}";
 
             }
-             try
+            try
             {
                 Init(processorInitObj);
                 result.Success = true;
@@ -415,19 +415,45 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 //var pingConnectTasks = new List<Task>();
+                /*var gcMemoryInfo = GC.GetGCMemoryInfo();
+                long totalAvailableMemoryBytes = gcMemoryInfo.TotalAvailableMemoryBytes;
+                double totalAvailableMemoryMB = totalAvailableMemoryBytes / (1024.0 * 1024.0);
+                _logger.LogInformation($"Info: Total available memory: {totalAvailableMemoryMB:F2} MB");*/
+                int countPingInfos=_monitorPingCollection.PingInfos.Count;
+                int maxPingInfos=_netConfig.LocalSystemUrl.MaxLoad*_netConfig.LocalSystemUrl.MaxRuntime;
+                if (countPingInfos>maxPingInfos)
+                {
+                    result.Success = false;
+                    result.Message += $" Error : The number of stored monitor events ({countPingInfos}) is greater than the maximum threshold ({maxPingInfos}) . Unable to continue monitoring. When the agent connects to the data service it will offload this data and continue. If this message persists then contact support. ";
+                    result.Success = false;
+                    _processorStates.IsConnectRunning = false;
+                    _processorStates.IsConnectState = ConnectState.Error;
+                    _processorStates.ConnectRunningMessage = result.Message;
+                    try
+                    {
+                        await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
+                        PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($" Error : unable to publish rabbit messages after the maximum monitor events stored threshold was reached. Error was : {e.Message}");
+                    }
+
+                    return result;
+                }
 #if !ANDROID
                 try
                 {
                     var message = "";
                     long memoryBeforeGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
                     double memoryBeforeGCMb = (double)memoryBeforeGCBytes / (1024 * 1024);
-                    message += $" Info : Memory Info Before GC: {memoryBeforeGCMb:F2} MB : ";
+                    message += $" Info : Memory used Before GC: {memoryBeforeGCMb:F2} MB : ";
 
                     GC.Collect();
 
                     long memoryAfterGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
                     double memoryAfterGCMb = (double)memoryAfterGCBytes / (1024 * 1024);
-                    message += $" Memory Info After GC: {memoryAfterGCMb:F2} MB : ";
+                    message += $" Memory used After GC: {memoryAfterGCMb:F2} MB : ";
 
                     long noGCRegionSizeBytes = 256 * 1024 * 1024; // 256 MB
                     bool succeeded = GC.TryStartNoGCRegion(noGCRegionSizeBytes, true);
@@ -536,7 +562,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " Warning : Time to execute the monitor tasks was greater than next schedule time. One schedule will be missed.";
                 //_logger.LogWarning(" Warning : Time to execute greater than next schedule time. ");
             }
-          
+
 
             try
             {
@@ -549,14 +575,17 @@ namespace NetworkMonitor.Processor.Services
                 result.Success = false;
                 _logger.LogError($" Error : Could not set MonitorPingInfoView . Error was : {e.ToString()}");
             }
-             if (result.Success) {
-                 result.Message += " Success : All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
-          
+            if (result.Success)
+            {
+                result.Message += " Success : All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
+
                 _processorStates.IsConnectState = ConnectState.Waiting;
-                }
-            else {
-                 result.Message += " All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms with Errors ."; 
-                _processorStates.IsConnectState = ConnectState.Error;}
+            }
+            else
+            {
+                result.Message += " All monitor tasks executed in " + timerInner.Elapsed.TotalMilliseconds + " ms with Errors .";
+                _processorStates.IsConnectState = ConnectState.Error;
+            }
             _processorStates.IsConnectRunning = false;
             _processorStates.ConnectRunningMessage = result.Message;
             if (result.Success) _logger.LogInformation(result.Message);
