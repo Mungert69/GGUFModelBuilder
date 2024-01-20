@@ -588,8 +588,7 @@ namespace NetworkMonitor.Processor.Services
             }
             _processorStates.IsConnectRunning = false;
             _processorStates.ConnectRunningMessage = result.Message;
-            if (result.Success) _logger.LogInformation(result.Message);
-            else _logger.LogError(result.Message);
+          
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
