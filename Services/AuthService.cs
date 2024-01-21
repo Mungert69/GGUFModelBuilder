@@ -250,164 +250,206 @@ namespace NetworkMonitor.Processor.Services
             stopwatch.Start();
             while (!cancellationToken.IsCancellationRequested)
             {
-                
-                    if (stopwatch.Elapsed.TotalSeconds >= 600) // 10 minutes
+
+                if (stopwatch.Elapsed.TotalSeconds >= 600) // 10 minutes
+                {
+                    result.Message += "Timeout: Polling exceeded 10 minutes.";
+                    result.Success = false;
+                    _logger.LogError(result.Message);
+                    return result;
+                }
+                try
+                {
+                    var pollingContent = new FormUrlEncodedContent(new[]
                     {
-                        result.Message += "Timeout: Polling exceeded 10 minutes.";
-                        result.Success = false;
-                        _logger.LogError(result.Message);
-                        return result;
-                    }
-                    try
-                    {
-                        var pollingContent = new FormUrlEncodedContent(new[]
-                        {
                         new KeyValuePair<string, string>("device_code", _deviceCode),
                         new KeyValuePair<string, string>("grant_type", _grantType),
                         new KeyValuePair<string, string>("client_id", _netConfig.ClientId)
                     });
 
-                        var httpClient = new HttpClient();
-                        var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
+                    var httpClient = new HttpClient();
+                    var tokenResponse = await httpClient.PostAsync(_tokenEndpoint, pollingContent);
 
-                        if (tokenResponse.IsSuccessStatusCode)
+                    if (tokenResponse.IsSuccessStatusCode)
+                    {
+                        var oldAppID = _netConfig.AppID;
+                        var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
+                        var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
+                        var accessToken = tokenData.GetProperty("access_token").GetString();
+
+                        if (accessToken == null)
                         {
-                            var oldAppID = _netConfig.AppID;
-                            var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
-                            var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
-                            var accessToken = tokenData.GetProperty("access_token").GetString();
-
-                            if (accessToken == null)
-                            {
-                                result.Message += " Error : The return data did not contain an access_token string.";
-                                _logger.LogError(result.Message);
-                                result.Success = false;
-                                return result;
-                            }
-
-                            var userInfo = GetUserInfoFromToken(accessToken);
-                            if (userInfo == null || userInfo.UserID == null)
-                            {
-                                result.Message += " Error : Could not get user information from the token.";
-                                _logger.LogError(result.Message);
-                                result.Success = false;
-                                return result;
-                            }
-
-                            var updatedSystemUrl = new SystemUrl
-                            {
-                                ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
-                                IPAddress = _netConfig.LocalSystemUrl.IPAddress,
-                                RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
-                                RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                                RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
-                                RabbitUserName = userInfo.UserID,
-                                RabbitPassword = accessToken,
-                                RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
-                            };
-
-                            var processorObj = new ProcessorObj();
-
-                            processorObj.Location = userInfo.Email + " - Local";
-                            processorObj.AppID = userInfo.UserID;
-                            processorObj.Owner = userInfo.UserID;
-                            processorObj.IsPrivate = true;
-                            /*if (oldAppID != userInfo.UserID)
-                            {
-                                processorObj.DateCreated = DateTime.UtcNow;
-                                await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
-                            }*/
-
-                            _netConfig.Owner = userInfo.UserID;
-                            _netConfig.MonitorLocation = userInfo.Email + " - Local";
-                            // Update the AppID and LocalSystemUrl
-                            await _netConfig.SetAppIDAsync(processorObj.AppID);
-                            await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
-
-                            // Now publish the message
-                            await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
-
-
-                            result.Success = true;
-                            result.Message += " Success : Token received and processed. ";
-                           return result;
-                        }
-                        else
-                        {
-                            var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
-                            _logger.LogWarning($" Warning : Token not ready yet : {errorDataString}");
+                            result.Message += " Error : The return data did not contain an access_token string.";
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
                         }
 
-                        await Task.Delay(_intervalSeconds * 1000);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        result.Message += "Polling operation was cancelled.";
-                        result.Success = false;
-                        _logger.LogInformation(result.Message);
+                        var userInfo = GetUserInfoFromToken(accessToken);
+                        if (userInfo == null || userInfo.UserID == null)
+                        {
+                            result.Message += " Error : Could not get user information from the token.";
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
+                        }
+
+                        var updatedSystemUrl = new SystemUrl
+                        {
+                            ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
+                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
+                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
+                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
+                            RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
+                            RabbitUserName = userInfo.UserID,
+                            RabbitPassword = accessToken,
+                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
+                        };
+
+                        var processorObj = new ProcessorObj();
+
+                        processorObj.Location = userInfo.Email + " - Local";
+                        processorObj.AppID = userInfo.UserID;
+                        processorObj.Owner = userInfo.UserID;
+                        processorObj.IsPrivate = true;
+                        /*if (oldAppID != userInfo.UserID)
+                        {
+                            processorObj.DateCreated = DateTime.UtcNow;
+                            await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
+                        }*/
+
+                        _netConfig.Owner = userInfo.UserID;
+                        _netConfig.MonitorLocation = userInfo.Email + " - Local";
+
+/ var loadServerResponse = await httpClient.GetAsync($"{_netConfig.LoadServer}/LoadServer/GetLoadServerApi/{userInfo.UserID}");
+                        if (!loadServerResponse.IsSuccessStatusCode)
+                        {
+                            result.Message += $" Error : LoadServer API call failed with status code: {loadServerResponse.StatusCode}.";
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
+                        }
+
+                        var loadServerDataString = await loadServerResponse.Content.ReadAsStringAsync();
+                        if (string.IsNullOrEmpty(loadServerDataString))
+                        {
+                            result.Message += " Error : LoadServer response data string is null or empty.";
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
+                        }
+
+                        SystemUrl systemUrl;
+                        try
+                        {
+                            var loadResult = JsonUtils.GetJsonObjectFromString<TResultObj<SystemUrl>>(loadServerDataString);
+                            if (loadResult == null)
+                            {
+                                result.Message+=" Error : Deserialized reult from load server was null.";
+                                result.Success=false;
+                                return result;
+                            }
+                            if (!loadResult.Success){
+                                result.Success=false;
+                                result.Message+=loadResult.Message;
+                                return result;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Message += $" Error : Failed to deserialize SystemUrl. Exception: {ex.Message}";
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
+                        }
+                        // Update the AppID and LocalSystemUrl
+                        await _netConfig.SetAppIDAsync(processorObj.AppID);
+                        await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
+
+                        // Now publish the message
+                        await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
+
+
+                        result.Success = true;
+                        result.Message += " Success : Token received and processed. ";
                         return result;
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        result.Message += $"An error occurred during the token request: {ex.Message}";
-                        _logger.LogError(result.Message);
-                        result.Success = false;
-                        return result;
+                        var errorDataString = await tokenResponse.Content.ReadAsStringAsync();
+                        _logger.LogWarning($" Warning : Token not ready yet : {errorDataString}");
                     }
+
+                    await Task.Delay(_intervalSeconds * 1000);
                 }
-                result.Message=" Authorization cancelled .";
-                result.Success=false;
-                return result;
+                catch (OperationCanceledException)
+                {
+                    result.Message += "Polling operation was cancelled.";
+                    result.Success = false;
+                    _logger.LogInformation(result.Message);
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    result.Message += $"An error occurred during the token request: {ex.Message}";
+                    _logger.LogError(result.Message);
+                    result.Success = false;
+                    return result;
+                }
             }
+            result.Message = " Authorization cancelled .";
+            result.Success = false;
+            return result;
+        }
 
-            private UserInfo? GetUserInfoFromToken(string accessToken)
+        private UserInfo? GetUserInfoFromToken(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
+                // Decode the JWT without validating it
+                var jwt = tokenHandler.ReadJwtToken(accessToken);
 
-                try
+
+                var userInfo = new UserInfo();
+
+                foreach (var claim in jwt.Claims)
                 {
-                    // Decode the JWT without validating it
-                    var jwt = tokenHandler.ReadJwtToken(accessToken);
-
-
-                    var userInfo = new UserInfo();
-
-                    foreach (var claim in jwt.Claims)
+                    switch (claim.Type)
                     {
-                        switch (claim.Type)
-                        {
-                            case "sub":
-                                userInfo.UserID = claim.Value;
-                                userInfo.Sub = claim.Value;
-                                break;
-                            case "email":
-                                userInfo.Email = claim.Value;
-                                break;
-                            case "verified":
-                                userInfo.Email_verified = bool.Parse(claim.Value);
-                                break;
-                            case "fullName":
-                                userInfo.Name = claim.Value;
-                                break;
-                            case "name":
-                                userInfo.Name = claim.Value;
-                                break;
-                            case "imageUrl":
-                                userInfo.Picture = claim.Value;
-                                break;
+                        case "sub":
+                            userInfo.UserID = claim.Value;
+                            userInfo.Sub = claim.Value;
+                            break;
+                        case "email":
+                            userInfo.Email = claim.Value;
+                            break;
+                        case "verified":
+                            userInfo.Email_verified = bool.Parse(claim.Value);
+                            break;
+                        case "fullName":
+                            userInfo.Name = claim.Value;
+                            break;
+                        case "name":
+                            userInfo.Name = claim.Value;
+                            break;
+                        case "imageUrl":
+                            userInfo.Picture = claim.Value;
+                            break;
 
-                                // Add more cases for other claim types as needed
-                        }
+                            // Add more cases for other claim types as needed
                     }
+                }
 
 
-                    return userInfo;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError($"Error decoding token: {e.Message}");
-                    return null;
-                }
+                return userInfo;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error decoding token: {e.Message}");
+                return null;
             }
         }
     }
+}
