@@ -40,8 +40,6 @@ namespace NetworkMonitor.Objects.Repository
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
-
-
             Setup();
             // Set up the polling timer
             _pollingTimer = new System.Timers.Timer(_pollingInterval.TotalMilliseconds);

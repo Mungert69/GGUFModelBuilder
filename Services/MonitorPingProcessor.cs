@@ -200,12 +200,30 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
+        private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
+        {
+            bool flag = false;
+
+            if (_netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
+            {
+                _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
+                flag = true;
+            }
+            if (_netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
+            {
+                _netConfig.LocalSystemUrl.RabbitPort = processorInitObj.RabbitPort;
+                flag = true;
+            }
+            if (flag) await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
+        }
+
         public async Task<ResultObj> SetAuthKey(ProcessorInitObj processorInitObj)
         {
             var result = new ResultObj();
             result.Message = " SetAuthKey : ";
             try
             {
+                await SetNewRabbitConnection(processorInitObj.RabbitHostName,processorInitObj.RabbitPort);
                 _netConfig.AuthKey = processorInitObj.AuthKey;
                 _netConfig.AgentUserFlow.IsAuthorized = true;
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
@@ -419,9 +437,9 @@ namespace NetworkMonitor.Processor.Services
                 long totalAvailableMemoryBytes = gcMemoryInfo.TotalAvailableMemoryBytes;
                 double totalAvailableMemoryMB = totalAvailableMemoryBytes / (1024.0 * 1024.0);
                 _logger.LogInformation($"Info: Total available memory: {totalAvailableMemoryMB:F2} MB");*/
-                int countPingInfos=_monitorPingCollection.PingInfos.Count;
-                int maxPingInfos=_netConfig.LocalSystemUrl.MaxLoad*_netConfig.LocalSystemUrl.MaxRuntime;
-                if (countPingInfos>maxPingInfos)
+                int countPingInfos = _monitorPingCollection.PingInfos.Count;
+                int maxPingInfos = _netConfig.LocalSystemUrl.MaxLoad * _netConfig.LocalSystemUrl.MaxRuntime;
+                if (countPingInfos > maxPingInfos)
                 {
                     result.Success = false;
                     result.Message += $" Error : The number of stored monitor events ({countPingInfos}) is greater than the maximum threshold ({maxPingInfos}) . Unable to continue monitoring. When the agent connects to the data service it will offload this data and continue. If this message persists then contact support. ";
@@ -588,7 +606,7 @@ namespace NetworkMonitor.Processor.Services
             }
             _processorStates.IsConnectRunning = false;
             _processorStates.ConnectRunningMessage = result.Message;
-          
+
             return result;
         }
         //This method updates the MonitorPingInfo list with new information from the UpdateMonitorIP queue. The queue is processed and any new or updated information is added to the MonitorPingInfo list and a corresponding NetConnect object is created or updated in the _netConnects list. Deleted items are removed from the MonitorPingInfo list. This method uses the _logger to log information about the updates.
