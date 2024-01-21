@@ -200,31 +200,14 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
-        {
-            bool flag = false;
-
-            if (_netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
-            {
-                _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
-                flag = true;
-            }
-            if (_netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
-            {
-                _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
-                flag = true;
-            }
-            if (flag) await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
-        }
-
+       
         public async Task<ResultObj> SetAuthKey(ProcessorInitObj processorInitObj)
         {
             var result = new ResultObj();
             result.Message = " SetAuthKey : ";
             try
             {
-                await SetNewRabbitConnection(processorInitObj.RabbitHostName,processorInitObj.RabbitPort);
-                _netConfig.AuthKey = processorInitObj.AuthKey;
+                   _netConfig.AuthKey = processorInitObj.AuthKey;
                 _netConfig.AgentUserFlow.IsAuthorized = true;
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
                 _netConfig.AgentUserFlow.IsHostsAdded = false;

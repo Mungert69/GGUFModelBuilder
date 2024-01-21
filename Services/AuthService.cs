@@ -236,6 +236,24 @@ namespace NetworkMonitor.Processor.Services
 
             return result;
         }
+
+         private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
+        {
+            bool flag = false;
+
+            if (_netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
+            {
+                _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
+                flag = true;
+            }
+            if (_netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
+            {
+                _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
+                flag = true;
+            }
+            if (flag) await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
+        }
+
         public async Task<ResultObj> PollForTokenAsync()
         {
             using var cancellationTokenSource = new CancellationTokenSource();
@@ -321,7 +339,7 @@ namespace NetworkMonitor.Processor.Services
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + " - Local";
 
-/ var loadServerResponse = await httpClient.GetAsync($"{_netConfig.LoadServer}/LoadServer/GetLoadServerApi/{userInfo.UserID}");
+                        var loadServerResponse = await httpClient.GetAsync($"https://{_netConfig.LoadServer}/LoadServer/GetLoadServerApi/{userInfo.UserID}");
                         if (!loadServerResponse.IsSuccessStatusCode)
                         {
                             result.Message += $" Error : LoadServer API call failed with status code: {loadServerResponse.StatusCode}.";
@@ -345,15 +363,19 @@ namespace NetworkMonitor.Processor.Services
                             var loadResult = JsonUtils.GetJsonObjectFromString<TResultObj<SystemUrl>>(loadServerDataString);
                             if (loadResult == null)
                             {
-                                result.Message+=" Error : Deserialized reult from load server was null.";
-                                result.Success=false;
+                                result.Message += " Error : Deserialized reult from load server was null.";
+                                result.Success = false;
                                 return result;
                             }
-                            if (!loadResult.Success){
-                                result.Success=false;
-                                result.Message+=loadResult.Message;
+                            if (!loadResult.Success || loadResult.Data==null)
+                            {
+                                result.Success = false;
+                                result.Message += loadResult.Message;
                                 return result;
                             }
+
+                            systemUrl=loadResult.Data;
+                            await SetNewRabbitConnection(systemUrl.RabbitHostName, systemUrl.RabbitPort);
                         }
                         catch (Exception ex)
                         {
@@ -364,6 +386,7 @@ namespace NetworkMonitor.Processor.Services
                         }
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
+                        
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
 
                         // Now publish the message
