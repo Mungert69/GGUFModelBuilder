@@ -237,7 +237,7 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
 
-         private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
+        private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
         {
             bool flag = false;
 
@@ -338,7 +338,7 @@ namespace NetworkMonitor.Processor.Services
 
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + " - Local";
-
+                        var loadServerDataString="None";
                         var loadServerResponse = await httpClient.GetAsync($"https://{_netConfig.LoadServer}/LoadServer/GetLoadServerApi/{userInfo.UserID}");
                         if (!loadServerResponse.IsSuccessStatusCode)
                         {
@@ -348,7 +348,7 @@ namespace NetworkMonitor.Processor.Services
                             return result;
                         }
 
-                        var loadServerDataString = await loadServerResponse.Content.ReadAsStringAsync();
+                        loadServerDataString = await loadServerResponse.Content.ReadAsStringAsync();
                         if (string.IsNullOrEmpty(loadServerDataString))
                         {
                             result.Message += " Error : LoadServer response data string is null or empty.";
@@ -363,30 +363,30 @@ namespace NetworkMonitor.Processor.Services
                             var loadResult = JsonUtils.GetJsonObjectFromString<TResultObj<SystemUrl>>(loadServerDataString);
                             if (loadResult == null)
                             {
-                                result.Message += " Error : Deserialized reult from load server was null.";
+                                result.Message += " Error : Deserialized result from load server was null.";
                                 result.Success = false;
                                 return result;
                             }
-                            if (!loadResult.Success || loadResult.Data==null)
+                            if (!loadResult.Success || loadResult.Data == null)
                             {
                                 result.Success = false;
                                 result.Message += loadResult.Message;
                                 return result;
                             }
 
-                            systemUrl=loadResult.Data;
+                            systemUrl = loadResult.Data;
                             await SetNewRabbitConnection(systemUrl.RabbitHostName, systemUrl.RabbitPort);
                         }
                         catch (Exception ex)
                         {
-                            result.Message += $" Error : Failed to deserialize SystemUrl. Exception: {ex.Message}";
+                            result.Message += $" Error : Failed to deserialize {loadServerDataString} to SystemUrl. Exception: {ex.Message}";
                             _logger.LogError(result.Message);
                             result.Success = false;
                             return result;
                         }
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
-                        
+
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
 
                         // Now publish the message
