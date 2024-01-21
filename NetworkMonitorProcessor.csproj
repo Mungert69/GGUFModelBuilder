@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>Link</TrimMode>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <PublishAot>true</PublishAot>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:8.0</ContainerBaseImage>
     <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>

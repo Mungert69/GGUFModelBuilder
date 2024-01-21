@@ -328,7 +328,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                if (connectObj.NextRunInterval != null && connectObj.NextRunInterval != _pollingInterval.TotalMilliseconds)
+                if (connectObj.NextRunInterval != 0 && connectObj.NextRunInterval != _pollingInterval.TotalMilliseconds)
                 {
                     // Update the interval and restart the timer if necessary
                     _pollingInterval = TimeSpan.FromSeconds(connectObj.NextRunInterval);

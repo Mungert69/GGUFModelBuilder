@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using NetworkMonitor.Connection;
 using NetworkMonitor.Utils;
+using NetworkMonitor.Utils.Helpers;
 using NetworkMonitor.Objects;
 using System.Text.Json;
 using System.Text;
@@ -339,10 +340,11 @@ namespace NetworkMonitor.Processor.Services
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + " - Local";
                         var loadServerDataString="None";
-                        var loadServerResponse = await httpClient.GetAsync($"https://{_netConfig.LoadServer}/LoadServer/GetLoadServerApi/{userInfo.UserID}");
+                        string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
+                        var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
                         if (!loadServerResponse.IsSuccessStatusCode)
                         {
-                            result.Message += $" Error : LoadServer API call failed with status code: {loadServerResponse.StatusCode}.";
+                            result.Message += $" Error : LoadServer API call to {loadServerUrl} failed with status code: {loadServerResponse.StatusCode}.";
                             _logger.LogError(result.Message);
                             result.Success = false;
                             return result;
@@ -357,25 +359,22 @@ namespace NetworkMonitor.Processor.Services
                             return result;
                         }
 
-                        SystemUrl systemUrl;
+                        RabbitLoadServer loadServer=new RabbitLoadServer();
                         try
                         {
-                            var loadResult = JsonUtils.GetJsonObjectFromString<TResultObj<SystemUrl>>(loadServerDataString);
+                            var loadResult = JsonUtils.GetObjectFieldFromJson<RabbitLoadServer>(loadServerDataString,"data");
+                            var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
                             if (loadResult == null)
                             {
                                 result.Message += " Error : Deserialized result from load server was null.";
                                 result.Success = false;
+                                _logger.LogError(result.Message);
                                 return result;
                             }
-                            if (!loadResult.Success || loadResult.Data == null)
-                            {
-                                result.Success = false;
-                                result.Message += loadResult.Message;
-                                return result;
-                            }
+                          
 
-                            systemUrl = loadResult.Data;
-                            await SetNewRabbitConnection(systemUrl.RabbitHostName, systemUrl.RabbitPort);
+                            loadServer=loadResult;
+                            await SetNewRabbitConnection(loadServer.RabbitHostName+"."+_netConfig.ServiceDomain, loadServer.RabbitPort);
                         }
                         catch (Exception ex)
                         {
