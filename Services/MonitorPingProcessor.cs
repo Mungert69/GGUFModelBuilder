@@ -211,7 +211,7 @@ namespace NetworkMonitor.Processor.Services
             }
             if (_netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
             {
-                _netConfig.LocalSystemUrl.RabbitPort = processorInitObj.RabbitPort;
+                _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
                 flag = true;
             }
             if (flag) await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
