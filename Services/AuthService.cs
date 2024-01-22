@@ -375,6 +375,7 @@ namespace NetworkMonitor.Processor.Services
 
                             loadServer=loadResult;
                             await SetNewRabbitConnection(loadServer.RabbitHostName+"."+_netConfig.ServiceDomain, loadServer.RabbitPort);
+                            //_netConfig.ServiceServer = loadServer.Url;
                         }
                         catch (Exception ex)
                         {
