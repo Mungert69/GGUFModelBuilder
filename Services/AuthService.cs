@@ -242,17 +242,21 @@ namespace NetworkMonitor.Processor.Services
         {
             bool flag = false;
 
-            if (_netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
+            if (rabbitHostName!=null && rabbitHostName!="" && _netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
             {
                 _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
                 flag = true;
             }
-            if (_netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
+            if (rabbitPort!=0 && _netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
             {
                 _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
                 flag = true;
             }
-            if (flag) await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
+            if (flag) {
+                _logger.LogInformation($" Reconnecintg to RabbitMQ with new connetions settings {_netConfig.LocalSystemUrl.RabbitHostName}:{_netConfig.LocalSystemUrl.RabbitPort}");
+                await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
+             }
+            
         }
 
         public async Task<ResultObj> PollForTokenAsync()
@@ -362,8 +366,8 @@ namespace NetworkMonitor.Processor.Services
                         RabbitLoadServer loadServer=new RabbitLoadServer();
                         try
                         {
-                            var loadResult = JsonUtils.GetObjectFieldFromJson<RabbitLoadServer>(loadServerDataString,"data");
-                            var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
+                            var loadResult = JsonUtils.GetObjectFieldFromJson<string>(loadServerDataString,"data");
+                            //var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
                             if (loadResult == null)
                             {
                                 result.Message += " Error : Deserialized result from load server was null.";
@@ -373,8 +377,11 @@ namespace NetworkMonitor.Processor.Services
                             }
                           
 
-                            loadServer=loadResult;
+                            loadServer.RabbitPort=0;
+                            loadServer.RabbitHostName = loadResult;
+
                             await SetNewRabbitConnection(loadServer.RabbitHostName+"."+_netConfig.ServiceDomain, loadServer.RabbitPort);
+
                             //_netConfig.ServiceServer = loadServer.Url;
                         }
                         catch (Exception ex)
