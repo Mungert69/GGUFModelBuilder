@@ -92,18 +92,18 @@ namespace NetworkMonitor.Processor
                 fileRepo = new FileRepo();
                   if (!File.Exists("ProcessorDataObj"))
                 {
-                    File.Create("ProcessorDataObj");
+                    File.Create("ProcessorDataObj").Close();
                     fileRepo.SaveStateJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
                 }
                 if (!File.Exists("MonitorIPs"))
                 {
-                    File.Create("MonitorIPs");
+                    File.Create("MonitorIPs").Close();
                     fileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
 
                 }
                 if (!File.Exists("PingParams"))
                 {
-                    File.Create("PingParams");
+                    File.Create("PingParams").Close();
                     fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
 
                 }
