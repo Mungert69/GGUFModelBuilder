@@ -12,7 +12,7 @@ namespace NetworkMonitor.Objects.Repository
     public class PublishRepo
     {
 
-        public static ResultObj AlertMessgeResetAlerts(IRabbitRepo rabbitRepo, List<AlertFlagObj> alertFlagObjs, string appID, string authKey)
+        public static async Task<ResultObj> AlertMessgeResetAlerts(IRabbitRepo rabbitRepo, List<AlertFlagObj> alertFlagObjs, string appID, string authKey)
         {
             var result = new ResultObj();
             try
@@ -23,7 +23,7 @@ namespace NetworkMonitor.Objects.Repository
                     AlertFlagObjs=alertFlagObjs
                 };
 
-                rabbitRepo.Publish<AlertServiceAlertObj>("alertMessageResetAlerts", alertServiceAlertObj);
+                await rabbitRepo.PublishAsync<AlertServiceAlertObj>("alertMessageResetAlerts", alertServiceAlertObj);
                 //DaprRepo.PublishEvent<List<AlertFlagObj>>(_daprClient, "alertMessageResetAlerts", alertFlagObjs);
                 result.Success = true;
                 result.Message = " Success : sent alertMessageResetAlert message . ";
@@ -136,7 +136,7 @@ namespace NetworkMonitor.Objects.Repository
                     processorDataObjAlert.AuthKey=authKey;
                     int countMonStatusAlerts=monitorStatusAlerts.Count();
                     timerStr += " Event (Finished ProcessorDataObj Setup) at " + timer.ElapsedMilliseconds + " : ";
-                    rabbitRepo.PublishJsonZ<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
+                    await rabbitRepo.PublishJsonZAsync<ProcessorDataObj>("alertUpdateMonitorStatusAlerts", processorDataObjAlert);
                     timerStr += $" Event (Published {countMonStatusAlerts} MonitorStatusAlerts to alertservice) at " + timer.ElapsedMilliseconds + " : ";
                     logger.LogDebug(" Sent ProcessorDataObjAlert to Alert Service :  "+JsonUtils.WriteJsonObjectToString<ProcessorDataObj>(processorDataObjAlert));
                     if (pingInfos != null)
@@ -150,7 +150,7 @@ namespace NetworkMonitor.Objects.Repository
                     if (saveState)
                     {
                         processorDataObj.RemovePingInfos = removePingInfos;
-                        string jsonZ = rabbitRepo.PublishJsonZWithID<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
+                        string jsonZ = await rabbitRepo.PublishJsonZWithIDAsync<ProcessorDataObj>("dataUpdateMonitorPingInfos", processorDataObj, appID);
                         await fileRepo.SaveStateStringAsync("ProcessorDataObj", jsonZ);
                         timerStr += $" Event (Saved {countMonPingInfos} MonitorPingInfos to statestore) at " + timer.ElapsedMilliseconds + " : ";
                         logger.LogDebug(" Sent ProcessorDataObj to Data Service :  "+JsonUtils.WriteJsonObjectToString<ProcessorDataObj>(processorDataObj));
@@ -191,14 +191,14 @@ namespace NetworkMonitor.Objects.Repository
             DaprRepo.PublishEvent<ProcessorInitObj>(daprClient, "processorReady", processorObj);
             logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = false ");
         }*/
-        public static void ProcessorReady(ILogger logger, IRabbitRepo rabbitRepo, string appID, bool isReady)
+        public static async Task ProcessorReady(ILogger logger, IRabbitRepo rabbitRepo, string appID, bool isReady)
         {
             try
             {
                 var processorObj = new ProcessorInitObj();
                 processorObj.IsProcessorReady = isReady;
                 processorObj.AppID = appID;
-                rabbitRepo.Publish<ProcessorInitObj>("processorReady", processorObj);
+                await rabbitRepo.PublishAsync<ProcessorInitObj>("processorReady", processorObj);
                 logger.LogInformation(" Published event ProcessorItitObj.IsProcessorReady = " + isReady);
             }
             catch (Exception e)

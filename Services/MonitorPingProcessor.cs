@@ -909,7 +909,7 @@ namespace NetworkMonitor.Processor.Services
             return results;
         }
         // This method resets the alert status for a list of MonitorPingInfos, specified by their monitorIPIDs, by setting the AlertFlag to false and AlertSent to false, and setting the DownCount to 0. It also publishes a message "alertMessageResetAlerts" with the list of AlertFlagObjs to the rabbitmq. The method returns a list of ResultObjs, which contains the success or failure of the operation and the relevant message.
-        public List<ResultObj> ResetAlerts(List<int> monitorIPIDs)
+        public async Task<List<ResultObj>> ResetAlerts(List<int> monitorIPIDs)
         {
             var results = new List<ResultObj>();
             ResultObj result;
@@ -938,7 +938,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 results.Add(result);
             });
-            results.Add(PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs, _netConfig.AppID, _netConfig.AuthKey));
+            results.Add(await PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs, _netConfig.AppID, _netConfig.AuthKey));
             return results;
         }
         public ResultObj WakeUp()

@@ -15,7 +15,7 @@ namespace NetworkMonitor.Processor.Services
         ResultObj WakeUp();
         List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
         List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
-        List<ResultObj> ResetAlerts(List<int> monitorIPIDs);
+        Task<List<ResultObj>> ResetAlerts(List<int> monitorIPIDs);
         void  ProcessesMonitorReturnData(ProcessorDataObj processorDataObj);
 
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);

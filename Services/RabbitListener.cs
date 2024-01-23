@@ -19,7 +19,7 @@ namespace NetworkMonitor.Objects.Repository
         Task<ResultObj> Init(ProcessorInitObj initObj);
         ResultObj AlertFlag(List<int> monitorPingInfoIds);
         ResultObj AlertSent(List<int> monitorIPIDs);
-        ResultObj ResetAlerts(List<int> monitorIPIDs);
+        Task<ResultObj> ResetAlerts(List<int> monitorIPIDs);
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
         ResultObj WakeUp();
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
@@ -240,11 +240,11 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                         case "processorResetAlerts":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
                         {
                             try
                             {
-                                result = ResetAlerts(ConvertToList<List<int>>(model, ea));
+                                result = await ResetAlerts(ConvertToList<List<int>>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -524,7 +524,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public ResultObj ResetAlerts(List<int>? monitorIPIDs)
+        public async Task<ResultObj> ResetAlerts(List<int>? monitorIPIDs)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
@@ -539,7 +539,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var results = _monitorPingProcessor.ResetAlerts(monitorIPIDs);
+                var results = await  _monitorPingProcessor.ResetAlerts(monitorIPIDs);
                 results.ForEach(f => result.Message += f.Message);
                 result.Success = results.All(a => a.Success == true) && results.Count() != 0;
                 result.Data = results;
