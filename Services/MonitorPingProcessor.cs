@@ -39,7 +39,7 @@ namespace NetworkMonitor.Processor.Services
                 var monitorPingInfos = new List<MonitorPingInfo>(); ;
                 foreach (var monitorPingInfo in _monitorPingCollection.MonitorPingInfos.ToList())
                 {
-                    monitorPingInfo.Value.PingInfos = null;
+                    monitorPingInfo.Value.PingInfos = new List<PingInfo>();
                     monitorPingInfos.Add(monitorPingInfo.Value);
                 }
                 _monitoPingInfoView.MonitorPingInfos = monitorPingInfos;
@@ -97,7 +97,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _logger.LogInformation(" Sending ProcessorReady = false");
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
+                await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
                 _logger.LogInformation(" Success : Published event ProcessorItitObj.IsProcessorReady = false");
             }
             catch (Exception e)
@@ -223,7 +223,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                Init(processorInitObj);
+                await Init(processorInitObj);
                 result.Success = true;
                 result.Message += " Success : Ran Processor Init after Setting AuthKey.";
             }
@@ -369,7 +369,7 @@ namespace NetworkMonitor.Processor.Services
             }
             finally
             {
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 //_netConnectCollection.IsLocked = false;
             }
             try
@@ -396,7 +396,7 @@ namespace NetworkMonitor.Processor.Services
             var timerInner = new Stopwatch();
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
-            PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
+            await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
             var result = new ResultObj();
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
@@ -410,7 +410,7 @@ namespace NetworkMonitor.Processor.Services
                 _processorStates.IsConnectRunning = false;
                 _processorStates.IsConnectState = ConnectState.Error;
                 _processorStates.ConnectRunningMessage = result.Message;
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                 return result;
             }
             try
@@ -433,7 +433,7 @@ namespace NetworkMonitor.Processor.Services
                     try
                     {
                         await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
-                        PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                        await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                     }
                     catch (Exception e)
                     {
@@ -555,7 +555,7 @@ namespace NetworkMonitor.Processor.Services
                     await PublishRepo.MonitorPingInfosLowPriorityThread(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, _monitorPingCollection.RemovePingInfos.Values.ToList(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
 
                 }
-                PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
             }
             int timeTakenInnerInt = (int)timerInner.Elapsed.TotalMilliseconds;
             if (timeTakenInnerInt > connectObj.NextRunInterval)
@@ -941,7 +941,7 @@ namespace NetworkMonitor.Processor.Services
             results.Add(await PublishRepo.AlertMessgeResetAlerts(_rabbitRepo, alertFlagObjs, _netConfig.AppID, _netConfig.AuthKey));
             return results;
         }
-        public ResultObj WakeUp()
+        public async Task<ResultObj> WakeUp()
         {
             ResultObj result = new ResultObj();
             result.Message = "SERVICE : MonitorPingProcessor.WakeUp() ";
@@ -954,7 +954,7 @@ namespace NetworkMonitor.Processor.Services
                 }
                 else
                 {
-                    PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
+                    await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, true);
                     result.Message += "Received WakeUp so Published event processorReady = true";
                     result.Success = true;
                 }

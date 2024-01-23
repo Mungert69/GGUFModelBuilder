@@ -21,7 +21,7 @@ namespace NetworkMonitor.Objects.Repository
         ResultObj AlertSent(List<int> monitorIPIDs);
         Task<ResultObj> ResetAlerts(List<int> monitorIPIDs);
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
-        ResultObj WakeUp();
+        Task<ResultObj> WakeUp();
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
         void Shutdown();
     }
@@ -255,11 +255,11 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                         case "processorWakeUp":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
                         {
                             try
                             {
-                                result = WakeUp();
+                                result = await WakeUp();
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -669,14 +669,14 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        public ResultObj WakeUp()
+        public async Task<ResultObj> WakeUp()
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = " MessageAPI : WakeUp : ";
             try
             {
-                ResultObj connectResult = _monitorPingProcessor.WakeUp();
+                ResultObj connectResult = await _monitorPingProcessor.WakeUp();
                 result.Message += connectResult.Message;
                 result.Success = connectResult.Success;
                 result.Data = connectResult.Data;

@@ -12,7 +12,7 @@ namespace NetworkMonitor.Processor.Services
         Task<ResultObj> SetAuthKey(ProcessorInitObj processorIntiObj);
         ResultObj AddMonitorIPsToQueueDic(ProcessorQueueDicObj queueObj);
         Task<ResultObj> Connect(ProcessorConnectObj connectObj);
-        ResultObj WakeUp();
+        Task <ResultObj> WakeUp();
         List<ResultObj> UpdateAlertSent(List<int> monitorPingInfoIDs, bool alertSent);
         List<ResultObj> UpdateAlertFlag(List<int> monitorPingInfoIDs, bool alertFlag);
         Task<List<ResultObj>> ResetAlerts(List<int> monitorIPIDs);
