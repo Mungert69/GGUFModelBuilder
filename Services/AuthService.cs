@@ -395,7 +395,7 @@ namespace NetworkMonitor.Processor.Services
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
 
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
-
+                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
                         await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
 
