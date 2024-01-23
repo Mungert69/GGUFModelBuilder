@@ -43,7 +43,7 @@ namespace NetworkMonitor.Objects.Repository
             Setup();
             // Set up the polling timer
             _pollingTimer = new System.Timers.Timer(_pollingInterval.TotalMilliseconds);
-            _pollingTimer.Elapsed += (sender, e) => PollingTick();
+            _pollingTimer.Elapsed += async (sender, e) => await PollingTick();
             _pollingTimer.AutoReset = true;
             _pollingTimer.Start();
         }
