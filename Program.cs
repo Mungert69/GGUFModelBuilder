@@ -119,7 +119,7 @@ namespace NetworkMonitor.Processor
             processorStates.IsSetup=result.Success;
             if (config["AuthDevice"] == "true")
             {
-                authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo);
+                authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo,processorStates);
                 await authService.InitializeAsync();
                 await authService.SendAuthRequestAsync();
                 await authService.PollForTokenAsync();

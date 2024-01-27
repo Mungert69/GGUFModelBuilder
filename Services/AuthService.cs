@@ -35,21 +35,31 @@ namespace NetworkMonitor.Processor.Services
         private int _intervalSeconds = 5;
         private NetConnectConfig _netConfig;
         private ILogger _logger;
+        private LocalProcessorStates _processorStates;
 
         private IRabbitRepo _rabbitRepo;
 
 
-        public AuthService(ILogger logger, NetConnectConfig netConfig, IRabbitRepo rabbitRepo)
+        public AuthService(ILogger logger, NetConnectConfig netConfig, IRabbitRepo rabbitRepo, LocalProcessorStates processorStates)
         {
             _netConfig = netConfig;
             _logger = logger;
             _rabbitRepo = rabbitRepo;
+            _processorStates = processorStates;
         }
 
         public async Task<ResultObj> InitializeAsync()
         {
             var result = new ResultObj();
             result.Message = " InitializeAsync : ";
+            
+                  if (_processorStates.IsSetup)
+            {
+                result.Message += $" Error: Please wait for setup to complete. ";
+                result.Success = false;
+                _logger.LogError(result.Message);
+                return result;
+            }
             using var httpClient = new HttpClient();
             if (String.IsNullOrEmpty(_netConfig.ClientId))
             {
