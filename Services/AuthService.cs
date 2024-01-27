@@ -53,7 +53,7 @@ namespace NetworkMonitor.Processor.Services
             var result = new ResultObj();
             result.Message = " InitializeAsync : ";
             
-                  if (_processorStates.IsSetup)
+                  if (!_processorStates.IsSetup)
             {
                 result.Message += $" Error: Please wait for setup to complete. ";
                 result.Success = false;

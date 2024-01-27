@@ -271,6 +271,7 @@ namespace NetworkMonitor.Processor.Services
         The method init(ProcessorInitObj initObj) initializes the state of the program by either resetting the state store or loading the previous state from it. If the initObj.TotalReset flag is set to true, the state store is completely reset, and new empty objects are saved to the state store. If initObj.Reset is set to true, the state of the MonitorPingInfos object is zeroed, and the current state of this object is saved. If neither flag is set, the previous state of the objects is loaded from the state store. The loaded state includes MonitorPingInfos, RemoveMonitorPingInfoIDs, SwapMonitorPingInfos, RemovePingInfos, and PiIDKey. The method uses the FileRepo class to interact with the state store. If any errors occur during the loading or resetting of the state store, an error message is logged.*/
         public async Task<ResultObj> Init(ProcessorInitObj initObj)
         {
+            _processorStates.IsSetup = false;
             var result = new ResultObj();
             result.Message += " Init : ";
             result.Success = true;
@@ -389,7 +390,16 @@ namespace NetworkMonitor.Processor.Services
         // This method is used to connect to remote hosts by creating and executing NetConnect objects. 
         public async Task<ResultObj> Connect(ProcessorConnectObj connectObj)
         {
-
+            var result = new ResultObj();
+            if (!_processorStates.IsSetup)
+            {
+                result.Message += " Warning : Agent not setup. Please wait... ";
+                result.Success = false;
+                _processorStates.IsConnectRunning = false;
+                _processorStates.IsConnectState = ConnectState.Error;
+                _processorStates.ConnectRunningMessage = result.Message;
+                return result;
+            }
             _processorStates.IsConnectRunning = true;
             _processorStates.IsConnectState = ConnectState.Running;
             _processorStates.ConnectRunningMessage = " Success : Monitor running ";
@@ -397,7 +407,7 @@ namespace NetworkMonitor.Processor.Services
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
             await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
-            var result = new ResultObj();
+ 
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
             //_logger.LogInformation(" SERVICE : MonitorPingProcessor.Connect() ");
@@ -943,13 +953,19 @@ namespace NetworkMonitor.Processor.Services
         }
         public async Task<ResultObj> WakeUp()
         {
+           
             ResultObj result = new ResultObj();
             result.Message = "SERVICE : MonitorPingProcessor.WakeUp() ";
             try
             {
+                if (!_processorStates.IsSetup) {
+                    result.Message += " Warning : Received WakeUp but setup is running. ";
+                    result.Success = false;
+                    return result;
+                }
                 if (_processorStates.IsConnectRunning)
                 {
-                    result.Message += "Received WakeUp but processor is currently running";
+                    result.Message += " Warning : Received WakeUp but processor is currently running";
                     result.Success = false;
                 }
                 else
