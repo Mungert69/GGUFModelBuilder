@@ -452,6 +452,7 @@ namespace NetworkMonitor.Processor.Services
 
                     return result;
                 }
+                /*
 #if !ANDROID
                 try
                 {
@@ -482,6 +483,7 @@ namespace NetworkMonitor.Processor.Services
                 }
 
 #endif
+                */
 
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
                 // Time interval between Now and NextRun
@@ -528,6 +530,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     countDown--;
                 };
+                /*
 #if !ANDROID
                 try
                 {
@@ -543,6 +546,7 @@ namespace NetworkMonitor.Processor.Services
                 }
 
 #endif
+                */
 
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all connections in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
