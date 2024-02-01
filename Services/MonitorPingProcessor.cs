@@ -84,6 +84,12 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _processorStates.IsRunning = false;
+                _processorStates.IsSetup = false;
+                _processorStates.IsRabbitConnected = false;
+                _processorStates.IsConnectRunning = false;
+                 _processorStates.SetupMessage = " Agent is shutdown ";
+                   _processorStates.RabbitSetupMessage = " Agent is shutdown ";
+                     _processorStates.ConnectRunningMessage = " Agent is shutdown ";
                 _processorStates.RunningMessage = " Success : Agent shutdown ";
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
