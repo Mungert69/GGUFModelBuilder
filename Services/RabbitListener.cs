@@ -23,7 +23,8 @@ namespace NetworkMonitor.Objects.Repository
         ResultObj QueueDic(ProcessorQueueDicObj queueDicObj);
         Task<ResultObj> WakeUp();
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
-        void Shutdown();
+        Task Shutdown();
+        Task<ResultObj> SetupListener();
     }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
@@ -40,12 +41,16 @@ namespace NetworkMonitor.Objects.Repository
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
-            Setup();
+            //Setup();
             // Set up the polling timer
             _pollingTimer = new System.Timers.Timer(_pollingInterval.TotalMilliseconds);
             _pollingTimer.Elapsed += async (sender, e) => await PollingTick();
             _pollingTimer.AutoReset = true;
             _pollingTimer.Start();
+        }
+
+        public async Task<ResultObj> SetupListener() {
+            return await Setup();
         }
         private async Task PollingTick()
         {

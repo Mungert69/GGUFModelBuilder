@@ -159,7 +159,7 @@ namespace NetworkMonitor.Processor.Services
             try
             {
 
-                oldMonitorIPs = _fileRepo.GetStateJsonZ<List<MonitorIP>>("MonitorIPs");
+                oldMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
                 if (oldMonitorIPs != null)
                 {
                     oldMonitorIPs.ForEach(f => f.AppID = appID);

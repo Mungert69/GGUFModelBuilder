@@ -116,6 +116,7 @@ namespace NetworkMonitor.Processor
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates);
             AuthService authService;
+            var resultListener = rabbitListener.SetupListener();
             var result=await _monitorPingProcessor.Init(new ProcessorInitObj());
             processorStates.IsSetup=result.Success;
             if (config["AuthDevice"] == "true")
