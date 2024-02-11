@@ -18,7 +18,7 @@ namespace NetworkMonitor.Processor.Services
         private IFileRepo _fileRepo;
         List<MonitorPingInfo> _currentMonitorPingInfos = new List<MonitorPingInfo>();
         List<PingInfo> _currentPingInfos = new List<PingInfo>();
-        List<MonitorIP>? _stateMonitorIPs ;
+        List<MonitorIP>? _stateMonitorIPs;
         PingParams? _statePingParams;
 
         public List<MonitorPingInfo> CurrentMonitorPingInfos { get => _currentMonitorPingInfos; set => _currentMonitorPingInfos = value; }
@@ -30,6 +30,24 @@ namespace NetworkMonitor.Processor.Services
             _fileRepo = fileRepo;
             _monitorPingCollection = monitorPingCollection;
             _lockObj = lockObj;
+            if (!_fileRepo.IsFileExists("ProcessorDataObj"))
+            {
+                _fileRepo.CheckFileExists("ProcessorDataObj", logger);
+                _fileRepo.SaveStateStringJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
+            }
+            if (!_fileRepo.IsFileExists("MonitorIPs"))
+            {
+                _fileRepo.CheckFileExists("MonitorIPs", logger);
+                fileRepo.SaveStateJsonZ<List<MonitorIP>>("MonitorIPs", new List<MonitorIP>());
+
+            }
+            if (!_fileRepo.IsFileExists("PingParams"))
+            {
+                _fileRepo.CheckFileExists("PingParams", logger);
+                fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
+
+            }
+            
         }
 
         public async Task<bool> TotalReset()
@@ -96,7 +114,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     else
                     {
-                        infoLog+=" Error : ProcessorDataObj null from state .";
+                        infoLog += " Error : ProcessorDataObj null from state .";
 
                     }
                     if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
@@ -124,7 +142,7 @@ namespace NetworkMonitor.Processor.Services
             }
             try
             {
-                _stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs"); 
+                _stateMonitorIPs = await _fileRepo.GetStateJsonZAsync<List<MonitorIP>>("MonitorIPs");
                 if (_stateMonitorIPs != null) infoLog += (" Got MonitorIPS from statestore count =" + _stateMonitorIPs.Count()) + " . ";
             }
             catch (Exception e)
@@ -150,7 +168,7 @@ namespace NetworkMonitor.Processor.Services
             if (initObj.MonitorIPs == null || initObj.MonitorIPs.Count == 0)
             {
                 _logger.LogWarning(" State Setup : Warning : There are No MonitorIPs using statestore");
-                if (_stateMonitorIPs!=null) initObj.MonitorIPs = _stateMonitorIPs;
+                if (_stateMonitorIPs != null) initObj.MonitorIPs = _stateMonitorIPs;
                 if (_stateMonitorIPs == null || _stateMonitorIPs.Count == 0)
                 {
                     initObj.MonitorIPs = new List<MonitorIP>();
