@@ -23,7 +23,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   
-    <PackageReference Include="Microsoft.NET.Build.Containers" Version="8.0.100" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
 
 
