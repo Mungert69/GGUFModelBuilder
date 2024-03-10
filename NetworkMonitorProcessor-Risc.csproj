@@ -6,9 +6,8 @@
     <DefineConstants>NetworkMonitorProcessor</DefineConstants>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
-    <ContainerBaseImage>mungert/riscv64-net8</ContainerBaseImage>
-    <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
-    <ContainerImageTag>1.1.3</ContainerImageTag>
+  <ImplicitUsings>enable</ImplicitUsings>
+
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
 
   </PropertyGroup>
@@ -23,6 +22,18 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.2.0" />
    <PackageReference Include="Microsoft.NET.Build.Containers" Version="8.0.200" />
+  <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.2.0" />
+    <PackageReference Include="bouncycastle.cryptography" Version="2.2.1" />
+    <PackageReference Include="MetroLog.Net6" Version="2.1.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.2" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
+
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
 
 
   </ItemGroup>
@@ -38,7 +49,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NetworkMonitor\NetworkMonitor-Maui.csproj" />
-  </ItemGroup>
 </Project>

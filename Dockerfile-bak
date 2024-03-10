@@ -1,0 +1,15 @@
+FROM mungert/riscv64-net8:latest AS build-env
+WORKDIR /App
+
+# Copy everything
+COPY . ./
+# Restore as distinct layers
+RUN dotnet restore NetworkMonitorProcessor-Risc.csproj
+# Build and publish a release
+RUN dotnet publish NetworkMonitorProcessor-Risc.csproj -c Release -o out
+
+# Build runtime image
+FROM mungert/riscv64-net8:latest
+WORKDIR /App
+COPY --from=build-env /App/out .
+ENTRYPOINT ["dotnet", "NetworkMonitorProcessor.dll"]
