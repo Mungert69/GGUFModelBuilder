@@ -10,7 +10,7 @@ RUN /usr/share/dotnet/dotnet restore NetworkMonitorProcessor-Risc.csproj
 RUN /usr/share/dotnet/dotnet publish NetworkMonitorProcessor-Risc.csproj -c Release -o out
 
 ## Build runtime image
-#FROM mungert/riscv64-net8:latest
+FROM mungert/riscv64-net8:latest
 WORKDIR /App
 COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "NetworkMonitorProcessor.dll"]
+ENTRYPOINT ["/usr/share/dotnet/dotnet","NetworkMonitorProcessor-Risc.dll"]
