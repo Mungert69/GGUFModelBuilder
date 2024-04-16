@@ -1,0 +1,15 @@
+"filename", "language", "jsonc", "xml", "C#", "comment", "blank", "total"
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor-Maui.csproj", "xml", 0, 17, 0, 0, 10, 27
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor-Risc.csproj", "xml", 0, 40, 0, 0, 13, 53
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor.code-workspace", "jsonc", 12, 0, 0, 0, 0, 12
+"/home/mahadeva/code/NetworkMonitorProcessor/NetworkMonitorProcessor.csproj", "xml", 0, 39, 0, 0, 11, 50
+"/home/mahadeva/code/NetworkMonitorProcessor/Program.cs", "C#", 0, 0, 126, 0, 17, 143
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/AuthService.cs", "C#", 0, 0, 435, 0, 61, 496
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/IMonitorPingProcessor.cs", "C#", 0, 0, 24, 0, 1, 25
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingCollection.cs", "C#", 0, 0, 382, 0, 31, 413
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/MonitorPingProcessor.cs", "C#", 0, 0, 946, 0, 59, 1005
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/PublishRepo.cs", "C#", 0, 0, 199, 0, 13, 212
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/RabbitListener.cs", "C#", 0, 0, 681, 0, 21, 702
+"/home/mahadeva/code/NetworkMonitorProcessor/Services/StateSetup.cs", "C#", 0, 0, 193, 0, 27, 220
+"/home/mahadeva/code/NetworkMonitorProcessor/linker.xml", "xml", 0, 6, 0, 0, 1, 7
+"Total", "-", 12, 102, 2986, 0, 265, 3365
