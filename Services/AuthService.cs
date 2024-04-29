@@ -341,7 +341,7 @@ namespace NetworkMonitor.Processor.Services
 
                         var processorObj = new ProcessorObj();
 
-                        processorObj.Location = userInfo.Email + " - local";
+                        processorObj.Location = userInfo.Email + " - Local";
                         processorObj.AppID = userInfo.UserID;
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
@@ -352,7 +352,7 @@ namespace NetworkMonitor.Processor.Services
                         }*/
 
                         _netConfig.Owner = userInfo.UserID;
-                        _netConfig.MonitorLocation = userInfo.Email + " - local";
+                        _netConfig.MonitorLocation = userInfo.Email + " - Local";
                         var loadServerDataString="None";
                         string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
                         var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
