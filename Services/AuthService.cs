@@ -14,6 +14,7 @@ using System.IdentityModel.Tokens;
 using System.Security.Claims;
 using NetworkMonitor.Objects.Repository;
 using System.Threading;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace NetworkMonitor.Processor.Services
@@ -354,13 +355,14 @@ namespace NetworkMonitor.Processor.Services
                         {
                             lastSixDigits = machineName; // If the machine name is less than 6 characters, use the entire string
                         }
-                        processorObj.Location = userInfo.Email + " - Local - " + lastSixDigits;
+                        if (lastSixDigits.IsNullOrEmpty()) lastSixDigits = "Local";
+                        processorObj.Location = userInfo.Email + "-" + lastSixDigits;
                         processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
 
                         _netConfig.Owner = userInfo.UserID;
-                        _netConfig.MonitorLocation = userInfo.Email + " - Local";
+                        _netConfig.MonitorLocation = userInfo.Email + "-" + lastSixDigits;
                         var loadServerDataString = "None";
                         string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
                         var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
