@@ -52,8 +52,8 @@ namespace NetworkMonitor.Processor.Services
         {
             var result = new ResultObj();
             result.Message = " InitializeAsync : ";
-            
-                  if (!_processorStates.IsSetup)
+
+            if (!_processorStates.IsSetup)
             {
                 result.Message += $" Error: Please wait for setup to complete. ";
                 result.Success = false;
@@ -252,21 +252,22 @@ namespace NetworkMonitor.Processor.Services
         {
             bool flag = false;
 
-            if (rabbitHostName!=null && rabbitHostName!="" && _netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
+            if (rabbitHostName != null && rabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
             {
                 _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
                 flag = true;
             }
-            if (rabbitPort!=0 && _netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
+            if (rabbitPort != 0 && _netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
             {
                 _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
                 flag = true;
             }
-            if (flag) {
+            if (flag)
+            {
                 _logger.LogInformation($" Reconnecintg to RabbitMQ with new connetions settings {_netConfig.LocalSystemUrl.RabbitHostName}:{_netConfig.LocalSystemUrl.RabbitPort}");
                 await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
-             }
-            
+            }
+
         }
 
         public async Task<ResultObj> PollForTokenAsync()
@@ -277,6 +278,7 @@ namespace NetworkMonitor.Processor.Services
 
         public async Task<ResultObj> PollForTokenAsync(CancellationToken cancellationToken)
         {
+            string machineName = Environment.MachineName;
             var result = new ResultObj { Message = " PollForTokenAsync : " };
             _logger.LogInformation("Starting polling device auth endpoint, please login to authorize and then wait...");
             var stopwatch = new System.Diagnostics.Stopwatch();
@@ -305,7 +307,6 @@ namespace NetworkMonitor.Processor.Services
 
                     if (tokenResponse.IsSuccessStatusCode)
                     {
-                        var oldAppID = _netConfig.AppID;
                         var tokenDataString = await tokenResponse.Content.ReadAsStringAsync();
                         var tokenData = JsonUtils.GetJsonElementFromString(tokenDataString);
                         var accessToken = tokenData.GetProperty("access_token").GetString();
@@ -319,6 +320,7 @@ namespace NetworkMonitor.Processor.Services
                         }
 
                         var userInfo = GetUserInfoFromToken(accessToken);
+
                         if (userInfo == null || userInfo.UserID == null)
                         {
                             result.Message += " Error : Could not get user information from the token.";
@@ -326,34 +328,40 @@ namespace NetworkMonitor.Processor.Services
                             result.Success = false;
                             return result;
                         }
+                        var newAppID = userInfo.UserID +"-"+ machineName;
 
                         var updatedSystemUrl = new SystemUrl
                         {
-                            ExternalUrl = $"https://monitorProcessor{userInfo.UserID}.local",
+                            ExternalUrl = $"{machineName}.local",
                             IPAddress = _netConfig.LocalSystemUrl.IPAddress,
                             RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
                             RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                            RabbitInstanceName = $"monitorProcessor{userInfo.UserID}",
+                            RabbitInstanceName = $"monitorProcessor{newAppID}",
                             RabbitUserName = userInfo.UserID,
                             RabbitPassword = accessToken,
                             RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
                         };
 
                         var processorObj = new ProcessorObj();
+                        int length = machineName.Length;
+                        string lastSixDigits;
 
-                        processorObj.Location = userInfo.Email + " - Local";
-                        processorObj.AppID = userInfo.UserID;
+                        if (length >= 6)
+                        {
+                            lastSixDigits = machineName.Substring(length - 6, 6);
+                        }
+                        else
+                        {
+                            lastSixDigits = machineName; // If the machine name is less than 6 characters, use the entire string
+                        }
+                        processorObj.Location = userInfo.Email + " - Local - " + lastSixDigits;
+                        processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
-                        /*if (oldAppID != userInfo.UserID)
-                        {
-                            processorObj.DateCreated = DateTime.UtcNow;
-                            await _rabbitRepo.PublishAsync<Tuple<string, string>>("changeProcessorAppID", new Tuple<string, string>(oldAppID, processorObj.AppID));
-                        }*/
 
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + " - Local";
-                        var loadServerDataString="None";
+                        var loadServerDataString = "None";
                         string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
                         var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
                         if (!loadServerResponse.IsSuccessStatusCode)
@@ -373,10 +381,10 @@ namespace NetworkMonitor.Processor.Services
                             return result;
                         }
 
-                        RabbitLoadServer loadServer=new RabbitLoadServer();
+                        RabbitLoadServer loadServer = new RabbitLoadServer();
                         try
                         {
-                            var loadResult = JsonUtils.GetObjectFieldFromJson<string>(loadServerDataString,"data");
+                            var loadResult = JsonUtils.GetObjectFieldFromJson<string>(loadServerDataString, "data");
                             //var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
                             if (loadResult == null)
                             {
@@ -385,12 +393,12 @@ namespace NetworkMonitor.Processor.Services
                                 _logger.LogError(result.Message);
                                 return result;
                             }
-                          
 
-                            loadServer.RabbitPort=0;
+
+                            loadServer.RabbitPort = 0;
                             loadServer.RabbitHostName = loadResult;
 
-                            await SetNewRabbitConnection(loadServer.RabbitHostName+"."+_netConfig.ServiceDomain, loadServer.RabbitPort);
+                            await SetNewRabbitConnection(loadServer.RabbitHostName + "." + _netConfig.ServiceDomain, loadServer.RabbitPort);
 
                             //_netConfig.ServiceServer = loadServer.Url;
                         }
@@ -405,7 +413,7 @@ namespace NetworkMonitor.Processor.Services
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
 
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
-                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
+                        //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
                         await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
 
