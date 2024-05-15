@@ -344,25 +344,14 @@ namespace NetworkMonitor.Processor.Services
                         };
 
                         var processorObj = new ProcessorObj();
-                        int length = machineName.Length;
-                        string lastSixDigits;
-
-                        if (length >= 6)
-                        {
-                            lastSixDigits = machineName.Substring(length - 6, 6);
-                        }
-                        else
-                        {
-                            lastSixDigits = machineName; // If the machine name is less than 6 characters, use the entire string
-                        }
-                        if (lastSixDigits.IsNullOrEmpty()) lastSixDigits = "Local";
-                        processorObj.Location = userInfo.Email + "-" + lastSixDigits;
+                       
+                        processorObj.Location = userInfo.Email + "-" + machineName;
                         processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
 
                         _netConfig.Owner = userInfo.UserID;
-                        _netConfig.MonitorLocation = userInfo.Email + "-" + lastSixDigits;
+                        _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;
                         var loadServerDataString = "None";
                         string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
                         var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
