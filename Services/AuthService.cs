@@ -280,6 +280,7 @@ namespace NetworkMonitor.Processor.Services
         public async Task<ResultObj> PollForTokenAsync(CancellationToken cancellationToken)
         {
             string machineName = Environment.MachineName;
+            machineName = machineName.Replace('-', '.');
             var result = new ResultObj { Message = " PollForTokenAsync : " };
             _logger.LogInformation("Starting polling device auth endpoint, please login to authorize and then wait...");
             var stopwatch = new System.Diagnostics.Stopwatch();
