@@ -331,6 +331,9 @@ namespace NetworkMonitor.Processor.Services
                             return result;
                         }
                         var newAppID = userInfo.UserID +"-"+ machineName;
+                        if (newAppID.Length>255)
+                        newAppID = newAppID.Substring(0, 255);
+
 
                         var updatedSystemUrl = new SystemUrl
                         {
