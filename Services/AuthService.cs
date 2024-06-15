@@ -249,7 +249,7 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
 
-        private async Task SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
+        private async Task<bool> SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
         {
             bool flag = false;
 
@@ -268,6 +268,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($" Reconnecintg to RabbitMQ with new connetions settings {_netConfig.LocalSystemUrl.RabbitHostName}:{_netConfig.LocalSystemUrl.RabbitPort}");
                 await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
             }
+            return flag;
 
         }
 
@@ -330,15 +331,25 @@ namespace NetworkMonitor.Processor.Services
                             result.Success = false;
                             return result;
                         }
-                        var newAppID = userInfo.UserID + "-" + machineName;
-                        if (newAppID.Length > 255)
-                            newAppID = newAppID.Substring(0, 255);
+                        var newAppID = userInfo.UserID +"-"+ machineName;
+                        if (newAppID.Length>255)
+                        newAppID = newAppID.Substring(0, 255);
 
 
-
+                        var updatedSystemUrl = new SystemUrl
+                        {
+                            ExternalUrl = $"{machineName}.local",
+                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
+                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
+                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
+                            RabbitInstanceName = $"monitorProcessor{newAppID}",
+                            RabbitUserName = userInfo.UserID,
+                            RabbitPassword = accessToken,
+                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
+                        };
 
                         var processorObj = new ProcessorObj();
-
+                       
                         processorObj.Location = userInfo.Email + "-" + machineName;
                         processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
@@ -367,6 +378,7 @@ namespace NetworkMonitor.Processor.Services
                         }
 
                         RabbitLoadServer loadServer = new RabbitLoadServer();
+                        bool flag;
                         try
                         {
                             var loadResult = JsonUtils.GetObjectFieldFromJson<string>(loadServerDataString, "data");
@@ -383,7 +395,7 @@ namespace NetworkMonitor.Processor.Services
                             loadServer.RabbitPort = 0;
                             loadServer.RabbitHostName = loadResult;
 
-                            await SetNewRabbitConnection(loadServer.RabbitHostName + "." + _netConfig.ServiceDomain, loadServer.RabbitPort);
+                            flag=await SetNewRabbitConnection(loadServer.RabbitHostName + "." + _netConfig.ServiceDomain, loadServer.RabbitPort);
 
                             //_netConfig.ServiceServer = loadServer.Url;
                         }
@@ -396,18 +408,8 @@ namespace NetworkMonitor.Processor.Services
                         }
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
-                        var updatedSystemUrl = new SystemUrl
-                        {
-                            ExternalUrl = $"{machineName}.local",
-                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
-                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
-                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                            RabbitInstanceName = $"monitorProcessor{newAppID}",
-                            RabbitUserName = userInfo.UserID,
-                            RabbitPassword = accessToken,
-                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
-                        };
-                        await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
+
+                       if (!flag) await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
                         await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
