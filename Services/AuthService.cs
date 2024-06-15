@@ -330,25 +330,15 @@ namespace NetworkMonitor.Processor.Services
                             result.Success = false;
                             return result;
                         }
-                        var newAppID = userInfo.UserID +"-"+ machineName;
-                        if (newAppID.Length>255)
-                        newAppID = newAppID.Substring(0, 255);
+                        var newAppID = userInfo.UserID + "-" + machineName;
+                        if (newAppID.Length > 255)
+                            newAppID = newAppID.Substring(0, 255);
 
 
-                        var updatedSystemUrl = new SystemUrl
-                        {
-                            ExternalUrl = $"{machineName}.local",
-                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
-                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
-                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
-                            RabbitInstanceName = $"monitorProcessor{newAppID}",
-                            RabbitUserName = userInfo.UserID,
-                            RabbitPassword = accessToken,
-                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
-                        };
+
 
                         var processorObj = new ProcessorObj();
-                       
+
                         processorObj.Location = userInfo.Email + "-" + machineName;
                         processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
@@ -406,7 +396,17 @@ namespace NetworkMonitor.Processor.Services
                         }
                         // Update the AppID and LocalSystemUrl
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
-
+                        var updatedSystemUrl = new SystemUrl
+                        {
+                            ExternalUrl = $"{machineName}.local",
+                            IPAddress = _netConfig.LocalSystemUrl.IPAddress,
+                            RabbitHostName = _netConfig.LocalSystemUrl.RabbitHostName,
+                            RabbitPort = _netConfig.LocalSystemUrl.RabbitPort,
+                            RabbitInstanceName = $"monitorProcessor{newAppID}",
+                            RabbitUserName = userInfo.UserID,
+                            RabbitPassword = accessToken,
+                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
+                        };
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
