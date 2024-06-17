@@ -412,6 +412,7 @@ namespace NetworkMonitor.Processor.Services
                        if (!flag) await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
+                        processorObj.RabbitHost = _netConfig.LocalSystemUrl.RabbitHostName;
                         await _rabbitRepo.PublishAsync<ProcessorObj>("genAuthKey", processorObj);
 
 
