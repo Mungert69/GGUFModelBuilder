@@ -278,7 +278,7 @@ namespace NetworkMonitor.Processor.Services
                 // RabbitLoadServer loadServer = new RabbitLoadServer();
                 //bool flag;
 
-                var loadResult = JsonUtils.GetJsonObjectFromString<RabbitLoadServerResult>(loadServerDataString);
+                var loadResult = JsonUtils.GetJsonObjectFromStringNoCase<RabbitLoadServerResult>(loadServerDataString);
                 //var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
                 if (loadResult == null)
                 {
@@ -287,11 +287,15 @@ namespace NetworkMonitor.Processor.Services
                     _logger.LogError(result.Message);
                     return result;
                 }
-                if (!loadResult.Success) {
+                if (!loadResult.Success)
+                {
                     result.Message += loadResult.Message;
                     result.Success = loadResult.Success;
                     return result;
                 }
+                result.Message=loadResult.Message;
+                result.Success = true;
+                result.Data = loadResult.Data;
 
 
                 if (loadResult.Data.RabbitHostName != null && loadResult.Data.RabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != loadResult.Data.RabbitHostName)
@@ -398,8 +402,15 @@ namespace NetworkMonitor.Processor.Services
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;
                         _netConfig.LocalSystemUrl.UseTls = true;
-                        await SetNewRabbitConnection(httpClient, userInfo.UserID);
+                        var resultConnect = await SetNewRabbitConnection(httpClient, userInfo.UserID);
                         // Update the AppID and LocalSystemUrl
+                        if (!resultConnect.Success)
+                        {
+                            result.Message += resultConnect.Message;
+                            _logger.LogError(result.Message);
+                            result.Success = false;
+                            return result;
+                        }
                         await _netConfig.SetAppIDAsync(processorObj.AppID);
                         var updatedSystemUrl = new SystemUrl
                         {
@@ -410,7 +421,8 @@ namespace NetworkMonitor.Processor.Services
                             RabbitInstanceName = $"monitorProcessor{newAppID}",
                             RabbitUserName = userInfo.UserID,
                             RabbitPassword = accessToken,
-                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
+                            RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost,
+                            UseTls=true
                         };
                         await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
