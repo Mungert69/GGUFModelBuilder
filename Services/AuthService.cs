@@ -249,26 +249,76 @@ namespace NetworkMonitor.Processor.Services
             return result;
         }
 
-        private async Task<bool> SetNewRabbitConnection(string rabbitHostName, int rabbitPort)
+        private async Task<ResultObj> SetNewRabbitConnection(HttpClient httpClient, string userId)
         {
             bool flag = false;
+            var result = new ResultObj();
+            var loadServerDataString = "None";
+            try
+            {
+                string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetRabbitServerApi/{userId}";
+                var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
+                if (!loadServerResponse.IsSuccessStatusCode)
+                {
+                    result.Message += $" Error : LoadServer API call to {loadServerUrl} failed with status code: {loadServerResponse.StatusCode}.";
+                    _logger.LogError(result.Message);
+                    result.Success = false;
+                    return result;
+                }
 
-            if (rabbitHostName != null && rabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != rabbitHostName)
-            {
-                _netConfig.LocalSystemUrl.RabbitHostName = rabbitHostName;
-                flag = true;
+                loadServerDataString = await loadServerResponse.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(loadServerDataString))
+                {
+                    result.Message += " Error : LoadServer response data string is null or empty.";
+                    _logger.LogError(result.Message);
+                    result.Success = false;
+                    return result;
+                }
+
+                // RabbitLoadServer loadServer = new RabbitLoadServer();
+                //bool flag;
+
+                var loadResult = JsonUtils.GetJsonObjectFromString<RabbitLoadServerResult>(loadServerDataString);
+                //var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
+                if (loadResult == null)
+                {
+                    result.Message += " Error : Deserialized result from load server was null.";
+                    result.Success = false;
+                    _logger.LogError(result.Message);
+                    return result;
+                }
+                if (!loadResult.Success) {
+                    result.Message += loadResult.Message;
+                    result.Success = loadResult.Success;
+                    return result;
+                }
+
+
+                if (loadResult.Data.RabbitHostName != null && loadResult.Data.RabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != loadResult.Data.RabbitHostName)
+                {
+                    _netConfig.LocalSystemUrl.RabbitHostName = loadResult.Data.RabbitHostName;
+                    flag = true;
+                }
+                if (loadResult.Data.RabbitPort != 0 && _netConfig.LocalSystemUrl.RabbitPort != loadResult.Data.RabbitPort)
+                {
+                    _netConfig.LocalSystemUrl.RabbitPort = loadResult.Data.RabbitPort;
+                    flag = true;
+                }
+                if (flag)
+                {
+                    _logger.LogInformation($" Reconnecintg to RabbitMQ with new connetions settings {_netConfig.LocalSystemUrl.RabbitHostName}:{_netConfig.LocalSystemUrl.RabbitPort}");
+                }
+
             }
-            if (rabbitPort != 0 && _netConfig.LocalSystemUrl.RabbitPort != rabbitPort)
+            catch (Exception ex)
             {
-                _netConfig.LocalSystemUrl.RabbitPort = rabbitPort;
-                flag = true;
+                result.Message += $" Error : Failed to setup new Rabbit Server connection. Exception: {ex.Message}";
+                _logger.LogError(result.Message);
+                result.Success = false;
+                return result;
             }
-            if (flag)
-            {
-                _logger.LogInformation($" Reconnecintg to RabbitMQ with new connetions settings {_netConfig.LocalSystemUrl.RabbitHostName}:{_netConfig.LocalSystemUrl.RabbitPort}");
-                await _netConfig.SetLocalSystemUrlAsync(_netConfig.LocalSystemUrl);
-            }
-            return flag;
+
+            return result;
 
         }
 
@@ -331,11 +381,26 @@ namespace NetworkMonitor.Processor.Services
                             result.Success = false;
                             return result;
                         }
-                        var newAppID = userInfo.UserID +"-"+ machineName;
-                        if (newAppID.Length>255)
-                        newAppID = newAppID.Substring(0, 255);
+                        var newAppID = userInfo.UserID + "-" + machineName;
+                        if (newAppID.Length > 255)
+                            newAppID = newAppID.Substring(0, 255);
 
 
+
+
+                        var processorObj = new ProcessorObj();
+
+                        processorObj.Location = userInfo.Email + "-" + machineName;
+                        processorObj.AppID = newAppID;
+                        processorObj.Owner = userInfo.UserID;
+                        processorObj.IsPrivate = true;
+
+                        _netConfig.Owner = userInfo.UserID;
+                        _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;
+                        _netConfig.LocalSystemUrl.UseTls = true;
+                        await SetNewRabbitConnection(httpClient, userInfo.UserID);
+                        // Update the AppID and LocalSystemUrl
+                        await _netConfig.SetAppIDAsync(processorObj.AppID);
                         var updatedSystemUrl = new SystemUrl
                         {
                             ExternalUrl = $"{machineName}.local",
@@ -347,69 +412,7 @@ namespace NetworkMonitor.Processor.Services
                             RabbitPassword = accessToken,
                             RabbitVHost = _netConfig.LocalSystemUrl.RabbitVHost
                         };
-
-                        var processorObj = new ProcessorObj();
-                       
-                        processorObj.Location = userInfo.Email + "-" + machineName;
-                        processorObj.AppID = newAppID;
-                        processorObj.Owner = userInfo.UserID;
-                        processorObj.IsPrivate = true;
-
-                        _netConfig.Owner = userInfo.UserID;
-                        _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;
-                        var loadServerDataString = "None";
-                        string loadServerUrl = $"https://{_netConfig.LoadServer}/Load/GetLoadServerApi/{userInfo.UserID}";
-                        var loadServerResponse = await httpClient.GetAsync(loadServerUrl);
-                        if (!loadServerResponse.IsSuccessStatusCode)
-                        {
-                            result.Message += $" Error : LoadServer API call to {loadServerUrl} failed with status code: {loadServerResponse.StatusCode}.";
-                            _logger.LogError(result.Message);
-                            result.Success = false;
-                            return result;
-                        }
-
-                        loadServerDataString = await loadServerResponse.Content.ReadAsStringAsync();
-                        if (string.IsNullOrEmpty(loadServerDataString))
-                        {
-                            result.Message += " Error : LoadServer response data string is null or empty.";
-                            _logger.LogError(result.Message);
-                            result.Success = false;
-                            return result;
-                        }
-
-                        RabbitLoadServer loadServer = new RabbitLoadServer();
-                        bool flag;
-                        try
-                        {
-                            var loadResult = JsonUtils.GetObjectFieldFromJson<string>(loadServerDataString, "data");
-                            //var loadResult2 = await APIHelper.GetDataFromResultObjJson<RabbitLoadServer>(loadServerUrl);
-                            if (loadResult == null)
-                            {
-                                result.Message += " Error : Deserialized result from load server was null.";
-                                result.Success = false;
-                                _logger.LogError(result.Message);
-                                return result;
-                            }
-
-
-                            loadServer.RabbitPort = 0;
-                            loadServer.RabbitHostName = loadResult;
-
-                            flag=await SetNewRabbitConnection(loadServer.RabbitHostName + "." + _netConfig.ServiceDomain, loadServer.RabbitPort);
-
-                            //_netConfig.ServiceServer = loadServer.Url;
-                        }
-                        catch (Exception ex)
-                        {
-                            result.Message += $" Error : Failed to deserialize {loadServerDataString} to SystemUrl. Exception: {ex.Message}";
-                            _logger.LogError(result.Message);
-                            result.Success = false;
-                            return result;
-                        }
-                        // Update the AppID and LocalSystemUrl
-                        await _netConfig.SetAppIDAsync(processorObj.AppID);
-
-                       if (!flag) await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
+                        await _netConfig.SetLocalSystemUrlAsync(updatedSystemUrl);
                         //await Task.Delay(TimeSpan.FromSeconds(3)); 
                         // Now publish the message
                         processorObj.RabbitHost = _netConfig.LocalSystemUrl.RabbitHostName;
