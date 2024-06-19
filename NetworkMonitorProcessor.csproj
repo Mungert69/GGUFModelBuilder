@@ -40,11 +40,12 @@
   <ItemGroup>
     <ProjectReference Include="..\NetworkMonitor\NetworkMonitor.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <Content Include="openssl\**">
+    <Content Include="openssl-3.2.0-dev\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <TargetPath>openssl\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
     </Content>
   </ItemGroup>
-
 </Project>
