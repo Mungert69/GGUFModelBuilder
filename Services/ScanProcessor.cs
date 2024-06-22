@@ -5,94 +5,105 @@ using System.Net.NetworkInformation;
 using System.Net;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Linq;
 using NetworkMonitor.Objects;
+using Microsoft.Extensions.Logging;
+
 namespace NetworkMonitor.Processor.Services;
 public class ScanProcessor
 {
-    
-    public ScanProcessor()
+    LocalScanProcessorStates _scanProcessorStates;
+    private ILogger _logger;
+    public ScanProcessor(ILogger logger,LocalScanProcessorStates scanProcessorStates)
     {
+        _logger = logger;
+        _scanProcessorStates = scanProcessorStates;
+        _scanProcessorStates.OnStartScanAsync += Scan;
+
+    }
+    public void Dispose()
+    {
+        _scanProcessorStates.OnStartScanAsync -= Scan;
     }
 
-    public async Task Scan(string[] args)
+    public async Task Scan(string endPointType)
     {
         var (localIP, subnetMask) = GetLocalIPAddressAndSubnetMask();
         var (networkAddress, startIP, endIP) = GetNetworkRange(localIP, subnetMask);
         int timeout = 1000; // Ping timeout in milliseconds
-        ConcurrentBag<MonitorIP> activeDevices = new ConcurrentBag<MonitorIP>();
-        ConcurrentBag<PingInfo> pingInfos = new ConcurrentBag<PingInfo>();
 
-        Console.WriteLine($"Pinging range: {IntToIp(networkAddress + startIP)} - {IntToIp(networkAddress + endIP)}");
+
+        _logger.LogInformation($"Pinging range: {IntToIp(networkAddress + startIP)} - {IntToIp(networkAddress + endIP)}");
 
         List<Task> pingTasks = new List<Task>();
         for (int i = startIP; i <= endIP; i++)
         {
             string ip = IntToIp(networkAddress + i);
-            pingTasks.Add(PingAndResolveAsync(ip, timeout, activeDevices, pingInfos));
+            pingTasks.Add(PingAndResolveAsync(ip, timeout, _scanProcessorStates.ActiveDevices, _scanProcessorStates.PingInfos));
         }
 
         await Task.WhenAll(pingTasks);
 
-        Console.WriteLine("Devices up in the network:");
-        foreach (var device in activeDevices)
+        _logger.LogInformation("Devices up in the network:");
+        foreach (var device in _scanProcessorStates.ActiveDevices)
         {
-            Console.WriteLine($"IP Address: {device.Address}, Hostname: {device.MessageForUser}");
+            _logger.LogInformation($"IP Address: {device.Address}, Hostname: {device.MessageForUser}");
         }
 
-        Console.WriteLine("Ping Information:");
-        foreach (var pingInfo in pingInfos)
+        _logger.LogInformation("Ping Information:");
+        foreach (var pingInfo in _scanProcessorStates.PingInfos)
         {
-            Console.WriteLine($"IP: {pingInfo.MonitorPingInfoID}, Status: {pingInfo.Status}, Time: {pingInfo.RoundTripTime}ms");
+            _logger.LogInformation($"IP: {pingInfo.MonitorPingInfoID}, Status: {pingInfo.Status}, Time: {pingInfo.RoundTripTime}ms");
         }
     }
 
-public (string, string) GetLocalIPAddressAndSubnetMask()
-{
-    Console.WriteLine("Searching for appropriate network interface...");
-
-    foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+    public (string, string) GetLocalIPAddressAndSubnetMask()
     {
-        Console.WriteLine($"Checking interface: {ni.Name}, Type: {ni.NetworkInterfaceType}, OperationalStatus: {ni.OperationalStatus}");
+        _logger.LogInformation("Searching for appropriate network interface...");
 
-        if (ni.OperationalStatus != OperationalStatus.Up ||
-            ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
-            ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0 ||
-            ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel)
+        foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
         {
-            Console.WriteLine("Skipping this interface.");
-            continue;
-        }
+            _logger.LogInformation($"Checking interface: {ni.Name}, Type: {ni.NetworkInterfaceType}, OperationalStatus: {ni.OperationalStatus}");
 
-        // Prioritize Ethernet and Wireless interfaces
-        if (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet &&
-            ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
-        {
-            Console.WriteLine("Not an Ethernet or Wi-Fi interface, will use only if no better option found.");
-            continue;
-        }
-
-        var ipProperties = ni.GetIPProperties();
-
-        // Check for default gateway
-        if (!ipProperties.GatewayAddresses.Any())
-        {
-            Console.WriteLine("No default gateway found, skipping.");
-            continue;
-        }
-
-        foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
-        {
-            if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
-                !IPAddress.IsLoopback(ip.Address))
+            if (ni.OperationalStatus != OperationalStatus.Up ||
+                ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
+                ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel)
             {
-                Console.WriteLine($"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}");
-                return (ip.Address.ToString(), ip.IPv4Mask.ToString());
+                _logger.LogInformation("Skipping this interface.");
+                continue;
+            }
+
+            // Prioritize Ethernet and Wireless interfaces
+            if (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet &&
+                ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
+            {
+                _logger.LogInformation("Not an Ethernet or Wi-Fi interface, will use only if no better option found.");
+                continue;
+            }
+
+            var ipProperties = ni.GetIPProperties();
+
+            // Check for default gateway
+            if (!ipProperties.GatewayAddresses.Any())
+            {
+                _logger.LogInformation("No default gateway found, skipping.");
+                continue;
+            }
+
+            foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
+            {
+                if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
+                    !IPAddress.IsLoopback(ip.Address))
+                {
+                    _logger.LogInformation($"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}");
+                    return (ip.Address.ToString(), ip.IPv4Mask.ToString());
+                }
             }
         }
-    }
 
-    throw new Exception("No suitable local IP Address and Subnet Mask found!");
-}
+        throw new Exception("No suitable local IP Address and Subnet Mask found!");
+    }
     public (int networkAddress, int startIP, int endIP) GetNetworkRange(string ipAddress, string subnetMask)
     {
         int ipInt = IpToInt(ipAddress);
