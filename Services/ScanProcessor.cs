@@ -36,7 +36,7 @@ public class ScanProcessor
             var (networkAddress, startIP, endIP) = GetNetworkRange(localIP, subnetMask);
             int timeout = 1000; // Ping timeout in milliseconds
 
-            message = $"Pinging range: {IntToIp(networkAddress + startIP)} - {IntToIp(networkAddress + endIP)}";
+            message = $"Pinging range: {IntToIp(networkAddress + startIP)} - {IntToIp(networkAddress + endIP)}\n";
             _logger.LogInformation(message);
             _scanProcessorStates.RunningMessage += message;
 
@@ -48,14 +48,14 @@ public class ScanProcessor
             }
 
             await Task.WhenAll(pingTasks);
-            message = "Devices up in the network:";
+            message = "\n Found devices up in the network:\n";
             _logger.LogInformation(message);
             _scanProcessorStates.RunningMessage += message;
 
             _scanProcessorStates.IsSuccess = true;
             foreach (var device in _scanProcessorStates.ActiveDevices)
             {
-                message = $"IP Address: {device.Address}, Hostname: {device.MessageForUser}";
+                message = $"IP Address: {device.Address}, Hostname: {device.MessageForUser}\n";
                 _scanProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
             }
@@ -68,7 +68,7 @@ public class ScanProcessor
         }
         catch (Exception e)
         {
-            message = $" Error : Failed to scan for local hosts. Error was :{e.Message}";
+            message = $" Error : Failed to scan for local hosts. Error was :{e.Message}\n";
             _logger.LogError(message);
             _scanProcessorStates.CompletedMessage += message;
             _scanProcessorStates.IsSuccess = false;
@@ -81,13 +81,13 @@ public class ScanProcessor
 
     public (string, string) GetLocalIPAddressAndSubnetMask()
     {
-        var message = "Searching for appropriate network interface...";
+        var message = "Searching for appropriate network interface...\n";
         _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
 
         foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
         {
-            message=$"Checking interface: {ni.Name}, Type: {ni.NetworkInterfaceType}, OperationalStatus: {ni.OperationalStatus}";
+            message=$"Checking interface: {ni.Name}, Type: {ni.NetworkInterfaceType}, OperationalStatus: {ni.OperationalStatus}\n";
  _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
             if (ni.OperationalStatus != OperationalStatus.Up ||
@@ -95,7 +95,7 @@ public class ScanProcessor
                 ni.Description.IndexOf("virtual", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 ni.NetworkInterfaceType == NetworkInterfaceType.Tunnel)
             {
-                message="Skipping this interface.";
+                message="Skipping this interface.\n";
                  _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
                 continue;
@@ -105,7 +105,7 @@ public class ScanProcessor
             if (ni.NetworkInterfaceType != NetworkInterfaceType.Ethernet &&
                 ni.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
             {
-                message="Not an Ethernet or Wi-Fi interface, will use only if no better option found.";
+                message= "Not an Ethernet or Wi-Fi interface, will use only if no better option found.\n";
                  _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
                 continue;
@@ -116,7 +116,7 @@ public class ScanProcessor
             // Check for default gateway
             if (!ipProperties.GatewayAddresses.Any())
             {
-                message="No default gateway found, skipping.";
+                message= "No default gateway found, skipping.\n";
                  _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
                 continue;
@@ -127,7 +127,7 @@ public class ScanProcessor
                 if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
                     !IPAddress.IsLoopback(ip.Address))
                 {
-                    message=$"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}";
+                    message=$"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}\n";
                      _logger.LogInformation(message);
         _scanProcessorStates.RunningMessage += message;
                     return (ip.Address.ToString(), ip.IPv4Mask.ToString());
@@ -135,7 +135,7 @@ public class ScanProcessor
             }
         }
 
-        throw new Exception("No suitable local IP Address and Subnet Mask found!");
+        throw new Exception("No suitable local IP Address and Subnet Mask found!\n");
         
     }
     public (int networkAddress, int startIP, int endIP) GetNetworkRange(string ipAddress, string subnetMask)
