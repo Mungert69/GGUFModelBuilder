@@ -7,17 +7,24 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Linq;
 using NetworkMonitor.Objects;
+using NetworkMonitor.Objects.Repository;
 using Microsoft.Extensions.Logging;
+using NetworkMonitor.Objects.ServiceMessage;
+using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services;
 public class ScanProcessor
 {
-    LocalScanProcessorStates _scanProcessorStates;
+    private LocalScanProcessorStates _scanProcessorStates;
+    private IRabbitRepo _rabbitRepo;
+    private NetConnectConfig _netConfig;
     private ILogger _logger;
-    public ScanProcessor(ILogger logger,LocalScanProcessorStates scanProcessorStates)
+    public ScanProcessor(ILogger logger,LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
         _logger = logger;
         _scanProcessorStates = scanProcessorStates;
+        _rabbitRepo = rabbitRepo;
+                    _netConfig = netConfig;
         _scanProcessorStates.OnStartScanAsync += Scan;
 
     }
@@ -55,6 +62,15 @@ public class ScanProcessor
             _scanProcessorStates.IsSuccess = true;
             foreach (var device in _scanProcessorStates.ActiveDevices)
             {
+                device.AppID = _netConfig.AppID;
+                device.UserID = _netConfig.Owner;
+                device.Timeout=59000;
+                device.AgentLocation=_netConfig.MonitorLocation;
+                device.DateAdded = DateTime.UtcNow;
+                device.Enabled = true;
+                device.EndPointType = "icmp";
+                device.Hidden = false;
+                device.Port=0;
                 message = $"IP Address: {device.Address}, Hostname: {device.MessageForUser}\n";
                 _scanProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
@@ -65,6 +81,11 @@ public class ScanProcessor
             {
                 _logger.LogInformation($"IP: {pingInfo.MonitorPingInfoID}, Status: {pingInfo.Status}, Time: {pingInfo.RoundTripTime}ms");
             }
+            var processorDataObj = new ProcessorDataObj();
+            processorDataObj.AppID = _netConfig.AppID;
+            processorDataObj.AuthKey = _netConfig.AuthKey;
+            processorDataObj.RabbitPassword = _netConfig.LocalSystemUrl.RabbitPassword;
+            await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs",processorDataObj);
         }
         catch (Exception e)
         {
