@@ -138,7 +138,7 @@ public class ScanProcessor
             }
 
             var ipProperties = ni.GetIPProperties();
-
+#if WINDOWS
             // Check for default gateway
             if (!ipProperties.GatewayAddresses.Any())
             {
@@ -147,6 +147,7 @@ public class ScanProcessor
         _scanProcessorStates.RunningMessage += message;
                 continue;
             }
+#endif
 
             foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
             {

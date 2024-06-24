@@ -218,7 +218,10 @@ namespace NetworkMonitor.Processor.Services
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
                 _netConfig.AgentUserFlow.IsHostsAdded = false;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
+                string copy = _netConfig.OqsProviderPath;
+                _netConfig.OqsProviderPath = _netConfig.OqsProviderPathReadOnly;
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
+                _netConfig.OqsProviderPath = copy;
                 result.Message += " Success : Set AuthKey and saved NetConnectConfig to appsettings.json.";
             }
             catch (Exception e)
