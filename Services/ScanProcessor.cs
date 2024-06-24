@@ -60,18 +60,19 @@ public class ScanProcessor
             _scanProcessorStates.RunningMessage += message;
 
             _scanProcessorStates.IsSuccess = true;
-            foreach (var device in _scanProcessorStates.ActiveDevices)
+            var monitorIPs= _scanProcessorStates.ActiveDevices.ToList();
+            foreach (var monitorIP in monitorIPs)
             {
-                device.AppID = _netConfig.AppID;
-                device.UserID = _netConfig.Owner;
-                device.Timeout=59000;
-                device.AgentLocation=_netConfig.MonitorLocation;
-                device.DateAdded = DateTime.UtcNow;
-                device.Enabled = true;
-                device.EndPointType = "icmp";
-                device.Hidden = false;
-                device.Port=0;
-                message = $"IP Address: {device.Address}, Hostname: {device.MessageForUser}\n";
+                monitorIP.AppID = _netConfig.AppID;
+                monitorIP.UserID = _netConfig.Owner;
+                monitorIP.Timeout=59000;
+                monitorIP.AgentLocation=_netConfig.MonitorLocation;
+                monitorIP.DateAdded = DateTime.UtcNow;
+                monitorIP.Enabled = true;
+                monitorIP.EndPointType = "icmp";
+                monitorIP.Hidden = false;
+                monitorIP.Port=0;
+                message = $"IP Address: {monitorIP.Address}, Hostname: {monitorIP.MessageForUser}\n";
                 _scanProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
             }
@@ -85,7 +86,11 @@ public class ScanProcessor
             processorDataObj.AppID = _netConfig.AppID;
             processorDataObj.AuthKey = _netConfig.AuthKey;
             processorDataObj.RabbitPassword = _netConfig.LocalSystemUrl.RabbitPassword;
+            processorDataObj.MonitorIPs = monitorIPs;
             await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs",processorDataObj);
+            message = $"\nSent {monitorIPs.Count} hosts to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
+            _logger.LogInformation(message);
+            _scanProcessorStates.RunningMessage += message;
         }
         catch (Exception e)
         {
@@ -94,7 +99,7 @@ public class ScanProcessor
             _scanProcessorStates.CompletedMessage += message;
             _scanProcessorStates.IsSuccess = false;
         }
-        finally { 
+        finally {  
               _scanProcessorStates.IsRunning = false;
         }
        
