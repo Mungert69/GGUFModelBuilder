@@ -269,9 +269,12 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " No ProcessorUserEvent properties set . ";
             }
             if (isValueChanged)
-            {
+            { string copy = _netConfig.OqsProviderPath;
+                _netConfig.OqsProviderPath = _netConfig.OqsProviderPathReadOnly;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
+                 _netConfig.OqsProviderPath = copy;
+               
             }
 
             return result;
