@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using NetworkMonitor.Objects;
+using NetworkMonitor.Objects.Repository;
+using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -14,6 +17,8 @@ namespace NetworkMonitor.Processor.Services
         private readonly LocalScanProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
+         private string _endPointType = "icmp";
+          public string EndPointType { get => _endPointType; set => _endPointType = value; }
 
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
@@ -21,14 +26,20 @@ namespace NetworkMonitor.Processor.Services
             _scanProcessorStates = scanProcessorStates;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
+            _scanProcessorStates.OnStartScanAsync += Scan;
         }
+
+        public void Dispose()
+    {
+        _scanProcessorStates.OnStartScanAsync -= Scan;
+    }
 
         public async Task Scan()
         {
             try
             {
                 _scanProcessorStates.IsRunning = true;
-                var (localIP, subnetMask) = GetLocalIPAddressAndSubnetMask();
+                var (localIP, subnetMask) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger,_scanProcessorStates);
                 var networkRange = $"{localIP}/{subnetMask}";
 
                 _logger.LogInformation($"Starting nmap scan on network range: {networkRange}");
@@ -103,7 +114,7 @@ namespace NetworkMonitor.Processor.Services
             foreach (var service in services)
             {
                 _scanProcessorStates.ActiveDevices.Add(service);
-                _scanProcessorStates.CompletedMessage += $"Added service: {service.Name} on port {service.Port} for host {host}\n";
+                _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host}\n";
             }
         }
 
@@ -170,11 +181,5 @@ namespace NetworkMonitor.Processor.Services
     }
 
    
-    public class ServiceInfo
-    {
-        public int Port { get; set; }
-        public string Protocol { get; set; }
-        public string Name { get; set; }
-        public string Version { get; set; }
-    }
+   
 }
