@@ -113,6 +113,8 @@ namespace NetworkMonitor.Processor
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
+             _scanProcessor = new ScanProcessor(loggerFactory.CreateLogger<ScanProcessor>(), _scanProcessorStates, _rabbitRepo, _netConfig);
+               
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates);
             AuthService authService;

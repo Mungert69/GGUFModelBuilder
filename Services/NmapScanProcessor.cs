@@ -11,7 +11,7 @@ using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class NmapScanProcessor 
+    public class NmapScanProcessor  : IScanProcessor
     {
         private readonly ILogger _logger;
         private readonly LocalScanProcessorStates _scanProcessorStates;

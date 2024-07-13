@@ -17,7 +17,7 @@ namespace NetworkMonitor.Processor.Services;
     {
         Task Scan();
     }
-public class ScanProcessor
+public class ScanProcessor : IScanProcessor
 {
     private LocalScanProcessorStates _scanProcessorStates;
     private IRabbitRepo _rabbitRepo;
