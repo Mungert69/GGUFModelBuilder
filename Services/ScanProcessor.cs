@@ -13,6 +13,10 @@ using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services;
+ public interface IScanProcessor : IDisposable
+    {
+        Task Scan();
+    }
 public class ScanProcessor
 {
     private LocalScanProcessorStates _scanProcessorStates;
@@ -108,7 +112,7 @@ public class ScanProcessor
     }
 
 
-    public async Task PingAndResolveAsync(string ip, int timeout, ConcurrentBag<MonitorIP> activeDevices, ConcurrentBag<PingInfo> pingInfos)
+    private async Task PingAndResolveAsync(string ip, int timeout, ConcurrentBag<MonitorIP> activeDevices, ConcurrentBag<PingInfo> pingInfos)
     {
         using (Ping ping = new Ping())
         {
@@ -151,7 +155,7 @@ public class ScanProcessor
         }
     }
 
-    public string ResolveHostName(string ipAddress)
+    private string ResolveHostName(string ipAddress)
     {
         try
         {
