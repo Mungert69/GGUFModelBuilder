@@ -19,10 +19,7 @@ public class ScanProcessor
     private IRabbitRepo _rabbitRepo;
     private NetConnectConfig _netConfig;
     private ILogger _logger;
-    private string _endPointType = "icmp";
-
-    public string EndPointType { get => _endPointType; set => _endPointType = value; }
-
+   
     public ScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
         _logger = logger;
@@ -73,7 +70,7 @@ public class ScanProcessor
                 monitorIP.AgentLocation = _netConfig.MonitorLocation;
                 monitorIP.DateAdded = DateTime.UtcNow;
                 monitorIP.Enabled = true;
-                monitorIP.EndPointType = EndPointType;
+                monitorIP.EndPointType = _scanProcessorStates.EndPointType;
                 monitorIP.Hidden = false;
                 monitorIP.Port = 0;
                 message = $"IP Address: {monitorIP.Address}, Hostname: {monitorIP.MessageForUser}\n";

@@ -17,9 +17,7 @@ namespace NetworkMonitor.Processor.Services
         private readonly LocalScanProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
-         private string _endPointType = "icmp";
-          public string EndPointType { get => _endPointType; set => _endPointType = value; }
-
+       
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
