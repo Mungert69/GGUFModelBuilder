@@ -16,6 +16,7 @@ namespace NetworkMonitor.Processor.Services;
  public interface IScanProcessor : IDisposable
     {
         Task Scan();
+        bool UseDefaultEndpoint { get; set; }
     }
 public class ScanProcessor : IScanProcessor
 {
@@ -23,6 +24,7 @@ public class ScanProcessor : IScanProcessor
     private IRabbitRepo _rabbitRepo;
     private NetConnectConfig _netConfig;
     private ILogger _logger;
+    private bool _useDefaultEndpoint=true;
    
     public ScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
@@ -33,6 +35,9 @@ public class ScanProcessor : IScanProcessor
         _scanProcessorStates.OnStartScanAsync += Scan;
 
     }
+
+    public bool UseDefaultEndpoint { get => _useDefaultEndpoint; set => _useDefaultEndpoint = value; }
+
     public void Dispose()
     {
         _scanProcessorStates.OnStartScanAsync -= Scan;

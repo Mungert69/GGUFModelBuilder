@@ -19,6 +19,7 @@ namespace NetworkMonitor.Processor
     {
 #pragma warning disable CS8618
         private static ConnectFactory _connectFactory;
+        private static IScanProcessor _scanProcessor;
         private static MonitorPingProcessor _monitorPingProcessor;
 #pragma warning restore CS8618
 
@@ -90,7 +91,7 @@ namespace NetworkMonitor.Processor
             else
             {
                 fileRepo = new FileRepo();
-                  if (!File.Exists("ProcessorDataObj"))
+                if (!File.Exists("ProcessorDataObj"))
                 {
                     File.Create("ProcessorDataObj").Close();
                     fileRepo.SaveStateJsonZ<ProcessorDataObj>("ProcessorDataObj", new ProcessorDataObj());
@@ -108,22 +109,22 @@ namespace NetworkMonitor.Processor
 
                 }
             }
-            var processorStates=new LocalProcessorStates();
+            var processorStates = new LocalProcessorStates();
+            var scanProcessorStates = new LocalScanProcessorStates();
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
-             _scanProcessor = new ScanProcessor(loggerFactory.CreateLogger<ScanProcessor>(), _scanProcessorStates, _rabbitRepo, _netConfig);
-               
+            _scanProcessor = new ScanProcessor(loggerFactory.CreateLogger<ScanProcessor>(), scanProcessorStates, rabbitRepo, netConfig);
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates,_scanProcessor);
             AuthService authService;
             var resultListener = rabbitListener.SetupListener();
-            var result=await _monitorPingProcessor.Init(new ProcessorInitObj());
-            processorStates.IsSetup=result.Success;
+            var result = await _monitorPingProcessor.Init(new ProcessorInitObj());
+            processorStates.IsSetup = result.Success;
             if (config["AuthDevice"] == "true")
             {
-                authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo,processorStates);
+                authService = new AuthService(loggerFactory.CreateLogger<AuthService>(), netConfig, rabbitRepo, processorStates);
                 await authService.InitializeAsync();
                 await authService.SendAuthRequestAsync();
                 await authService.PollForTokenAsync();

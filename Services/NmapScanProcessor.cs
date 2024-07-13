@@ -11,13 +11,16 @@ using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class NmapScanProcessor  : IScanProcessor
+    public class NmapScanProcessor : IScanProcessor
     {
         private readonly ILogger _logger;
         private readonly LocalScanProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
-       
+        private bool _useDefaultEndpoint = false;
+
+        public bool UseDefaultEndpoint { get => _useDefaultEndpoint; set => _useDefaultEndpoint = value; }
+
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
@@ -28,16 +31,16 @@ namespace NetworkMonitor.Processor.Services
         }
 
         public void Dispose()
-    {
-        _scanProcessorStates.OnStartScanAsync -= Scan;
-    }
+        {
+            _scanProcessorStates.OnStartScanAsync -= Scan;
+        }
 
         public async Task Scan()
         {
             try
             {
                 _scanProcessorStates.IsRunning = true;
-                var (localIP, subnetMask) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger,_scanProcessorStates);
+                var (localIP, subnetMask) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
                 var networkRange = $"{localIP}/{subnetMask}";
 
                 _logger.LogInformation($"Starting nmap scan on network range: {networkRange}");
@@ -116,68 +119,70 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-       private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
-{
-    var monitorIPs = new List<MonitorIP>();
-    var regex = new Regex(@"(\d+)/(\w+)\s+(\w+)\s+(.+)");
-    var matches = regex.Matches(output);
-
-    foreach (Match match in matches)
-    {
-        int port = int.Parse(match.Groups[1].Value);
-        string protocol = match.Groups[2].Value.ToLower();
-        string serviceName = match.Groups[3].Value.ToLower();
-        string version = match.Groups[4].Value;
-
-        string endPointType = DetermineEndPointType(serviceName, protocol);
-
-        var monitorIP = new MonitorIP
+        private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
         {
-            Address = host,
-            Port = (ushort)port,
-            EndPointType = endPointType,
-            AppID = _netConfig.AppID,
-            UserID = _netConfig.Owner,
-            Timeout = 5000,
-            AgentLocation = _netConfig.MonitorLocation,
-            DateAdded = DateTime.UtcNow,
-            Enabled = true,
-            Hidden = false,
-            MessageForUser = $"{serviceName} ({version})"
-        };
+            var monitorIPs = new List<MonitorIP>();
+            var regex = new Regex(@"(\d+)/(\w+)\s+(\w+)\s+(.+)");
+            var matches = regex.Matches(output);
 
-        monitorIPs.Add(monitorIP);
+            foreach (Match match in matches)
+            {
+                int port = int.Parse(match.Groups[1].Value);
+                string protocol = match.Groups[2].Value.ToLower();
+                string serviceName = match.Groups[3].Value.ToLower();
+                string version = match.Groups[4].Value;
+
+                string endPointType;
+                if (_useDefaultEndpoint) endPointType = _scanProcessorStates.EndPointType;
+                else endPointType = DetermineEndPointType(serviceName, protocol);
+
+                var monitorIP = new MonitorIP
+                {
+                    Address = host,
+                    Port = (ushort)port,
+                    EndPointType = endPointType,
+                    AppID = _netConfig.AppID,
+                    UserID = _netConfig.Owner,
+                    Timeout = 5000,
+                    AgentLocation = _netConfig.MonitorLocation,
+                    DateAdded = DateTime.UtcNow,
+                    Enabled = true,
+                    Hidden = false,
+                    MessageForUser = $"{serviceName} ({version})"
+                };
+
+                monitorIPs.Add(monitorIP);
+            }
+
+            return monitorIPs;
+        }
+
+        private string DetermineEndPointType(string serviceName, string protocol)
+        {
+            switch (serviceName)
+            {
+                case "http":
+                    return "http";
+                case "https":
+                    return "https";
+                case "domain":
+                    return "dns";
+                case "smtp":
+                    return "smtp";
+                case "ssh":
+                case "telnet":
+                case "ftp":
+                    return "rawconnect";
+                default:
+                    if (protocol == "tcp")
+                        return "rawconnect";
+                    else
+                        return "icmp";
+            }
+        }
+
     }
 
-    return monitorIPs;
-}
 
-         private string DetermineEndPointType(string serviceName, string protocol)
-{
-    switch (serviceName)
-    {
-        case "http":
-            return "http";
-        case "https":
-            return "https";
-        case "domain":
-            return "dns";
-        case "smtp":
-            return "smtp";
-        case "ssh":
-        case "telnet":
-        case "ftp":
-            return "rawconnect";
-        default:
-            if (protocol == "tcp")
-                return "rawconnect";
-            else
-                return "icmp";
-    }
-}
 
-    }
-
-   
-   
 }

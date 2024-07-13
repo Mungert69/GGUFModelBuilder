@@ -30,14 +30,16 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
+        private IScanProcessor _scanProcessor;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, IScanProcessor scanProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
+            _scanProcessor = scanProcessor;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
@@ -138,6 +140,12 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorUserEvent" + _netConfig.AppID,
                 FuncName = "processorUserEvent",
+                MessageTimeout = 600000
+            });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorScan" + _netConfig.AppID,
+                FuncName = "processorScan",
                 MessageTimeout = 600000
             });
         }
@@ -303,6 +311,21 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                        case "processorScan":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                        {
+                            try
+                            {
+                                result = await ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScan " + ex.Message);
+                            }
+                        };
+                            break;
                     }
                 }
             });
@@ -418,6 +441,35 @@ namespace NetworkMonitor.Objects.Repository
             try
             {
                 _monitorPingProcessor.ProcessesMonitorReturnData(processorDataObj);
+                result.Message += "Success : updated RemovePingInfos. ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+
+          public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorScan : ";
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                await _scanProcessor.Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
