@@ -49,7 +49,7 @@ public class ScanProcessor : IScanProcessor
         try
         {
             _scanProcessorStates.IsRunning = true;
-            var (localIP, subnetMask) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
+            var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
             var (networkAddress, startIP, endIP) = NetworkUtils.GetNetworkRange(localIP, subnetMask);
             int timeout = 1000; // Ping timeout in milliseconds
 

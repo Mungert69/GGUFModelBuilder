@@ -8,6 +8,7 @@ using System.Linq;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Connection;
+using System.Xml.Linq;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -40,8 +41,8 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _scanProcessorStates.IsRunning = true;
-                var (localIP, subnetMask) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
-                var networkRange = $"{localIP}/{subnetMask}";
+                var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
+                var networkRange = $"{localIP}/{cidr}";
 
                 _logger.LogInformation($"Starting nmap scan on network range: {networkRange}");
                 _scanProcessorStates.RunningMessage += $"Starting nmap scan on network range: {networkRange}\n";
@@ -77,7 +78,7 @@ namespace NetworkMonitor.Processor.Services
             using (var process = new Process())
             {
                 process.StartInfo.FileName = "nmap";
-                process.StartInfo.Arguments = arguments;
+                process.StartInfo.Arguments = arguments + " -oX -";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;
@@ -90,7 +91,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        private List<string> ParseNmapOutput(string output)
+        private List<string> ParseNmapOutputOld(string output)
         {
             var hosts = new List<string>();
             var regex = new Regex(@"Nmap scan report for (.+)");
@@ -99,6 +100,23 @@ namespace NetworkMonitor.Processor.Services
             foreach (Match match in matches)
             {
                 hosts.Add(match.Groups[1].Value);
+            }
+
+            return hosts;
+        }
+        private List<string> ParseNmapOutput(string output)
+        {
+            var hosts = new List<string>();
+            var xdoc = XDocument.Parse(output);
+
+            var hostElements = xdoc.Descendants("host");
+            foreach (var hostElement in hostElements)
+            {
+                var addressElement = hostElement.Descendants("address").FirstOrDefault(a => a.Attribute("addrtype")?.Value == "ipv4");
+                if (addressElement != null)
+                {
+                    hosts.Add(addressElement.Attribute("addr").Value);
+                }
             }
 
             return hosts;
@@ -118,8 +136,45 @@ namespace NetworkMonitor.Processor.Services
                 _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host}\n";
             }
         }
+private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
+{
+    var monitorIPs = new List<MonitorIP>();
+    var xdoc = XDocument.Parse(output);
 
-        private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
+    var portElements = xdoc.Descendants("port");
+    foreach (var portElement in portElements)
+    {
+        int port = int.Parse(portElement.Attribute("portid").Value);
+        string protocol = portElement.Attribute("protocol").Value.ToLower();
+        var serviceElement = portElement.Element("service");
+        string serviceName = serviceElement?.Attribute("name")?.Value.ToLower() ?? "unknown";
+        string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
+
+        string endPointType;
+        if (_useDefaultEndpoint) endPointType = _scanProcessorStates.EndPointType;
+        else endPointType = DetermineEndPointType(serviceName, protocol);
+
+        var monitorIP = new MonitorIP
+        {
+            Address = host,
+            Port = (ushort)port,
+            EndPointType = endPointType,
+            AppID = _netConfig.AppID,
+            UserID = _netConfig.Owner,
+            Timeout = 5000,
+            AgentLocation = _netConfig.MonitorLocation,
+            DateAdded = DateTime.UtcNow,
+            Enabled = true,
+            Hidden = false,
+            MessageForUser = $"{serviceName} ({version})"
+        };
+
+        monitorIPs.Add(monitorIP);
+    }
+
+    return monitorIPs;
+}
+        private List<MonitorIP> ParseNmapServiceOutputOld(string output, string host)
         {
             var monitorIPs = new List<MonitorIP>();
             var regex = new Regex(@"(\d+)/(\w+)\s+(\w+)\s+(.+)");

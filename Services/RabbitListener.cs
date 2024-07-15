@@ -469,6 +469,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
+                _scanProcessor.UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
                 await _scanProcessor.Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;

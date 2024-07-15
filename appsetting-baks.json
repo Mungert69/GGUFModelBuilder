@@ -1,0 +1,41 @@
+{
+  "LocalSystemUrl": {
+    "IPAddress": "",
+    "ExternalUrl": "https://srv1processor1.local",
+    "RabbitHostName": "rabbitmq.freenetworkmonitor.click",
+    "RabbitInstanceName": "monitorProcessor1",
+    "RabbitPort": 55671,
+    "RabbitUserName": "usercommonxf1",
+    "RabbitPassword": "Ac.0462110",
+    "RabbitVHost": "/vhostuser",
+    "MaxLoad": 1500,
+    "MaxRuntime": 60,
+    "Country": "GB",
+    "Region": "Europe",
+    "UseTls" : true
+  },
+  "AppID": "1",
+  "QuantumFilterSkip": 5,
+  "QuantumFilterStart": 0,
+  "SmtpFilterSkip": 5,
+  "SmtpFilterStart": 2,
+  "MaxTaskQueueSize": 100,
+  "OqsProviderPath": "/home/mahadeva/code/services/processor/openssl/lib64",
+  "ClientAuthUrl": "",
+  "AuthKey": "wQTzo4CKTR39Mn8IWbzP4eN5rWQgN98ZleedK2AJZaorkhprccvT7zlZoD2DrYV8grZ9qw7voXRsWIO3NMLUFQ==",
+  "BaseFusionAuthURL": "",
+  "ClientId": "",
+  "Owner": "root",
+  "MonitorLocation": "Not set - ffffff",
+  "AgentUserFlow": {
+    "IsAuthorized": false,
+    "IsLoggedInWebsite": false,
+    "IsHostsAdded": true
+  },
+  "LoadServer": "loadserver.freenetworkmonitor.click",
+  "UseTls": false,
+  "ServiceDomain": "freenetworkmonitor.click",
+  "ServiceServer": "monitorsrv.freenetworkmonitor.click",
+  "IsRestrictedPublishPerm": false
+}
+

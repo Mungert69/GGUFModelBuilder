@@ -15,7 +15,19 @@ namespace NetworkMonitor.Processor.Services;
 
 public class NetworkUtils
 {
-    public static (string, string) GetLocalIPAddressAndSubnetMask(ILogger logger, LocalScanProcessorStates scanProcessorStates)
+
+    public static int SubnetMaskToCIDR(string subnetMask)
+{
+    var maskBytes = IPAddress.Parse(subnetMask).GetAddressBytes();
+    int cidr = 0;
+    foreach (var b in maskBytes)
+    {
+        cidr += Convert.ToString(b, 2).Count(c => c == '1');
+    }
+    return cidr;
+}
+
+    public static (string, string, string) GetLocalIPAddressAndSubnetMask(ILogger logger, LocalScanProcessorStates scanProcessorStates)
     {
         var message = "Searching for appropriate network interface...\n";
         logger.LogInformation(message);
@@ -64,10 +76,12 @@ public class NetworkUtils
                 if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
                     !IPAddress.IsLoopback(ip.Address))
                 {
-                    message = $"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}\n";
+                      int cidr = SubnetMaskToCIDR(ip.IPv4Mask.ToString());
+                message = $"Selected IP: {ip.Address}, Subnet Mask: {ip.IPv4Mask}, CIDR: {cidr}\n";
+             
                     logger.LogInformation(message);
                     scanProcessorStates.RunningMessage += message;
-                    return (ip.Address.ToString(), ip.IPv4Mask.ToString());
+                    return (ip.Address.ToString(), ip.IPv4Mask.ToString(), cidr.ToString());
                 }
             }
         }
@@ -83,9 +97,8 @@ public class NetworkUtils
         int networkAddress = ipInt & maskInt;
         int broadcastAddress = networkAddress | ~maskInt;
 
-        int startIP = 1; // Network address + 1
-        int endIP = broadcastAddress - networkAddress - 1; // Broadcast address - network address - 1
-
+        int startIP = networkAddress + 1; // Network address + 1
+        int endIP = broadcastAddress - 1; // Broadcast address - 1
         return (networkAddress, startIP, endIP);
     }
 
