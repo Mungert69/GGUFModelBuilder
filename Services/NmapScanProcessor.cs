@@ -7,8 +7,10 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.Repository;
+using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
 using System.Xml.Linq;
+using System.IO;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -44,8 +46,8 @@ namespace NetworkMonitor.Processor.Services
                 var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
                 var networkRange = $"{localIP}/{cidr}";
 
-                _logger.LogInformation($"Starting nmap scan on network range: {networkRange}");
-                _scanProcessorStates.RunningMessage += $"Starting nmap scan on network range: {networkRange}\n";
+                _logger.LogInformation($"Starting service scan on network range: {networkRange}");
+                _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
                 var nmapOutput = await RunNmapCommand($"-sn {networkRange}");
                 var hosts = ParseNmapOutput(nmapOutput);
@@ -57,14 +59,26 @@ namespace NetworkMonitor.Processor.Services
                 {
                     await ScanHostServices(host);
                 }
-
-                _scanProcessorStates.IsSuccess = true;
-                _scanProcessorStates.CompletedMessage += "Nmap scan completed successfully.\n";
+                 _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+                var activeDevices = _scanProcessorStates.ActiveDevices.ToList();
+                if (activeDevices != null && activeDevices.Count > 0)
+                {
+                    var processorDataObj = new ProcessorDataObj();
+                    processorDataObj.AppID = _netConfig.AppID;
+                    processorDataObj.AuthKey = _netConfig.AuthKey;
+                    processorDataObj.RabbitPassword = _netConfig.LocalSystemUrl.RabbitPassword;
+                    processorDataObj.MonitorIPs = activeDevices;
+                    await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
+                   
+                    _scanProcessorStates.CompletedMessage = $"\nSent {activeDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
+                }
+                 _scanProcessorStates.IsSuccess = true;
+           
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error during nmap scan: {e.Message}");
-                _scanProcessorStates.CompletedMessage += $"Error during nmap scan: {e.Message}\n";
+                _logger.LogError($"Error during service scan: {e.Message}");
+                _scanProcessorStates.CompletedMessage += $"Error during service scan: {e.Message}\n";
                 _scanProcessorStates.IsSuccess = false;
             }
             finally
@@ -75,14 +89,25 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task<string> RunNmapCommand(string arguments)
         {
+            string nmapPath="";
+             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
+            {
+                nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
+                if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                {
+                    nmapPath += Path.DirectorySeparatorChar;
+                }
+            }
+             string nmapDataDir  = nmapPath.Replace("bin", "share/nmap");
+
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "nmap";
+                process.StartInfo.FileName = nmapPath+"nmap";
                 process.StartInfo.Arguments = arguments + " -oX -";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;
-
+                process.StartInfo.WorkingDirectory = nmapPath;
                 process.Start();
                 string output = await process.StandardOutput.ReadToEndAsync();
                 await process.WaitForExitAsync();

@@ -97,8 +97,9 @@ public class NetworkUtils
         int networkAddress = ipInt & maskInt;
         int broadcastAddress = networkAddress | ~maskInt;
 
-        int startIP = networkAddress + 1; // Network address + 1
-        int endIP = broadcastAddress - 1; // Broadcast address - 1
+       int startIP = 1; // Network address + 1
+        int endIP = broadcastAddress - networkAddress - 1; // Broadcast address - network address - 1
+
         return (networkAddress, startIP, endIP);
     }
 
