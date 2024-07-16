@@ -24,8 +24,7 @@ public class ScanProcessor : IScanProcessor
     private IRabbitRepo _rabbitRepo;
     private NetConnectConfig _netConfig;
     private ILogger _logger;
-    private bool _useDefaultEndpoint=true;
-   
+    
     public ScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
         _logger = logger;
@@ -36,7 +35,7 @@ public class ScanProcessor : IScanProcessor
 
     }
 
-    public bool UseDefaultEndpoint { get => _useDefaultEndpoint; set => _useDefaultEndpoint = value; }
+    public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
 
     public void Dispose()
     {
@@ -79,7 +78,7 @@ public class ScanProcessor : IScanProcessor
                 monitorIP.AgentLocation = _netConfig.MonitorLocation;
                 monitorIP.DateAdded = DateTime.UtcNow;
                 monitorIP.Enabled = true;
-                monitorIP.EndPointType = _scanProcessorStates.EndPointType;
+                monitorIP.EndPointType = _scanProcessorStates.DefaultEndpointType;
                 monitorIP.Hidden = false;
                 monitorIP.Port = 0;
                 message = $"IP Address: {monitorIP.Address}, Hostname: {monitorIP.MessageForUser}\n";

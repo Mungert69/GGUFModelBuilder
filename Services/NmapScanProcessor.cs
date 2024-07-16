@@ -20,10 +20,8 @@ namespace NetworkMonitor.Processor.Services
         private readonly LocalScanProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
-        private bool _useDefaultEndpoint = false;
 
-        public bool UseDefaultEndpoint { get => _useDefaultEndpoint; set => _useDefaultEndpoint = value; }
-
+         public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
@@ -158,7 +156,7 @@ namespace NetworkMonitor.Processor.Services
             foreach (var service in services)
             {
                 _scanProcessorStates.ActiveDevices.Add(service);
-                _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host}\n";
+                _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
             }
         }
 private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
@@ -176,7 +174,7 @@ private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
         string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
 
         string endPointType;
-        if (_useDefaultEndpoint) endPointType = _scanProcessorStates.EndPointType;
+        if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
         else endPointType = DetermineEndPointType(serviceName, protocol);
 
         var monitorIP = new MonitorIP
@@ -213,7 +211,7 @@ private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
                 string version = match.Groups[4].Value;
 
                 string endPointType;
-                if (_useDefaultEndpoint) endPointType = _scanProcessorStates.EndPointType;
+                if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
                 else endPointType = DetermineEndPointType(serviceName, protocol);
 
                 var monitorIP = new MonitorIP
