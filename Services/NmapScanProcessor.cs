@@ -29,6 +29,9 @@ namespace NetworkMonitor.Processor.Services
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
             _scanProcessorStates.OnStartScanAsync += Scan;
+            _scanProcessorStates.OnCancelScanAsync += CancelScan;
+              _scanProcessorStates.OnAddServicesAsync += AddServices;
+
         }
 
         public void Dispose()
@@ -58,18 +61,7 @@ namespace NetworkMonitor.Processor.Services
                     await ScanHostServices(host);
                 }
                  _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
-                var activeDevices = _scanProcessorStates.ActiveDevices.ToList();
-                if (activeDevices != null && activeDevices.Count > 0)
-                {
-                    var processorDataObj = new ProcessorDataObj();
-                    processorDataObj.AppID = _netConfig.AppID;
-                    processorDataObj.AuthKey = _netConfig.AuthKey;
-                    processorDataObj.RabbitPassword = _netConfig.LocalSystemUrl.RabbitPassword;
-                    processorDataObj.MonitorIPs = activeDevices;
-                    await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
-                   
-                    _scanProcessorStates.CompletedMessage = $"\nSent {activeDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
-                }
+              
                  _scanProcessorStates.IsSuccess = true;
            
             }
@@ -85,6 +77,34 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
+        public async Task AddServices() {
+            try
+            {
+                var selectedDevices = _scanProcessorStates.SelectedDevices.ToList();
+                if (selectedDevices != null && selectedDevices.Count > 0)
+                {
+                    var processorDataObj = new ProcessorDataObj();
+                    processorDataObj.AppID = _netConfig.AppID;
+                    processorDataObj.AuthKey = _netConfig.AuthKey;
+                    processorDataObj.RabbitPassword = _netConfig.LocalSystemUrl.RabbitPassword;
+                    processorDataObj.MonitorIPs = selectedDevices;
+                    await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
+
+                    _scanProcessorStates.CompletedMessage = $"\nSent {selectedDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error during add services: {e.Message}");
+                _scanProcessorStates.CompletedMessage += $"Error during add services: {e.Message}\n";
+                _scanProcessorStates.IsSuccess = false;
+            }
+
+        }
+
+        private async Task CancelScan() { 
+
+        }
         private async Task<string> RunNmapCommand(string arguments)
         {
             string nmapPath="";
