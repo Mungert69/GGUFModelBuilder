@@ -47,7 +47,7 @@ namespace NetworkMonitor.Processor.Services
                 fileRepo.SaveStateJsonZ<PingParams>("PingParams", new PingParams());
 
             }
-            
+
         }
 
         public async Task<bool> TotalReset()
@@ -95,32 +95,33 @@ namespace NetworkMonitor.Processor.Services
             string infoLog = " Starting Load From State ";
             try
             {
-                using (var processorDataObj = await _fileRepo.GetStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj"))
-                {
-                    if (processorDataObj != null)
-                    {
-                        piIDKey = processorDataObj.PiIDKey;
-                        CurrentPingInfos = processorDataObj.PingInfos;
-                        //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
-                        CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
-                        _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
-                        var removePingInfos = processorDataObj.RemovePingInfos.ToList();
-                        foreach (var f in removePingInfos)
-                        {
-                            _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
-                        }
-                        _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
-                        infoLog += " State Setup : Got PiIDKey=" + piIDKey + " and loaded ProcessorDataObj from state . ";
-                    }
-                    else
-                    {
-                        infoLog += " Error : ProcessorDataObj null from state .";
+                var processorDataObj = await _fileRepo.GetStateStringJsonZAsync<ProcessorDataObj>("ProcessorDataObj");
 
+
+                if (processorDataObj != null)
+                {
+                    piIDKey = processorDataObj.PiIDKey;
+                    CurrentPingInfos = processorDataObj.PingInfos;
+                    //_currentMonitorPingInfos = ProcessorDataBuilder.Build(processorDataObj);
+                    CurrentMonitorPingInfos = processorDataObj.MonitorPingInfos;
+                    _removeMonitorPingInfoIDs = processorDataObj.RemoveMonitorPingInfoIDs;
+                    var removePingInfos = processorDataObj.RemovePingInfos.ToList();
+                    foreach (var f in removePingInfos)
+                    {
+                        _monitorPingCollection.RemovePingInfos.TryAdd(f.ID, f);
                     }
-                    if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
-                    if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+                    _swapMonitorPingInfos = processorDataObj.SwapMonitorPingInfos;
+                    infoLog += " State Setup : Got PiIDKey=" + piIDKey + " and loaded ProcessorDataObj from state . ";
+                }
+                else
+                {
+                    infoLog += " Error : ProcessorDataObj null from state .";
 
                 }
+                if (_removeMonitorPingInfoIDs == null) _removeMonitorPingInfoIDs = new List<int>();
+                if (_swapMonitorPingInfos == null) _swapMonitorPingInfos = new List<SwapMonitorPingInfo>();
+
+
                 var firstEnabledPingInfo = CurrentMonitorPingInfos.Where(w => w.Enabled == true).FirstOrDefault();
 
                 if (firstEnabledPingInfo != null)
