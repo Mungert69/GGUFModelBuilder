@@ -66,7 +66,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
                 _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
-                var nmapOutput = await RunNmapCommand($"-sn {networkRange}", cancellationToken);
+                var nmapOutput = await RunNmapCommand($" -sn {networkRange}", cancellationToken);
                 var hosts = ParseNmapOutput(nmapOutput);
 
                 _logger.LogInformation($"Found {hosts.Count} hosts");
@@ -225,7 +225,8 @@ namespace NetworkMonitor.Processor.Services
             _logger.LogInformation($"Scanning services on host: {host}");
             _scanProcessorStates.RunningMessage += $"Scanning services on host: {host}\n";
 
-            var nmapOutput = await RunNmapCommand($"-sV {host}", cancellationToken);
+            var nmapOutput = await RunNmapCommand($" -sV {host}", cancellationToken);
+
             var services = ParseNmapServiceOutput(nmapOutput, host);
 
             foreach (var service in services)
@@ -239,6 +240,7 @@ namespace NetworkMonitor.Processor.Services
         }
         private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
         {
+            _logger.LogInformation($"nmap output was : {output}");
             var monitorIPs = new List<MonitorIP>();
             var xdoc = XDocument.Parse(output);
 
