@@ -12,6 +12,7 @@ using NetworkMonitor.Connection;
 using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
+using System.Threading;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -21,6 +22,7 @@ namespace NetworkMonitor.Processor.Services
         private readonly LocalScanProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
@@ -38,6 +40,9 @@ namespace NetworkMonitor.Processor.Services
         public void Dispose()
         {
             _scanProcessorStates.OnStartScanAsync -= Scan;
+            _scanProcessorStates.OnCancelScanAsync -= CancelScan;
+            _scanProcessorStates.OnAddServicesAsync -= AddServices;
+            _cancellationTokenSource?.Dispose();
         }
 
 
@@ -46,6 +51,9 @@ namespace NetworkMonitor.Processor.Services
             try
             {
                 _scanProcessorStates.IsRunning = true;
+                _cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = _cancellationTokenSource.Token;
+
 
                 var selectedInterface = _scanProcessorStates.SelectedNetworkInterface;
                 if (selectedInterface == null)
@@ -58,7 +66,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
                 _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
-                var nmapOutput = await RunNmapCommand($"-sn {networkRange}");
+                var nmapOutput = await RunNmapCommand($"-sn {networkRange}", cancellationToken);
                 var hosts = ParseNmapOutput(nmapOutput);
 
                 _logger.LogInformation($"Found {hosts.Count} hosts");
@@ -66,11 +74,18 @@ namespace NetworkMonitor.Processor.Services
 
                 foreach (var host in hosts)
                 {
-                    await ScanHostServices(host);
+                    cancellationToken.ThrowIfCancellationRequested(); // Check for cancellation
+                    await ScanHostServices(host, cancellationToken);
                 }
                 _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
 
                 _scanProcessorStates.IsSuccess = true;
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Scan was cancelled.");
+                _scanProcessorStates.CompletedMessage += "Scan was cancelled.\n";
+                _scanProcessorStates.IsSuccess = false;
             }
             catch (Exception e)
             {
@@ -83,44 +98,7 @@ namespace NetworkMonitor.Processor.Services
                 _scanProcessorStates.IsRunning = false;
             }
         }
-        public async Task ScanOld()
-        {
-            try
-            {
-                _scanProcessorStates.IsRunning = true;
-                var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
-                var networkRange = $"{localIP}/{cidr}";
-
-                _logger.LogInformation($"Starting service scan on network range: {networkRange}");
-                _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
-
-                var nmapOutput = await RunNmapCommand($"-sn {networkRange}");
-                var hosts = ParseNmapOutput(nmapOutput);
-
-                _logger.LogInformation($"Found {hosts.Count} hosts");
-                _scanProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
-
-                foreach (var host in hosts)
-                {
-                    await ScanHostServices(host);
-                }
-                _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
-
-                _scanProcessorStates.IsSuccess = true;
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"Error during service scan: {e.Message}");
-                _scanProcessorStates.CompletedMessage += $"Error during service scan: {e.Message}\n";
-                _scanProcessorStates.IsSuccess = false;
-            }
-            finally
-            {
-                _scanProcessorStates.IsRunning = false;
-            }
-        }
-
+    
         public async Task AddServices()
         {
             try
@@ -135,7 +113,7 @@ namespace NetworkMonitor.Processor.Services
                     processorDataObj.MonitorIPs = selectedDevices;
                     await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
 
-                    _scanProcessorStates.CompletedMessage = $"\nSent {selectedDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
+                    _scanProcessorStates.CompletedMessage += $"\nSent {selectedDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
                 }
             }
             catch (Exception e)
@@ -149,9 +127,20 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task CancelScan()
         {
-
+            if (_scanProcessorStates.IsRunning && _cancellationTokenSource != null)
+            {
+                _logger.LogInformation("Cancelling the ongoing scan.");
+                _scanProcessorStates.RunningMessage += "Cancelling the ongoing scan...\n";
+                _cancellationTokenSource.Cancel();
+            }
+            else
+            {
+                _logger.LogInformation("No scan is currently running.");
+                _scanProcessorStates.CompletedMessage += "No scan is currently running.\n";
+            }
         }
-        private async Task<string> RunNmapCommand(string arguments)
+
+        private async Task<string> RunNmapCommand(string arguments, CancellationToken cancellationToken)
         {
             string nmapPath = "";
             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
@@ -172,11 +161,31 @@ namespace NetworkMonitor.Processor.Services
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.WorkingDirectory = nmapPath;
-                process.Start();
-                string output = await process.StandardOutput.ReadToEndAsync();
-                await process.WaitForExitAsync();
 
-                return output;
+                // Start the process
+                process.Start();
+
+                // Register a callback to kill the process if cancellation is requested
+                using (cancellationToken.Register(() =>
+                {
+                    if (!process.HasExited)
+                    {
+                        _logger.LogInformation("Cancellation requested, killing the Nmap process...");
+                        process.Kill();
+                    }
+                }))
+                {
+                    // Read the output asynchronously, supporting cancellation
+                    string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+
+                    // Wait for the process to exit
+                    await process.WaitForExitAsync().ConfigureAwait(false);
+
+                    // Throw if cancellation was requested after the process started
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    return output;
+                }
             }
         }
 
@@ -211,18 +220,21 @@ namespace NetworkMonitor.Processor.Services
             return hosts;
         }
 
-        private async Task ScanHostServices(string host)
+        private async Task ScanHostServices(string host, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Scanning services on host: {host}");
             _scanProcessorStates.RunningMessage += $"Scanning services on host: {host}\n";
 
-            var nmapOutput = await RunNmapCommand($"-sV {host}");
+            var nmapOutput = await RunNmapCommand($"-sV {host}", cancellationToken);
             var services = ParseNmapServiceOutput(nmapOutput, host);
 
             foreach (var service in services)
             {
                 _scanProcessorStates.ActiveDevices.Add(service);
-                _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
+                string message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
+                _scanProcessorStates.CompletedMessage += message;
+                _logger.LogInformation(message);
+
             }
         }
         private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
