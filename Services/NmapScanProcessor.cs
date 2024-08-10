@@ -9,6 +9,7 @@ using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
+using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
 
@@ -21,7 +22,7 @@ namespace NetworkMonitor.Processor.Services
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
 
-         public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
+        public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
         public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
@@ -30,7 +31,7 @@ namespace NetworkMonitor.Processor.Services
             _netConfig = netConfig;
             _scanProcessorStates.OnStartScanAsync += Scan;
             _scanProcessorStates.OnCancelScanAsync += CancelScan;
-              _scanProcessorStates.OnAddServicesAsync += AddServices;
+            _scanProcessorStates.OnAddServicesAsync += AddServices;
 
         }
 
@@ -39,7 +40,50 @@ namespace NetworkMonitor.Processor.Services
             _scanProcessorStates.OnStartScanAsync -= Scan;
         }
 
+
         public async Task Scan()
+        {
+            try
+            {
+                _scanProcessorStates.IsRunning = true;
+
+                var selectedInterface = _scanProcessorStates.SelectedNetworkInterface;
+                if (selectedInterface == null)
+                {
+                    throw new Exception("No network interface selected.");
+                }
+
+                var networkRange = $"{selectedInterface.IPAddress}/{selectedInterface.CIDR}";
+
+                _logger.LogInformation($"Starting service scan on network range: {networkRange}");
+                _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
+
+                var nmapOutput = await RunNmapCommand($"-sn {networkRange}");
+                var hosts = ParseNmapOutput(nmapOutput);
+
+                _logger.LogInformation($"Found {hosts.Count} hosts");
+                _scanProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
+
+                foreach (var host in hosts)
+                {
+                    await ScanHostServices(host);
+                }
+                _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+
+                _scanProcessorStates.IsSuccess = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error during service scan: {e.Message}");
+                _scanProcessorStates.CompletedMessage += $"Error during service scan: {e.Message}\n";
+                _scanProcessorStates.IsSuccess = false;
+            }
+            finally
+            {
+                _scanProcessorStates.IsRunning = false;
+            }
+        }
+        public async Task ScanOld()
         {
             try
             {
@@ -60,10 +104,10 @@ namespace NetworkMonitor.Processor.Services
                 {
                     await ScanHostServices(host);
                 }
-                 _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
-              
-                 _scanProcessorStates.IsSuccess = true;
-           
+                _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+
+                _scanProcessorStates.IsSuccess = true;
+
             }
             catch (Exception e)
             {
@@ -77,7 +121,8 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        public async Task AddServices() {
+        public async Task AddServices()
+        {
             try
             {
                 var selectedDevices = _scanProcessorStates.SelectedDevices.ToList();
@@ -102,13 +147,14 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        private async Task CancelScan() { 
+        private async Task CancelScan()
+        {
 
         }
         private async Task<string> RunNmapCommand(string arguments)
         {
-            string nmapPath="";
-             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
+            string nmapPath = "";
+            if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
             {
                 nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
                 if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -116,11 +162,11 @@ namespace NetworkMonitor.Processor.Services
                     nmapPath += Path.DirectorySeparatorChar;
                 }
             }
-             string nmapDataDir  = nmapPath.Replace("bin", "share/nmap");
+            string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
 
             using (var process = new Process())
             {
-                process.StartInfo.FileName = nmapPath+"nmap";
+                process.StartInfo.FileName = nmapPath + "nmap";
                 process.StartInfo.Arguments = arguments + " -oX -";
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
@@ -179,44 +225,44 @@ namespace NetworkMonitor.Processor.Services
                 _scanProcessorStates.CompletedMessage += $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
             }
         }
-private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
-{
-    var monitorIPs = new List<MonitorIP>();
-    var xdoc = XDocument.Parse(output);
-
-    var portElements = xdoc.Descendants("port");
-    foreach (var portElement in portElements)
-    {
-        int port = int.Parse(portElement.Attribute("portid").Value);
-        string protocol = portElement.Attribute("protocol").Value.ToLower();
-        var serviceElement = portElement.Element("service");
-        string serviceName = serviceElement?.Attribute("name")?.Value.ToLower() ?? "unknown";
-        string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
-
-        string endPointType;
-        if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
-        else endPointType = DetermineEndPointType(serviceName, protocol);
-
-        var monitorIP = new MonitorIP
+        private List<MonitorIP> ParseNmapServiceOutput(string output, string host)
         {
-            Address = host,
-            Port = (ushort)port,
-            EndPointType = endPointType,
-            AppID = _netConfig.AppID,
-            UserID = _netConfig.Owner,
-            Timeout = 5000,
-            AgentLocation = _netConfig.MonitorLocation,
-            DateAdded = DateTime.UtcNow,
-            Enabled = true,
-            Hidden = false,
-            MessageForUser = $"{serviceName} ({version})"
-        };
+            var monitorIPs = new List<MonitorIP>();
+            var xdoc = XDocument.Parse(output);
 
-        monitorIPs.Add(monitorIP);
-    }
+            var portElements = xdoc.Descendants("port");
+            foreach (var portElement in portElements)
+            {
+                int port = int.Parse(portElement.Attribute("portid").Value);
+                string protocol = portElement.Attribute("protocol").Value.ToLower();
+                var serviceElement = portElement.Element("service");
+                string serviceName = serviceElement?.Attribute("name")?.Value.ToLower() ?? "unknown";
+                string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
 
-    return monitorIPs;
-}
+                string endPointType;
+                if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
+                else endPointType = DetermineEndPointType(serviceName, protocol);
+
+                var monitorIP = new MonitorIP
+                {
+                    Address = host,
+                    Port = (ushort)port,
+                    EndPointType = endPointType,
+                    AppID = _netConfig.AppID,
+                    UserID = _netConfig.Owner,
+                    Timeout = 5000,
+                    AgentLocation = _netConfig.MonitorLocation,
+                    DateAdded = DateTime.UtcNow,
+                    Enabled = true,
+                    Hidden = false,
+                    MessageForUser = $"{serviceName} ({version})"
+                };
+
+                monitorIPs.Add(monitorIP);
+            }
+
+            return monitorIPs;
+        }
         private List<MonitorIP> ParseNmapServiceOutputOld(string output, string host)
         {
             var monitorIPs = new List<MonitorIP>();

@@ -11,6 +11,7 @@ using NetworkMonitor.Objects.Repository;
 using Microsoft.Extensions.Logging;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
+using NetworkMonitor.Utils;
 
 namespace NetworkMonitor.Processor.Services;
  public interface IScanProcessor : IDisposable
