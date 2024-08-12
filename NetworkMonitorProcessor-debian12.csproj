@@ -10,6 +10,7 @@
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
       <IsPublishable>true</IsPublishable>
   <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+  <ContainerUser>root</ContainerUser>
 
   </PropertyGroup>
 
@@ -28,12 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="curves">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="AlgoTable.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
