@@ -87,9 +87,9 @@ namespace NetworkMonitor.Processor.Services
                 _processorStates.IsSetup = false;
                 _processorStates.IsRabbitConnected = false;
                 _processorStates.IsConnectRunning = false;
-                 _processorStates.SetupMessage = " Agent is shutdown ";
-                   _processorStates.RabbitSetupMessage = " Agent is shutdown ";
-                     _processorStates.ConnectRunningMessage = " Agent is shutdown ";
+                _processorStates.SetupMessage = " Agent is shutdown ";
+                _processorStates.RabbitSetupMessage = " Agent is shutdown ";
+                _processorStates.ConnectRunningMessage = " Agent is shutdown ";
                 _processorStates.RunningMessage = " Success : Agent shutdown ";
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
@@ -206,14 +206,14 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-       
+
         public async Task<ResultObj> SetAuthKey(ProcessorInitObj processorInitObj)
         {
             var result = new ResultObj();
             result.Message = " SetAuthKey : ";
             try
             {
-                   _netConfig.AuthKey = processorInitObj.AuthKey;
+                _netConfig.AuthKey = processorInitObj.AuthKey;
                 _netConfig.AgentUserFlow.IsAuthorized = true;
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
                 _netConfig.AgentUserFlow.IsHostsAdded = false;
@@ -269,12 +269,13 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += " No ProcessorUserEvent properties set . ";
             }
             if (isValueChanged)
-            { string copy = _netConfig.OqsProviderPath;
+            {
+                string copy = _netConfig.OqsProviderPath;
                 _netConfig.OqsProviderPath = _netConfig.OqsProviderPathReadOnly;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
                 await _fileRepo.SaveStateJsonAsync<NetConnectConfig>("appsettings.json", _netConfig);
-                 _netConfig.OqsProviderPath = copy;
-               
+                _netConfig.OqsProviderPath = copy;
+
             }
 
             return result;
@@ -419,7 +420,7 @@ namespace NetworkMonitor.Processor.Services
             timerInner.Start();
             _logger.LogDebug(" ProcessorConnectObj : " + JsonUtils.WriteJsonObjectToString(connectObj));
             await PublishRepo.ProcessorReady(_logger, _rabbitRepo, _netConfig.AppID, false);
- 
+
             result.Success = false;
             result.Message = " SERVICE : MonitorPingProcessor.Connect() ";
             //_logger.LogInformation(" SERVICE : MonitorPingProcessor.Connect() ");
@@ -785,7 +786,7 @@ namespace NetworkMonitor.Processor.Services
             catch { }
             try
             {
-                _swapMonitorPingInfos = _swapMonitorPingInfos.Except(processorDataObj.SwapMonitorPingInfos).ToList();
+                _swapMonitorPingInfos = _swapMonitorPingInfos.Except(processorDataObj.SwapMonitorPingInfos, new SwapMonitorPingInfoComparer()).ToList();
 
             }
             catch { }
@@ -969,12 +970,13 @@ namespace NetworkMonitor.Processor.Services
         }
         public async Task<ResultObj> WakeUp()
         {
-           
+
             ResultObj result = new ResultObj();
             result.Message = "SERVICE : MonitorPingProcessor.WakeUp() ";
             try
             {
-                if (!_processorStates.IsSetup) {
+                if (!_processorStates.IsSetup)
+                {
                     result.Message += " Warning : Received WakeUp but setup is running. ";
                     result.Success = false;
                     return result;
