@@ -98,7 +98,7 @@ namespace NetworkMonitor.Processor.Services
                 _scanProcessorStates.IsRunning = false;
             }
         }
-    
+
         public async Task AddServices()
         {
             try
@@ -224,8 +224,12 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.LogInformation($"Scanning services on host: {host}");
             _scanProcessorStates.RunningMessage += $"Scanning services on host: {host}\n";
+            string fastScanArg = "";
+            string limitPortsArg = "";
+            if (_scanProcessorStates.UseFastScan) fastScanArg = " --version-light";
+            if (_scanProcessorStates.LimitPorts) limitPortsArg = " -F";
 
-            var nmapOutput = await RunNmapCommand($" -sV {host}", cancellationToken);
+            var nmapOutput = await RunNmapCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
 
             var services = ParseNmapServiceOutput(nmapOutput, host);
 
