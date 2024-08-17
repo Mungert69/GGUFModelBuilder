@@ -152,11 +152,12 @@ namespace NetworkMonitor.Processor.Services
                 }
             }
             string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
-
+            string xmlOutput = "";
+            if (processorScanDataObj == null) xmlOutput =" -oX -";
             using (var process = new Process())
             {
                 process.StartInfo.FileName = nmapPath + "nmap";
-                process.StartInfo.Arguments = arguments + " -oX -";
+                process.StartInfo.Arguments = arguments + xmlOutput;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;
