@@ -6,6 +6,7 @@ using NetworkMonitor.Processor.Services;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Linq;
 using NetworkMonitor.Utils;
 using NetworkMonitor.Utils.Helpers;
@@ -146,6 +147,12 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorScan" + _netConfig.AppID,
                 FuncName = "processorScan",
+                MessageTimeout = 600000
+            });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorScanCommand" + _netConfig.AppID,
+                FuncName = "processorScanCommand",
                 MessageTimeout = 600000
             });
         }
@@ -325,6 +332,21 @@ namespace NetworkMonitor.Objects.Repository
                                 _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScan " + ex.Message);
                             }
                         };
+                        break; 
+                         case "processorScanCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                        {
+                            try
+                            {
+                                result = await ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScanCommand " + ex.Message);
+                            }
+                        };
                             break;
                     }
                 }
@@ -454,6 +476,37 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
+           public async Task<ResultObj> ProcessorScanCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorScanCommand : ";
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+                await _scanProcessor.RunScanCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                result.Message += "Success : updated RemovePingInfos. ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
           public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();

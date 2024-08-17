@@ -12,11 +12,13 @@ using Microsoft.Extensions.Logging;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
 using NetworkMonitor.Utils;
+using System.Threading;
 
 namespace NetworkMonitor.Processor.Services;
  public interface IScanProcessor : IDisposable
     {
         Task Scan();
+    Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
         bool UseDefaultEndpoint { get; set; }
     }
 public class ScanProcessor : IScanProcessor
@@ -159,6 +161,12 @@ public class ScanProcessor : IScanProcessor
             }
         }
     }
+
+   public async Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+{
+    throw new NotImplementedException();
+}
+
 
     private string ResolveHostName(string ipAddress)
     {

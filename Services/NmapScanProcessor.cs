@@ -66,7 +66,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
                 _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
-                var nmapOutput = await RunNmapCommand($" -sn {networkRange}", cancellationToken);
+                var nmapOutput = await RunScanCommand($" -sn {networkRange}", cancellationToken);
                 var hosts = ParseNmapOutput(nmapOutput);
 
                 _logger.LogInformation($"Found {hosts.Count} hosts");
@@ -140,7 +140,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        private async Task<string> RunNmapCommand(string arguments, CancellationToken cancellationToken)
+        public async Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
             string nmapPath = "";
             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
@@ -184,7 +184,26 @@ namespace NetworkMonitor.Processor.Services
                     // Throw if cancellation was requested after the process started
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    return output;
+                    if (processorScanDataObj == null) return output;
+                    else
+                    {
+                        try
+                        {
+                            processorScanDataObj.ScanCommandOutput = output;
+                            await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
+
+                        }
+
+                        catch (Exception e)
+                        {
+                            output = $"Error during publish nmap scan command output: {e.Message}";
+                            _logger.LogError(output);
+
+                        }
+                        return output;
+
+
+                    }
                 }
             }
         }
@@ -229,7 +248,7 @@ namespace NetworkMonitor.Processor.Services
             if (_scanProcessorStates.UseFastScan) fastScanArg = " --version-light";
             if (_scanProcessorStates.LimitPorts) limitPortsArg = " -F";
 
-            var nmapOutput = await RunNmapCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
+            var nmapOutput = await RunScanCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
 
             var services = ParseNmapServiceOutput(nmapOutput, host);
 
