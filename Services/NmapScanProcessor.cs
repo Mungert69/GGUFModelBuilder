@@ -190,7 +190,7 @@ namespace NetworkMonitor.Processor.Services
                     {
                         try
                         {
-                            processorScanDataObj.ScanCommandOutput = output;
+                            processorScanDataObj.ScanCommandOutput = output.Replace("\n"," ");
                             await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
 
                         }
