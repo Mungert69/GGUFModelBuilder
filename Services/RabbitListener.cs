@@ -493,7 +493,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
-
+                _logger.LogWarning($"{result.Message} Running Scan Command with arguments {processorScanDataObj.Arguments}");
                 await _scanProcessor.RunScanCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
