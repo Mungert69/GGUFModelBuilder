@@ -15,20 +15,20 @@ using NetworkMonitor.Utils;
 using System.Threading;
 
 namespace NetworkMonitor.Processor.Services;
- public interface IScanProcessor : IDisposable
+ public interface ICmdProcessor : IDisposable
     {
         Task Scan();
-    Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+    Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
         bool UseDefaultEndpoint { get; set; }
     }
-public class ScanProcessor : IScanProcessor
+public class ScanCmdProcessor : ICmdProcessor
 {
     private LocalScanProcessorStates _scanProcessorStates;
     private IRabbitRepo _rabbitRepo;
     private NetConnectConfig _netConfig;
     private ILogger _logger;
     
-    public ScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+    public ScanCmdProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
         _logger = logger;
         _scanProcessorStates = scanProcessorStates;
@@ -162,7 +162,7 @@ public class ScanProcessor : IScanProcessor
         }
     }
 
-   public async Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+   public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
 {
     throw new NotImplementedException();
 }

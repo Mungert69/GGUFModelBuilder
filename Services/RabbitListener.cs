@@ -31,13 +31,13 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        private IScanProcessor _scanProcessor;
+        private ICmdProcessor _scanProcessor;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, IScanProcessor scanProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor scanProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
             _scanProcessor = scanProcessor;
@@ -494,7 +494,7 @@ namespace NetworkMonitor.Objects.Repository
                 var cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Scan Command with arguments {processorScanDataObj.Arguments}");
-                await _scanProcessor.RunScanCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                await _scanProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);

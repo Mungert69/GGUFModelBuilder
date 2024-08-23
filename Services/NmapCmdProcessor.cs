@@ -16,7 +16,7 @@ using System.Threading;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class NmapScanProcessor : IScanProcessor
+    public class NmapCmdProcessor : ICmdProcessor
     {
         private readonly ILogger _logger;
         private readonly LocalScanProcessorStates _scanProcessorStates;
@@ -25,7 +25,7 @@ namespace NetworkMonitor.Processor.Services
         private CancellationTokenSource _cancellationTokenSource;
 
         public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
-        public NmapScanProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        public NmapCmdProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
             _scanProcessorStates = scanProcessorStates;
@@ -66,7 +66,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
                 _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
-                var nmapOutput = await RunScanCommand($" -sn {networkRange}", cancellationToken);
+                var nmapOutput = await RunCommand($" -sn {networkRange}", cancellationToken);
                 var hosts = ParseNmapOutput(nmapOutput);
 
                 _logger.LogInformation($"Found {hosts.Count} hosts");
@@ -140,7 +140,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        public async Task<string> RunScanCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
             string nmapPath = "";
             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
@@ -249,7 +249,7 @@ namespace NetworkMonitor.Processor.Services
             if (_scanProcessorStates.UseFastScan) fastScanArg = " --version-light";
             if (_scanProcessorStates.LimitPorts) limitPortsArg = " -F";
 
-            var nmapOutput = await RunScanCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
+            var nmapOutput = await RunCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
 
             var services = ParseNmapServiceOutput(nmapOutput, host);
 

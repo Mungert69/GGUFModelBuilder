@@ -19,7 +19,7 @@ namespace NetworkMonitor.Processor
     {
 #pragma warning disable CS8618
         private static ConnectFactory _connectFactory;
-        private static IScanProcessor _scanProcessor;
+        private static ICmdProcessor _scanProcessor;
         private static MonitorPingProcessor _monitorPingProcessor;
 #pragma warning restore CS8618
 
@@ -115,7 +115,7 @@ namespace NetworkMonitor.Processor
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
-            _scanProcessor = new NmapScanProcessor(loggerFactory.CreateLogger<ScanProcessor>(), scanProcessorStates, rabbitRepo, netConfig);
+            _scanProcessor = new NmapCmdProcessor(loggerFactory.CreateLogger<ScanCmdProcessor>(), scanProcessorStates, rabbitRepo, netConfig);
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates,_scanProcessor);
             AuthService authService;
