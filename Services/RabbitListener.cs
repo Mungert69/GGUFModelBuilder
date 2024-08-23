@@ -32,15 +32,17 @@ namespace NetworkMonitor.Objects.Repository
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
         private ICmdProcessor _scanProcessor;
+        private ICmdProcessor _metaProcessor;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor scanProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor scanProcessor,ICmdProcessor metaProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
             _scanProcessor = scanProcessor;
+            _metaProcessor = metaProcessor;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
@@ -147,13 +149,19 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorScan" + _netConfig.AppID,
                 FuncName = "processorScan",
-                MessageTimeout = 600000
+                MessageTimeout = 6000000
             });
              _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorScanCommand" + _netConfig.AppID,
                 FuncName = "processorScanCommand",
-                MessageTimeout = 600000
+                MessageTimeout = 6000000
+            });
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorMetaCommand" + _netConfig.AppID,
+                FuncName = "processorScanCommand",
+                MessageTimeout = 6000000
             });
         }
         protected override ResultObj DeclareConsumers()
@@ -348,6 +356,21 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                             case "processorMetaCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                        {
+                            try
+                            {
+                                result = await ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorMetaCommand " + ex.Message);
+                            }
+                        };
+                            break;
                     }
                 }
             });
@@ -495,14 +518,46 @@ namespace NetworkMonitor.Objects.Repository
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Scan Command with arguments {processorScanDataObj.Arguments}");
                 await _scanProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
-                result.Message += "Success : updated RemovePingInfos. ";
+                result.Message += "Success : updated Scan Command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
             {
                 result.Success = false;
-                result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
+                result.Message += "Error : Failed to run Meta Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+
+          public async Task<ResultObj> ProcessorMetaCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorMetaCommand : ";
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken cancellationToken = cancellationTokenSource.Token;
+                _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
+                await _metaProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                result.Message += "Success : ran Meta Command. ";
+                result.Success = true;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run Meta Command: Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
             }
             return result;
