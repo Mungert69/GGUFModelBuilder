@@ -160,7 +160,7 @@ namespace NetworkMonitor.Objects.Repository
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorMetaCommand" + _netConfig.AppID,
-                FuncName = "processorScanCommand",
+                FuncName = "processorMetaCommand",
                 MessageTimeout = 6000000
             });
         }

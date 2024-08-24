@@ -121,7 +121,7 @@ namespace NetworkMonitor.Processor.Services
 
                         catch (Exception e)
                         {
-                            output = $"Error during publish nmap scan command output: {e.Message}";
+                            output = $"Error during publish meta command output: {e.Message}";
                             _logger.LogError(output);
 
                         }
