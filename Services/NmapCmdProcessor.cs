@@ -19,29 +19,29 @@ namespace NetworkMonitor.Processor.Services
     public class NmapCmdProcessor : ICmdProcessor
     {
         private readonly ILogger _logger;
-        private readonly LocalCmdProcessorStates _scanProcessorStates;
+        private readonly ILocalCmdProcessorStates _cmdProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
-        public NmapCmdProcessor(ILogger logger, LocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
+        public NmapCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
-            _scanProcessorStates = cmdProcessorStates;
+            _cmdProcessorStates = cmdProcessorStates;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
-            _scanProcessorStates.OnStartScanAsync += Scan;
-            _scanProcessorStates.OnCancelScanAsync += CancelScan;
-            _scanProcessorStates.OnAddServicesAsync += AddServices;
+            _cmdProcessorStates.OnStartScanAsync += Scan;
+            _cmdProcessorStates.OnCancelScanAsync += CancelScan;
+            _cmdProcessorStates.OnAddServicesAsync += AddServices;
 
         }
 
         public void Dispose()
         {
-            _scanProcessorStates.OnStartScanAsync -= Scan;
-            _scanProcessorStates.OnCancelScanAsync -= CancelScan;
-            _scanProcessorStates.OnAddServicesAsync -= AddServices;
+            _cmdProcessorStates.OnStartScanAsync -= Scan;
+            _cmdProcessorStates.OnCancelScanAsync -= CancelScan;
+            _cmdProcessorStates.OnAddServicesAsync -= AddServices;
             _cancellationTokenSource?.Dispose();
         }
 
@@ -50,12 +50,12 @@ namespace NetworkMonitor.Processor.Services
         {
             try
             {
-                _scanProcessorStates.IsRunning = true;
+                _cmdProcessorStates.IsRunning = true;
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = _cancellationTokenSource.Token;
 
 
-                var selectedInterface = _scanProcessorStates.SelectedNetworkInterface;
+                var selectedInterface = _cmdProcessorStates.SelectedNetworkInterface;
                 if (selectedInterface == null)
                 {
                     throw new Exception("No network interface selected.");
@@ -64,38 +64,38 @@ namespace NetworkMonitor.Processor.Services
                 var networkRange = $"{selectedInterface.IPAddress}/{selectedInterface.CIDR}";
 
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
-                _scanProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
+                _cmdProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
                 var nmapOutput = await RunCommand($" -sn {networkRange}", cancellationToken);
                 var hosts = ParseNmapOutput(nmapOutput);
 
                 _logger.LogInformation($"Found {hosts.Count} hosts");
-                _scanProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
+                _cmdProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
 
                 foreach (var host in hosts)
                 {
                     cancellationToken.ThrowIfCancellationRequested(); // Check for cancellation
                     await ScanHostServices(host, cancellationToken);
                 }
-                _scanProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+                _cmdProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
 
-                _scanProcessorStates.IsSuccess = true;
+                _cmdProcessorStates.IsSuccess = true;
             }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Scan was cancelled.");
-                _scanProcessorStates.CompletedMessage += "Scan was cancelled.\n";
-                _scanProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.CompletedMessage += "Scan was cancelled.\n";
+                _cmdProcessorStates.IsSuccess = false;
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error during service scan: {e.Message}");
-                _scanProcessorStates.CompletedMessage += $"Error during service scan: {e.Message}\n";
-                _scanProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.CompletedMessage += $"Error during service scan: {e.Message}\n";
+                _cmdProcessorStates.IsSuccess = false;
             }
             finally
             {
-                _scanProcessorStates.IsRunning = false;
+                _cmdProcessorStates.IsRunning = false;
             }
         }
 
@@ -103,7 +103,7 @@ namespace NetworkMonitor.Processor.Services
         {
             try
             {
-                var selectedDevices = _scanProcessorStates.SelectedDevices.ToList();
+                var selectedDevices = _cmdProcessorStates.SelectedDevices.ToList();
                 if (selectedDevices != null && selectedDevices.Count > 0)
                 {
                     var processorDataObj = new ProcessorDataObj();
@@ -113,30 +113,30 @@ namespace NetworkMonitor.Processor.Services
                     processorDataObj.MonitorIPs = selectedDevices;
                     await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
 
-                    _scanProcessorStates.CompletedMessage += $"\nSent {selectedDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
+                    _cmdProcessorStates.CompletedMessage += $"\nSent {selectedDevices.Count} host services to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error during add services: {e.Message}");
-                _scanProcessorStates.CompletedMessage += $"Error during add services: {e.Message}\n";
-                _scanProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.CompletedMessage += $"Error during add services: {e.Message}\n";
+                _cmdProcessorStates.IsSuccess = false;
             }
 
         }
 
         private async Task CancelScan()
         {
-            if (_scanProcessorStates.IsRunning && _cancellationTokenSource != null)
+            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
             {
                 _logger.LogInformation("Cancelling the ongoing scan.");
-                _scanProcessorStates.RunningMessage += "Cancelling the ongoing scan...\n";
+                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing scan...\n";
                 _cancellationTokenSource.Cancel();
             }
             else
             {
                 _logger.LogInformation("No scan is currently running.");
-                _scanProcessorStates.CompletedMessage += "No scan is currently running.\n";
+                _cmdProcessorStates.CompletedMessage += "No scan is currently running.\n";
             }
         }
 
@@ -243,11 +243,11 @@ namespace NetworkMonitor.Processor.Services
         private async Task ScanHostServices(string host, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Scanning services on host: {host}");
-            _scanProcessorStates.RunningMessage += $"Scanning services on host: {host}\n";
+            _cmdProcessorStates.RunningMessage += $"Scanning services on host: {host}\n";
             string fastScanArg = "";
             string limitPortsArg = "";
-            if (_scanProcessorStates.UseFastScan) fastScanArg = " --version-light";
-            if (_scanProcessorStates.LimitPorts) limitPortsArg = " -F";
+            if (_cmdProcessorStates.UseFastScan) fastScanArg = " --version-light";
+            if (_cmdProcessorStates.LimitPorts) limitPortsArg = " -F";
 
             var nmapOutput = await RunCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
 
@@ -255,9 +255,9 @@ namespace NetworkMonitor.Processor.Services
 
             foreach (var service in services)
             {
-                _scanProcessorStates.ActiveDevices.Add(service);
+                _cmdProcessorStates.ActiveDevices.Add(service);
                 string message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
-                _scanProcessorStates.CompletedMessage += message;
+                _cmdProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
 
             }
@@ -278,7 +278,7 @@ namespace NetworkMonitor.Processor.Services
                 string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
 
                 string endPointType;
-                if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
+                if (_cmdProcessorStates.UseDefaultEndpointType) endPointType = _cmdProcessorStates.DefaultEndpointType;
                 else endPointType = DetermineEndPointType(serviceName, protocol);
 
                 var monitorIP = new MonitorIP
@@ -315,7 +315,7 @@ namespace NetworkMonitor.Processor.Services
                 string version = match.Groups[4].Value;
 
                 string endPointType;
-                if (_scanProcessorStates.UseDefaultEndpointType) endPointType = _scanProcessorStates.DefaultEndpointType;
+                if (_cmdProcessorStates.UseDefaultEndpointType) endPointType = _cmdProcessorStates.DefaultEndpointType;
                 else endPointType = DetermineEndPointType(serviceName, protocol);
 
                 var monitorIP = new MonitorIP

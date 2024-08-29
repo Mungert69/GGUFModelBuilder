@@ -398,6 +398,7 @@ namespace NetworkMonitor.Processor.Services
                         processorObj.AppID = newAppID;
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
+                        processorObj.DisabledEndPointTypes=_netConfig.DisabledEndpointTypes;
 
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;

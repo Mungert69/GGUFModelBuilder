@@ -15,17 +15,17 @@ namespace NetworkMonitor.Processor.Services
     public class MetaCmdProcessor : ICmdProcessor
     {
         private readonly ILogger _logger;
-        private readonly LocalCmdProcessorStates _scanProcessorStates;
+        private readonly ILocalCmdProcessorStates _cmdProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
         private CancellationTokenSource _cancellationTokenSource;
 
-        public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
+        public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
 
-        public MetaCmdProcessor(ILogger logger, LocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        public MetaCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
-            _scanProcessorStates = cmdProcessorStates;
+            _cmdProcessorStates = cmdProcessorStates;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
 
@@ -47,38 +47,38 @@ namespace NetworkMonitor.Processor.Services
             string output = "";
             try
             {
-                _scanProcessorStates.IsRunning = true;
+                _cmdProcessorStates.IsRunning = true;
 
 
                 string message = $"Running Metasploit with arguments {arguments}";
                 _logger.LogInformation(message);
-                _scanProcessorStates.RunningMessage += $"{message}\n";
+                _cmdProcessorStates.RunningMessage += $"{message}\n";
 
                 output = await ExecuteMetasploit(arguments, cancellationToken, processorScanDataObj);
 
                 _logger.LogInformation("Metasploit module execution completed.");
-                _scanProcessorStates.CompletedMessage += "Metasploit module execution completed successfully.\n";
+                _cmdProcessorStates.CompletedMessage += "Metasploit module execution completed successfully.\n";
 
                 // Process the output (if any additional processing is needed)
                 ProcessMetasploitOutput(output);
 
-                _scanProcessorStates.IsSuccess = true;
+                _cmdProcessorStates.IsSuccess = true;
             }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Metasploit module execution was cancelled.");
-                _scanProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
-                _scanProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
+                _cmdProcessorStates.IsSuccess = false;
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error during Metasploit module execution: {e.Message}");
-                _scanProcessorStates.CompletedMessage += $"Error during Metasploit module execution: {e.Message}\n";
-                _scanProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.CompletedMessage += $"Error during Metasploit module execution: {e.Message}\n";
+                _cmdProcessorStates.IsSuccess = false;
             }
             finally
             {
-                _scanProcessorStates.IsRunning = false;
+                _cmdProcessorStates.IsRunning = false;
             }
             return output;
         }
@@ -136,21 +136,21 @@ namespace NetworkMonitor.Processor.Services
         {
             // Process the output here if necessary, or log it
             _logger.LogInformation($"Metasploit output: {output}");
-            _scanProcessorStates.CompletedMessage += $"Metasploit output: {output}\n";
+            _cmdProcessorStates.CompletedMessage += $"Metasploit output: {output}\n";
         }
 
         private async Task CancelScan()
         {
-            if (_scanProcessorStates.IsRunning && _cancellationTokenSource != null)
+            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
             {
                 _logger.LogInformation("Cancelling the ongoing Metasploit execution.");
-                _scanProcessorStates.RunningMessage += "Cancelling the ongoing Metasploit execution...\n";
+                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing Metasploit execution...\n";
                 _cancellationTokenSource.Cancel();
             }
             else
             {
                 _logger.LogInformation("No Metasploit execution is currently running.");
-                _scanProcessorStates.CompletedMessage += "No Metasploit execution is currently running.\n";
+                _cmdProcessorStates.CompletedMessage += "No Metasploit execution is currently running.\n";
             }
         }
     }
