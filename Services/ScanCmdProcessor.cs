@@ -23,15 +23,15 @@ namespace NetworkMonitor.Processor.Services;
     }
 public class ScanCmdProcessor : ICmdProcessor
 {
-    private LocalScanProcessorStates _scanProcessorStates;
+    private LocalCmdProcessorStates _scanProcessorStates;
     private IRabbitRepo _rabbitRepo;
     private NetConnectConfig _netConfig;
     private ILogger _logger;
     
-    public ScanCmdProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+    public ScanCmdProcessor(ILogger logger, LocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
     {
         _logger = logger;
-        _scanProcessorStates = scanProcessorStates;
+        _scanProcessorStates = cmdProcessorStates;
         _rabbitRepo = rabbitRepo;
         _netConfig = netConfig;
         _scanProcessorStates.OnStartScanAsync += Scan;

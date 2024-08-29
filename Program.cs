@@ -111,13 +111,13 @@ namespace NetworkMonitor.Processor
                 }
             }
             var processorStates = new LocalProcessorStates();
-            var scanProcessorStates = new LocalScanProcessorStates();
-            var metaProcessorStates = new LocalScanProcessorStates();
+            var cmdProcessorStates = new LocalCmdProcessorStates();
+            var metaProcessorStates = new LocalCmdProcessorStates();
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
-            _scanProcessor = new NmapCmdProcessor(loggerFactory.CreateLogger<ScanCmdProcessor>(), scanProcessorStates, rabbitRepo, netConfig);
+            _scanProcessor = new NmapCmdProcessor(loggerFactory.CreateLogger<ScanCmdProcessor>(), cmdProcessorStates, rabbitRepo, netConfig);
             _metaProcessor = new MetaCmdProcessor(loggerFactory.CreateLogger<MetaCmdProcessor>(), metaProcessorStates, rabbitRepo, netConfig);  
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates,_scanProcessor, _metaProcessor);

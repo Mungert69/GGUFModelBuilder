@@ -15,17 +15,17 @@ namespace NetworkMonitor.Processor.Services
     public class MetaCmdProcessor : ICmdProcessor
     {
         private readonly ILogger _logger;
-        private readonly LocalScanProcessorStates _scanProcessorStates;
+        private readonly LocalCmdProcessorStates _scanProcessorStates;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
         private CancellationTokenSource _cancellationTokenSource;
 
         public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
 
-        public MetaCmdProcessor(ILogger logger, LocalScanProcessorStates scanProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        public MetaCmdProcessor(ILogger logger, LocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
-            _scanProcessorStates = scanProcessorStates;
+            _scanProcessorStates = cmdProcessorStates;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
 
