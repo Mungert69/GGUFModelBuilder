@@ -34,6 +34,7 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.OnStartScanAsync += Scan;
             _cmdProcessorStates.OnCancelScanAsync += CancelScan;
             _cmdProcessorStates.OnAddServicesAsync += AddServices;
+            _cmdProcessorStates.CmdName = "nmap";
 
         }
 
@@ -45,11 +46,22 @@ namespace NetworkMonitor.Processor.Services
             _cancellationTokenSource?.Dispose();
         }
 
-
         public async Task Scan()
         {
             try
             {
+                if (!_cmdProcessorStates.IsCmdAvailable)
+                {
+                    _logger.LogWarning(" Warning : Nmape is not enabled or installed on this agent.");
+                    var output = "The scan command is not available on this agent. Try using another agent.\n";
+                    _cmdProcessorStates.IsSuccess = false;
+                    _cmdProcessorStates.IsRunning = false;
+                    await SendMessage(output, null);
+                    return;
+
+                }
+
+
                 _cmdProcessorStates.IsRunning = true;
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = _cancellationTokenSource.Token;
@@ -101,8 +113,19 @@ namespace NetworkMonitor.Processor.Services
 
         public async Task AddServices()
         {
+
             try
             {
+                if (!_cmdProcessorStates.IsCmdAvailable)
+                {
+                    _logger.LogWarning(" Warning : Nmape is not enabled or installed on this agent.");
+                    var output = "The scan command is not available on this agent. Try using another agent.\n";
+                    _cmdProcessorStates.IsSuccess = false;
+                    _cmdProcessorStates.IsRunning = false;
+                    await SendMessage(output, null);
+                    return;
+
+                }
                 var selectedDevices = _cmdProcessorStates.SelectedDevices.ToList();
                 if (selectedDevices != null && selectedDevices.Count > 0)
                 {
@@ -127,11 +150,21 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task CancelScan()
         {
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning(" Warning : Nmape is not enabled or installed on this agent.");
+                var output = "The scan command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
+                return;
+
+            }
             if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
             {
                 _logger.LogInformation("Cancelling the ongoing scan.");
                 _cmdProcessorStates.RunningMessage += "Cancelling the ongoing scan...\n";
-                _cancellationTokenSource.Cancel();
+                if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
             }
             else
             {
@@ -142,6 +175,16 @@ namespace NetworkMonitor.Processor.Services
 
         public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
+
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
+                var output = "The scan command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                return await SendMessage(output, processorScanDataObj);
+
+            }
             string nmapPath = "";
             if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
             {
@@ -153,10 +196,10 @@ namespace NetworkMonitor.Processor.Services
             }
             string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
             string xmlOutput = "";
-            if (processorScanDataObj == null) xmlOutput =" -oX -";
+            if (processorScanDataObj == null) xmlOutput = " -oX -";
             using (var process = new Process())
             {
-                process.StartInfo.FileName = nmapPath + "nmap";
+                process.StartInfo.FileName = nmapPath + _cmdProcessorStates.CmdName;
                 process.StartInfo.Arguments = arguments + xmlOutput;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
@@ -184,28 +227,33 @@ namespace NetworkMonitor.Processor.Services
 
                     // Throw if cancellation was requested after the process started
                     cancellationToken.ThrowIfCancellationRequested();
+                    return await SendMessage(output, processorScanDataObj);
 
-                    if (processorScanDataObj == null) return output;
-                    else
-                    {
-                        try
-                        {
-                            processorScanDataObj.ScanCommandOutput = output.Replace("\n"," ");
-                            await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
-
-                        }
-
-                        catch (Exception e)
-                        {
-                            output = $"Error during publish nmap scan command output: {e.Message}";
-                            _logger.LogError(output);
-
-                        }
-                        return output;
-
-
-                    }
                 }
+            }
+        }
+
+        private async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
+        {
+            if (processorScanDataObj == null) return output;
+            else
+            {
+                try
+                {
+                    processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
+                    await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
+
+                }
+
+                catch (Exception e)
+                {
+                    output += $" Error : during publish nmap scan command output: {e.Message}";
+                    _logger.LogError(output);
+
+                }
+                return output;
+
+
             }
         }
 

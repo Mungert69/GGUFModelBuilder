@@ -28,6 +28,7 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates = cmdProcessorStates;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
+            _cmdProcessorStates.CmdName = "msfconsole";
 
         }
 
@@ -37,9 +38,18 @@ namespace NetworkMonitor.Processor.Services
             _cancellationTokenSource?.Dispose();
         }
 
-        public Task Scan()
+        public async Task Scan()
         {
-            return Task.CompletedTask;
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
+                var output = "The penetration command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
+
+            }
+
         }
 
         public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
@@ -47,6 +57,15 @@ namespace NetworkMonitor.Processor.Services
             string output = "";
             try
             {
+                if (!_cmdProcessorStates.IsCmdAvailable)
+                {
+                    _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
+                    output = "The penetration command is not available on this agent. Try using another agent.\n";
+                    _cmdProcessorStates.IsSuccess = false;
+                    _cmdProcessorStates.IsRunning = false;
+                    return await SendMessage(output, processorScanDataObj);
+
+                }
                 _cmdProcessorStates.IsRunning = true;
 
 
@@ -89,7 +108,7 @@ namespace NetworkMonitor.Processor.Services
 
             using (var process = new Process())
             {
-                process.StartInfo.FileName = "msfconsole"; // Path to the Metasploit console executable
+                process.StartInfo.FileName = _cmdProcessorStates.CmdName; // Path to the Metasploit console executable
                 process.StartInfo.Arguments = arguments; // Executes the command
 
                 process.StartInfo.UseShellExecute = false;
@@ -110,28 +129,31 @@ namespace NetworkMonitor.Processor.Services
                     string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
                     await process.WaitForExitAsync().ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (processorScanDataObj != null)
-                    {
-                        try
-                        {
-                            processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
-                            await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
-
-                        }
-
-                        catch (Exception e)
-                        {
-                            output = $"Error during publish meta command output: {e.Message}";
-                            _logger.LogError(output);
-
-                        }
-                    }
-                    return output;
+                   return await SendMessage(output, processorScanDataObj);
                 }
             }
         }
 
+        private async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
+        {
+            if (processorScanDataObj != null)
+            {
+                try
+                {
+                    processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
+                    await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
 
+                }
+
+                catch (Exception e)
+                {
+                    output += $" Error : during publish meta command output: {e.Message}";
+                    _logger.LogError(output);
+
+                }
+            }
+            return output;
+        }
         private void ProcessMetasploitOutput(string output)
         {
             // Process the output here if necessary, or log it

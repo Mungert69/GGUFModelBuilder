@@ -111,8 +111,8 @@ namespace NetworkMonitor.Processor
                 }
             }
             var processorStates = new LocalProcessorStates();
-            var cmdProcessorStates = new LocalCmdProcessorStates();
-            var metaProcessorStates = new LocalCmdProcessorStates();
+            ILocalCmdProcessorStates cmdProcessorStates = new LocalNmapCmdProcessorStates();
+            ILocalCmdProcessorStates metaProcessorStates = new LocalMetaCmdProcessorStates();
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
