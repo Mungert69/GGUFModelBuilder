@@ -15,64 +15,46 @@ using NetworkMonitor.Utils;
 using System.Threading;
 
 namespace NetworkMonitor.Processor.Services;
- public interface ICmdProcessor : IDisposable
-    {
-        Task Scan();
-    Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
-        bool UseDefaultEndpoint { get; set; }
-    }
-public class ScanCmdProcessor : ICmdProcessor
+
+public class PingCmdProcessor : CmdProcessor
 {
-    private LocalCmdProcessorStates _scanProcessorStates;
-    private IRabbitRepo _rabbitRepo;
-    private NetConnectConfig _netConfig;
-    private ILogger _logger;
+   
     
-    public ScanCmdProcessor(ILogger logger, LocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
-    {
-        _logger = logger;
-        _scanProcessorStates = cmdProcessorStates;
-        _rabbitRepo = rabbitRepo;
-        _netConfig = netConfig;
-        _scanProcessorStates.OnStartScanAsync += Scan;
+    public PingCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+     : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
+        {
+        _cmdProcessorStates.CmdName = "ping";
+        }
 
-    }
-
-    public bool UseDefaultEndpoint { get => _scanProcessorStates.UseDefaultEndpointType; set => _scanProcessorStates.UseDefaultEndpointType = value; }
-
-    public void Dispose()
-    {
-        _scanProcessorStates.OnStartScanAsync -= Scan;
-    }
-
-    public async Task Scan()
+   
+    public override async Task Scan()
     {
         string message = "";
         try
         {
-            _scanProcessorStates.IsRunning = true;
-            var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _scanProcessorStates);
+            _cmdProcessorStates.IsRunning = true;
+            var (localIP, subnetMask, cidr) = NetworkUtils.GetLocalIPAddressAndSubnetMask(_logger, _cmdProcessorStates);
             var (networkAddress, startIP, endIP) = NetworkUtils.GetNetworkRange(localIP, subnetMask);
             int timeout = 1000; // Ping timeout in milliseconds
 
             message = $"Pinging range: {NetworkUtils.IntToIp(networkAddress + startIP)} - {NetworkUtils.IntToIp(networkAddress + endIP)}\n";
             _logger.LogInformation(message);
-            _scanProcessorStates.RunningMessage += message;
+            _cmdProcessorStates.RunningMessage += message;
 
             List<Task> pingTasks = new List<Task>();
             for (int i = startIP; i <= endIP; i++)
             {
                 string ip = NetworkUtils.IntToIp(networkAddress + i);
-                pingTasks.Add(PingAndResolveAsync(ip, timeout, _scanProcessorStates.ActiveDevices, _scanProcessorStates.PingInfos));
+                pingTasks.Add(PingAndResolveAsync(ip, timeout, _cmdProcessorStates.ActiveDevices, _cmdProcessorStates.PingInfos));
             }
 
             await Task.WhenAll(pingTasks);
             message = "\n Found devices up in the network:\n";
             _logger.LogInformation(message);
-            _scanProcessorStates.RunningMessage += message;
+            _cmdProcessorStates.RunningMessage += message;
 
-            _scanProcessorStates.IsSuccess = true;
-            var monitorIPs = _scanProcessorStates.ActiveDevices.ToList();
+            _cmdProcessorStates.IsSuccess = true;
+            var monitorIPs = _cmdProcessorStates.ActiveDevices.ToList();
             foreach (var monitorIP in monitorIPs)
             {
                 monitorIP.AppID = _netConfig.AppID;
@@ -81,16 +63,16 @@ public class ScanCmdProcessor : ICmdProcessor
                 monitorIP.AgentLocation = _netConfig.MonitorLocation;
                 monitorIP.DateAdded = DateTime.UtcNow;
                 monitorIP.Enabled = true;
-                monitorIP.EndPointType = _scanProcessorStates.DefaultEndpointType;
+                monitorIP.EndPointType = _cmdProcessorStates.DefaultEndpointType;
                 monitorIP.Hidden = false;
                 monitorIP.Port = 0;
                 message = $"IP Address: {monitorIP.Address}, Hostname: {monitorIP.MessageForUser}\n";
-                _scanProcessorStates.CompletedMessage += message;
+                _cmdProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
             }
 
             _logger.LogInformation("Ping Information:");
-            foreach (var pingInfo in _scanProcessorStates.PingInfos)
+            foreach (var pingInfo in _cmdProcessorStates.PingInfos)
             {
                 _logger.LogInformation($"IP: {pingInfo.MonitorPingInfoID}, Status: {pingInfo.Status}, Time: {pingInfo.RoundTripTime}ms");
             }
@@ -102,18 +84,18 @@ public class ScanCmdProcessor : ICmdProcessor
             await _rabbitRepo.PublishAsync<ProcessorDataObj>("saveMonitorIPs", processorDataObj);
             message = $"\nSent {monitorIPs.Count} hosts to Free Network Monitor Service. Please wait 2 mins for hosts to become live. You can view the in the Host Data menu or visit https://freenetworkmonitor.click/dashboard and login using the same email address you registered your agent with.\n";
             _logger.LogInformation(message);
-            _scanProcessorStates.RunningMessage += message;
+            _cmdProcessorStates.RunningMessage += message;
         }
         catch (Exception e)
         {
             message = $" Error : Failed to scan for local hosts. Error was :{e.Message}\n";
             _logger.LogError(message);
-            _scanProcessorStates.CompletedMessage += message;
-            _scanProcessorStates.IsSuccess = false;
+            _cmdProcessorStates.CompletedMessage += message;
+            _cmdProcessorStates.IsSuccess = false;
         }
         finally
         {
-            _scanProcessorStates.IsRunning = false;
+            _cmdProcessorStates.IsRunning = false;
         }
 
     }
@@ -162,7 +144,7 @@ public class ScanCmdProcessor : ICmdProcessor
         }
     }
 
-   public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+   public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
 {
     throw new NotImplementedException();
 }

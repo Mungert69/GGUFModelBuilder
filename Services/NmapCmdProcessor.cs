@@ -16,37 +16,18 @@ using System.Threading;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class NmapCmdProcessor : ICmdProcessor
+    public class NmapCmdProcessor : CmdProcessor
     {
-        private readonly ILogger _logger;
-        private readonly ILocalCmdProcessorStates _cmdProcessorStates;
-        private readonly IRabbitRepo _rabbitRepo;
-        private readonly NetConnectConfig _netConfig;
-        private CancellationTokenSource _cancellationTokenSource;
 
-        public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
         public NmapCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+: base(logger, cmdProcessorStates, rabbitRepo, netConfig)
         {
-            _logger = logger;
-            _cmdProcessorStates = cmdProcessorStates;
-            _rabbitRepo = rabbitRepo;
-            _netConfig = netConfig;
-            _cmdProcessorStates.OnStartScanAsync += Scan;
-            _cmdProcessorStates.OnCancelScanAsync += CancelScan;
-            _cmdProcessorStates.OnAddServicesAsync += AddServices;
             _cmdProcessorStates.CmdName = "nmap";
-
         }
 
-        public void Dispose()
-        {
-            _cmdProcessorStates.OnStartScanAsync -= Scan;
-            _cmdProcessorStates.OnCancelScanAsync -= CancelScan;
-            _cmdProcessorStates.OnAddServicesAsync -= AddServices;
-            _cancellationTokenSource?.Dispose();
-        }
 
-        public async Task Scan()
+
+        public override async Task Scan()
         {
             try
             {
@@ -111,7 +92,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        public async Task AddServices()
+        public override async Task AddServices()
         {
 
             try
@@ -148,7 +129,7 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        private async Task CancelScan()
+        public override async Task CancelScan()
         {
             if (!_cmdProcessorStates.IsCmdAvailable)
             {
@@ -173,7 +154,7 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
 
             if (!_cmdProcessorStates.IsCmdAvailable)
@@ -235,30 +216,20 @@ namespace NetworkMonitor.Processor.Services
             }
         }
 
-        private async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
+        public override async Task CancelRun()
         {
-            if (processorScanDataObj == null) return output;
+            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
+            {
+                _logger.LogInformation("Cancelling the ongoing Nmap execution.");
+                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing Nmap execution...\n";
+                _cancellationTokenSource.Cancel();
+            }
             else
             {
-                try
-                {
-                    processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
-                    await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
-                    _logger.LogInformation($" Success : sent output : {processorScanDataObj.ScanCommandOutput}");
-                }
-
-                catch (Exception e)
-                {
-                    output += $" Error : during publish nmap scan command output: {e.Message}";
-                    _logger.LogError(output);
-
-                }
-                return output;
-
-
+                _logger.LogInformation("No Nmap execution is currently running.");
+                _cmdProcessorStates.CompletedMessage += "No Nmap execution is currently running.\n";
             }
         }
-
         private List<string> ParseNmapOutputOld(string output)
         {
             var hosts = new List<string>();

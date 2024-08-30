@@ -12,33 +12,45 @@ using NetworkMonitor.Connection;
 
 namespace NetworkMonitor.Processor.Services
 {
-    public class MetaCmdProcessor : ICmdProcessor
+    public class MetaCmdProcessor : CmdProcessor
     {
-        private readonly ILogger _logger;
-        private readonly ILocalCmdProcessorStates _cmdProcessorStates;
-        private readonly IRabbitRepo _rabbitRepo;
-        private readonly NetConnectConfig _netConfig;
-        private CancellationTokenSource _cancellationTokenSource;
-
-        public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
-
+      
+     
         public MetaCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+     : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
         {
-            _logger = logger;
-            _cmdProcessorStates = cmdProcessorStates;
-            _rabbitRepo = rabbitRepo;
-            _netConfig = netConfig;
             _cmdProcessorStates.CmdName = "msfconsole";
-
         }
 
-        public void Dispose()
+
+
+        public override async Task Scan()
         {
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
+                var output = "The penetration command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
 
-            _cancellationTokenSource?.Dispose();
+            }
+
         }
+        public override async Task CancelScan()
+        {
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
+                var output = "The penetration command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
 
-        public async Task Scan()
+            }
+
+        }
+         public override async Task AddServices()
         {
             if (!_cmdProcessorStates.IsCmdAvailable)
             {
@@ -52,7 +64,7 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
             string output = "";
             try
@@ -127,36 +139,15 @@ namespace NetworkMonitor.Processor.Services
                 }))
                 {
                     string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                     //output += " "+ await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                    //output += " "+ await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
                     await process.WaitForExitAsync().ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
-                   return await SendMessage(output, processorScanDataObj);
+                    return await SendMessage(output, processorScanDataObj);
                 }
             }
         }
 
-        private async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
-        {
-            if (processorScanDataObj != null)
-            {
-                try
-                {
-                    processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
-                    await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
-                    _logger.LogInformation($" Success : sent output : {processorScanDataObj.ScanCommandOutput}");
-                
-                }
-
-                catch (Exception e)
-                {
-                    output += $" Error : during publish meta command output: {e.Message}";
-                    _logger.LogError(output);
-
-                }
-            }
-            return output;
-        }
         private void ProcessMetasploitOutput(string output)
         {
             // Process the output here if necessary, or log it
@@ -164,7 +155,7 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.CompletedMessage += $"Metasploit output: {output}\n";
         }
 
-        private async Task CancelScan()
+        public override async Task CancelRun()
         {
             if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
             {
