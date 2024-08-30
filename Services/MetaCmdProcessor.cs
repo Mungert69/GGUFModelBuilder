@@ -127,6 +127,8 @@ namespace NetworkMonitor.Processor.Services
                 }))
                 {
                     string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                     //output += " "+ await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+
                     await process.WaitForExitAsync().ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
                    return await SendMessage(output, processorScanDataObj);

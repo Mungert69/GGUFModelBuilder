@@ -516,16 +516,16 @@ namespace NetworkMonitor.Objects.Repository
             {
                 var cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
-                _logger.LogWarning($"{result.Message} Running Scan Command with arguments {processorScanDataObj.Arguments}");
+                _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
                 await _scanProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
-                result.Message += "Success : updated Scan Command. ";
+                result.Message += "Success : updated Nmap Command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
             {
                 result.Success = false;
-                result.Message += "Error : Failed to run Meta Command: Error was : " + e.Message + " ";
+                result.Message += "Error : Failed to run Nmap Command: Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
             }
             return result;

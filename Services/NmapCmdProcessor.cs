@@ -199,7 +199,7 @@ namespace NetworkMonitor.Processor.Services
             if (processorScanDataObj == null) xmlOutput = " -oX -";
             using (var process = new Process())
             {
-                process.StartInfo.FileName = nmapPath + _cmdProcessorStates.CmdName;
+                process.StartInfo.FileName = nmapPath + "nmap";
                 process.StartInfo.Arguments = arguments + xmlOutput;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
@@ -221,12 +221,14 @@ namespace NetworkMonitor.Processor.Services
                 {
                     // Read the output asynchronously, supporting cancellation
                     string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                    //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
                     // Wait for the process to exit
                     await process.WaitForExitAsync().ConfigureAwait(false);
 
                     // Throw if cancellation was requested after the process started
                     cancellationToken.ThrowIfCancellationRequested();
+                    //output = "there is this output . host is up";
                     return await SendMessage(output, processorScanDataObj);
 
                 }
