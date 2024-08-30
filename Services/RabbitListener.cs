@@ -31,14 +31,14 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        private ICmdProcessor _nmapCmdProcessor;
-        private ICmdProcessor _metaCmdProcessor;
+        private ICmdProcessor? _nmapCmdProcessor;
+        private ICmdProcessor? _metaCmdProcessor;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor scanProcessor,ICmdProcessor metaProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor? scanProcessor=null,ICmdProcessor? metaProcessor=null) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
             _nmapCmdProcessor = scanProcessor;
@@ -504,6 +504,14 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorScanCommand : ";
+             if (_nmapCmdProcessor == null)
+            {
+                result.Success = false;
+                result.Message += "Error : Nmap processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             if (processorScanDataObj == null)
             {
                 result.Success = false;
@@ -536,6 +544,14 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorMetaCommand : ";
+              if (_nmapCmdProcessor == null)
+            {
+                result.Success = false;
+                result.Message += "Error : Meta processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             if (processorScanDataObj == null)
             {
                 result.Success = false;
