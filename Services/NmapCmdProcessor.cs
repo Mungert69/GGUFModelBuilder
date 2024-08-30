@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -198,6 +197,7 @@ namespace NetworkMonitor.Processor.Services
             string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
             string xmlOutput = "";
             if (processorScanDataObj == null) xmlOutput = " -oX -";
+            else xmlOutput = " -oX - ";
             using (var process = new Process())
             {
                 process.StartInfo.FileName = nmapPath + "nmap";
@@ -221,23 +221,14 @@ namespace NetworkMonitor.Processor.Services
                 }))
                 {
                     // Read the output asynchronously, supporting cancellation
-                    //string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                    var outputBuilder = new StringBuilder();
-                    while (!process.StandardOutput.EndOfStream)
-                    {
-                        var line = await process.StandardOutput.ReadLineAsync().ConfigureAwait(false);
-                        if (line != null)
-                        {
-                            outputBuilder.AppendLine(line);
-                        }
-                    }
+                    string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                    //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
-                    string output = outputBuilder.ToString();
+                    // Wait for the process to exit
                     await process.WaitForExitAsync().ConfigureAwait(false);
 
                     // Throw if cancellation was requested after the process started
                     cancellationToken.ThrowIfCancellationRequested();
-                    //output = "there is this output . host is up";
                     return await SendMessage(output, processorScanDataObj);
 
                 }
