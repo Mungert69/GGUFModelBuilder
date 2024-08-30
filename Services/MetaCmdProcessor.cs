@@ -72,8 +72,9 @@ namespace NetworkMonitor.Processor.Services
             finally
             {
                 _cmdProcessorStates.IsCmdRunning = false;
-                  return SendMessage(output, processorScanDataObj);
+                
             }
+              return await SendMessage(output, processorScanDataObj);
         }
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
