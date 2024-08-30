@@ -31,8 +31,8 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        private ICmdProcessor _scanProcessor;
-        private ICmdProcessor _metaProcessor;
+        private ICmdProcessor _nmapCmdProcessor;
+        private ICmdProcessor _metaCmdProcessor;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
@@ -41,8 +41,8 @@ namespace NetworkMonitor.Objects.Repository
         public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor scanProcessor,ICmdProcessor metaProcessor) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
-            _scanProcessor = scanProcessor;
-            _metaProcessor = metaProcessor;
+            _nmapCmdProcessor = scanProcessor;
+            _metaCmdProcessor = metaProcessor;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
@@ -517,8 +517,8 @@ namespace NetworkMonitor.Objects.Repository
                 var cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
-                await _scanProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
-                result.Message += "Success : updated Nmap Command. ";
+                await _nmapCmdProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                result.Message += "Success : ran Nmap command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
             }
@@ -549,8 +549,8 @@ namespace NetworkMonitor.Objects.Repository
                 var cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
-                await _metaProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
-                result.Message += "Success : ran Meta Command. ";
+                await _metaCmdProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                result.Message += "Success : ran Metasploit command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
             }
@@ -577,8 +577,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                _scanProcessor.UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
-                await _scanProcessor.Scan();
+                _nmapCmdProcessor.UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
+                await _nmapCmdProcessor.Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);

@@ -20,50 +20,12 @@ namespace NetworkMonitor.Processor.Services
      : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
         {
             _cmdProcessorStates.CmdName = "msfconsole";
+             _cmdProcessorStates.CmdDisplayName = "Metasploit";
         }
 
 
 
-        public override async Task Scan()
-        {
-            if (!_cmdProcessorStates.IsCmdAvailable)
-            {
-                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
-                var output = "The penetration command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
-
-            }
-
-        }
-        public override async Task CancelScan()
-        {
-            if (!_cmdProcessorStates.IsCmdAvailable)
-            {
-                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
-                var output = "The penetration command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
-
-            }
-
-        }
-         public override async Task AddServices()
-        {
-            if (!_cmdProcessorStates.IsCmdAvailable)
-            {
-                _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
-                var output = "The penetration command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
-
-            }
-
-        }
-
+      
         public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
             string output = "";
@@ -93,25 +55,25 @@ namespace NetworkMonitor.Processor.Services
                 // Process the output (if any additional processing is needed)
                 ProcessMetasploitOutput(output);
 
-                _cmdProcessorStates.IsSuccess = true;
+                _cmdProcessorStates.IsCmdSuccess = true;
             }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Metasploit module execution was cancelled.");
                 _cmdProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
-                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsCmdSuccess = false;
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error during Metasploit module execution: {e.Message}");
                 _cmdProcessorStates.CompletedMessage += $"Error during Metasploit module execution: {e.Message}\n";
-                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsCmdSuccess = false;
             }
             finally
             {
-                _cmdProcessorStates.IsRunning = false;
+                _cmdProcessorStates.IsCmdRunning = false;
+                  return SendMessage(output, processorScanDataObj);
             }
-            return output;
         }
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
@@ -155,19 +117,6 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.CompletedMessage += $"Metasploit output: {output}\n";
         }
 
-        public override async Task CancelRun()
-        {
-            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
-            {
-                _logger.LogInformation("Cancelling the ongoing Metasploit execution.");
-                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing Metasploit execution...\n";
-                _cancellationTokenSource.Cancel();
-            }
-            else
-            {
-                _logger.LogInformation("No Metasploit execution is currently running.");
-                _cmdProcessorStates.CompletedMessage += "No Metasploit execution is currently running.\n";
-            }
-        }
+      
     }
 }

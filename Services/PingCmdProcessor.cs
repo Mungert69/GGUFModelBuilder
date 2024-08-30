@@ -18,15 +18,16 @@ namespace NetworkMonitor.Processor.Services;
 
 public class PingCmdProcessor : CmdProcessor
 {
-   
-    
-    public PingCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
-     : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
-        {
-        _cmdProcessorStates.CmdName = "ping";
-        }
 
-   
+
+    public PingCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+     : base(logger, cmdProcessorStates, rabbitRepo, netConfig)
+    {
+        _cmdProcessorStates.CmdName = "ping";
+         _cmdProcessorStates.CmdDisplayName = "Ping";
+    }
+
+
     public override async Task Scan()
     {
         string message = "";
@@ -144,11 +145,17 @@ public class PingCmdProcessor : CmdProcessor
         }
     }
 
-   public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
-{
-    throw new NotImplementedException();
-}
+    public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+    {
+        _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName}  Run Command is not enabled or installed on this agent.");
+                var output = $"The {_cmdProcessorStates.CmdDisplayName}   Run Command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsCmdSuccess = false;
+                _cmdProcessorStates.IsCmdRunning = false;
+                return await SendMessage(output, null);
+    }
+    
 
+   
 
     private string ResolveHostName(string ipAddress)
     {

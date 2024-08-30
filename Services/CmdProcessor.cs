@@ -53,18 +53,73 @@ namespace NetworkMonitor.Processor.Services
             _cancellationTokenSource?.Dispose();
         }
 
-        public abstract async Task Scan();
+          public virtual async Task Scan()
+        {
+          
+                _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Scan Command is not enabled or installed on this agent.");
+                var output = $"The {_cmdProcessorStates.CmdDisplayName}  Scan Command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
 
-        public abstract async Task AddServices();
+            
 
-        public abstract async Task CancelScan();
-
-        public abstract async Task CancelRun();
-
-
-        public abstract async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+        }
       
+         public virtual async Task AddServices()
+        {
+             _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Add Services command is not enabled or installed on this agent.");
+                var output = $"{_cmdProcessorStates.CmdDisplayName} Add Services command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
+        }
 
+        public virtual async Task CancelScan()
+        {
+            if (!_cmdProcessorStates.IsCmdAvailable)
+            {
+                _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} command is not enabled or installed on this agent.");
+                var output = $"The {_cmdProcessorStates.CmdDisplayName} command is not available on this agent. Try using another agent.\n";
+                _cmdProcessorStates.IsSuccess = false;
+                _cmdProcessorStates.IsRunning = false;
+                await SendMessage(output, null);
+                return;
+
+            }
+            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
+            {
+                _logger.LogWarning($" Warning : Cancelling the ongoing {_cmdProcessorStates.CmdName} scan.");
+                _cmdProcessorStates.RunningMessage += $"Cancelling the ongoing {_cmdProcessorStates.CmdDisplayName} scan...\n";
+                if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
+            }
+            else
+            {
+                _logger.LogInformation($"No {_cmdProcessorStates.CmdName} scan is currently running.");
+                _cmdProcessorStates.CompletedMessage += $"No {_cmdProcessorStates.CmdDisplayName} scan is currently running.\n";
+            }
+        }
+
+
+
+
+        public abstract Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+
+
+          public virtual async Task CancelRun()
+        {
+            if (_cmdProcessorStates.IsCmdRunning && _cancellationTokenSource != null)
+            {
+                _logger.LogInformation($"Cancelling the ongoing {_cmdProcessorStates.CmdName} execution.");
+                _cmdProcessorStates.RunningMessage += $"Cancelling the ongoing {_cmdProcessorStates.CmdDisplayName} execution...\n";
+                _cancellationTokenSource.Cancel();
+            }
+            else
+            {
+                _logger.LogInformation($"No {_cmdProcessorStates.CmdName} execution is currently running.");
+                _cmdProcessorStates.CompletedMessage += $"No {_cmdProcessorStates.CmdName} execution is currently running.\n";
+            }
+        }
         protected virtual async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
         {
             if (processorScanDataObj == null) return output;

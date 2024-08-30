@@ -23,6 +23,7 @@ namespace NetworkMonitor.Processor.Services
 : base(logger, cmdProcessorStates, rabbitRepo, netConfig)
         {
             _cmdProcessorStates.CmdName = "nmap";
+            _cmdProcessorStates.CmdDisplayName = "Nmap";
         }
 
 
@@ -129,107 +130,83 @@ namespace NetworkMonitor.Processor.Services
 
         }
 
-        public override async Task CancelScan()
-        {
-            if (!_cmdProcessorStates.IsCmdAvailable)
-            {
-                _logger.LogWarning(" Warning : Nmape is not enabled or installed on this agent.");
-                var output = "The scan command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
-                return;
-
-            }
-            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
-            {
-                _logger.LogInformation("Cancelling the ongoing scan.");
-                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing scan...\n";
-                if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
-            }
-            else
-            {
-                _logger.LogInformation("No scan is currently running.");
-                _cmdProcessorStates.CompletedMessage += "No scan is currently running.\n";
-            }
-        }
 
         public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
-
-            if (!_cmdProcessorStates.IsCmdAvailable)
+            string output = "";
+            try
             {
-                _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
-                var output = "The scan command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                return await SendMessage(output, processorScanDataObj);
-
-            }
-            string nmapPath = "";
-            if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
-            {
-                nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
-                if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                if (!_cmdProcessorStates.IsCmdAvailable)
                 {
-                    nmapPath += Path.DirectorySeparatorChar;
-                }
-            }
-            string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
-            string xmlOutput = "";
-            if (processorScanDataObj == null) xmlOutput = " -oX -";
-            else xmlOutput = " -oG - ";
-            using (var process = new Process())
-            {
-                process.StartInfo.FileName = nmapPath + "nmap";
-                process.StartInfo.Arguments = arguments + xmlOutput;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.WorkingDirectory = nmapPath;
-
-                // Start the process
-                process.Start();
-
-                // Register a callback to kill the process if cancellation is requested
-                using (cancellationToken.Register(() =>
-                {
-                    if (!process.HasExited)
-                    {
-                        _logger.LogInformation("Cancellation requested, killing the Nmap process...");
-                        process.Kill();
-                    }
-                }))
-                {
-                    // Read the output asynchronously, supporting cancellation
-                    string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                    //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-                    // Wait for the process to exit
-                    await process.WaitForExitAsync().ConfigureAwait(false);
-
-                    // Throw if cancellation was requested after the process started
-                    cancellationToken.ThrowIfCancellationRequested();
+                    _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
+                    output = "The scan command is not available on this agent. Try using another agent.\n";
+                    _cmdProcessorStates.IsCmdSuccess = false;
+                    _cmdProcessorStates.IsCmdRunning = false;
                     return await SendMessage(output, processorScanDataObj);
 
                 }
+                string nmapPath = "";
+                if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
+                {
+                    nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
+                    if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                    {
+                        nmapPath += Path.DirectorySeparatorChar;
+                    }
+                }
+                string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
+                string xmlOutput = "";
+                if (processorScanDataObj == null) xmlOutput = " -oX -";
+                else xmlOutput = " -oG - ";
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = nmapPath + "nmap";
+                    process.StartInfo.Arguments = arguments + xmlOutput;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.WorkingDirectory = nmapPath;
+
+                    // Start the process
+                    process.Start();
+
+                    // Register a callback to kill the process if cancellation is requested
+                    using (cancellationToken.Register(() =>
+                    {
+                        if (!process.HasExited)
+                        {
+                            _logger.LogInformation("Cancellation requested, killing the Nmap process...");
+                            process.Kill();
+                        }
+                    }))
+                    {
+                        // Read the output asynchronously, supporting cancellation
+                        output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                        //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+
+                        // Wait for the process to exit
+                        await process.WaitForExitAsync().ConfigureAwait(false);
+
+                        // Throw if cancellation was requested after the process started
+                        cancellationToken.ThrowIfCancellationRequested();
+                        _cmdProcessorStates.IsCmdSuccess = true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error : running nmap command. Errro was : {e.Message}");
+                output += $"Error : running nmap command. Error was : {e.Message}\n";
+                _cmdProcessorStates.IsCmdSuccess = false;
+            }
+            finally
+            {
+                _cmdProcessorStates.IsCmdRunning = false;
+                return SendMessage(output, processorScanDataObj);
             }
         }
 
-        public override async Task CancelRun()
-        {
-            if (_cmdProcessorStates.IsRunning && _cancellationTokenSource != null)
-            {
-                _logger.LogInformation("Cancelling the ongoing Nmap execution.");
-                _cmdProcessorStates.RunningMessage += "Cancelling the ongoing Nmap execution...\n";
-                _cancellationTokenSource.Cancel();
-            }
-            else
-            {
-                _logger.LogInformation("No Nmap execution is currently running.");
-                _cmdProcessorStates.CompletedMessage += "No Nmap execution is currently running.\n";
-            }
-        }
+
         private List<string> ParseNmapOutputOld(string output)
         {
             var hosts = new List<string>();
