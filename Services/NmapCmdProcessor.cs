@@ -197,7 +197,7 @@ namespace NetworkMonitor.Processor.Services
             string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
             string xmlOutput = "";
             if (processorScanDataObj == null) xmlOutput = " -oX -";
-            else xmlOutput = " -oX - ";
+            else xmlOutput = " -oG - ";
             using (var process = new Process())
             {
                 process.StartInfo.FileName = nmapPath + "nmap";
