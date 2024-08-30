@@ -34,7 +34,7 @@ namespace NetworkMonitor.Processor.Services
                 if (!_cmdProcessorStates.IsCmdAvailable)
                 {
                     _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
-                    output = "The penetration command is not available on this agent. Try using another agent.\n";
+                    output = "Metasploit is not available on this agent. Try installing the docker version of the Quantum Secure Agent or select an agent that has Metasploit Enabled.\n";
                     _cmdProcessorStates.IsSuccess = false;
                     _cmdProcessorStates.IsRunning = false;
                     return await SendMessage(output, processorScanDataObj);

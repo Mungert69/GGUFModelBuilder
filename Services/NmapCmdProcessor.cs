@@ -34,8 +34,8 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (!_cmdProcessorStates.IsCmdAvailable)
                 {
-                    _logger.LogWarning(" Warning : Nmape is not enabled or installed on this agent.");
-                    var output = "The scan command is not available on this agent. Try using another agent.\n";
+                    _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
+                    var output = "The nmap command is not available on this agent. Try using another agent.\n";
                     _cmdProcessorStates.IsSuccess = false;
                     _cmdProcessorStates.IsRunning = false;
                     await SendMessage(output, null);
@@ -139,7 +139,7 @@ namespace NetworkMonitor.Processor.Services
                 if (!_cmdProcessorStates.IsCmdAvailable)
                 {
                     _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
-                    output = "The scan command is not available on this agent. Try using another agent.\n";
+                    output = "Nmap is not available on this agent. Try installing the Quantum Secure Agent or select an agent that has Nmap enabled.\n";
                     _cmdProcessorStates.IsCmdSuccess = false;
                     _cmdProcessorStates.IsCmdRunning = false;
                     return await SendMessage(output, processorScanDataObj);
