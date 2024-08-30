@@ -142,7 +142,8 @@ namespace NetworkMonitor.Processor.Services
                 {
                     processorScanDataObj.ScanCommandOutput = output.Replace("\n", " ");
                     await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
-
+                    _logger.LogInformation($" Success : sent output : {processorScanDataObj.ScanCommandOutput}");
+                
                 }
 
                 catch (Exception e)
