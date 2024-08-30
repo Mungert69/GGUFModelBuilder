@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -220,10 +221,18 @@ namespace NetworkMonitor.Processor.Services
                 }))
                 {
                     // Read the output asynchronously, supporting cancellation
-                    string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                    //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                    //string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                    var outputBuilder = new StringBuilder();
+                    while (!process.StandardOutput.EndOfStream)
+                    {
+                        var line = await process.StandardOutput.ReadLineAsync().ConfigureAwait(false);
+                        if (line != null)
+                        {
+                            outputBuilder.AppendLine(line);
+                        }
+                    }
 
-                    // Wait for the process to exit
+                    string output = outputBuilder.ToString();
                     await process.WaitForExitAsync().ConfigureAwait(false);
 
                     // Throw if cancellation was requested after the process started
