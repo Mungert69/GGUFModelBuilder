@@ -53,26 +53,26 @@ namespace NetworkMonitor.Processor.Services
             _cancellationTokenSource?.Dispose();
         }
 
-          public virtual async Task Scan()
+        public virtual async Task Scan()
         {
-          
-                _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Scan Command is not enabled or installed on this agent.");
-                var output = $"The {_cmdProcessorStates.CmdDisplayName}  Scan Command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
 
-            
+            _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Scan Command is not enabled or installed on this agent.");
+            var output = $"The {_cmdProcessorStates.CmdDisplayName}  Scan Command is not available on this agent. Try using another agent.\n";
+            _cmdProcessorStates.IsSuccess = false;
+            _cmdProcessorStates.IsRunning = false;
+            await SendMessage(output, null);
+
+
 
         }
-      
-         public virtual async Task AddServices()
+
+        public virtual async Task AddServices()
         {
-             _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Add Services command is not enabled or installed on this agent.");
-                var output = $"{_cmdProcessorStates.CmdDisplayName} Add Services command is not available on this agent. Try using another agent.\n";
-                _cmdProcessorStates.IsSuccess = false;
-                _cmdProcessorStates.IsRunning = false;
-                await SendMessage(output, null);
+            _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName} Add Services command is not enabled or installed on this agent.");
+            var output = $"{_cmdProcessorStates.CmdDisplayName} Add Services command is not available on this agent. Try using another agent.\n";
+            _cmdProcessorStates.IsSuccess = false;
+            _cmdProcessorStates.IsRunning = false;
+            await SendMessage(output, null);
         }
 
         public virtual async Task CancelScan()
@@ -106,7 +106,7 @@ namespace NetworkMonitor.Processor.Services
         public abstract Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
 
 
-          public virtual async Task CancelRun()
+        public virtual async Task CancelRun()
         {
             if (_cmdProcessorStates.IsCmdRunning && _cancellationTokenSource != null)
             {
@@ -127,6 +127,23 @@ namespace NetworkMonitor.Processor.Services
             {
                 try
                 {
+                    if (processorScanDataObj.LineLimit == -1)
+                    {
+                        // Default to 100 lines if LineLimit is -1
+                        processorScanDataObj.LineLimit = _netConfig.CmdReturnDataLineLimit;
+                    }
+
+                    var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (lines.Length > processorScanDataObj.LineLimit)
+                    {
+                        // Truncate output if there are more lines than the limit
+                        output = string.Join(Environment.NewLine, lines.Take(processorScanDataObj.LineLimit));
+
+                        // Append a message indicating truncation and advice
+                        output += Environment.NewLine + $"[Output truncated to the first {processorScanDataObj.LineLimit} lines. Consider setting number_lines higher if you want more data or refining your query to return more targetted data.]";
+                    }
+
                     processorScanDataObj.ScanCommandOutput = output;
                     await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
                     _logger.LogInformation($" Success : sending with MessageID {processorScanDataObj.MessageID} output : {processorScanDataObj.ScanCommandOutput}");
