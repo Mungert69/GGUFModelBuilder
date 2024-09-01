@@ -35,12 +35,12 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
                     output = "Metasploit is not available on this agent. Try installing the docker version of the Quantum Secure Agent or select an agent that has Metasploit Enabled.\n";
-                    _cmdProcessorStates.IsSuccess = false;
-                    _cmdProcessorStates.IsRunning = false;
+                    _cmdProcessorStates.IsCmdSuccess = false;
+                    _cmdProcessorStates.IsCmdRunning = false;
                     return await SendMessage(output, processorScanDataObj);
 
                 }
-                _cmdProcessorStates.IsRunning = true;
+                _cmdProcessorStates.IsCmdRunning = true;
 
 
                 string message = $"Running Metasploit with arguments {arguments}";
