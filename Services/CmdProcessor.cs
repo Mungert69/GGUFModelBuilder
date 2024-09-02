@@ -13,6 +13,7 @@ using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
 using System.Threading;
+using System.Text.Json;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -143,8 +144,18 @@ namespace NetworkMonitor.Processor.Services
                         // Append a message indicating truncation and advice
                         output += Environment.NewLine + $"[Output truncated to the first {processorScanDataObj.LineLimit} lines. Consider setting number_lines higher if you want more data or refining your query to return more targetted data.]";
                     }
+                    string jsonString = JsonSerializer.Serialize(output);
+                    if (jsonString.StartsWith("\""))
+                    {
+                        jsonString = jsonString.Substring(1);
+                    }
 
-                    processorScanDataObj.ScanCommandOutput = output;
+                    // Remove trailing double quote if present
+                    if (jsonString.EndsWith("\""))
+                    {
+                        jsonString = jsonString.Substring(0, jsonString.Length - 1);
+                    }
+                    processorScanDataObj.ScanCommandOutput = jsonString;
                     await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
                     _logger.LogInformation($" Success : sending with MessageID {processorScanDataObj.MessageID} output : {processorScanDataObj.ScanCommandOutput}");
                 }
