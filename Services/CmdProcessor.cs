@@ -129,21 +129,45 @@ namespace NetworkMonitor.Processor.Services
                 try
                 {
                     if (processorScanDataObj.LineLimit == -1)
-                    {
-                        // Default to 100 lines if LineLimit is -1
-                        processorScanDataObj.LineLimit = _netConfig.CmdReturnDataLineLimit;
-                    }
+{
+    // Default to appsetting.json CmdReturnDataLineLimit
+    processorScanDataObj.LineLimit = _netConfig.CmdReturnDataLineLimit;
+}
 
-                    var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-                    if (lines.Length > processorScanDataObj.LineLimit)
-                    {
-                        // Truncate output if there are more lines than the limit
-                        output = string.Join(Environment.NewLine, lines.Take(processorScanDataObj.LineLimit));
+int totalLines = lines.Length;
+int totalPages = (int)Math.Ceiling((double)totalLines / processorScanDataObj.LineLimit);
 
-                        // Append a message indicating truncation and advice
-                        output += Environment.NewLine + $"[Output truncated to the first {processorScanDataObj.LineLimit} lines. Consider setting number_lines higher if you want more data or refining your query to return more targetted data.]";
-                    }
+// Ensure Page number is within valid range
+if (processorScanDataObj.Page < 1)
+{
+    processorScanDataObj.Page = 1;
+}
+else if (processorScanDataObj.Page > totalPages)
+{
+    processorScanDataObj.Page = totalPages;
+      output = $"[Warning: Page {processorScanDataObj.Page} is beyond the total number of pages ({totalPages}). Showing the last available page ({totalPages}).]";
+  
+}
+
+// Calculate the starting index based on the Page number
+int startLineIndex = (processorScanDataObj.Page - 1) * processorScanDataObj.LineLimit;
+int endLineIndex = Math.Min(startLineIndex + processorScanDataObj.LineLimit, totalLines);
+
+// Get the lines for the current page
+var paginatedLines = lines.Skip(startLineIndex).Take(endLineIndex - startLineIndex);
+
+output += string.Join(Environment.NewLine, paginatedLines);
+
+// Add a footer with pagination information
+output += Environment.NewLine + $"[Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}. Consider adjusting your query or LineLimit if needed.]";
+
+if (processorScanDataObj.Page < totalPages)
+{
+    output += Environment.NewLine + $"[Output truncated to {processorScanDataObj.LineLimit} lines per page. Use Page {processorScanDataObj.Page + 1} to view more data.]";
+}
+
                     string jsonString = JsonSerializer.Serialize(output);
                     if (jsonString.StartsWith("\""))
                     {
