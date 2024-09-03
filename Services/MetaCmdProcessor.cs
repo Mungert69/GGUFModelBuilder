@@ -35,14 +35,10 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
                     output = "Metasploit is not available on this agent. Try installing the docker version of the Quantum Secure Agent or select an agent that has Metasploit Enabled.\n";
-                    _cmdProcessorStates.IsCmdSuccess = false;
-                    _cmdProcessorStates.IsCmdRunning = false;
                     return await SendMessage(output, processorScanDataObj);
 
                 }
-                _cmdProcessorStates.IsCmdRunning = true;
-
-
+            
                 string message = $"Running Metasploit with arguments {arguments}";
                 _logger.LogInformation(message);
                 _cmdProcessorStates.RunningMessage += $"{message}\n";
@@ -55,32 +51,24 @@ namespace NetworkMonitor.Processor.Services
                 // Process the output (if any additional processing is needed)
                 ProcessMetasploitOutput(output);
 
-                _cmdProcessorStates.IsCmdSuccess = true;
-            }
+                 }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Metasploit module execution was cancelled.");
                 _cmdProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
-                _cmdProcessorStates.IsCmdSuccess = false;
-            }
+                }
             catch (Exception e)
             {
                 _logger.LogError($"Error during Metasploit module execution: {e.Message}");
                 _cmdProcessorStates.CompletedMessage += $"Error during Metasploit module execution: {e.Message}\n";
-                _cmdProcessorStates.IsCmdSuccess = false;
-            }
-            finally
-            {
-                _cmdProcessorStates.IsCmdRunning = false;
-                
-            }
-              return await SendMessage(output, processorScanDataObj);
+                 }
+           
+              return output;
         }
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
         {
             //string msfconsolePath = _netConfig.MsfconsolePath;
-
             using (var process = new Process())
             {
                 process.StartInfo.FileName = _cmdProcessorStates.CmdName; // Path to the Metasploit console executable
@@ -106,7 +94,8 @@ namespace NetworkMonitor.Processor.Services
 
                     await process.WaitForExitAsync().ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
-                    return await SendMessage(output, processorScanDataObj);
+                    //return await SendMessage(output, processorScanDataObj);
+                    return output;
                 }
             }
         }

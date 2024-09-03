@@ -140,8 +140,6 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
                     output = "Nmap is not available on this agent. Try installing the Quantum Secure Agent or select an agent that has Nmap enabled.\n";
-                    _cmdProcessorStates.IsCmdSuccess = false;
-                    _cmdProcessorStates.IsCmdRunning = false;
                     return await SendMessage(output, processorScanDataObj);
 
                 }
@@ -189,21 +187,15 @@ namespace NetworkMonitor.Processor.Services
 
                         // Throw if cancellation was requested after the process started
                         cancellationToken.ThrowIfCancellationRequested();
-                        _cmdProcessorStates.IsCmdSuccess = true;
-                    }
+                         }
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error : running nmap command. Errro was : {e.Message}");
                 output += $"Error : running nmap command. Error was : {e.Message}\n";
-                _cmdProcessorStates.IsCmdSuccess = false;
-            }
-            finally
-            {
-                _cmdProcessorStates.IsCmdRunning = false;
-               
-            }
+                }
+           
              return await SendMessage(output, processorScanDataObj);
         }
 

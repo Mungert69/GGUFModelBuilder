@@ -38,7 +38,7 @@ namespace NetworkMonitor.Objects.Repository
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor? scanProcessor=null,ICmdProcessor? metaProcessor=null) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor? scanProcessor = null, ICmdProcessor? metaProcessor = null) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
             _nmapCmdProcessor = scanProcessor;
@@ -54,7 +54,8 @@ namespace NetworkMonitor.Objects.Repository
             _pollingTimer.Start();
         }
 
-        public async Task<ResultObj> SetupListener() {
+        public async Task<ResultObj> SetupListener()
+        {
             return await Setup();
         }
         private async Task PollingTick()
@@ -145,13 +146,13 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorUserEvent",
                 MessageTimeout = 600000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorScan" + _netConfig.AppID,
                 FuncName = "processorScan",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorScanCommand" + _netConfig.AppID,
                 FuncName = "processorScanCommand",
@@ -340,14 +341,14 @@ namespace NetworkMonitor.Objects.Repository
                                 _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScan " + ex.Message);
                             }
                         };
-                        break; 
-                         case "processorScanCommand":
+                            break;
+                        case "processorScanCommand":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
                         {
                             try
                             {
-                                result = await ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                _ =  ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -356,13 +357,13 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
-                             case "processorMetaCommand":
+                        case "processorMetaCommand":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
                         {
                             try
                             {
-                                result = await ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                _ =  ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
                                 rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
@@ -499,12 +500,12 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-           public async Task<ResultObj> ProcessorScanCommand(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> ProcessorScanCommand(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorScanCommand : ";
-             if (_nmapCmdProcessor == null)
+            if (_nmapCmdProcessor == null)
             {
                 result.Success = false;
                 result.Message += "Error : Nmap processor not available .";
@@ -539,12 +540,12 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-          public async Task<ResultObj> ProcessorMetaCommand(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> ProcessorMetaCommand(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorMetaCommand : ";
-              if (_nmapCmdProcessor == null)
+            if (_nmapCmdProcessor == null)
             {
                 result.Success = false;
                 result.Message += "Error : Meta processor not available .";
@@ -562,11 +563,11 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-                CancellationToken cancellationToken = cancellationTokenSource.Token;
+                var cts = new CancellationTokenSource();
                 _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
-                await _metaCmdProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
-                result.Message += "Success : ran Metasploit command. ";
+                string commandResult = await _metaCmdProcessor.QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult;
+
                 result.Success = true;
                 _logger.LogInformation(result.Message);
             }
@@ -578,7 +579,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-          public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
@@ -721,7 +722,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var results = await  _monitorPingProcessor.ResetAlerts(monitorIPIDs);
+                var results = await _monitorPingProcessor.ResetAlerts(monitorIPIDs);
                 results.ForEach(f => result.Message += f.Message);
                 result.Success = results.All(a => a.Success == true) && results.Count() != 0;
                 result.Data = results;

@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:8.0</ContainerBaseImage>
     <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
-    <ContainerImageTag>1.1.8</ContainerImageTag>
+    <ContainerImageTag>1.1.9</ContainerImageTag>
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
       <IsPublishable>true</IsPublishable>
   <EnableSdkContainerSupport>true</EnableSdkContainerSupport>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
@@ -21,6 +22,7 @@ namespace NetworkMonitor.Processor.Services
     {
         Task Scan();
         Task CancelScan();
+        Task<string> QueueCommand(CancellationTokenSource cancellationToken, ProcessorScanDataObj processorScanDataObj);
         Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
         Task CancelRun();
         bool UseDefaultEndpoint { get; set; }
@@ -32,7 +34,8 @@ namespace NetworkMonitor.Processor.Services
         protected readonly IRabbitRepo _rabbitRepo;
         protected readonly NetConnectConfig _netConfig;
         protected CancellationTokenSource _cancellationTokenSource;
-
+        private readonly ConcurrentQueue<CommandTask> _currentQueue;
+        private readonly SemaphoreSlim _semaphore;
         public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
         public CmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
@@ -43,8 +46,20 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.OnStartScanAsync += Scan;
             _cmdProcessorStates.OnCancelScanAsync += CancelScan;
             _cmdProcessorStates.OnAddServicesAsync += AddServices;
+            _currentQueue = new ConcurrentQueue<CommandTask>();
+            _semaphore = new SemaphoreSlim(5); // Limit to 5 concurrent tasks
 
         }
+
+        private async Task StartQueueProcessorAsync()
+        {
+            while (true) // Keep processing tasks indefinitely
+            {
+                await ProcessQueueAsync();
+                // Optionally add a delay or other logic to control the processing loop
+            }
+        }
+
 
         public virtual void Dispose()
         {
@@ -102,6 +117,91 @@ namespace NetworkMonitor.Processor.Services
         }
 
 
+        public async Task<string> QueueCommand(CancellationTokenSource cts, ProcessorScanDataObj processorScanDataObj)
+        {
+            var tcs = new TaskCompletionSource<string>();
+            var commandTask = new CommandTask(
+                processorScanDataObj.MessageID,
+                async () =>
+                {
+                    try
+                    {
+                        // Run the command and set the result in the TaskCompletionSource
+                        string result = await RunCommand(processorScanDataObj.Arguments, cts.Token, processorScanDataObj);
+                        tcs.SetResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex); // If an error occurs, propagate it to the caller
+                    }
+                },
+                cts
+            );
+
+            _currentQueue.Enqueue(commandTask);
+            return await SendMessage(await tcs.Task, processorScanDataObj);
+           // return await tcs.Task; // Return the Task<string> that will complete once the command finishes
+        }
+
+
+        private async Task ProcessQueueAsync()
+        {
+            if (_currentQueue.TryDequeue(out var commandTask))
+            {
+                if (!commandTask.IsRunning)
+                {
+                    await _semaphore.WaitAsync(); // Wait for a semaphore slot to be available
+
+                    commandTask.IsRunning = true; // Mark the task as running
+
+                    var task = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await commandTask.TaskFunc(); // Await the task execution
+                            commandTask.IsSuccessful = true; // Mark the task as successful
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            _logger.LogInformation($"Command {commandTask.MessageId} was cancelled.");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError($"Command {commandTask.MessageId} failed with exception: {ex.Message}");
+                        }
+                        finally
+                        {
+                            commandTask.IsRunning = false; // Mark the task as not running
+                            _semaphore.Release(); // Release the semaphore slot
+                        }
+                    });
+
+                    // Await the task to handle completion and errors
+                    await task;
+                }
+            }
+            else
+            {
+                // No tasks available, briefly delay to prevent tight loop
+                await Task.Delay(1000);
+            }
+        }
+
+
+        public async Task CancelCommand(string messageId)
+        {
+            var taskToCancel = _currentQueue.FirstOrDefault(t => t.MessageId == messageId);
+
+            if (taskToCancel != null)
+            {
+                taskToCancel.CancellationTokenSource.Cancel();
+                await taskToCancel.TaskFunc(); // Wait for the task to complete
+            }
+            else
+            {
+                _logger.LogWarning($"No running command found with MessageID: {messageId}");
+            }
+        }
 
 
         public abstract Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
@@ -129,44 +229,44 @@ namespace NetworkMonitor.Processor.Services
                 try
                 {
                     if (processorScanDataObj.LineLimit == -1)
-{
-    // Default to appsetting.json CmdReturnDataLineLimit
-    processorScanDataObj.LineLimit = _netConfig.CmdReturnDataLineLimit;
-}
+                    {
+                        // Default to appsetting.json CmdReturnDataLineLimit
+                        processorScanDataObj.LineLimit = _netConfig.CmdReturnDataLineLimit;
+                    }
 
-var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    var lines = output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-int totalLines = lines.Length;
-int totalPages = (int)Math.Ceiling((double)totalLines / processorScanDataObj.LineLimit);
+                    int totalLines = lines.Length;
+                    int totalPages = (int)Math.Ceiling((double)totalLines / processorScanDataObj.LineLimit);
 
-// Ensure Page number is within valid range
-if (processorScanDataObj.Page < 1)
-{
-    processorScanDataObj.Page = 1;
-}
-else if (processorScanDataObj.Page > totalPages)
-{
-    processorScanDataObj.Page = totalPages;
-      output = $"[Warning: Page {processorScanDataObj.Page} is beyond the total number of pages ({totalPages}). Showing the last available page ({totalPages}).]";
-  
-}
+                    // Ensure Page number is within valid range
+                    if (processorScanDataObj.Page < 1)
+                    {
+                        processorScanDataObj.Page = 1;
+                    }
+                    else if (processorScanDataObj.Page > totalPages)
+                    {
+                        processorScanDataObj.Page = totalPages;
+                        output = $"[Warning: Page {processorScanDataObj.Page} is beyond the total number of pages ({totalPages}). Showing the last available page ({totalPages}).]";
 
-// Calculate the starting index based on the Page number
-int startLineIndex = (processorScanDataObj.Page - 1) * processorScanDataObj.LineLimit;
-int endLineIndex = Math.Min(startLineIndex + processorScanDataObj.LineLimit, totalLines);
+                    }
 
-// Get the lines for the current page
-var paginatedLines = lines.Skip(startLineIndex).Take(endLineIndex - startLineIndex);
+                    // Calculate the starting index based on the Page number
+                    int startLineIndex = (processorScanDataObj.Page - 1) * processorScanDataObj.LineLimit;
+                    int endLineIndex = Math.Min(startLineIndex + processorScanDataObj.LineLimit, totalLines);
 
-output += string.Join(Environment.NewLine, paginatedLines);
+                    // Get the lines for the current page
+                    var paginatedLines = lines.Skip(startLineIndex).Take(endLineIndex - startLineIndex);
 
-// Add a footer with pagination information
-output += Environment.NewLine + $"[Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}. Consider adjusting your query or LineLimit if needed.]";
+                    output += string.Join(Environment.NewLine, paginatedLines);
 
-if (processorScanDataObj.Page < totalPages)
-{
-    output += Environment.NewLine + $"[Output truncated to {processorScanDataObj.LineLimit} lines per page. Use Page {processorScanDataObj.Page + 1} to view more data.]";
-}
+                    // Add a footer with pagination information
+                    output += Environment.NewLine + $"[Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}. Consider adjusting your query or LineLimit if needed.]";
+
+                    if (processorScanDataObj.Page < totalPages)
+                    {
+                        output += Environment.NewLine + $"[Output truncated to {processorScanDataObj.LineLimit} lines per page. Use Page {processorScanDataObj.Page + 1} to view more data.]";
+                    }
 
                     string jsonString = JsonSerializer.Serialize(output);
                     if (jsonString.StartsWith("\""))
