@@ -162,6 +162,8 @@ namespace NetworkMonitor.Processor.Services
                     process.StartInfo.Arguments = arguments + xmlOutput;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
+
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.WorkingDirectory = nmapPath;
 
@@ -181,22 +183,28 @@ namespace NetworkMonitor.Processor.Services
                         // Read the output asynchronously, supporting cancellation
                         output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
                         //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                        // Capture standard error
+                        string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
+                        if (!string.IsNullOrWhiteSpace(errorOutput))
+                        {
+                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
+                        }
                         // Wait for the process to exit
                         await process.WaitForExitAsync().ConfigureAwait(false);
 
                         // Throw if cancellation was requested after the process started
                         cancellationToken.ThrowIfCancellationRequested();
-                         }
+                    }
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError($"Error : running nmap command. Errro was : {e.Message}");
                 output += $"Error : running nmap command. Error was : {e.Message}\n";
-                }
-           
-             return await SendMessage(output, processorScanDataObj);
+            }
+
+            return await SendMessage(output, processorScanDataObj);
         }
 
 

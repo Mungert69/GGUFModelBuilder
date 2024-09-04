@@ -76,6 +76,8 @@ namespace NetworkMonitor.Processor.Services
 
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
+
                 process.StartInfo.CreateNoWindow = true;
 
                 process.Start();
@@ -90,8 +92,12 @@ namespace NetworkMonitor.Processor.Services
                 }))
                 {
                     string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                    //output += " "+ await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                   string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
+                        if (!string.IsNullOrWhiteSpace(errorOutput))
+                        {
+                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
+                        }
                     await process.WaitForExitAsync().ConfigureAwait(false);
                     cancellationToken.ThrowIfCancellationRequested();
                     //return await SendMessage(output, processorScanDataObj);
