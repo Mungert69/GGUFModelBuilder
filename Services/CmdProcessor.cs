@@ -262,11 +262,11 @@ namespace NetworkMonitor.Processor.Services
                     output = string.Join(Environment.NewLine, paginatedLines);
 
                     // Add a footer with pagination information
-                    output += Environment.NewLine + $"[Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
+                    output += Environment.NewLine + $" [Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
 
                     if (processorScanDataObj.Page < totalPages)
                     {
-                        output += Environment.NewLine + $"[Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
+                        output += Environment.NewLine + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
                     }
 
                     string jsonString = JsonSerializer.Serialize(output);
