@@ -15,7 +15,7 @@ public class CommandTask
         MessageId = messageId;
         TaskFunc = taskFunc;
         CancellationTokenSource = cancellationTokenSource;
-        IsRunning = true;
+        IsRunning = false;
         IsSuccessful = false;
     }
 }

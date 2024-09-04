@@ -47,7 +47,8 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.OnCancelScanAsync += CancelScan;
             _cmdProcessorStates.OnAddServicesAsync += AddServices;
             _currentQueue = new ConcurrentQueue<CommandTask>();
-            _semaphore = new SemaphoreSlim(5); // Limit to 5 concurrent tasks
+            _semaphore = new SemaphoreSlim(5);
+            _ = StartQueueProcessorAsync();
 
         }
 
@@ -56,7 +57,7 @@ namespace NetworkMonitor.Processor.Services
             while (true) // Keep processing tasks indefinitely
             {
                 await ProcessQueueAsync();
-                // Optionally add a delay or other logic to control the processing loop
+                await Task.Delay(1000);
             }
         }
 

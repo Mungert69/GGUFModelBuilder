@@ -523,10 +523,10 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cancellationTokenSource = new CancellationTokenSource();
-                CancellationToken cancellationToken = cancellationTokenSource.Token;
+                var cts = new CancellationTokenSource();
+                //CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
-                await _nmapCmdProcessor.RunCommand(processorScanDataObj.Arguments, cancellationToken, processorScanDataObj);
+                await _nmapCmdProcessor.QueueCommand( cts, processorScanDataObj);
                 result.Message += "Success : ran Nmap command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
