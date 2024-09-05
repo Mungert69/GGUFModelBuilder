@@ -204,7 +204,7 @@ namespace NetworkMonitor.Processor.Services
                 output += $"Error : running nmap command. Error was : {e.Message}\n";
             }
 
-            return await SendMessage(output, processorScanDataObj);
+            return output;
         }
 
 
