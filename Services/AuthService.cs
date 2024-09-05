@@ -399,7 +399,7 @@ namespace NetworkMonitor.Processor.Services
                         processorObj.Owner = userInfo.UserID;
                         processorObj.IsPrivate = true;
                         processorObj.DisabledEndPointTypes=_netConfig.DisabledEndpointTypes;
-
+                        processorObj.DisabledCommands = _netConfig.DisabledCommands;
                         _netConfig.Owner = userInfo.UserID;
                         _netConfig.MonitorLocation = userInfo.Email + "-" + machineName;
                         _netConfig.LocalSystemUrl.UseTls = true;
