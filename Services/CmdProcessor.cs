@@ -22,8 +22,8 @@ namespace NetworkMonitor.Processor.Services
     {
         Task Scan();
         Task CancelScan();
-        Task<string> QueueCommand(CancellationTokenSource cancellationToken, ProcessorScanDataObj processorScanDataObj);
-        Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+        Task<ResultObj> QueueCommand(CancellationTokenSource cancellationToken, ProcessorScanDataObj processorScanDataObj);
+        Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
         Task CancelRun();
         bool UseDefaultEndpoint { get; set; }
     }
@@ -118,9 +118,9 @@ namespace NetworkMonitor.Processor.Services
         }
 
 
-        public async Task<string> QueueCommand(CancellationTokenSource cts, ProcessorScanDataObj processorScanDataObj)
+        public async Task<ResultObj> QueueCommand(CancellationTokenSource cts, ProcessorScanDataObj processorScanDataObj)
         {
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<ResultObj>();
             var commandTask = new CommandTask(
                 processorScanDataObj.MessageID,
                 async () =>
@@ -128,7 +128,7 @@ namespace NetworkMonitor.Processor.Services
                     try
                     {
                         // Run the command and set the result in the TaskCompletionSource
-                        string result = await RunCommand(processorScanDataObj.Arguments, cts.Token, processorScanDataObj);
+                        var result = await RunCommand(processorScanDataObj.Arguments, cts.Token, processorScanDataObj);
                         tcs.SetResult(result);
                     }
                     catch (Exception ex)
@@ -140,7 +140,9 @@ namespace NetworkMonitor.Processor.Services
             );
 
             _currentQueue.Enqueue(commandTask);
-            return await SendMessage(await tcs.Task, processorScanDataObj);
+            ResultObj taskResult = await tcs.Task;
+            taskResult.Message = await SendMessage(taskResult.Message, processorScanDataObj);
+            return taskResult;
            // return await tcs.Task; // Return the Task<string> that will complete once the command finishes
         }
 
@@ -205,7 +207,7 @@ namespace NetworkMonitor.Processor.Services
         }
 
 
-        public abstract Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+        public abstract Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
 
 
         public virtual async Task CancelRun()

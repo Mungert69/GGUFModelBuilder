@@ -13,6 +13,7 @@ using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
 using System.Threading;
+using NetworkMonitor.Service.Services.OpenAI;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -60,20 +61,30 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"Starting service scan on network range: {networkRange}");
                 _cmdProcessorStates.RunningMessage += $"Starting service scan on network range: {networkRange}\n";
 
-                var nmapOutput = await RunCommand($" -sn {networkRange}", cancellationToken);
-                var hosts = ParseNmapOutput(nmapOutput);
-
-                _logger.LogInformation($"Found {hosts.Count} hosts");
-                _cmdProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
-
-                foreach (var host in hosts)
+                var result = await RunCommand($" -sn {networkRange}", cancellationToken);
+                var nmapOutput = result.Message;
+                if (result.Success)
                 {
-                    cancellationToken.ThrowIfCancellationRequested(); // Check for cancellation
-                    await ScanHostServices(host, cancellationToken);
-                }
-                _cmdProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+                    var hosts = ParseNmapOutput(nmapOutput);
 
-                _cmdProcessorStates.IsSuccess = true;
+                    _logger.LogInformation($"Found {hosts.Count} hosts");
+                    _cmdProcessorStates.RunningMessage += $"Found {hosts.Count} hosts\n";
+
+                    foreach (var host in hosts)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested(); // Check for cancellation
+                        await ScanHostServices(host, cancellationToken);
+                    }
+                    _cmdProcessorStates.CompletedMessage += "Service scan completed successfully.\n";
+
+                    _cmdProcessorStates.IsSuccess = true;
+                }
+                else
+                {
+                    _cmdProcessorStates.CompletedMessage += $"Service scan falied {result.Message}.\n";
+
+                    _cmdProcessorStates.IsSuccess = false;
+                }
             }
             catch (OperationCanceledException)
             {
@@ -131,8 +142,9 @@ namespace NetworkMonitor.Processor.Services
         }
 
 
-        public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
+            var result = new ResultObj();
             string output = "";
             try
             {
@@ -140,7 +152,9 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
                     output = "Nmap is not available on this agent. Try installing the Quantum Secure Agent or select an agent that has Nmap enabled.\n";
-                    return await SendMessage(output, processorScanDataObj);
+                    result.Message = await SendMessage(output, processorScanDataObj);
+                    result.Success = false;
+                    return result;
 
                 }
                 string nmapPath = "";
@@ -186,7 +200,7 @@ namespace NetworkMonitor.Processor.Services
                         // Capture standard error
                         string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
-                        if (!string.IsNullOrWhiteSpace(errorOutput))
+                        if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
                         {
                             output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
                         }
@@ -195,6 +209,7 @@ namespace NetworkMonitor.Processor.Services
 
                         // Throw if cancellation was requested after the process started
                         cancellationToken.ThrowIfCancellationRequested();
+                        result.Success = true;
                     }
                 }
             }
@@ -202,9 +217,10 @@ namespace NetworkMonitor.Processor.Services
             {
                 _logger.LogError($"Error : running nmap command. Errro was : {e.Message}");
                 output += $"Error : running nmap command. Error was : {e.Message}\n";
+                result.Success = false;
             }
-
-            return output;
+            result.Message = output;
+            return result;
         }
 
 
@@ -247,18 +263,27 @@ namespace NetworkMonitor.Processor.Services
             string limitPortsArg = "";
             if (_cmdProcessorStates.UseFastScan) fastScanArg = " --version-light";
             if (_cmdProcessorStates.LimitPorts) limitPortsArg = " -F";
+            var result = await RunCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
 
-            var nmapOutput = await RunCommand($"{limitPortsArg}{fastScanArg} -sV {host}", cancellationToken);
-
-            var services = ParseNmapServiceOutput(nmapOutput, host);
-
-            foreach (var service in services)
+            var nmapOutput = result.Message;
+            string message = "";
+            if (result.Success)
             {
-                _cmdProcessorStates.ActiveDevices.Add(service);
-                string message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
+                var services = ParseNmapServiceOutput(nmapOutput, host);
+
+                foreach (var service in services)
+                {
+                    _cmdProcessorStates.ActiveDevices.Add(service);
+                     message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
+                    _cmdProcessorStates.CompletedMessage += message;
+                    _logger.LogInformation(message);
+
+                }
+            }
+            else {
+                message = $" Error : Failed to add services. {result.Message}";
                 _cmdProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
-
             }
         }
         private List<MonitorIP> ParseNmapServiceOutput(string output, string host)

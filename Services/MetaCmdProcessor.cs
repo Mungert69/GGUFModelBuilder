@@ -26,8 +26,9 @@ namespace NetworkMonitor.Processor.Services
 
 
       
-        public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
+            var result=new ResultObj();
             string output = "";
             try
             {
@@ -35,7 +36,9 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
                     output = "Metasploit is not available on this agent. Try installing the docker version of the Quantum Secure Agent or select an agent that has Metasploit Enabled.\n";
-                    return await SendMessage(output, processorScanDataObj);
+                    result.Message= await SendMessage(output, processorScanDataObj);
+                    result.Success = false;
+                    return result;
 
                 }
             
@@ -50,20 +53,25 @@ namespace NetworkMonitor.Processor.Services
 
                 // Process the output (if any additional processing is needed)
                 ProcessMetasploitOutput(output);
+                result.Message += output;
 
                  }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Metasploit module execution was cancelled.");
                 _cmdProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
+                result.Message += _cmdProcessorStates.CompletedMessage;
+                result.Success= false;
                 }
             catch (Exception e)
             {
                 _logger.LogError($"Error during Metasploit module execution: {e.Message}");
                 _cmdProcessorStates.CompletedMessage += $"Error during Metasploit module execution: {e.Message}\n";
-                 }
+                result.Success = false;
+                result.Message += _cmdProcessorStates.CompletedMessage;
+            }
            
-              return output;
+              return result;
         }
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)

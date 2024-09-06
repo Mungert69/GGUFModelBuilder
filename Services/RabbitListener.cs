@@ -565,10 +565,10 @@ namespace NetworkMonitor.Objects.Repository
             {
                 var cts = new CancellationTokenSource();
                 _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
-                string commandResult = await _metaCmdProcessor.QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult;
+                var commandResult = await _metaCmdProcessor.QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult.Message;
 
-                result.Success = true;
+                result.Success = commandResult.Success;
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)

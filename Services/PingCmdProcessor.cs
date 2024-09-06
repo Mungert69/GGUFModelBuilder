@@ -145,13 +145,13 @@ public class PingCmdProcessor : CmdProcessor
         }
     }
 
-    public override async Task<string> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+    public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
     {
         _logger.LogWarning($" Warning : {_cmdProcessorStates.CmdName}  Run Command is not enabled or installed on this agent.");
                 var output = $"The {_cmdProcessorStates.CmdDisplayName}   Run Command is not available on this agent. Try using another agent.\n";
                 _cmdProcessorStates.IsCmdSuccess = false;
                 _cmdProcessorStates.IsCmdRunning = false;
-                return await SendMessage(output, null);
+                return new ResultObj(){Message= await SendMessage(output, null), Success = false};
     }
     
 
