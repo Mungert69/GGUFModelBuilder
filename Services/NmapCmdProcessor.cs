@@ -23,8 +23,7 @@ namespace NetworkMonitor.Processor.Services
         public NmapCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
 : base(logger, cmdProcessorStates, rabbitRepo, netConfig)
         {
-            _cmdProcessorStates.CmdName = "nmap";
-            _cmdProcessorStates.CmdDisplayName = "Nmap";
+           
         }
 
 
@@ -166,7 +165,7 @@ namespace NetworkMonitor.Processor.Services
                         nmapPath += Path.DirectorySeparatorChar;
                     }
                 }
-                string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
+               // string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
                 string xmlOutput = "";
                 if (processorScanDataObj == null) xmlOutput = " -oX -";
                 else xmlOutput = " -oG - ";

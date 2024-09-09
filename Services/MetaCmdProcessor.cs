@@ -19,13 +19,9 @@ namespace NetworkMonitor.Processor.Services
         public MetaCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
      : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
         {
-            _cmdProcessorStates.CmdName = "msfconsole";
-             _cmdProcessorStates.CmdDisplayName = "Metasploit";
+          
         }
-
-
-
-      
+  
         public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
             var result=new ResultObj();

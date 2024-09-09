@@ -31,18 +31,16 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-        private ICmdProcessor? _nmapCmdProcessor;
-        private ICmdProcessor? _metaCmdProcessor;
+          private ICmdProcessorProvider _cmdProcessorProvider;
         NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
 
-        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessor? scanProcessor = null, ICmdProcessor? metaProcessor = null) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
+        public RabbitListener(IMonitorPingProcessor monitorPingProcessor, ILogger logger, NetConnectConfig netConnectConfig, LocalProcessorStates localProcessorStates, ICmdProcessorProvider cmdProcessorProvider) : base(logger, DeriveSystemUrl(netConnectConfig), localProcessorStates as IRabbitListenerState, netConnectConfig.UseTls)
         {
             _monitorPingProcessor = monitorPingProcessor;
-            _nmapCmdProcessor = scanProcessor;
-            _metaCmdProcessor = metaProcessor;
+            _cmdProcessorProvider = cmdProcessorProvider;
             //_appID = monitorPingProcessor.AppID;
             _netConfig = netConnectConfig;
             _netConfig.OnSystemUrlChangedAsync += HandleSystemUrlChangedAsync;
@@ -162,6 +160,12 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "processorMetaCommand" + _netConfig.AppID,
                 FuncName = "processorMetaCommand",
+                MessageTimeout = 6000000
+            });
+              _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorOpensslCommand" + _netConfig.AppID,
+                FuncName = "processorOpensslCommand",
                 MessageTimeout = 6000000
             });
         }
@@ -372,6 +376,21 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                               case "processorOpensslCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                        {
+                            try
+                            {
+                                _ =  ProcessorOpensslCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorOpensslCommand " + ex.Message);
+                            }
+                        };
+                            break;
                     }
                 }
             });
@@ -505,7 +524,7 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorScanCommand : ";
-            if (_nmapCmdProcessor == null)
+            if (_cmdProcessorProvider.GetNmapProcessor() == null)
             {
                 result.Success = false;
                 result.Message += "Error : Nmap processor not available .";
@@ -526,7 +545,7 @@ namespace NetworkMonitor.Objects.Repository
                 var cts = new CancellationTokenSource();
                 //CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
-                await _nmapCmdProcessor.QueueCommand( cts, processorScanDataObj);
+                await _cmdProcessorProvider.GetNmapProcessor().QueueCommand( cts, processorScanDataObj);
                 result.Message += "Success : ran Nmap command. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
@@ -545,7 +564,7 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorMetaCommand : ";
-            if (_nmapCmdProcessor == null)
+            if (_cmdProcessorProvider.GetMetasploitProcessor() == null)
             {
                 result.Success = false;
                 result.Message += "Error : Meta processor not available .";
@@ -565,7 +584,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 var cts = new CancellationTokenSource();
                 _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _metaCmdProcessor.QueueCommand(cts, processorScanDataObj);
+                var commandResult = await _cmdProcessorProvider.GetMetasploitProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult.Message;
 
                 result.Success = commandResult.Success;
@@ -575,6 +594,46 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : Failed to run Meta Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+
+        public async Task<ResultObj> ProcessorOpensslCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorOpensslCommand : ";
+            if (_cmdProcessorProvider.GetOpensslProcessor() == null)
+            {
+                result.Success = false;
+                result.Message += "Error : Openssl processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cts = new CancellationTokenSource();
+                _logger.LogWarning($"{result.Message} Running Openssl Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await _cmdProcessorProvider.GetOpensslProcessor().QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran Openssl command. Command Result: " + commandResult.Message;
+
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run Openssl Command: Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
             }
             return result;
@@ -594,8 +653,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                _nmapCmdProcessor.UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
-                await _nmapCmdProcessor.Scan();
+                _cmdProcessorProvider.GetNmapProcessor().UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
+                await _cmdProcessorProvider.GetNmapProcessor().Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);

@@ -19,8 +19,7 @@ namespace NetworkMonitor.Processor
     {
 #pragma warning disable CS8618
         private static ConnectFactory _connectFactory;
-        private static ICmdProcessor _nmapCmdProcessor;
-        private static ICmdProcessor _metaCmdProcessor;
+        private static CmdProcessorFactory _cmdProcessorFactory;
         private static MonitorPingProcessor _monitorPingProcessor;
 #pragma warning restore CS8618
 
@@ -111,16 +110,16 @@ namespace NetworkMonitor.Processor
                 }
             }
             var processorStates = new LocalProcessorStates();
-            ILocalCmdProcessorStates nmapCmdProcessorStates = new LocalNmapCmdProcessorStates();
-            ILocalCmdProcessorStates metaCmdProcessorStates = new LocalMetaCmdProcessorStates();
+            _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
+
+
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
+           _cmdProcessorFactory = new CmdProcessorFactory(loggerFactory, rabbitRepo, netConfig);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
-            _nmapCmdProcessor = new NmapCmdProcessor(loggerFactory.CreateLogger<NmapCmdProcessor>(), nmapCmdProcessorStates, rabbitRepo, netConfig);
-            _metaCmdProcessor = new MetaCmdProcessor(loggerFactory.CreateLogger<MetaCmdProcessor>(), metaCmdProcessorStates, rabbitRepo, netConfig);  
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
-            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates,_nmapCmdProcessor, _metaCmdProcessor);
+            IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates, _cmdProcessorFactory);
             AuthService authService;
             var resultListener = rabbitListener.SetupListener();
             var result = await _monitorPingProcessor.Init(new ProcessorInitObj());
