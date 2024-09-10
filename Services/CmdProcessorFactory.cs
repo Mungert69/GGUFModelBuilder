@@ -11,11 +11,13 @@ namespace NetworkMonitor.Processor.Services
         ICmdProcessor GetNmapProcessor();
         ICmdProcessor GetMetasploitProcessor();
         ICmdProcessor GetOpensslProcessor();
+        ICmdProcessor GetBusyboxProcessor();
         ILocalCmdProcessorStates NmapStates { get; }
 
         ILocalCmdProcessorStates MetasploitStates  { get; }
 
         ILocalCmdProcessorStates OpensslStates  { get; }
+        ILocalCmdProcessorStates BusyboxStates  { get; }
     }
 
     public class CmdProcessorFactory : ICmdProcessorProvider
@@ -27,22 +29,27 @@ namespace NetworkMonitor.Processor.Services
         private readonly ILocalCmdProcessorStates _nmapStates;
         private readonly ILocalCmdProcessorStates _metasploitStates;
         private readonly ILocalCmdProcessorStates _opensslStates;
+        private readonly ILocalCmdProcessorStates _busyboxStates;
 
         private ICmdProcessor _nmapProcessor;
         private ICmdProcessor _metasploitProcessor;
         private ICmdProcessor _opensslProcessor;
+        private ICmdProcessor _busyboxProcessor;
 
         public ILocalCmdProcessorStates NmapStates => _nmapStates;
 
         public ILocalCmdProcessorStates MetasploitStates => _metasploitStates;
 
         public ILocalCmdProcessorStates OpensslStates => _opensslStates;
+        public ILocalCmdProcessorStates BusyboxStates => _busyboxStates;
 
         public CmdProcessorFactory(ILoggerFactory loggerFactory, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
             : this(loggerFactory, rabbitRepo, netConfig,
                    new LocalNmapCmdProcessorStates(),
                    new LocalMetaCmdProcessorStates(),
-                   new LocalOpensslCmdProcessorStates())
+                   new LocalOpensslCmdProcessorStates(),
+                   new LocalBusyboxCmdProcessorStates()
+                   )
         {
           
         }
@@ -52,7 +59,9 @@ namespace NetworkMonitor.Processor.Services
             NetConnectConfig netConfig,
             ILocalCmdProcessorStates nmapStates,
             ILocalCmdProcessorStates metasploitStates,
-            ILocalCmdProcessorStates opensslStates)
+            ILocalCmdProcessorStates opensslStates,
+            ILocalCmdProcessorStates busyboxStates
+            )
         {
             _loggerFactory = loggerFactory;
             _rabbitRepo = rabbitRepo;
@@ -60,16 +69,20 @@ namespace NetworkMonitor.Processor.Services
             _nmapStates = nmapStates;
             _metasploitStates = metasploitStates;
             _opensslStates = opensslStates;
+            _busyboxStates = busyboxStates;
 
             // Create processors
             _nmapProcessor = CreateProcessor("nmap");
             _metasploitProcessor = CreateProcessor("metasploit");
             _opensslProcessor = CreateProcessor("openssl");
+            _busyboxProcessor = CreateProcessor("busybox");
         }
 
         public ICmdProcessor GetNmapProcessor() => _nmapProcessor;
         public ICmdProcessor GetMetasploitProcessor() => _metasploitProcessor;
         public ICmdProcessor GetOpensslProcessor() => _opensslProcessor;
+        public ICmdProcessor GetBusyboxProcessor() => _busyboxProcessor;
+
 
         private ICmdProcessor CreateProcessor(string processorType)
         {
@@ -95,6 +108,13 @@ namespace NetworkMonitor.Processor.Services
                     return new OpensslCmdProcessor(
                         _loggerFactory.CreateLogger<OpensslCmdProcessor>(),
                         OpensslStates,
+                        _rabbitRepo,
+                        _netConfig
+                    );
+                 case "busybox":
+                    return new BusyboxCmdProcessor(
+                        _loggerFactory.CreateLogger<BusyboxCmdProcessor>(),
+                        BusyboxStates,
                         _rabbitRepo,
                         _netConfig
                     );
