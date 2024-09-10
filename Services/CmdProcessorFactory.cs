@@ -3,30 +3,63 @@ using Microsoft.Extensions.Logging;
 using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Connection;
-
+using NetworkMonitor.Processor.Services;
 namespace NetworkMonitor.Processor.Services
 {
-     public interface ICmdProcessorProvider
+    public interface ICmdProcessorProvider
     {
         ICmdProcessor GetNmapProcessor();
         ICmdProcessor GetMetasploitProcessor();
         ICmdProcessor GetOpensslProcessor();
+        ILocalCmdProcessorStates NmapStates { get; }
+
+        ILocalCmdProcessorStates MetasploitStates  { get; }
+
+        ILocalCmdProcessorStates OpensslStates  { get; }
     }
+
     public class CmdProcessorFactory : ICmdProcessorProvider
     {
         private readonly ILoggerFactory _loggerFactory;
         private readonly IRabbitRepo _rabbitRepo;
         private readonly NetConnectConfig _netConfig;
 
+        private readonly ILocalCmdProcessorStates _nmapStates;
+        private readonly ILocalCmdProcessorStates _metasploitStates;
+        private readonly ILocalCmdProcessorStates _opensslStates;
+
         private ICmdProcessor _nmapProcessor;
         private ICmdProcessor _metasploitProcessor;
         private ICmdProcessor _opensslProcessor;
 
+        public ILocalCmdProcessorStates NmapStates => _nmapStates;
+
+        public ILocalCmdProcessorStates MetasploitStates => _metasploitStates;
+
+        public ILocalCmdProcessorStates OpensslStates => _opensslStates;
+
         public CmdProcessorFactory(ILoggerFactory loggerFactory, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+            : this(loggerFactory, rabbitRepo, netConfig,
+                   new LocalNmapCmdProcessorStates(),
+                   new LocalMetaCmdProcessorStates(),
+                   new LocalOpensslCmdProcessorStates())
+        {
+          
+        }
+        public CmdProcessorFactory(
+            ILoggerFactory loggerFactory,
+            IRabbitRepo rabbitRepo,
+            NetConnectConfig netConfig,
+            ILocalCmdProcessorStates nmapStates,
+            ILocalCmdProcessorStates metasploitStates,
+            ILocalCmdProcessorStates opensslStates)
         {
             _loggerFactory = loggerFactory;
             _rabbitRepo = rabbitRepo;
             _netConfig = netConfig;
+            _nmapStates = nmapStates;
+            _metasploitStates = metasploitStates;
+            _opensslStates = opensslStates;
 
             // Create processors
             _nmapProcessor = CreateProcessor("nmap");
@@ -43,40 +76,25 @@ namespace NetworkMonitor.Processor.Services
             switch (processorType.ToLower())
             {
                 case "nmap":
-                    var nmapStates = new LocalNmapCmdProcessorStates
-                    {
-                        CmdName = "nmap",
-                        CmdDisplayName = "Nmap"
-                    };
                     return new NmapCmdProcessor(
                         _loggerFactory.CreateLogger<NmapCmdProcessor>(),
-                        nmapStates,
+                        NmapStates,
                         _rabbitRepo,
                         _netConfig
                     );
 
                 case "metasploit":
-                    var metaStates = new LocalMetaCmdProcessorStates
-                    {
-                        CmdName = "msfconsole",
-                        CmdDisplayName = "Metasploit"
-                    };
                     return new MetaCmdProcessor(
                         _loggerFactory.CreateLogger<MetaCmdProcessor>(),
-                        metaStates,
+                        MetasploitStates,
                         _rabbitRepo,
                         _netConfig
                     );
 
                 case "openssl":
-                    var opensslStates = new LocalOpensslCmdProcessorStates
-                    {
-                        CmdName = "openssl",
-                        CmdDisplayName = "OpenSSL"
-                    };
                     return new OpensslCmdProcessor(
                         _loggerFactory.CreateLogger<OpensslCmdProcessor>(),
-                        opensslStates,
+                        OpensslStates,
                         _rabbitRepo,
                         _netConfig
                     );
@@ -87,3 +105,4 @@ namespace NetworkMonitor.Processor.Services
         }
     }
 }
+
