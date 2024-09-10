@@ -168,6 +168,12 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorOpensslCommand",
                 MessageTimeout = 6000000
             });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorBusyboxCommand" + _netConfig.AppID,
+                FuncName = "processorBusyboxCommand",
+                MessageTimeout = 6000000
+            });
         }
         protected override ResultObj DeclareConsumers()
         {
@@ -391,6 +397,21 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                             case "processorBusyboxCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                        {
+                            try
+                            {
+                                _ =  ProcessorBusyboxCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorBusyboxCommand " + ex.Message);
+                            }
+                        };
+                            break;
                     }
                 }
             });
@@ -599,6 +620,46 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
+   public async Task<ResultObj> ProcessorBusyboxCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorBusyboxCommand : ";
+            if (_cmdProcessorProvider.GetBusyboxProcessor() == null)
+            {
+                result.Success = false;
+                result.Message += "Error : Busybox processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cts = new CancellationTokenSource();
+                _logger.LogWarning($"{result.Message} Running Busybox Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await _cmdProcessorProvider.GetBusyboxProcessor().QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran Busybox command. Command Result: " + commandResult.Message;
+
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run Busybox Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+     
         public async Task<ResultObj> ProcessorOpensslCommand(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();
