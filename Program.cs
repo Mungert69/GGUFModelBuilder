@@ -50,8 +50,9 @@ namespace NetworkMonitor.Processor
 
 
 
-
-            var netConfig = new NetConnectConfig(config);
+ string appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+       
+            var netConfig = new NetConnectConfig(config, appDataDirectory);
             using var loggerFactory = LoggerFactory.Create(builder =>
                   {
                       builder
