@@ -74,7 +74,7 @@ namespace NetworkMonitor.Processor.Services
             vpo.Width = 1920;
             vpo.Height = 1280;
             // Define the path where Chromium will be downloaded (create "chrome-bin" folder in the current directory)
-            var downloadPath = Path.Combine(Directory.GetCurrentDirectory(), "chrome-bin");
+            var downloadPath = Path.Combine(_netConfig.CommandPath, "chrome-bin");
 
             // Create the directory if it doesn't exist
             if (!Directory.Exists(downloadPath))
