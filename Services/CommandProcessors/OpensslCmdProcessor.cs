@@ -40,26 +40,18 @@ namespace NetworkMonitor.Processor.Services
                     return result;
 
                 }
-                string nmapPath = "";
-                if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
-                {
-                    nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
-                    if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                    {
-                        nmapPath += Path.DirectorySeparatorChar;
-                    }
-                }
+              
 
                 using (var process = new Process())
                 {
-                    process.StartInfo.FileName = nmapPath + _cmdProcessorStates.CmdName;
+                    process.StartInfo.FileName = _netConfig.CommandPath + _cmdProcessorStates.CmdName;
                     process.StartInfo.Arguments = arguments;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
                     process.StartInfo.EnvironmentVariables["LD_LIBRARY_PATH"] = _netConfig.OqsProviderPath;
                     process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.WorkingDirectory = nmapPath;
+                    process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
 
                     // Start the process
                     process.Start();

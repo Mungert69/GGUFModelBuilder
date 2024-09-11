@@ -174,6 +174,18 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorBusyboxCommand",
                 MessageTimeout = 6000000
             });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorSearchWebCommand" + _netConfig.AppID,
+                FuncName = "processorSearchWebCommand",
+                MessageTimeout = 6000000
+            });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorCrawlPageCommand" + _netConfig.AppID,
+                FuncName = "processorCrawlPageCommand",
+                MessageTimeout = 6000000
+            });
         }
         protected override ResultObj DeclareConsumers()
         {
@@ -397,6 +409,7 @@ namespace NetworkMonitor.Objects.Repository
                             }
                         };
                             break;
+                            
                              case "processorBusyboxCommand":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
                             rabbitMQObj.Consumer.Received += (model, ea) =>
@@ -409,6 +422,36 @@ namespace NetworkMonitor.Objects.Repository
                             catch (Exception ex)
                             {
                                 _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorBusyboxCommand " + ex.Message);
+                            }
+                        };
+                            break;
+                              case "processorSearchWebCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                        {
+                            try
+                            {
+                                _ =  ProcessorSearchWebCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorSearchWebCommand " + ex.Message);
+                            }
+                        };
+                            break;
+                              case "processorCrawlPageCommand":
+                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                        {
+                            try
+                            {
+                                _ =  ProcessorCrawlPageCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlPageCommand " + ex.Message);
                             }
                         };
                             break;
@@ -659,6 +702,88 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
+
+        public async Task<ResultObj> ProcessorSearchWebCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorSearchWebCommand : ";
+            if (_cmdProcessorProvider.GetSearchWebProcessor() == null)
+            {
+                result.Success = false;
+                result.Message += "Error : SearchWeb processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cts = new CancellationTokenSource();
+                _logger.LogWarning($"{result.Message} Running SearchWeb Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await _cmdProcessorProvider.GetSearchWebProcessor().QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran SearchWeb command. Command Result: " + commandResult.Message;
+
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run SearchWeb Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+   
+
+   public async Task<ResultObj> ProcessorCrawlPageCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorCrawlPageCommand : ";
+            if (_cmdProcessorProvider.GetCrawlPageProcessor() == null)
+            {
+                result.Success = false;
+                result.Message += "Error : CrawlPage processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                var cts = new CancellationTokenSource();
+                _logger.LogWarning($"{result.Message} Running CrawlPage Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await _cmdProcessorProvider.GetCrawlPageProcessor().QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran CrawlPage command. Command Result: " + commandResult.Message;
+
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run CrawlPage Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+   
      
         public async Task<ResultObj> ProcessorOpensslCommand(ProcessorScanDataObj? processorScanDataObj)
         {

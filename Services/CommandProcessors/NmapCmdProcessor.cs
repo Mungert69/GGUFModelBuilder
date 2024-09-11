@@ -156,29 +156,20 @@ namespace NetworkMonitor.Processor.Services
                     return result;
 
                 }
-                string nmapPath = "";
-                if (!String.IsNullOrEmpty(_netConfig.OqsProviderPath) && !_netConfig.OqsProviderPath.Equals("/usr/local/lib/"))
-                {
-                    nmapPath = _netConfig.OqsProviderPath.Replace("lib64", "bin");
-                    if (!nmapPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                    {
-                        nmapPath += Path.DirectorySeparatorChar;
-                    }
-                }
-               // string nmapDataDir = nmapPath.Replace("bin", "share/nmap");
+               
                 string xmlOutput = "";
                 if (processorScanDataObj == null) xmlOutput = " -oX -";
                 else xmlOutput = " -oG - ";
                 using (var process = new Process())
                 {
-                    process.StartInfo.FileName = nmapPath + "nmap";
+                    process.StartInfo.FileName = _netConfig.CommandPath + "nmap";
                     process.StartInfo.Arguments = arguments + xmlOutput;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
                     process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
 
                     process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.WorkingDirectory = nmapPath;
+                    process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
 
                     // Start the process
                     process.Start();
