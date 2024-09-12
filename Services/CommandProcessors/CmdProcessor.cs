@@ -339,7 +339,7 @@ namespace NetworkMonitor.Processor.Services
                         output += Environment.NewLine + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
                     }
 
-                    string jsonString = JsonSerializer.Serialize(output);
+                    /*string jsonString = JsonSerializer.Serialize(output);
                     if (jsonString.StartsWith("\""))
                     {
                         jsonString = jsonString.Substring(1);
@@ -349,8 +349,8 @@ namespace NetworkMonitor.Processor.Services
                     if (jsonString.EndsWith("\""))
                     {
                         jsonString = jsonString.Substring(0, jsonString.Length - 1);
-                    }
-                    processorScanDataObj.ScanCommandOutput = jsonString;
+                    }*/
+                    processorScanDataObj.ScanCommandOutput = output;
                     await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
                     _logger.LogInformation($" Success : sending with MessageID {processorScanDataObj.MessageID} output : {processorScanDataObj.ScanCommandOutput}");
                 }

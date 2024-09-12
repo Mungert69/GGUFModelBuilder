@@ -108,16 +108,15 @@ namespace NetworkMonitor.Processor.Services
 
                 await browser.CloseAsync();
                 _logger.LogInformation("Browser closed.");
-                var jsonBuilder = new StringBuilder();
-                jsonBuilder.Append("[");
+                var strBuilder = new StringBuilder();
+
                 for (int i = 0; i < urls.Length; i++)
                 {
-                    jsonBuilder.Append($"\"{urls[i]}\"");
-                    if (i < urls.Length - 1) jsonBuilder.Append(", ");
+                    strBuilder.Append(urls[i]);
+                    if (i < urls.Length - 1) strBuilder.Append("\n");
                 }
-                jsonBuilder.Append("]");
 
-                jsonResult = jsonBuilder.ToString();
+                jsonResult = strBuilder.ToString();
 
             }
             return jsonResult;
