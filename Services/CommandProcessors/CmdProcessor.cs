@@ -329,14 +329,14 @@ namespace NetworkMonitor.Processor.Services
                     // Get the lines for the current page
                     var paginatedLines = lines.Skip(startLineIndex).Take(endLineIndex - startLineIndex);
 
-                    output = string.Join(Environment.NewLine, paginatedLines);
+                    output = string.Join("\n", paginatedLines);
 
                     // Add a footer with pagination information
-                    output += Environment.NewLine + $" [Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
+                    output += "\n" + $" [Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
 
                     if (processorScanDataObj.Page < totalPages)
                     {
-                        output += Environment.NewLine + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
+                        output += "\n" + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
                     }
 
                     /*string jsonString = JsonSerializer.Serialize(output);
