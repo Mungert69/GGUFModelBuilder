@@ -222,11 +222,11 @@ namespace NetworkMonitor.Processor.Services
                     return result;
 
                 }
-               
+
 
                 using (var process = new Process())
                 {
-                    process.StartInfo.FileName = _netConfig.CommandPath+ _cmdProcessorStates.CmdName;
+                    process.StartInfo.FileName = _netConfig.CommandPath + _cmdProcessorStates.CmdName;
                     process.StartInfo.Arguments = arguments;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
@@ -329,17 +329,22 @@ namespace NetworkMonitor.Processor.Services
                     // Get the lines for the current page
                     var paginatedLines = lines.Skip(startLineIndex).Take(endLineIndex - startLineIndex);
 
-                    output = string.Join("\n", paginatedLines);
+                    output = string.Join(" \n ", paginatedLines);
 
                     // Add a footer with pagination information
-                    output += "\n" + $" [Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
+                    output += " \n " + $" [Showing page {processorScanDataObj.Page} of {totalPages}. Total lines: {totalLines}.]";
 
                     if (processorScanDataObj.Page < totalPages)
                     {
-                        output += "\n" + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
+                        output += " \n " + $" [Output truncated to {processorScanDataObj.LineLimit} lines per page. There is more data on other pages. If you want to see more data choose another page of data to view. If there is a large amount of data to view consider refining the query to return less data.]";
                     }
+                    var options = new JsonSerializerOptions
+                    {
+                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    };
 
-                    /*string jsonString = JsonSerializer.Serialize(output);
+                    string jsonString = JsonSerializer.Serialize(output, options);
+                    //string jsonString = JsonSerializer.Serialize(output);
                     if (jsonString.StartsWith("\""))
                     {
                         jsonString = jsonString.Substring(1);
@@ -349,8 +354,8 @@ namespace NetworkMonitor.Processor.Services
                     if (jsonString.EndsWith("\""))
                     {
                         jsonString = jsonString.Substring(0, jsonString.Length - 1);
-                    }*/
-                    processorScanDataObj.ScanCommandOutput = output;
+                    }
+                    processorScanDataObj.ScanCommandOutput = jsonString;
                     await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService, processorScanDataObj);
                     _logger.LogInformation($" Success : sending with MessageID {processorScanDataObj.MessageID} output : {processorScanDataObj.ScanCommandOutput}");
                 }
