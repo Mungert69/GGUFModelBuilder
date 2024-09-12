@@ -50,8 +50,19 @@ namespace NetworkMonitor.Processor
 
 
 
- string appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-       
+            string appDataDirectory;
+
+            if (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true")
+            {
+                // Set your custom directory for the Docker environment
+                appDataDirectory = "";
+            }
+            else
+            {
+                // Fallback to the regular path on non-containerized environments
+                appDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            }
+
             var netConfig = new NetConnectConfig(config, appDataDirectory);
             using var loggerFactory = LoggerFactory.Create(builder =>
                   {
@@ -116,7 +127,7 @@ namespace NetworkMonitor.Processor
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();
-            _cmdProcessorProvider = new CmdProcessorFactory(loggerFactory,rabbitRepo,netConfig);
+            _cmdProcessorProvider = new CmdProcessorFactory(loggerFactory, rabbitRepo, netConfig);
             // _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), oqsProviderPath: netConfig.OqsProviderPath);
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates, _cmdProcessorProvider);

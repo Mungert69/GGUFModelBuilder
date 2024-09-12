@@ -69,49 +69,9 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.LogInformation("Starting browser...");
 
-            // Set browser options
-           ViewPortOptions vpo = new ViewPortOptions();
-            vpo.Width = 1920;
-            vpo.Height = 1280;
-            // Define the path where Chromium will be downloaded (create "chrome-bin" folder in the current directory)
-            var downloadPath = Path.Combine(_netConfig.CommandPath, "chrome-bin");
-
-            // Create the directory if it doesn't exist
-            if (!Directory.Exists(downloadPath))
-            {
-                Directory.CreateDirectory(downloadPath);
-            }
-
-            var bfo = new BrowserFetcherOptions
-            {
-                Path = downloadPath // Set the download path to "chrome-bin"
-            };
-
-            _logger.LogInformation($"Chromium path is {bfo.Path}");
-            var browserFetcher = new BrowserFetcher(bfo);
-
-            // Check if the executable path exists
-            string chromiumPath = Path.Combine(bfo.Path, "Chrome"); // Path to Chrome on Windows
-            if (!Directory.Exists(chromiumPath))
-            {
-                _logger.LogInformation($"Chromium not found. Downloading...");
-                await browserFetcher.DownloadAsync();
-            }
-            else
-            {
-                _logger.LogInformation($"Chromium revision already downloaded.");
-            }
-            var lo = new LaunchOptions()
-            {
-                Headless = true,
-                DefaultViewport = vpo,
-
-            };
-            
-
-            // Launch browser
+           var lo=await LaunchHelper.GetLauncher(_netConfig, _logger);
             using (var browser = await Puppeteer.LaunchAsync(lo))
-            {
+            {      // Browser actions here
                 var page = await browser.NewPageAsync();
 
                 _logger.LogInformation($"Navigating to {url}");
