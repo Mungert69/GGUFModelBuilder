@@ -65,7 +65,7 @@ namespace NetworkMonitor.Processor.Services
             await Task.Delay(delay);
         }
 
-       private async Task<string> ExtractContent(string url)
+ private async Task<string> ExtractContent(string url)
 {
     _logger.LogInformation("Starting browser...");
 
@@ -83,8 +83,15 @@ namespace NetworkMonitor.Processor.Services
         _logger.LogInformation("Waiting for page content to load...");
         await page.WaitForSelectorAsync("body");
 
-        // Extract text content with inline links, excluding script, style, and img tags
+        // Check for and handle cookie consent popups
+        await HandleCookieConsent(page);
+
+        _logger.LogInformation("Extracting content...");
+        
+        // Extract text content with inline links, excluding cookie and privacy-related elements
         var content = await page.EvaluateFunctionAsync<string>(@"() => {
+            const unwantedKeywords = ['cookies', 'privacy', 'consent', 'accept', 'reject'];
+
             const getTextWithLinks = (node) => {
                 let text = '';
                 if (node.nodeType === Node.TEXT_NODE) {
@@ -95,9 +102,17 @@ namespace NetworkMonitor.Processor.Services
                         node.nodeName === 'FOOTER' || node.nodeName === 'NAV') {
                         return '';
                     }
+
+                    // Check if element contains cookie-related keywords
+                    const elementText = node.innerText || '';
+                    if (unwantedKeywords.some(keyword => elementText.toLowerCase().includes(keyword))) {
+                        return '';
+                    }
+
                     if (node.nodeName === 'A') {
                         return `[${node.textContent}](${node.href})`;
                     }
+
                     for (let child of node.childNodes) {
                         text += getTextWithLinks(child);
                     }
@@ -115,10 +130,55 @@ namespace NetworkMonitor.Processor.Services
             return getTextWithLinks(document.body).replace(/\s\s+/g, ' ').trim();
         }");
 
+        // Check if the extracted content is mostly cookie-related
+        if (string.IsNullOrWhiteSpace(content) || 
+            content.Split(' ').Length < 50 ||   // If content has too few words, assume it's not useful
+            content.ToLower().Contains("cookies"))  // Check if cookies are still mentioned
+        {
+            _logger.LogWarning("Page content is mostly cookie notifications.");
+            return "No useful content found, mostly cookie or privacy-related text.";
+        }
+
         _logger.LogInformation("Page content extracted.");
         return content;
     }
 }
+
+// Helper function to handle cookie consent
+private async Task HandleCookieConsent(IPage page)
+{
+    _logger.LogInformation("Checking for cookie consent popup...");
+
+    // Common selectors for cookie banners
+    var cookieSelectors = new[]
+    {
+        "button#accept-cookies",           // Example: Cookie banner with accept button
+        "button.cookie-consent-accept",    // Example: Another potential button
+        "div.cookie-banner button",        // Generic selector for cookie consent
+        "button[title='Accept Cookies']",  // Example: Title attribute for acceptance
+    };
+
+    foreach (var selector in cookieSelectors)
+    {
+        try
+        {
+            var button = await page.QuerySelectorAsync(selector);
+            if (button != null)
+            {
+                _logger.LogInformation("Cookie consent button found, clicking...");
+                await button.ClickAsync();
+                await page.WaitForNavigationAsync();  // Wait for any potential page reload
+                _logger.LogInformation("Cookie consent accepted.");
+                break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Failed to handle cookie consent: {ex.Message}");
+        }
+    }
+}
+
 
 
     }
