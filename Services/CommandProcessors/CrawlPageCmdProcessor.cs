@@ -65,34 +65,34 @@ namespace NetworkMonitor.Processor.Services
             await Task.Delay(delay);
         }
 
-        private async Task<string> ExtractContent(string url)
-        {
-            _logger.LogInformation("Starting browser...");
+       private async Task<string> ExtractContent(string url)
+{
+    _logger.LogInformation("Starting browser...");
 
-            var lo = await LaunchHelper.GetLauncher(_netConfig, _logger);
-            using (var browser = await Puppeteer.LaunchAsync(lo))
-            {
-                var page = await browser.NewPageAsync();
+    var lo = await LaunchHelper.GetLauncher(_netConfig, _logger);
+    using (var browser = await Puppeteer.LaunchAsync(lo))
+    {
+        var page = await browser.NewPageAsync();
 
-                _logger.LogInformation($"Navigating to {url}");
-                await page.GoToAsync(url);
+        _logger.LogInformation($"Navigating to {url}");
+        await page.GoToAsync(url);
 
-                // Wait for a random delay to mimic human browsing
-                await RandomDelay(2000, 5000);
+        // Wait for a random delay to mimic human browsing
+        await RandomDelay(2000, 5000);
 
-                _logger.LogInformation("Waiting for page content to load...");
-                await page.WaitForSelectorAsync("body");
+        _logger.LogInformation("Waiting for page content to load...");
+        await page.WaitForSelectorAsync("body");
 
-                // Extract meaningful content, skipping header, footer, and navigation
-                var content = await page.EvaluateFunctionAsync<string>(@"() => {
+        // Extract text content with inline links, excluding script, style, and img tags
+        var content = await page.EvaluateFunctionAsync<string>(@"() => {
             const getTextWithLinks = (node) => {
                 let text = '';
                 if (node.nodeType === Node.TEXT_NODE) {
                     return node.textContent;
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || 
-                        node.nodeName === 'HEADER' || node.nodeName === 'FOOTER' || 
-                        node.nodeName === 'NAV') {
+                        node.nodeName === 'IMG' || node.nodeName === 'HEADER' || 
+                        node.nodeName === 'FOOTER' || node.nodeName === 'NAV') {
                         return '';
                     }
                     if (node.nodeName === 'A') {
@@ -115,10 +115,11 @@ namespace NetworkMonitor.Processor.Services
             return getTextWithLinks(document.body).replace(/\s\s+/g, ' ').trim();
         }");
 
-                _logger.LogInformation("Page content extracted.");
-                return content;
-            }
-        }
+        _logger.LogInformation("Page content extracted.");
+        return content;
+    }
+}
+
 
     }
 
