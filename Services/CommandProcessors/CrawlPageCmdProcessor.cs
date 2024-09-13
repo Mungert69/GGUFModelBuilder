@@ -69,9 +69,9 @@ namespace NetworkMonitor.Processor.Services
         {
             _logger.LogInformation("Starting browser...");
 
-           var lo=await LaunchHelper.GetLauncher(_netConfig, _logger);
+            var lo = await LaunchHelper.GetLauncher(_netConfig, _logger);
             using (var browser = await Puppeteer.LaunchAsync(lo))
-            {      // Browser actions here
+            {
                 var page = await browser.NewPageAsync();
 
                 _logger.LogInformation($"Navigating to {url}");
@@ -83,33 +83,37 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation("Waiting for page content to load...");
                 await page.WaitForSelectorAsync("body");
 
-                // Extract text content with inline links, excluding script and style tags
+                // Extract meaningful content, skipping header, footer, and navigation
                 var content = await page.EvaluateFunctionAsync<string>(@"() => {
-                // Function to recursively get text from nodes
-                const getTextWithLinks = (node) => {
-                    let text = '';
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        return node.textContent;
-                    } else if (node.nodeType === Node.ELEMENT_NODE) {
-                        if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE') {
-                            return '';
-                        }
-                        if (node.nodeName === 'A') {
-                            return `[${node.textContent}](${node.href})`;
-                        }
-                        // Process child nodes
-                        for (let child of node.childNodes) {
-                            text += getTextWithLinks(child);
-                        }
+            const getTextWithLinks = (node) => {
+                let text = '';
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.nodeName === 'SCRIPT' || node.nodeName === 'STYLE' || 
+                        node.nodeName === 'HEADER' || node.nodeName === 'FOOTER' || 
+                        node.nodeName === 'NAV') {
+                        return '';
                     }
-                    return text;
-                };
+                    if (node.nodeName === 'A') {
+                        return `[${node.textContent}](${node.href})`;
+                    }
+                    for (let child of node.childNodes) {
+                        text += getTextWithLinks(child);
+                    }
+                }
+                return text;
+            };
 
-                // Start from the body element
-                return getTextWithLinks(document.body)
-                    .replace(/\s\s+/g, ' ')  // Remove excessive whitespace
-                    .trim();
-            }");
+            // Target the main content area (article, main)
+            const mainContent = document.querySelector('article, main');
+            if (mainContent) {
+                return getTextWithLinks(mainContent).replace(/\s\s+/g, ' ').trim();
+            }
+
+            // Fallback to body if main content not found
+            return getTextWithLinks(document.body).replace(/\s\s+/g, ' ').trim();
+        }");
 
                 _logger.LogInformation("Page content extracted.");
                 return content;
