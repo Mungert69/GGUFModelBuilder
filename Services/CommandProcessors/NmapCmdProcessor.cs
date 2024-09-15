@@ -23,7 +23,7 @@ namespace NetworkMonitor.Processor.Services
         public NmapCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
 : base(logger, cmdProcessorStates, rabbitRepo, netConfig)
         {
-           
+
         }
 
 
@@ -156,13 +156,17 @@ namespace NetworkMonitor.Processor.Services
                     return result;
 
                 }
-               
+
                 string xmlOutput = "";
                 if (processorScanDataObj == null) xmlOutput = " -oX -";
                 else xmlOutput = " -oG - ";
+                string extraArg = "";
+#if ANDROID
+extraArg=" --system-dns ";
+#endif
                 using (var process = new Process())
                 {
-                    process.StartInfo.FileName = _netConfig.CommandPath + "nmap";
+                    process.StartInfo.FileName = _netConfig.CommandPath + "nmap" + extraArg;
                     process.StartInfo.Arguments = arguments + xmlOutput;
                     process.StartInfo.UseShellExecute = false;
                     process.StartInfo.RedirectStandardOutput = true;
@@ -264,13 +268,14 @@ namespace NetworkMonitor.Processor.Services
                 foreach (var service in services)
                 {
                     _cmdProcessorStates.ActiveDevices.Add(service);
-                     message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
+                    message = $"Added service: {service.Address} on port {service.Port} for host {host} using endpoint type {service.EndPointType}\n";
                     _cmdProcessorStates.CompletedMessage += message;
                     _logger.LogInformation(message);
 
                 }
             }
-            else {
+            else
+            {
                 message = $" Error : Failed to add services. {result.Message}";
                 _cmdProcessorStates.CompletedMessage += message;
                 _logger.LogInformation(message);
