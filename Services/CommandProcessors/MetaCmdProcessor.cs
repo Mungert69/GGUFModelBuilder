@@ -72,16 +72,20 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
         {
+            string msfPath = "";
+#if WINDOWS
+            msfPath="C:\\metasploit-framework\\bin\\";
+#endif
             //string msfconsolePath = _netConfig.MsfconsolePath;
             using (var process = new Process())
             {
-                process.StartInfo.FileName = _cmdProcessorStates.CmdName; // Path to the Metasploit console executable
+                process.StartInfo.FileName = msfPath + _cmdProcessorStates.CmdName; // Path to the Metasploit console executable
                 process.StartInfo.Arguments = arguments; // Executes the command
 
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
-
+                process.StartInfo.WorkingDirectory = msfPath;
                 process.StartInfo.CreateNoWindow = true;
 
                 process.Start();
