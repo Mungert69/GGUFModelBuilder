@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Threading;
 using NetworkMonitor.Service.Services.OpenAI;
+using System.Text;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -53,8 +54,28 @@ namespace NetworkMonitor.Processor.Services
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
 
-                    // Start the process
+                    var outputBuilder = new StringBuilder();
+                    var errorBuilder = new StringBuilder();
+
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            outputBuilder.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            errorBuilder.AppendLine(e.Data);
+                        }
+                    };
+
                     process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
                     // Register a callback to kill the process if cancellation is requested
                     using (cancellationToken.Register(() =>
@@ -66,21 +87,17 @@ namespace NetworkMonitor.Processor.Services
                         }
                     }))
                     {
-                        // Read the output asynchronously, supporting cancellation
-                        output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                        //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-                        // Capture standard error
-                        string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                        // Wait for the process to exit or the cancellation token to be triggered
+                        await process.WaitForExitAsync(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested(); // Check if cancelled before processing output
+
+                        output = outputBuilder.ToString();
+                        string errorOutput = errorBuilder.ToString();
 
                         if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
                         {
-                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
+                            output = $"Error: {errorOutput}. \n {output}";
                         }
-                        // Wait for the process to exit
-                        await process.WaitForExitAsync().ConfigureAwait(false);
-
-                        // Throw if cancellation was requested after the process started
-                        cancellationToken.ThrowIfCancellationRequested();
                         result.Success = true;
                     }
                 }

@@ -163,6 +163,8 @@ namespace NetworkMonitor.Processor.Services
         extraArg = " --system-dns ";
 #endif
 
+
+
                 using var process = new Process();
                 process.StartInfo.FileName = _netConfig.CommandPath + "nmap" + extraArg;
                 process.StartInfo.Arguments = arguments + xmlOutput;

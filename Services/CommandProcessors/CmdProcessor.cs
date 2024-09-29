@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Threading;
 using System.Text.Json;
+using System.Text;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -148,23 +149,24 @@ namespace NetworkMonitor.Processor.Services
             // return await tcs.Task; // Return the Task<string> that will complete once the command finishes
         }
 
-
         private async Task ProcessQueueAsync()
         {
-            if (_currentQueue.TryDequeue(out var commandTask))
+            var tasks = new List<Task>();
+
+            while (_currentQueue.TryDequeue(out var commandTask))
             {
                 if (!commandTask.IsRunning)
                 {
                     await _semaphore.WaitAsync(); // Wait for a semaphore slot to be available
+                    commandTask.IsRunning = true;
 
-                    commandTask.IsRunning = true; // Mark the task as running
-
+                    // Launch a task without awaiting it directly
                     var task = Task.Run(async () =>
                     {
                         try
                         {
-                            await commandTask.TaskFunc(); // Await the task execution
-                            commandTask.IsSuccessful = true; // Mark the task as successful
+                            await commandTask.TaskFunc();
+                            commandTask.IsSuccessful = true;
                         }
                         catch (OperationCanceledException)
                         {
@@ -176,21 +178,26 @@ namespace NetworkMonitor.Processor.Services
                         }
                         finally
                         {
-                            commandTask.IsRunning = false; // Mark the task as not running
+                            commandTask.IsRunning = false;
                             _semaphore.Release(); // Release the semaphore slot
                         }
                     });
 
-                    // Await the task to handle completion and errors
-                    await task;
+                    tasks.Add(task);
                 }
+            }
+
+            if (tasks.Count > 0)
+            {
+                await Task.WhenAny(tasks); // Optionally wait for the first task to finish, or use Task.WhenAll for all
             }
             else
             {
-                // No tasks available, briefly delay to prevent tight loop
+                // If no tasks, briefly delay to prevent tight loop
                 await Task.Delay(1000);
             }
         }
+
 
 
         public async Task CancelCommand(string messageId)
@@ -237,8 +244,28 @@ namespace NetworkMonitor.Processor.Services
                     process.StartInfo.CreateNoWindow = true;
                     process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
 
-                    // Start the process
+                    var outputBuilder = new StringBuilder();
+                    var errorBuilder = new StringBuilder();
+
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            outputBuilder.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            errorBuilder.AppendLine(e.Data);
+                        }
+                    };
+
                     process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
                     // Register a callback to kill the process if cancellation is requested
                     using (cancellationToken.Register(() =>
@@ -250,21 +277,17 @@ namespace NetworkMonitor.Processor.Services
                         }
                     }))
                     {
-                        // Read the output asynchronously, supporting cancellation
-                        output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                        //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-                        // Capture standard error
-                        string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                        // Wait for the process to exit or the cancellation token to be triggered
+                        await process.WaitForExitAsync(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested(); // Check if cancelled before processing output
+
+                        output = outputBuilder.ToString();
+                        string errorOutput = errorBuilder.ToString();
 
                         if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
                         {
-                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
+                            output = $"Error: {errorOutput}. \n {output}";
                         }
-                        // Wait for the process to exit
-                        await process.WaitForExitAsync().ConfigureAwait(false);
-
-                        // Throw if cancellation was requested after the process started
-                        cancellationToken.ThrowIfCancellationRequested();
                         result.Success = true;
                     }
                 }
