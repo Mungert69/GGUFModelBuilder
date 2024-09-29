@@ -606,7 +606,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 //CancellationToken cancellationToken = cancellationTokenSource.Token;
                 _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
                 await _cmdProcessorProvider.GetNmapProcessor().QueueCommand( cts, processorScanDataObj);
@@ -646,7 +647,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await _cmdProcessorProvider.GetMetasploitProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult.Message;
@@ -686,7 +688,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 _logger.LogWarning($"{result.Message} Running Busybox Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await _cmdProcessorProvider.GetBusyboxProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran Busybox command. Command Result: " + commandResult.Message;
@@ -726,7 +729,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 _logger.LogWarning($"{result.Message} Running SearchWeb Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await _cmdProcessorProvider.GetSearchWebProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran SearchWeb command. Command Result: " + commandResult.Message;
@@ -767,7 +771,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 _logger.LogWarning($"{result.Message} Running CrawlPage Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await _cmdProcessorProvider.GetCrawlPageProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran CrawlPage command. Command Result: " + commandResult.Message;
@@ -808,7 +813,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                var cts = new CancellationTokenSource();
+                TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
                 _logger.LogWarning($"{result.Message} Running Openssl Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await _cmdProcessorProvider.GetOpensslProcessor().QueueCommand(cts, processorScanDataObj);
                 result.Message += "Success: Ran Openssl command. Command Result: " + commandResult.Message;

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -149,75 +150,98 @@ namespace NetworkMonitor.Processor.Services
             {
                 if (!_cmdProcessorStates.IsCmdAvailable)
                 {
-                    _logger.LogWarning(" Warning : Nmap is not enabled or installed on this agent.");
+                    _logger.LogWarning("Warning: Nmap is not enabled or installed on this agent.");
                     output = "Nmap is not available on this agent. Try installing the Quantum Secure Agent or select an agent that has Nmap enabled.\n";
                     result.Message = await SendMessage(output, processorScanDataObj);
                     result.Success = false;
                     return result;
-
                 }
 
-                string xmlOutput = "";
-                if (processorScanDataObj == null) xmlOutput = " -oX -";
-                else xmlOutput = " -oG - ";
+                string xmlOutput = processorScanDataObj == null ? " -oX -" : " -oG - ";
                 string extraArg = "";
 #if ANDROID
-extraArg=" --system-dns ";
+        extraArg = " --system-dns ";
 #endif
-                using (var process = new Process())
+
+                using var process = new Process();
+                process.StartInfo.FileName = _netConfig.CommandPath + "nmap" + extraArg;
+                process.StartInfo.Arguments = arguments + xmlOutput;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
+
+                var outputBuilder = new StringBuilder();
+                var errorBuilder = new StringBuilder();
+
+                process.OutputDataReceived += (sender, e) =>
                 {
-                    process.StartInfo.FileName = _netConfig.CommandPath + "nmap" + extraArg;
-                    process.StartInfo.Arguments = arguments + xmlOutput;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
-
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
-
-                    // Start the process
-                    process.Start();
-
-                    // Register a callback to kill the process if cancellation is requested
-                    using (cancellationToken.Register(() =>
+                    if (e.Data != null)
                     {
-                        if (!process.HasExited)
+                        outputBuilder.AppendLine(e.Data);
+                    }
+                };
+
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        errorBuilder.AppendLine(e.Data);
+                    }
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                using (cancellationToken.Register(() =>
+                {
+                    if (!process.HasExited)
+                    {
+                        _logger.LogInformation("Cancellation requested, killing the Nmap process...");
+                        try
                         {
-                            _logger.LogInformation("Cancellation requested, killing the Nmap process...");
                             process.Kill();
                         }
-                    }))
-                    {
-                        // Read the output asynchronously, supporting cancellation
-                        output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                        //output += " "+await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-                        // Capture standard error
-                        string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-                        if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
+                        catch (Exception ex)
                         {
-                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
+                            _logger.LogError($"Error killing process: {ex.Message}");
                         }
-                        // Wait for the process to exit
-                        await process.WaitForExitAsync().ConfigureAwait(false);
-
-                        // Throw if cancellation was requested after the process started
-                        cancellationToken.ThrowIfCancellationRequested();
-                        result.Success = true;
                     }
+                }))
+                {
+                    // Wait for the process to exit or the cancellation token to be triggered
+                    await process.WaitForExitAsync(cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested(); // Check if cancelled before processing output
+
+                    output = outputBuilder.ToString();
+                    string errorOutput = errorBuilder.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
+                    {
+                        output = $"Error: {errorOutput}. \n {output}";
+                    }
+
+                    result.Success = true;
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Nmap command was cancelled.");
+                output += "Nmap command was cancelled.\n";
+                result.Success = false;
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error : running nmap command. Errro was : {e.Message}");
-                output += $"Error : running nmap command. Error was : {e.Message}\n";
+                _logger.LogError($"Error running Nmap command: {e.Message}");
+                output += $"Error running Nmap command: {e.Message}\n";
                 result.Success = false;
             }
+
             result.Message = output;
             return result;
         }
-
-
         private List<string> ParseNmapOutputOld(string output)
         {
             var hosts = new List<string>();
