@@ -123,7 +123,7 @@ namespace NetworkMonitor.Processor
             }
             var processorStates = new LocalProcessorStates();
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), netConfig: netConfig);
-            _connectFactory.SetupChromium(netConfig);
+           _ = _connectFactory.SetupChromium(netConfig);
             //ISystemParamsHelper systemParamsHelper = new SystemParamsHelper(config, loggerFactory.CreateLogger<SystemParamsHelper>());
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
             await rabbitRepo.ConnectAndSetUp();

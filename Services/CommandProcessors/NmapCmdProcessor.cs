@@ -266,7 +266,11 @@ namespace NetworkMonitor.Processor.Services
                 var addressElement = hostElement.Descendants("address").FirstOrDefault(a => a.Attribute("addrtype")?.Value == "ipv4");
                 if (addressElement != null)
                 {
-                    hosts.Add(addressElement.Attribute("addr").Value);
+                    var addrAttribute = addressElement.Attribute("addr");
+                    if (addrAttribute != null)
+                    {
+                        hosts.Add(addrAttribute.Value);
+                    }
                 }
             }
 
@@ -314,12 +318,13 @@ namespace NetworkMonitor.Processor.Services
             var portElements = xdoc.Descendants("port");
             foreach (var portElement in portElements)
             {
-                int port = int.Parse(portElement.Attribute("portid").Value);
-                string protocol = portElement.Attribute("protocol").Value.ToLower();
+                // Safely retrieve attributes with null checks
+                int port = int.Parse(portElement.Attribute("portid")?.Value ?? "0");
+                string protocol = portElement.Attribute("protocol")?.Value?.ToLower() ?? "unknown";
+
                 var serviceElement = portElement.Element("service");
                 string serviceName = serviceElement?.Attribute("name")?.Value.ToLower() ?? "unknown";
                 string version = serviceElement?.Attribute("version")?.Value ?? "unknown";
-
                 string endPointType;
                 if (_cmdProcessorStates.UseDefaultEndpointType) endPointType = _cmdProcessorStates.DefaultEndpointType;
                 else endPointType = DetermineEndPointType(serviceName, protocol);
@@ -336,7 +341,7 @@ namespace NetworkMonitor.Processor.Services
                     DateAdded = DateTime.UtcNow,
                     Enabled = true,
                     Hidden = false,
-                    MessageForUser = $"{serviceName} ({version})"
+                    MessageForUser = $" service={serviceName} version=({version}) protocol=({protocol})"
                 };
 
                 monitorIPs.Add(monitorIP);

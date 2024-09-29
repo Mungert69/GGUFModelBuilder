@@ -56,7 +56,7 @@ namespace NetworkMonitor.Processor.Services
             }
 
             // Dynamically find the Chrome executable based on the platform
-            string chromeExecutable = null;
+            string? chromeExecutable = null;
             string osPlatform = "";
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -74,7 +74,7 @@ namespace NetworkMonitor.Processor.Services
             }
 
             // Recursively search for the Chrome executable in the directories
-            string FindChromeExecutable(string rootPath, string osPlatform)
+            string? FindChromeExecutable(string rootPath, string osPlatform)
             {
                 foreach (var dir in Directory.GetDirectories(rootPath, "*", SearchOption.AllDirectories))
                 {

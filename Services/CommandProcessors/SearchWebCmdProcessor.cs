@@ -95,7 +95,7 @@ namespace NetworkMonitor.Processor.Services
 
                 // Output the HTML content for debugging
                 var content = await page.GetContentAsync();
-                _logger.LogInformation("Page content:", content.Substring(0, Math.Min(5000, content.Length))); // Print the first 5000 characters
+                _logger.LogInformation($"Page content:{content.Substring(0, Math.Min(100, content.Length))}"); 
 
                 await RandomDelay(1500, 3000); // Random delay between 1.5s and 3s
 

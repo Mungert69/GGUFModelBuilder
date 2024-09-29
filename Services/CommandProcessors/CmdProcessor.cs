@@ -37,6 +37,7 @@ namespace NetworkMonitor.Processor.Services
         private readonly ConcurrentQueue<CommandTask> _currentQueue;
         private readonly SemaphoreSlim _semaphore;
         public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
+        #pragma warning disable CS8618
         public CmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
         {
             _logger = logger;
@@ -51,6 +52,7 @@ namespace NetworkMonitor.Processor.Services
             _ = StartQueueProcessorAsync();
 
         }
+        #pragma warning restore     CS8618
 
         private async Task StartQueueProcessorAsync()
         {
@@ -291,6 +293,7 @@ namespace NetworkMonitor.Processor.Services
                 _logger.LogInformation($"No {_cmdProcessorStates.CmdName} execution is currently running.");
                 _cmdProcessorStates.CompletedMessage += $"No {_cmdProcessorStates.CmdName} execution is currently running.\n";
             }
+            await Task.CompletedTask;
         }
         protected virtual async Task<string> SendMessage(string output, ProcessorScanDataObj? processorScanDataObj)
         {
