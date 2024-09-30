@@ -298,12 +298,12 @@ namespace NetworkMonitor.Processor.Services
                 result.Data = loadResult.Data;
 
 
-                if (loadResult.Data.RabbitHostName != null && loadResult.Data.RabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != loadResult.Data.RabbitHostName)
+                if (loadResult.Data!=null && loadResult.Data.RabbitHostName != null && loadResult.Data.RabbitHostName != "" && _netConfig.LocalSystemUrl.RabbitHostName != loadResult.Data.RabbitHostName)
                 {
                     _netConfig.LocalSystemUrl.RabbitHostName = loadResult.Data.RabbitHostName;
                     flag = true;
                 }
-                if (loadResult.Data.RabbitPort != 0 && _netConfig.LocalSystemUrl.RabbitPort != loadResult.Data.RabbitPort)
+                if (loadResult.Data!=null && loadResult.Data.RabbitPort != 0 && _netConfig.LocalSystemUrl.RabbitPort != loadResult.Data.RabbitPort)
                 {
                     _netConfig.LocalSystemUrl.RabbitPort = loadResult.Data.RabbitPort;
                     flag = true;

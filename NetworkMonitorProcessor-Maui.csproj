@@ -3,9 +3,10 @@
   <PropertyGroup>
 
     <TargetFramework>net8.0</TargetFramework>
-    <DefineConstants>NetworkMonitorProcessor</DefineConstants>
-    <Nullable>enable</Nullable>
 
+    <Nullable>enable</Nullable>
+      <DefineConstants>NetworkMonitorProcessor</DefineConstants>
+     
   </PropertyGroup>
 
  

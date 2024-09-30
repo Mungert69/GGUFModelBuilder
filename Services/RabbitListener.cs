@@ -15,7 +15,7 @@ namespace NetworkMonitor.Objects.Repository
 {
     public interface IRabbitListener
     {
-        Task<ResultObj> Connect(ProcessorConnectObj connectObj);
+        ResultObj Connect(ProcessorConnectObj connectObj);
         ResultObj RemovePingInfos(ProcessorDataObj processorDataObj);
         Task<ResultObj> Init(ProcessorInitObj initObj);
         ResultObj AlertFlag(List<int> monitorPingInfoIds);
@@ -201,11 +201,11 @@ namespace NetworkMonitor.Objects.Repository
                     {
                         case "processorConnect":
                             rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
                                 {
                                     try
                                     {
-                                        result = await Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
+                                        result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
                                         rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
                                     }
                                     catch (Exception ex)
@@ -470,7 +470,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public async Task<ResultObj> Connect(ProcessorConnectObj? connectObj)
+        public  ResultObj Connect(ProcessorConnectObj? connectObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;

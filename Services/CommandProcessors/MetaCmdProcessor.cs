@@ -9,6 +9,9 @@ using NetworkMonitor.Objects;
 using NetworkMonitor.Objects.Repository;
 using NetworkMonitor.Objects.ServiceMessage;
 using NetworkMonitor.Connection;
+using System.Runtime.InteropServices;
+using System.Linq;
+using System.Text;
 
 namespace NetworkMonitor.Processor.Services
 {
@@ -72,23 +75,55 @@ namespace NetworkMonitor.Processor.Services
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
         {
-            string msfPath = "";
-#if WINDOWS
-            msfPath="C:\\metasploit-framework\\bin\\";
-#endif
+            string msfDir = "";
+            string msfPath = _cmdProcessorStates.CmdName;
+            string output = "";
+            // Use 'where' command to locate the executable in the system's PATH
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                msfDir = await FindExecutableDirectoryInPath(_cmdProcessorStates.CmdName);
+                msfPath = Path.Combine(msfDir, _cmdProcessorStates.CmdName)+".bat";
+            }
+
+            if (string.IsNullOrEmpty(msfDir))
+            {
+                throw new FileNotFoundException($"Metasploit executable {_cmdProcessorStates.CmdName} not found in system PATH.");
+            }
+           
+
             //string msfconsolePath = _netConfig.MsfconsolePath;
             using (var process = new Process())
             {
-                process.StartInfo.FileName = msfPath + _cmdProcessorStates.CmdName; // Path to the Metasploit console executable
+                process.StartInfo.FileName = msfPath;// Path to the Metasploit console executable
                 process.StartInfo.Arguments = arguments; // Executes the command
 
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
-                process.StartInfo.WorkingDirectory = msfPath;
+                process.StartInfo.WorkingDirectory = msfDir;
                 process.StartInfo.CreateNoWindow = true;
+                var outputBuilder = new StringBuilder();
+                var errorBuilder = new StringBuilder();
+
+                process.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        outputBuilder.AppendLine(e.Data);
+                    }
+                };
+
+                process.ErrorDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        errorBuilder.AppendLine(e.Data);
+                    }
+                };
 
                 process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
 
                 using (cancellationToken.Register(() =>
                 {
@@ -99,18 +134,55 @@ namespace NetworkMonitor.Processor.Services
                     }
                 }))
                 {
-                    string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-                   string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+                    await process.WaitForExitAsync(cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested(); // Check if cancelled before processing output
 
-                        if (!string.IsNullOrWhiteSpace(errorOutput))
-                        {
-                            output = "Error: " + errorOutput + "\n" + output; // Append the error to the output
-                        }
-                    await process.WaitForExitAsync().ConfigureAwait(false);
-                    cancellationToken.ThrowIfCancellationRequested();
-                    //return await SendMessage(output, processorScanDataObj);
+                    output = outputBuilder.ToString();
+                    string errorOutput = errorBuilder.ToString();
+
+                    if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
+                    {
+                        output = $"Error: {errorOutput}. \n {output}";
+                    }
                     return output;
                 }
+            }
+        }
+     
+       
+        private async Task<string> FindExecutableDirectoryInPath(string commandName)
+        {
+            using (var process = new Process())
+            {
+                process.StartInfo.FileName = "where";
+                process.StartInfo.Arguments = commandName;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.CreateNoWindow = true;
+
+                process.Start();
+
+                string output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+                string errorOutput = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
+
+                if (!string.IsNullOrWhiteSpace(errorOutput))
+                {
+                    _logger.LogError("Error finding executable: " + errorOutput);
+                }
+
+                await process.WaitForExitAsync().ConfigureAwait(false);
+
+                // Get the first path found by the 'where' command
+                string exePath = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+
+                if (!string.IsNullOrEmpty(exePath))
+                {
+                    // Return the directory part of the path
+                    return Path.GetDirectoryName(exePath) ?? "";
+                }
+
+                return ""; // Return empty string if no path is found
             }
         }
 
