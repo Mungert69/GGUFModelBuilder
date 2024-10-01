@@ -13,6 +13,7 @@ using NetworkMonitor.Connection;
 using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using NetworkMonitor.Service.Services.OpenAI;
 
@@ -159,9 +160,9 @@ namespace NetworkMonitor.Processor.Services
 
                 string xmlOutput = processorScanDataObj == null ? " -oX -" : " -oG - ";
                 string extraArg = "";
-#if ANDROID
-        extraArg = " --system-dns ";
-#endif
+                //#if ANDROID
+                extraArg = " --system-dns ";
+                //#endif
 
 
 
