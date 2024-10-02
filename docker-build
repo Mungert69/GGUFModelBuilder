@@ -1,0 +1,5 @@
+rsync -av --exclude='.git' ../NetworkMonitor/ ./NetworkMonitor/
+docker build -f ./Dockerfile --rm  -t mungert/networkmonitorprocessorfull:1.1.15 .
+rm -r ./NetworkMonitor
+docker push mungert/networkmonitorprocessorfull:1.1.15
+
