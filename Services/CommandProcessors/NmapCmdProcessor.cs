@@ -167,8 +167,8 @@ namespace NetworkMonitor.Processor.Services
 
 
                 using var process = new Process();
-                process.StartInfo.FileName = _netConfig.CommandPath + "nmap" + extraArg;
-                process.StartInfo.Arguments = arguments + xmlOutput;
+                process.StartInfo.FileName = _netConfig.CommandPath + "nmap" ;
+                process.StartInfo.Arguments = arguments + xmlOutput + extraArg;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.RedirectStandardError = true;
