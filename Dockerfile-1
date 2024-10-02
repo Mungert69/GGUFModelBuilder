@@ -1,0 +1,23 @@
+# https://hub.docker.com/_/microsoft-dotnet
+FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
+WORKDIR /source
+
+# copy csproj and restore as distinct layers
+COPY *.csproj ./
+COPY appsettings-1.json ./
+COPY monitor.csv ./
+RUN dotnet restore -r linux-x64
+# copy everything else and build app
+COPY . ./
+WORKDIR /source
+RUN dotnet publish -c release -o /app -r linux-x64 --self-contained false
+
+# final stage/image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal-amd64
+WORKDIR /
+RUN apt-get update;\apt-get upgrade;apt-get install -y apt-utils;apt-get -y install vim
+WORKDIR /app
+COPY --from=build /app ./
+COPY appsettings-1.json ./appsettings.json
+COPY monitor.csv ./
+ENTRYPOINT ["dotnet","./NetworkMonitor.dll"]
