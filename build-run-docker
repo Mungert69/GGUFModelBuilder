@@ -101,7 +101,7 @@ docker exec -it "$CONTAINER_NAME" bash -c "curl https://raw.githubusercontent.co
 
 # Step 7: Push both the version tag and latest tag
 docker push "$DOCKER_IMAGE_FULL"  # Push the versioned image (e.g., 1.1.14)
-docker tag "$DOCKER_IMAGE_FULL" "$DOCKER_IMAGE_NAME:latest"  # Tag with "latest"
+docker commit  "$CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"  # Commit to "latest"
 docker push "$DOCKER_IMAGE_NAME:latest"  # Push the "latest" tag
 
 # Step 8: Confirm completion
