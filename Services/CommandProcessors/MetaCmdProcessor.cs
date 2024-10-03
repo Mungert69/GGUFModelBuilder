@@ -17,17 +17,17 @@ namespace NetworkMonitor.Processor.Services
 {
     public class MetaCmdProcessor : CmdProcessor
     {
-      
-     
+
+
         public MetaCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
-     : base(logger, cmdProcessorStates, rabbitRepo, netConfig) 
+     : base(logger, cmdProcessorStates, rabbitRepo, netConfig)
         {
-          
+
         }
-  
+
         public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
         {
-            var result=new ResultObj();
+            var result = new ResultObj();
             string output = "";
             try
             {
@@ -35,12 +35,12 @@ namespace NetworkMonitor.Processor.Services
                 {
                     _logger.LogWarning(" Warning : Metasploit is not enabled or installed on this agent.");
                     output = "Metasploit is not available on this agent. Try installing the docker version of the Quantum Secure Agent or select an agent that has Metasploit Enabled.\n";
-                    result.Message= await SendMessage(output, processorScanDataObj);
+                    result.Message = await SendMessage(output, processorScanDataObj);
                     result.Success = false;
                     return result;
 
                 }
-            
+
                 string message = $"Running Metasploit with arguments {arguments}";
                 _logger.LogInformation(message);
                 _cmdProcessorStates.RunningMessage += $"{message}\n";
@@ -54,14 +54,14 @@ namespace NetworkMonitor.Processor.Services
                 ProcessMetasploitOutput(output);
                 result.Message += output;
 
-                 }
+            }
             catch (OperationCanceledException)
             {
                 _logger.LogInformation("Metasploit module execution was cancelled.");
                 _cmdProcessorStates.CompletedMessage += "Metasploit module execution was cancelled.\n";
                 result.Message += _cmdProcessorStates.CompletedMessage;
-                result.Success= false;
-                }
+                result.Success = false;
+            }
             catch (Exception e)
             {
                 _logger.LogError($"Error during Metasploit module execution: {e.Message}");
@@ -69,8 +69,8 @@ namespace NetworkMonitor.Processor.Services
                 result.Success = false;
                 result.Message += _cmdProcessorStates.CompletedMessage;
             }
-           
-              return result;
+
+            return result;
         }
 
         private async Task<string> ExecuteMetasploit(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj)
@@ -82,14 +82,12 @@ namespace NetworkMonitor.Processor.Services
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 msfDir = await FindExecutableDirectoryInPath(_cmdProcessorStates.CmdName);
-                msfPath = Path.Combine(msfDir, _cmdProcessorStates.CmdName)+".bat";
+                msfPath = Path.Combine(msfDir, _cmdProcessorStates.CmdName) + ".bat";
+                if (string.IsNullOrEmpty(msfDir))
+                {
+                    throw new FileNotFoundException($"Metasploit executable {_cmdProcessorStates.CmdName} not found in system PATH.");
+                }
             }
-
-            if (string.IsNullOrEmpty(msfDir))
-            {
-                throw new FileNotFoundException($"Metasploit executable {_cmdProcessorStates.CmdName} not found in system PATH.");
-            }
-           
 
             //string msfconsolePath = _netConfig.MsfconsolePath;
             using (var process = new Process())
@@ -148,8 +146,8 @@ namespace NetworkMonitor.Processor.Services
                 }
             }
         }
-     
-       
+
+
         private async Task<string> FindExecutableDirectoryInPath(string commandName)
         {
             using (var process = new Process())
@@ -193,6 +191,6 @@ namespace NetworkMonitor.Processor.Services
             _cmdProcessorStates.CompletedMessage += $"Metasploit output: {output}\n";
         }
 
-      
+
     }
 }
