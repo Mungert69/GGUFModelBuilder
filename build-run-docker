@@ -107,3 +107,9 @@ docker push "$DOCKER_IMAGE_NAME:latest"  # Push the "latest" tag
 # Step 8: Confirm completion
 echo "The container is running, and the extra commands have been executed. Image has been pushed to Docker Hub as $DOCKER_IMAGE_FULL and $DOCKER_IMAGE_NAME:latest."
 
+# Step 9: Stop the container using Docker Compose
+if ! docker compose -f "$DOCKER_COMPOSE_FILE" down; then
+    echo "Failed to stop the container using Docker Compose. Exiting..."
+    exit 1
+fi
+
