@@ -1,9 +1,40 @@
 #!/bin/bash
 
-projectPath="./NetworkMonitorProcessor.csproj"
-packages=$(dotnet list $projectPath package --outdated | grep -E '\s>\s' | awk '{print $2}')
+# List of packages to exclude from being updated
+excludedPackages=(
+    "PackageNameToExclude1"
+    "PackageNameToExclude2"
+)
 
-for package in $packages; do
-    dotnet add $projectPath package $package
+# Function to check if a package is in the exclusion list
+is_excluded() {
+    local package=$1
+    for excluded in "${excludedPackages[@]}"; do
+        if [[ "$package" == "$excluded" ]]; then
+            return 0  # Package is excluded
+        fi
+    done
+    return 1  # Package is not excluded
+}
+
+# Find all .csproj files in the current directory and its subdirectories
+projectFiles=$(find . -name "*.csproj")
+
+# Loop through each .csproj file
+for projectPath in $projectFiles; do
+    echo "Processing $projectPath..."
+
+    # List outdated packages for the current project
+    packages=$(dotnet list "$projectPath" package --outdated | grep -E '\s>\s' | awk '{print $2}')
+
+    # Add each outdated package back to the project unless it's excluded
+    for package in $packages; do
+        if is_excluded "$package"; then
+            echo "Skipping excluded package: $package"
+        else
+            echo "Updating $package for $projectPath..."
+            dotnet add "$projectPath" package "$package"
+        fi
+    done
 done
 
