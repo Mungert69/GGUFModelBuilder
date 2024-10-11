@@ -62,9 +62,6 @@ namespace NetworkMonitor.Processor.Services
             _logger = logger;
             _fileRepo = fileRepo;
             _rabbitRepo = rabbitRepo;
-            /*_fileRepo.CheckFileExists("ProcessorDataObj", _logger);
-            _fileRepo.CheckFileExists("MonitorIPs", _logger);
-            _fileRepo.CheckFileExists("PingParams", _logger);*/
             _netConfig = netConfig;
             _netConfig.OnAppIDChangedAsync += HandleAppIDChangedAsync;
             SystemUrl systemUrl = netConfig.LocalSystemUrl;
