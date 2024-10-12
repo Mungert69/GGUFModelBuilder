@@ -701,8 +701,10 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : Failed to run Busybox Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+                
             }
+            if (result.Success) _logger.LogInformation(result.Message);
+            else _logger.LogError(result.Message);
             return result;
         }
 
