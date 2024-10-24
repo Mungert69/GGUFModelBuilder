@@ -32,7 +32,7 @@ namespace NetworkMonitor.Objects.Repository
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
           private ICmdProcessorProvider _cmdProcessorProvider;
-        NetConnectConfig _netConfig;
+        private NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
 
@@ -588,6 +588,7 @@ namespace NetworkMonitor.Objects.Repository
             ResultObj result = new ResultObj();
             result.Success = false;
             result.Message = "MessageAPI : ProcessorScanCommand : ";
+           
             if (_cmdProcessorProvider.GetNmapProcessor() == null)
             {
                 result.Success = false;
@@ -600,6 +601,14 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
                 _logger.LogError(result.Message);
                 return result;
 
@@ -645,6 +654,14 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             try
             {
                  TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
@@ -682,6 +699,14 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
                 _logger.LogError(result.Message);
                 return result;
 
@@ -729,6 +754,14 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             try
             {
                  TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
@@ -767,6 +800,14 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
                 _logger.LogError(result.Message);
                 return result;
 
@@ -813,6 +854,14 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             try
             {
                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
@@ -841,6 +890,14 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
                 _logger.LogError(result.Message);
                 return result;
 
@@ -1001,6 +1058,14 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : queueDicObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (queueDicObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
                 _logger.LogError(result.Message);
                 return result;
 
