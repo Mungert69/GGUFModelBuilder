@@ -931,6 +931,14 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
+             if (initObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
             try
             {
                 await _monitorPingProcessor.Init(initObj);
