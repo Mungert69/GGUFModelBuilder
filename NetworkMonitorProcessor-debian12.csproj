@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:8.0</ContainerBaseImage>
+    <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:9.0</ContainerBaseImage>
     <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
-    <ContainerImageTag>1.1.18</ContainerImageTag>
+    <ContainerImageTag>1.2.0</ContainerImageTag>
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
       <IsPublishable>true</IsPublishable>
   <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
@@ -18,11 +18,11 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.1" />
 
 
 
