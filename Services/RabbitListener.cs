@@ -192,21 +192,21 @@ namespace NetworkMonitor.Objects.Repository
             var result = new ResultObj();
             try
             {
-                _rabbitMQObjs.ForEach(rabbitMQObj =>
+                _rabbitMQObjs.ForEach( async rabbitMQObj =>
             {
-                rabbitMQObj.Consumer = new EventingBasicConsumer(rabbitMQObj.ConnectChannel);
+                rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
                 if (rabbitMQObj.ConnectChannel != null)
                 {
                     switch (rabbitMQObj.FuncName)
                     {
                         case "processorConnect":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+=  async (model, ea) =>
                                 {
                                     try
                                     {
                                         result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
-                                        rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                        await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                                     }
                                     catch (Exception ex)
                                     {
@@ -215,13 +215,13 @@ namespace NetworkMonitor.Objects.Repository
                                 };
                             break;
                         case "removePingInfos":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -230,13 +230,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorInit":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await Init(ConvertToObject<ProcessorInitObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -245,13 +245,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorAlertFlag":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = AlertFlag(ConvertToList<List<int>>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -260,13 +260,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorAlertSent":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = AlertSent(ConvertToList<List<int>>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -275,13 +275,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorQueueDic":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -290,13 +290,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorResetAlerts":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await ResetAlerts(ConvertToList<List<int>>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -305,13 +305,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorWakeUp":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await WakeUp();
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -320,13 +320,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorAuthKey":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await SetAuthKey(ConvertToObject<ProcessorInitObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -335,13 +335,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorUserEvent":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -350,13 +350,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorScan":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += async (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 result = await ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -365,13 +365,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorScanCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received +=  (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+=  async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -380,13 +380,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                         case "processorMetaCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -395,13 +395,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                                case "processorOpensslCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorOpensslCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -411,13 +411,13 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                             
                              case "processorBusyboxCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorBusyboxCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -426,13 +426,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                               case "processorSearchWebCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorSearchWebCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
@@ -441,13 +441,13 @@ namespace NetworkMonitor.Objects.Repository
                         };
                             break;
                               case "processorCrawlPageCommand":
-                            rabbitMQObj.ConnectChannel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.Received += (model, ea) =>
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
                         {
                             try
                             {
                                 _ =  ProcessorCrawlPageCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                rabbitMQObj.ConnectChannel.BasicAck(ea.DeliveryTag, false);
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                             }
                             catch (Exception ex)
                             {
