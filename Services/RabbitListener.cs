@@ -187,12 +187,13 @@ namespace NetworkMonitor.Objects.Repository
                 MessageTimeout = 6000000
             });
         }
-        protected override ResultObj DeclareConsumers()
+        protected override async Task<ResultObj> DeclareConsumers()
         {
             var result = new ResultObj();
             try
             {
-                _rabbitMQObjs.ForEach( async rabbitMQObj =>
+               foreach (var rabbitMQObj in _rabbitMQObjs)
+                    
             {
                 rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
                 if (rabbitMQObj.ConnectChannel != null)
@@ -457,7 +458,7 @@ namespace NetworkMonitor.Objects.Repository
                             break;
                     }
                 }
-            });
+            }
                 result.Success = true;
                 result.Message += " Success : Declared all consumers ";
             }
@@ -1070,7 +1071,7 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
-             if (queueDicObj.AuthKey != _netConfig.AuthKey)
+                if (queueDicObj.AuthKey != _netConfig.AuthKey)
             {
                 result.Success = false;
                 result.Message += "Error : AuthKey not valid .";
