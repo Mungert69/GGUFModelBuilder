@@ -75,7 +75,7 @@ namespace NetworkMonitor.Objects.Repository
         private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
-            await Task.Run(() => Reconnect());
+            await  Reconnect();
         }
         public void Dispose()
         {
