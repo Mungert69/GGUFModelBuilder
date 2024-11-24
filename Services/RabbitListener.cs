@@ -186,6 +186,12 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorCrawlPageCommand",
                 MessageTimeout = 6000000
             });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "processorCrawlSiteCommand" + _netConfig.AppID,
+                FuncName = "processorCrawlSiteCommand",
+                MessageTimeout = 6000000
+            });
         }
         protected override async Task<ResultObj> DeclareConsumers()
         {
@@ -453,6 +459,21 @@ namespace NetworkMonitor.Objects.Repository
                             catch (Exception ex)
                             {
                                 _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlPageCommand " + ex.Message);
+                            }
+                        };
+                            break;
+                              case "processorCrawlSiteCommand":
+                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
+                        {
+                            try
+                            {
+                                _ =  ProcessorCrawlSiteCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlSiteCommand " + ex.Message);
                             }
                         };
                             break;
@@ -828,6 +849,54 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Success = false;
                 result.Message += "Error : Failed to run CrawlPage Command: Error was : " + e.Message + " ";
+                _logger.LogError(result.Message);
+            }
+            return result;
+        }
+   public async Task<ResultObj> ProcessorCrawlSiteCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            ResultObj result = new ResultObj();
+            result.Success = false;
+            result.Message = "MessageAPI : ProcessorCrawlSiteCommand : ";
+            if (_cmdProcessorProvider.GetCrawlSiteProcessor() == null)
+            {
+                result.Success = false;
+                result.Message += "Error : CrawlSite processor not available .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            if (processorScanDataObj == null)
+            {
+                result.Success = false;
+                result.Message += "Error : processorScanDataObj was null .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Success = false;
+                result.Message += "Error : AuthKey not valid .";
+                _logger.LogError(result.Message);
+                return result;
+
+            }
+            try
+            {
+                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                var cts = new CancellationTokenSource(timeout);
+                _logger.LogWarning($"{result.Message} Running CrawlSite Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await _cmdProcessorProvider.GetCrawlSiteProcessor().QueueCommand(cts, processorScanDataObj);
+                result.Message += "Success: Ran CrawlSite command. Command Result: " + commandResult.Message;
+
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Success = false;
+                result.Message += "Error : Failed to run CrawlSite Command: Error was : " + e.Message + " ";
                 _logger.LogError(result.Message);
             }
             return result;
