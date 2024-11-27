@@ -6,12 +6,14 @@
     <Nullable>enable</Nullable>
     <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:9.0</ContainerBaseImage>
     <ContainerRepository>mungert/networkmonitorprocessor</ContainerRepository>
-    <ContainerImageTag>1.2.1</ContainerImageTag>
+    <ContainerImageTag>1.2.2</ContainerImageTag>
     <StartupObject>NetworkMonitor.Processor.Program</StartupObject>
       <IsPublishable>true</IsPublishable>
   <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
-  <ContainerUser>root</ContainerUser>
-
+   <ContainerEntrypoint>/app/entrypoint.sh</ContainerEntrypoint>
+   <ContainerUser>root</ContainerUser>
+ <ContainerInitializationCommand>chmod +x /app/entrypoint.sh</ContainerInitializationCommand>
+ 
   </PropertyGroup>
 
 
@@ -43,4 +45,13 @@
       <TargetPath>openssl\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
     </Content>
   </ItemGroup>
+
+  <ItemGroup>
+  <Content Include="entrypoint.sh">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    <TargetPath>entrypoint.sh</TargetPath>
+  </Content>
+</ItemGroup>
+
 </Project>
