@@ -107,14 +107,19 @@ docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install 
     libxss-dev \
     libatspi2.0-0"
 
-# Step 0: Commit full build as latest tag
+# Step 9: Create symlink for nmap and install Metasploit
+docker exec -it "$CONTAINER_NAME" bash -c "cd /app/openssl/bin && ln -s /usr/bin/nmap nmap"
+docker exec -it "$CONTAINER_NAME" bash -c "curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
+
+
+# Step 10: Commit full build as latest tag
 docker commit  "$CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"  # Commit to "latest"
 docker push "$DOCKER_IMAGE_NAME:latest"  # Push the "latest" tag
 
-# Step 10: Confirm completion
+# Step 11: Confirm completion
 echo "The container is running, and the extra commands have been executed. Image has been pushed to Docker Hub as $DOCKER_IMAGE_FULL and $DOCKER_IMAGE_NAME:latest."
 
-# Step 11: Stop the container using Docker Compose
+# Step 12: Stop the container using Docker Compose
 if ! docker compose -f "$DOCKER_COMPOSE_FILE" down; then
     echo "Failed to stop the container using Docker Compose. Exiting..."
     exit 1
