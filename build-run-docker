@@ -9,6 +9,7 @@ CONTAINER_NAME="processor"
 # Extract the image name from the docker-compose file (without the tag)
 DOCKER_IMAGE_FULL=$(grep 'image:' $DOCKER_COMPOSE_FILE | awk '{ print $2 }')
 DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_FULL | cut -d':' -f1)  # Extracts only the name, without the tag
+DOCKER_IMAGE_TAG=$(echo $DOCKER_IMAGE_FULL | cut -d':' -f2)  # Extracts only the tag, without the name
 echo "Docker Image Full is $DOCKER_IMAGE_FULL . Name is $DOCKER_IMAGE_NAME ."
 # Step 1: Pull the latest code from GitHub
 if ! git pull "$REPO_URL"; then
@@ -34,7 +35,18 @@ until docker exec -it "$CONTAINER_NAME" bash -c "ls /app" >/dev/null 2>&1; do
     sleep 2
 done
 
-# Step 5: Update and install all required packages in one apt-get call
+# Step 5: Update and install all required packages for standard build  in one apt-get call
+docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install xvfb libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libxkbcommon-x11-0 libgbm1 libasound2 libnss3 libgdk-pixbuf2.0-0 libpango1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0"
+
+# Step 6: Push both the standard bug version tag
+docker commit  "$CONTAINER_NAME" "$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"  # Commit to "tag"
+docker push "$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"  # Push the "tag" tag
+
+# Step 7: Create symlink for nmap and install Metasploit
+docker exec -it "$CONTAINER_NAME" bash -c "cd /app/openssl/bin && ln -s /usr/bin/nmap nmap"
+docker exec -it "$CONTAINER_NAME" bash -c "curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
+
+# Step 8: Update and install all required packages for full build.
 docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install \
     curl \
     nmap \
@@ -93,21 +105,16 @@ docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install 
     libxdamage-dev \
     libxrandr-dev \
     libxss-dev \
-    libatspi2.0-0 xvfb libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libxkbcommon-x11-0 libgbm1 libasound2 libnss3 libgdk-pixbuf2.0-0 libpango1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0"
+    libatspi2.0-0"
 
-# Step 6: Create symlink for nmap and install Metasploit
-docker exec -it "$CONTAINER_NAME" bash -c "cd /app/openssl/bin && ln -s /usr/bin/nmap nmap"
-docker exec -it "$CONTAINER_NAME" bash -c "curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
-
-# Step 7: Push both the version tag and latest tag
-docker push "$DOCKER_IMAGE_FULL"  # Push the versioned image (e.g., 1.1.14)
+# Step 0: Commit full build as latest tag
 docker commit  "$CONTAINER_NAME" "$DOCKER_IMAGE_NAME:latest"  # Commit to "latest"
 docker push "$DOCKER_IMAGE_NAME:latest"  # Push the "latest" tag
 
-# Step 8: Confirm completion
+# Step 10: Confirm completion
 echo "The container is running, and the extra commands have been executed. Image has been pushed to Docker Hub as $DOCKER_IMAGE_FULL and $DOCKER_IMAGE_NAME:latest."
 
-# Step 9: Stop the container using Docker Compose
+# Step 11: Stop the container using Docker Compose
 if ! docker compose -f "$DOCKER_COMPOSE_FILE" down; then
     echo "Failed to stop the container using Docker Compose. Exiting..."
     exit 1
