@@ -31,7 +31,7 @@ namespace NetworkMonitor.Objects.Repository
     {
         //private string _appID;
         private IMonitorPingProcessor _monitorPingProcessor;
-          private ICmdProcessorProvider _cmdProcessorProvider;
+        private ICmdProcessorProvider _cmdProcessorProvider;
         private NetConnectConfig _netConfig;
         private System.Timers.Timer _pollingTimer;
         private TimeSpan _pollingInterval = TimeSpan.FromMinutes(1);
@@ -75,7 +75,7 @@ namespace NetworkMonitor.Objects.Repository
         private async Task HandleSystemUrlChangedAsync(SystemUrl newSystemUrl)
         {
             _systemUrl = newSystemUrl;
-            await  Reconnect();
+            await Reconnect();
         }
         public void Dispose()
         {
@@ -152,6 +152,12 @@ namespace NetworkMonitor.Objects.Repository
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
+                ExchangeName = "processorCommand" + _netConfig.AppID,
+                FuncName = "processorCommand",
+                MessageTimeout = 6000000
+            });
+          /*  _rabbitMQObjs.Add(new RabbitMQObj()
+            {
                 ExchangeName = "processorScanCommand" + _netConfig.AppID,
                 FuncName = "processorScanCommand",
                 MessageTimeout = 6000000
@@ -162,324 +168,340 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorMetaCommand",
                 MessageTimeout = 6000000
             });
-              _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorOpensslCommand" + _netConfig.AppID,
                 FuncName = "processorOpensslCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorBusyboxCommand" + _netConfig.AppID,
                 FuncName = "processorBusyboxCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorSearchWebCommand" + _netConfig.AppID,
                 FuncName = "processorSearchWebCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorCrawlPageCommand" + _netConfig.AppID,
                 FuncName = "processorCrawlPageCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "processorCrawlSiteCommand" + _netConfig.AppID,
                 FuncName = "processorCrawlSiteCommand",
                 MessageTimeout = 6000000
-            });
+            });*/
         }
         protected override async Task<ResultObj> DeclareConsumers()
         {
             var result = new ResultObj();
             try
             {
-               foreach (var rabbitMQObj in _rabbitMQObjs)
-                    
-            {
-                rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
-                if (rabbitMQObj.ConnectChannel != null)
+                foreach (var rabbitMQObj in _rabbitMQObjs)
+
                 {
-                    switch (rabbitMQObj.FuncName)
+                    rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
+                    if (rabbitMQObj.ConnectChannel != null)
                     {
-                        case "processorConnect":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+=  async (model, ea) =>
+                        switch (rabbitMQObj.FuncName)
+                        {
+                            case "processorConnect":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                                    {
+                                        try
+                                        {
+                                            result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
+                                            await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorConnect " + ex.Message);
+                                        }
+                                    };
+                                break;
+                            case "removePingInfos":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                            {
+                                try
                                 {
-                                    try
-                                    {
-                                        result = Connect(ConvertToObject<ProcessorConnectObj>(model, ea));
-                                        await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorConnect " + ex.Message);
-                                    }
-                                };
-                            break;
-                        case "removePingInfos":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                    result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.removePingInfos " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorInit":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = RemovePingInfos(ConvertToObject<ProcessorDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    result = await Init(ConvertToObject<ProcessorInitObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorInit " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorAlertFlag":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.removePingInfos " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorInit":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    result = AlertFlag(ConvertToList<List<int>>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAlertFlag " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorAlertSent":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = await Init(ConvertToObject<ProcessorInitObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    result = AlertSent(ConvertToList<List<int>>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAlertSent " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorQueueDic":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorInit " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorAlertFlag":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorQueueDic " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorResetAlerts":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = AlertFlag(ConvertToList<List<int>>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    result = await ResetAlerts(ConvertToList<List<int>>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorResetAlerts " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorWakeUp":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAlertFlag " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorAlertSent":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    result = await WakeUp();
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorWakeUp " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorAuthKey":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = AlertSent(ConvertToList<List<int>>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    result = await SetAuthKey(ConvertToObject<ProcessorInitObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAuthKey " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorUserEvent":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAlertSent " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorQueueDic":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    result = await ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorUserEvent " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorScan":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = QueueDic(ConvertToObject<ProcessorQueueDicObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    result = await ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScan " + ex.Message);
+                                }
+                            };
+                                break;
+                                 case "processorCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorQueueDic " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorResetAlerts":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    _ = ProcessorCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                                /*
+                            case "processorScanCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = await ResetAlerts(ConvertToList<List<int>>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    _ = ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScanCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorMetaCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorResetAlerts " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorWakeUp":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    _ = ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorMetaCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorOpensslCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = await WakeUp();
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    _ = ProcessorOpensslCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorOpensslCommand " + ex.Message);
+                                }
+                            };
+                                break;
+
+                            case "processorBusyboxCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorWakeUp " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorAuthKey":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    _ = ProcessorBusyboxCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorBusyboxCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorSearchWebCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = await SetAuthKey(ConvertToObject<ProcessorInitObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
+                                try
+                                {
+                                    _ = ProcessorSearchWebCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorSearchWebCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorCrawlPageCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorAuthKey " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorUserEvent":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
+                                try
+                                {
+                                    _ = ProcessorCrawlPageCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlPageCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "processorCrawlSiteCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
-                                result = await ProcessorUserEvent(ConvertToObject<ProcessorUserEventObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorUserEvent " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorScan":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                result = await ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScan " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorScanCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+=  async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorScanCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorScanCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                        case "processorMetaCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorMetaCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorMetaCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                               case "processorOpensslCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorOpensslCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorOpensslCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                            
-                             case "processorBusyboxCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorBusyboxCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorBusyboxCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                              case "processorSearchWebCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorSearchWebCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorSearchWebCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                              case "processorCrawlPageCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorCrawlPageCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlPageCommand " + ex.Message);
-                            }
-                        };
-                            break;
-                              case "processorCrawlSiteCommand":
-                            await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
-                            rabbitMQObj.Consumer.ReceivedAsync+= async (model, ea) =>
-                        {
-                            try
-                            {
-                                _ =  ProcessorCrawlSiteCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
-                                await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlSiteCommand " + ex.Message);
-                            }
-                        };
-                            break;
+                                try
+                                {
+                                    _ = ProcessorCrawlSiteCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.processorCrawlSiteCommand " + ex.Message);
+                                }
+                            };
+                                break;*/
+                        }
                     }
                 }
-            }
                 result.Success = true;
                 result.Message += " Success : Declared all consumers ";
             }
@@ -492,7 +514,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        public  ResultObj Connect(ProcessorConnectObj? connectObj)
+        public ResultObj Connect(ProcessorConnectObj? connectObj)
         {
             ResultObj result = new ResultObj();
             result.Success = false;
@@ -604,353 +626,63 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-
-        public async Task<ResultObj> ProcessorScanCommand(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> ProcessorCommand(ProcessorScanDataObj? processorScanDataObj)
         {
-            ResultObj result = new ResultObj();
+            string? processorType = "";
+            var result = new ResultObj();
             result.Success = false;
-            result.Message = "MessageAPI : ProcessorScanCommand : ";
-           
-            if (_cmdProcessorProvider.GetNmapProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : Nmap processor not available .";
-                _logger.LogError(result.Message);
-                return result;
 
-            }
+
+
             if (processorScanDataObj == null)
             {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
+                result.Message += "Error : processorScanDataObj was null.";
                 _logger.LogError(result.Message);
                 return result;
-
             }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
             {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
+                result.Message += "Error : AuthKey not valid.";
                 _logger.LogError(result.Message);
                 return result;
-
             }
+            var processor = _cmdProcessorProvider.GetProcessor(processorType);
+            if (processor == null)
+            {
+                result.Message += $"Error : {processorType} processor not available.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            processorType = processorScanDataObj.Type;
+            if (string.IsNullOrEmpty(processorType))
+            {
+                result.Message += $"Error : processorScanDataObj.Type was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            result.Message = $"MessageAPI : Processor{processorType}Command : ";
+
+
             try
             {
-                TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
+                TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds);
                 var cts = new CancellationTokenSource(timeout);
-                //CancellationToken cancellationToken = cancellationTokenSource.Token;
-                _logger.LogWarning($"{result.Message} Running Nmap Command with arguments {processorScanDataObj.Arguments}");
-                await _cmdProcessorProvider.GetNmapProcessor().QueueCommand( cts, processorScanDataObj);
-                result.Message += "Success : ran Nmap command. ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run Nmap Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-
-        public async Task<ResultObj> ProcessorMetaCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorMetaCommand : ";
-            if (_cmdProcessorProvider.GetMetasploitProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : Meta processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running Meta Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetMetasploitProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran Metasploit command. Command Result: " + commandResult.Message;
-
+                _logger.LogWarning($"{result.Message} Running {processorType} Command with arguments {processorScanDataObj.Arguments}");
+                var commandResult = await processor.QueueCommand(cts, processorScanDataObj);
+                result.Message += $"Success: Ran {processorType} command. Command Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
                 _logger.LogInformation(result.Message);
             }
             catch (Exception e)
             {
-                result.Success = false;
-                result.Message += "Error : Failed to run Meta Command: Error was : " + e.Message + " ";
+                result.Message += $"Error : Failed to run {processorType} Command: Error was : {e.Message}";
                 _logger.LogError(result.Message);
             }
+
             return result;
         }
 
-   public async Task<ResultObj> ProcessorBusyboxCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorBusyboxCommand : ";
-            if (_cmdProcessorProvider.GetBusyboxProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : Busybox processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running Busybox Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetBusyboxProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran Busybox command. Command Result: " + commandResult.Message;
-
-                result.Success = commandResult.Success;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run Busybox Command: Error was : " + e.Message + " ";
-                
-            }
-            if (result.Success) _logger.LogInformation(result.Message);
-            else _logger.LogError(result.Message);
-            return result;
-        }
-
-        public async Task<ResultObj> ProcessorSearchWebCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorSearchWebCommand : ";
-            if (_cmdProcessorProvider.GetSearchWebProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : SearchWeb processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running SearchWeb Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetSearchWebProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran SearchWeb command. Command Result: " + commandResult.Message;
-
-                result.Success = commandResult.Success;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run SearchWeb Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-   
-
-   public async Task<ResultObj> ProcessorCrawlPageCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorCrawlPageCommand : ";
-            if (_cmdProcessorProvider.GetCrawlPageProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : CrawlPage processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running CrawlPage Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetCrawlPageProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran CrawlPage command. Command Result: " + commandResult.Message;
-
-                result.Success = commandResult.Success;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run CrawlPage Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-   public async Task<ResultObj> ProcessorCrawlSiteCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorCrawlSiteCommand : ";
-            if (_cmdProcessorProvider.GetCrawlSiteProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : CrawlSite processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running CrawlSite Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetCrawlSiteProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran CrawlSite command. Command Result: " + commandResult.Message;
-
-                result.Success = commandResult.Success;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run CrawlSite Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
-   
-     
-        public async Task<ResultObj> ProcessorOpensslCommand(ProcessorScanDataObj? processorScanDataObj)
-        {
-            ResultObj result = new ResultObj();
-            result.Success = false;
-            result.Message = "MessageAPI : ProcessorOpensslCommand : ";
-            if (_cmdProcessorProvider.GetOpensslProcessor() == null)
-            {
-                result.Success = false;
-                result.Message += "Error : Openssl processor not available .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            if (processorScanDataObj == null)
-            {
-                result.Success = false;
-                result.Message += "Error : processorScanDataObj was null .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-            try
-            {
-                TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds); 
-                var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running Openssl Command with arguments {processorScanDataObj.Arguments}");
-                var commandResult = await _cmdProcessorProvider.GetOpensslProcessor().QueueCommand(cts, processorScanDataObj);
-                result.Message += "Success: Ran Openssl command. Command Result: " + commandResult.Message;
-
-                result.Success = commandResult.Success;
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception e)
-            {
-                result.Success = false;
-                result.Message += "Error : Failed to run Openssl Command: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
-            }
-            return result;
-        }
         public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
         {
             ResultObj result = new ResultObj();
@@ -964,7 +696,7 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
-             if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
             {
                 result.Success = false;
                 result.Message += "Error : AuthKey not valid .";
@@ -974,8 +706,8 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                _cmdProcessorProvider.GetNmapProcessor().UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
-                await _cmdProcessorProvider.GetNmapProcessor().Scan();
+                _cmdProcessorProvider.GetProcessor("nmap").UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
+                await _cmdProcessorProvider.GetProcessor("nmap").Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
                 result.Success = true;
                 _logger.LogInformation(result.Message);
@@ -1001,7 +733,7 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
-             if (initObj.AuthKey != _netConfig.AuthKey)
+            if (initObj.AuthKey != _netConfig.AuthKey)
             {
                 result.Success = false;
                 result.Message += "Error : AuthKey not valid .";
@@ -1140,7 +872,7 @@ namespace NetworkMonitor.Objects.Repository
                 return result;
 
             }
-                if (queueDicObj.AuthKey != _netConfig.AuthKey)
+            if (queueDicObj.AuthKey != _netConfig.AuthKey)
             {
                 result.Success = false;
                 result.Message += "Error : AuthKey not valid .";
