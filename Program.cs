@@ -123,7 +123,14 @@ namespace NetworkMonitor.Processor
             }
             var processorStates = new LocalProcessorStates();
             IRabbitRepo rabbitRepo = new RabbitRepo(loggerFactory.CreateLogger<RabbitRepo>(), netConfig);
-            await rabbitRepo.ConnectAndSetUp();  
+            var resultRabbitRepo=await rabbitRepo.ConnectAndSetUp(); 
+            if (resultRabbitRepo.Success){
+                logger.LogInformation(resultRabbitRepo.Message);
+            }
+            else{
+                logger.LogError(resultRabbitRepo.Message);
+                return;
+            } 
             _cmdProcessorProvider = new CmdProcessorFactory(loggerFactory, rabbitRepo, netConfig);
             _connectFactory = new NetworkMonitor.Connection.ConnectFactory(loggerFactory.CreateLogger<ConnectFactory>(), netConfig: netConfig, cmdProcessorProvider : _cmdProcessorProvider);
            _ = _connectFactory.SetupChromium(netConfig);
@@ -132,8 +139,22 @@ namespace NetworkMonitor.Processor
             _monitorPingProcessor = new MonitorPingProcessor(loggerFactory.CreateLogger<MonitorPingProcessor>(), netConfig, _connectFactory, fileRepo, rabbitRepo, processorStates);
             IRabbitListener rabbitListener = new RabbitListener(_monitorPingProcessor, loggerFactory.CreateLogger<RabbitListener>(), netConfig, processorStates, _cmdProcessorProvider);
             AuthService authService;
-            var resultListener = rabbitListener.SetupListener();
+            var resultListener = await rabbitListener.Setup();
+             if (resultListener.Success){
+                logger.LogInformation(resultListener.Message);
+            }
+            else{
+                logger.LogError(resultListener.Message);
+                return;
+            } 
             var result = await _monitorPingProcessor.Init(new ProcessorInitObj());
+             if (result.Success){
+                logger.LogInformation(result.Message);
+            }
+            else{
+                logger.LogError(result.Message);
+                return;
+            } 
             processorStates.IsSetup = result.Success;
             if (config["AuthDevice"] == "true")
             {

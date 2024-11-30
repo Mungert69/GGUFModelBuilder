@@ -25,7 +25,7 @@ namespace NetworkMonitor.Objects.Repository
         Task<ResultObj> WakeUp();
         Task<ResultObj> ProcessorUserEvent(ProcessorUserEventObj processorUserEventObj);
         Task Shutdown();
-        Task<ResultObj> SetupListener();
+        Task<ResultObj> Setup();
     }
     public class RabbitListener : RabbitListenerBase, IRabbitListener
     {
@@ -52,10 +52,7 @@ namespace NetworkMonitor.Objects.Repository
             _pollingTimer.Start();
         }
 
-        public async Task<ResultObj> SetupListener()
-        {
-            return await Setup();
-        }
+     
         private async Task PollingTick()
         {
             try
