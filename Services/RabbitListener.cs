@@ -647,6 +647,13 @@ namespace NetworkMonitor.Objects.Repository
                 _logger.LogError(result.Message);
                 return result;
             }
+              processorType = processorScanDataObj.Type;
+            if (string.IsNullOrEmpty(processorType))
+            {
+                result.Message += $"Error : processorScanDataObj.Type was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
             var processor = _cmdProcessorProvider.GetProcessor(processorType);
             if (processor == null)
             {
@@ -654,13 +661,7 @@ namespace NetworkMonitor.Objects.Repository
                 _logger.LogError(result.Message);
                 return result;
             }
-            processorType = processorScanDataObj.Type;
-            if (string.IsNullOrEmpty(processorType))
-            {
-                result.Message += $"Error : processorScanDataObj.Type was null.";
-                _logger.LogError(result.Message);
-                return result;
-            }
+          
             result.Message = $"MessageAPI : Processor{processorType}Command : ";
 
 
