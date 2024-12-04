@@ -61,7 +61,7 @@ namespace NetworkMonitor.Objects.Repository
                 {
                     NextRunInterval = (int)_pollingInterval.TotalMilliseconds
                 };
-                await InternalConnect(processorConnectObj).ConfigureAwait(false);
+                await InternalConnect(processorConnectObj);
             }
             catch (Exception ex)
             {
