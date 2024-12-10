@@ -895,7 +895,7 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        _cmdProcessorFactory.HandleDynamicProcessor(request.ProcessorType, request.SourceCode);
+        _cmdProcessorProvider.HandleDynamicProcessor(request.ProcessorType, request.SourceCode);
 
         result.Success = true;
         result.Message = $"Successfully added CmdProcessor '{request.ProcessorType}' dynamically.";
