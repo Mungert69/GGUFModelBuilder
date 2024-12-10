@@ -52,7 +52,7 @@ namespace NetworkMonitor.Objects.Repository
             _pollingTimer.Start();
         }
 
-     
+
         private async Task PollingTick()
         {
             try
@@ -153,13 +153,13 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
-    {
-        ExchangeName = "addCmdProcessor"+ _netConfig.AppID,
-        FuncName = "addCmdProcessor",
-        MessageTimeout = 60000
-    });
-        
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "addCmdProcessor" + _netConfig.AppID,
+                FuncName = "addCmdProcessor",
+                MessageTimeout = 60000
+            });
+
         }
         protected override async Task<ResultObj> DeclareConsumers()
         {
@@ -339,7 +339,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                                 case "processorCommand":
+                            case "processorCommand":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
@@ -354,7 +354,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                              case "addCmdProcessor":
+                            case "addCmdProcessor":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
@@ -369,7 +369,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                                                       }
+                        }
                     }
                 }
                 result.Success = true;
@@ -517,7 +517,7 @@ namespace NetworkMonitor.Objects.Repository
                 _logger.LogError(result.Message);
                 return result;
             }
-              processorType = processorScanDataObj.Type;
+            processorType = processorScanDataObj.Type;
             if (string.IsNullOrEmpty(processorType))
             {
                 result.Message += $"Error : processorScanDataObj.Type was null.";
@@ -531,7 +531,7 @@ namespace NetworkMonitor.Objects.Repository
                 _logger.LogError(result.Message);
                 return result;
             }
-          
+
             result.Message = $"MessageAPI : Processor{processorType}Command : ";
 
 
@@ -876,38 +876,38 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
         private async Task<ResultObj> AddCmdProcessor(AddCmdProcessorRequest request)
-{
-    var result = new ResultObj { Success = false };
-
-    try
-    {
-          if (request.AuthKey != _netConfig.AuthKey)
-            {
-                result.Success = false;
-                result.Message += "Error : AuthKey not valid .";
-                _logger.LogError(result.Message);
-                return result;
-
-            }
-        if (string.IsNullOrWhiteSpace(request.ProcessorType) || string.IsNullOrWhiteSpace(request.SourceCode))
         {
-            result.Message = " Error : ProcessorType and SourceCode are required.";
+            var result = new ResultObj { Success = false };
+
+            try
+            {
+                if (request.AuthKey != _netConfig.AuthKey)
+                {
+                    result.Success = false;
+                    result.Message += "Error : AuthKey not valid .";
+                    _logger.LogError(result.Message);
+                    return result;
+
+                }
+                if (string.IsNullOrWhiteSpace(request.ProcessorType) || string.IsNullOrWhiteSpace(request.SourceCode))
+                {
+                    result.Message = " Error : ProcessorType and SourceCode are required.";
+                    return result;
+                }
+
+                _cmdProcessorProvider.HandleDynamicProcessor(request.ProcessorType, request.SourceCode);
+
+                result.Success = true;
+                result.Message = $"Successfully added CmdProcessor '{request.ProcessorType}' dynamically.";
+            }
+            catch (Exception ex)
+            {
+                result.Message = $"Error adding CmdProcessor: {ex.Message}";
+                _logger.LogError(result.Message);
+            }
+
             return result;
         }
-
-        _cmdProcessorProvider.HandleDynamicProcessor(request.ProcessorType, request.SourceCode);
-
-        result.Success = true;
-        result.Message = $"Successfully added CmdProcessor '{request.ProcessorType}' dynamically.";
-    }
-    catch (Exception ex)
-    {
-        result.Message = $"Error adding CmdProcessor: {ex.Message}";
-        _logger.LogError(result.Message);
-    }
-
-    return result;
-}
 
     }
 }
