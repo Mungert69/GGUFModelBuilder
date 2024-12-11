@@ -360,7 +360,7 @@ namespace NetworkMonitor.Objects.Repository
                             {
                                 try
                                 {
-                                    _ = AddCmdProcessor(ConvertToObject<AddCmdProcessorRequest>(model, ea));
+                                    _ = AddCmdProcessor(ConvertToObject<ProcessorScanDataObj>(model, ea));
                                     await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                                 }
                                 catch (Exception ex)
@@ -875,13 +875,21 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        private async Task<ResultObj> AddCmdProcessor(AddCmdProcessorRequest request)
+        private async Task<ResultObj> AddCmdProcessor(ProcessorScanDataObj? processorScanDataObj)
         {
             var result = new ResultObj { Success = false };
 
             try
             {
-                if (request.AuthKey != _netConfig.AuthKey)
+                if (processorScanDataObj == null)
+                {
+                    result.Success = false;
+                    result.Message += "Error : processorScanDataObj was null .";
+                    _logger.LogError(result.Message);
+                    return result;
+
+                }
+                if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
                 {
                     result.Success = false;
                     result.Message += "Error : AuthKey not valid .";
@@ -889,19 +897,12 @@ namespace NetworkMonitor.Objects.Repository
                     return result;
 
                 }
-                if (string.IsNullOrWhiteSpace(request.ProcessorType) || string.IsNullOrWhiteSpace(request.SourceCode))
-                {
-                    result.Message = " Error : ProcessorType and SourceCode are required.";
-                    return result;
-                }
+                result = await _cmdProcessorProvider.AddCmdProcessor(processorScanDataObj);
 
-                _cmdProcessorProvider.HandleDynamicProcessor(request.ProcessorType, request.SourceCode);
-
-                result.Success = true;
-                result.Message = $"Successfully added CmdProcessor '{request.ProcessorType}' dynamically.";
             }
             catch (Exception ex)
             {
+                result.Success = false;
                 result.Message = $"Error adding CmdProcessor: {ex.Message}";
                 _logger.LogError(result.Message);
             }
