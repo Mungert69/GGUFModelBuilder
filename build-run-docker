@@ -1,5 +1,5 @@
 #!/bin/sh
-
+cp appsettings-live.json appsettings.json
 # Define variables for reusability
 SECRET_FILE="../secret"
 REPO_URL="https://mungert69:`cat $SECRET_FILE`@github.com/Mungert69/NetworkMonitorProcessor"

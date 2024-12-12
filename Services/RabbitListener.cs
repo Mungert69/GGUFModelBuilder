@@ -159,6 +159,12 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "addCmdProcessor",
                 MessageTimeout = 60000
             });
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "getCommandHelp" + _netConfig.AppID,
+                FuncName = "getCommandHelp",
+                MessageTimeout = 60000
+            });
 
         }
         protected override async Task<ResultObj> DeclareConsumers()
@@ -354,6 +360,22 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
+                                 case "getCommandHelp":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                            {
+                                try
+                                {
+                                    _ = GetCommandHelp(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.getCommandHelp " + ex.Message);
+                                }
+                            };
+                                break;
+                           
                             case "addCmdProcessor":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
@@ -539,7 +561,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds);
                 var cts = new CancellationTokenSource(timeout);
-                _logger.LogWarning($"{result.Message} Running {processorType} Command with arguments {processorScanDataObj.Arguments}");
+                _logger.LogInformation($"{result.Message} Queued {processorType} Command with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await processor.QueueCommand(cts, processorScanDataObj);
                 result.Message += $"Success: Ran {processorType} command. Command Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
@@ -553,6 +575,62 @@ namespace NetworkMonitor.Objects.Repository
 
             return result;
         }
+
+ public async Task<ResultObj> GetCommandHelp(ProcessorScanDataObj? processorScanDataObj)
+        {
+            string? processorType = "";
+            var result = new ResultObj();
+            result.Success = false;
+
+
+
+            if (processorScanDataObj == null)
+            {
+                result.Message += "Error : processorScanDataObj was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Message += "Error : AuthKey not valid.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            processorType = processorScanDataObj.Type;
+            if (string.IsNullOrEmpty(processorType))
+            {
+                result.Message += $"Error : processorScanDataObj.Type was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            var processor = _cmdProcessorProvider.GetProcessor(processorType);
+            if (processor == null)
+            {
+                result.Message += $"Error : {processorType} processor not available.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            result.Message = $"MessageAPI : {processorType} GetCommandHelp";
+
+
+            try
+            {
+               var commandResult = await processor.PublishCommandHelp(processorScanDataObj);
+                result.Message += $"Success: Ran get {processorType} help. Result: {commandResult.Message}";
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Message += $"Error : Failed to run get {processorType} help : Error was : {e.Message}";
+                _logger.LogError(result.Message);
+            }
+
+            return result;
+        }
+
 
         public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
         {
