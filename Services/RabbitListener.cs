@@ -360,7 +360,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                                 case "getCommandHelp":
+                            case "getCommandHelp":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
@@ -375,7 +375,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                           
+
                             case "addCmdProcessor":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
@@ -388,6 +388,21 @@ namespace NetworkMonitor.Objects.Repository
                                 catch (Exception ex)
                                 {
                                     _logger.LogError(" Error : RabbitListener.DeclareConsumers.addCmdProcessor " + ex.Message);
+                                }
+                            };
+                                break;
+                            case "getCommandList":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                            {
+                                try
+                                {
+                                    result = await GetCommandList();
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.getCommandList " + ex.Message);
                                 }
                             };
                                 break;
@@ -542,15 +557,17 @@ namespace NetworkMonitor.Objects.Repository
             processorType = processorScanDataObj.Type;
             if (string.IsNullOrEmpty(processorType))
             {
-                result.Message += $"Error : processorScanDataObj.Type was null.";
+                result.Message += $"Error : cmd_processor_type was null or empty.";
                 _logger.LogError(result.Message);
                 return result;
             }
             var processor = _cmdProcessorProvider.GetProcessor(processorType);
             if (processor == null)
             {
-                result.Message += $"Error : {processorType} processor not available.";
+                result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
                 _logger.LogError(result.Message);
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                PublishScanProcessorDataObj(processorScanDataObj)
                 return result;
             }
 
@@ -576,7 +593,7 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
- public async Task<ResultObj> GetCommandHelp(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> GetCommandHelp(ProcessorScanDataObj? processorScanDataObj)
         {
             string? processorType = "";
             var result = new ResultObj();
@@ -600,14 +617,18 @@ namespace NetworkMonitor.Objects.Repository
             processorType = processorScanDataObj.Type;
             if (string.IsNullOrEmpty(processorType))
             {
-                result.Message += $"Error : processorScanDataObj.Type was null.";
+                result.Message += $"Error : cmd_processor_type was null or empty.";
                 _logger.LogError(result.Message);
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                PublishScanProcessorDataObj(processorScanDataObj)
                 return result;
             }
             var processor = _cmdProcessorProvider.GetProcessor(processorType);
             if (processor == null)
             {
-                result.Message += $"Error : {processorType} processor not available.";
+                result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                PublishScanProcessorDataObj(processorScanDataObj)
                 _logger.LogError(result.Message);
                 return result;
             }
@@ -617,7 +638,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-               var commandResult = await processor.PublishCommandHelp(processorScanDataObj);
+                var commandResult = await processor.PublishCommandHelp(processorScanDataObj);
                 result.Message += $"Success: Ran get {processorType} help. Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
                 _logger.LogInformation(result.Message);
@@ -625,6 +646,53 @@ namespace NetworkMonitor.Objects.Repository
             catch (Exception e)
             {
                 result.Message += $"Error : Failed to run get {processorType} help : Error was : {e.Message}";
+                _logger.LogError(result.Message);
+            }
+
+            return result;
+        }
+
+        public async Task<ResultObj> GetCommandList(ProcessorScanDataObj? processorScanDataObj)
+        {
+            string? processorType = "";
+            var result = new ResultObj();
+            result.Success = false;
+
+
+
+            if (processorScanDataObj == null)
+            {
+                result.Message += "Error : processorScanDataObj was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Message += "Error : AuthKey not valid.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+
+
+            result.Message = $"MessageAPI : {processorType} GetCommandList";
+
+
+            try
+            {
+                var processorTypes = _cmdProcessorProvider.ProcessorTypes;
+                var processorTypesString = string.Join(", ", processorTypes.Select(type => $"'{type}'"));
+                string message = $"Success: got the list of cmd processor types for the agent. cmd_processor_types : [{processorTypesString}]";
+                processorScanDataObj.ScanCommandOutput = message;
+                var resultPublish = PublishScanProcessorDataObj(processorScanDataObj);
+                result.Success = resultPublish.Success;
+                result.Message += resultPublish.Message;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Message += $"Error : Failed to run get cmd processor list : Error was : {e.Message}";
                 _logger.LogError(result.Message);
             }
 
