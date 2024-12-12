@@ -14,7 +14,6 @@ using NetworkMonitor.Utils;
 using System.Xml.Linq;
 using System.IO;
 using System.Threading;
-using NetworkMonitor.Service.Services.OpenAI;
 
 namespace NetworkMonitor.Connection
 {
@@ -95,15 +94,8 @@ namespace NetworkMonitor.Connection
                         string errorOutput = errorBuilder.ToString();
 
                         if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
-                        {
-                            if (errorOutput.Contains("applet not found"))
-                            {
-                                output = "Busybox does not contain the command. Try running it directly by passing the arguments: \"sh <command>\".";
-                            }
-                            else
-                            {
-                                output = $"RedirectStandardError: {errorOutput}\nRedirectStandardOutput: {output}";
-                            }
+                        {           
+                            output = $"RedirectStandardError: {errorOutput}\nRedirectStandardOutput: {output}";   
                         }
 
                         result.Success = true;
