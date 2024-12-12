@@ -397,7 +397,7 @@ namespace NetworkMonitor.Objects.Repository
                             {
                                 try
                                 {
-                                    result = await GetCommandList();
+                                    result = await GetCommandList(ConvertToObject<ProcessorScanDataObj>(model, ea));;
                                     await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                                 }
                                 catch (Exception ex)
@@ -567,7 +567,7 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
                 _logger.LogError(result.Message);
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj);
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
                 return result;
             }
 
@@ -620,7 +620,7 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += $"Error : cmd_processor_type was null or empty.";
                 _logger.LogError(result.Message);
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj);
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
                 return result;
             }
             var processor = _cmdProcessorProvider.GetProcessor(processorType);
@@ -628,7 +628,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj);
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
                 _logger.LogError(result.Message);
                 return result;
             }
@@ -685,7 +685,7 @@ namespace NetworkMonitor.Objects.Repository
                 var processorTypesString = string.Join(", ", processorTypes.Select(type => $"'{type}'"));
                 string message = $"Success: got the list of cmd processor types for the agent. cmd_processor_types : [{processorTypesString}]";
                 processorScanDataObj.ScanCommandOutput = message;
-                var resultPublish = PublishScanProcessorDataObj(processorScanDataObj);
+                var resultPublish = await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
                 result.Success = resultPublish.Success;
                 result.Message += resultPublish.Message;
                 _logger.LogInformation(result.Message);
