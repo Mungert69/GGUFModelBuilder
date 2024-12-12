@@ -567,7 +567,7 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
                 _logger.LogError(result.Message);
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj)
+                PublishScanProcessorDataObj(processorScanDataObj);
                 return result;
             }
 
@@ -620,7 +620,7 @@ namespace NetworkMonitor.Objects.Repository
                 result.Message += $"Error : cmd_processor_type was null or empty.";
                 _logger.LogError(result.Message);
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj)
+                PublishScanProcessorDataObj(processorScanDataObj);
                 return result;
             }
             var processor = _cmdProcessorProvider.GetProcessor(processorType);
@@ -628,7 +628,7 @@ namespace NetworkMonitor.Objects.Repository
             {
                 result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
                 processorScanDataObj.ScanCommandOutput = result.Message;
-                PublishScanProcessorDataObj(processorScanDataObj)
+                PublishScanProcessorDataObj(processorScanDataObj);
                 _logger.LogError(result.Message);
                 return result;
             }
