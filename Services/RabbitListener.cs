@@ -157,12 +157,18 @@ namespace NetworkMonitor.Objects.Repository
             {
                 ExchangeName = "addCmdProcessor" + _netConfig.AppID,
                 FuncName = "addCmdProcessor",
-                MessageTimeout = 60000
+                MessageTimeout = 120000
             });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "getCommandHelp" + _netConfig.AppID,
                 FuncName = "getCommandHelp",
+                MessageTimeout = 60000
+            });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "getCommandList" + _netConfig.AppID,
+                FuncName = "getCommandList",
                 MessageTimeout = 60000
             });
 
