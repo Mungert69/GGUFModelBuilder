@@ -171,12 +171,19 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "getCmdProcessorHelp",
                 MessageTimeout = 120000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "getCmdProcessorList" + _netConfig.AppID,
                 FuncName = "getCmdProcessorList",
                 MessageTimeout = 120000
             });
+            _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "getCmdProcessorSource" + _netConfig.AppID,
+                FuncName = "getCmdProcessorSource",
+                MessageTimeout = 120000
+            });
+
 
         }
         protected override async Task<ResultObj> DeclareConsumers()
@@ -348,7 +355,7 @@ namespace NetworkMonitor.Objects.Repository
                             {
                                 try
                                 {
-                                    result = await ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    _ = ProcessorScan(ConvertToObject<ProcessorScanDataObj>(model, ea));
                                     await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                                 }
                                 catch (Exception ex)
@@ -388,6 +395,22 @@ namespace NetworkMonitor.Objects.Repository
                             };
                                 break;
 
+                            case "getCmdProcessorSource":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                            {
+                                try
+                                {
+                                    _ = GetCommandSource(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.getCmdProcessorSource " + ex.Message);
+                                }
+                            };
+                                break;
+
                             case "addCmdProcessor":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
@@ -403,7 +426,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                                  case "deleteCmdProcessor":
+                            case "deleteCmdProcessor":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
@@ -424,7 +447,7 @@ namespace NetworkMonitor.Objects.Repository
                             {
                                 try
                                 {
-                                    result = await GetCommandList(ConvertToObject<ProcessorScanDataObj>(model, ea));;
+                                    _ = GetCommandList(ConvertToObject<ProcessorScanDataObj>(model, ea)); ;
                                     await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
                                 }
                                 catch (Exception ex)
@@ -621,7 +644,7 @@ namespace NetworkMonitor.Objects.Repository
         }
 
 
-   public async Task<ResultObj> DeleteCmdProcessor(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> DeleteCmdProcessor(ProcessorScanDataObj? processorScanDataObj)
         {
             string? processorType = "";
             var result = new ResultObj();
@@ -654,7 +677,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-               result = await _cmdProcessorProvider.DeleteCmdProcessor(processorScanDataObj);
+                result = await _cmdProcessorProvider.DeleteCmdProcessor(processorScanDataObj);
 
                 _logger.LogInformation(result.Message);
             }
@@ -725,6 +748,66 @@ namespace NetworkMonitor.Objects.Repository
 
             return result;
         }
+
+           public async Task<ResultObj> GetCommandSource(ProcessorScanDataObj? processorScanDataObj)
+        {
+            string? processorType = "";
+            var result = new ResultObj();
+            result.Success = false;
+
+
+
+            if (processorScanDataObj == null)
+            {
+                result.Message += "Error : processorScanDataObj was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Message += "Error : AuthKey not valid.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            processorType = processorScanDataObj.Type;
+            if (string.IsNullOrEmpty(processorType))
+            {
+                result.Message += $"Error : cmd_processor_type was null or empty.";
+                _logger.LogError(result.Message);
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
+                return result;
+            }
+            var processor = _cmdProcessorProvider.GetProcessor(processorType);
+            if (processor == null)
+            {
+                result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            result.Message = $"MessageAPI : {processorType} GetCommandSource";
+
+
+            try
+            {
+                  var resultPublish = await _cmdProcessorProvider.PublishSourceCode(processorScanDataObj);
+                result.Success = resultPublish.Success;
+                result.Message += resultPublish.Message;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Message += $"Error : Failed to run get {processorType} help : Error was : {e.Message}";
+                _logger.LogError(result.Message);
+            }
+
+            return result;
+        }
+
 
         public async Task<ResultObj> GetCommandList(ProcessorScanDataObj? processorScanDataObj)
         {
