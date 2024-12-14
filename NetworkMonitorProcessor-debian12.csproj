@@ -33,9 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetworkMonitor\NetworkMonitor.csproj" />
   </ItemGroup>
- <ItemGroup>
-  <Reference Include="dynamic.dll" />
-</ItemGroup>
+
   <ItemGroup>
     <Content Include="openssl-3.3.1\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
