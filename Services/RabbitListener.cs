@@ -153,6 +153,12 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorCommand",
                 MessageTimeout = 6000000
             });
+             _rabbitMQObjs.Add(new RabbitMQObj()
+            {
+                ExchangeName = "cancelCommand" + _netConfig.AppID,
+                FuncName = "cancelCommand",
+                MessageTimeout = 6000000
+            });
             _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "addCmdProcessor" + _netConfig.AppID,
@@ -379,6 +385,22 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
+                                 case "cancelCommand":
+                                await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
+                                rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
+                            {
+                                try
+                                {
+                                    _ = CancelCommand(ConvertToObject<ProcessorScanDataObj>(model, ea));
+                                    await rabbitMQObj.ConnectChannel.BasicAckAsync(ea.DeliveryTag, false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(" Error : RabbitListener.DeclareConsumers.cancelCommand " + ex.Message);
+                                }
+                            };
+                                break;
+                           
                             case "getCmdProcessorHelp":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
@@ -637,6 +659,64 @@ namespace NetworkMonitor.Objects.Repository
             catch (Exception e)
             {
                 result.Message += $"Error : Failed to run {processorType} Command: Error was : {e.Message}";
+                _logger.LogError(result.Message);
+            }
+
+            return result;
+        }
+
+
+     public async Task<ResultObj> CancelCommand(ProcessorScanDataObj? processorScanDataObj)
+        {
+            string? processorType = "";
+            var result = new ResultObj();
+            result.Success = false;
+
+
+
+            if (processorScanDataObj == null)
+            {
+                result.Message += "Error : processorScanDataObj was null.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+
+            if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+            {
+                result.Message += "Error : AuthKey not valid.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            processorType = processorScanDataObj.Type;
+            if (string.IsNullOrEmpty(processorType))
+            {
+                result.Message += $"Error : cmd_processor_type was null or empty.";
+                _logger.LogError(result.Message);
+                return result;
+            }
+            var processor = _cmdProcessorProvider.GetProcessor(processorType);
+            if (processor == null)
+            {
+                result.Message += $"Error : {processorType} cmd processor not available for this agent. Try calling get_cmd_list to get a list of cmd processors.";
+                _logger.LogError(result.Message);
+                processorScanDataObj.ScanCommandOutput = result.Message;
+                await _cmdProcessorProvider.PublishScanProcessorDataObj(processorScanDataObj);
+                return result;
+            }
+
+            result.Message = $"MessageAPI : Cancel{processorType}Command : ";
+
+
+            try
+            {
+                var commandResult = await processor.CancelCommand(processorScanDataObj.MessageID);
+                result.Message += $" {processorType} CancelCommand Result: {commandResult.Message}";
+                result.Success = commandResult.Success;
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception e)
+            {
+                result.Message += $"Error : failed to CancelCommand {processorType} : Error was : {e.Message}";
                 _logger.LogError(result.Message);
             }
 
