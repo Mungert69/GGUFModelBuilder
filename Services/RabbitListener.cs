@@ -650,9 +650,9 @@ namespace NetworkMonitor.Objects.Repository
             {
                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds);
                 var cts = new CancellationTokenSource(timeout);
-                _logger.LogInformation($"{result.Message} Queued {processorType} Command with arguments {processorScanDataObj.Arguments}");
+                _logger.LogInformation($"{result.Message} Queued {processorType} Command  message_id {processorScanDataObj.MessageID} with arguments {processorScanDataObj.Arguments}");
                 var commandResult = await processor.QueueCommand(cts, processorScanDataObj);
-                result.Message += $"Success: Ran {processorType} command. Command Result: {commandResult.Message}";
+                result.Message += $"Success: Ran {processorType} Command message_id {processorScanDataObj.MessageID} . Command Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
                 _logger.LogInformation(result.Message);
             }
