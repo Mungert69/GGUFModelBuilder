@@ -462,38 +462,7 @@ namespace NetworkMonitor.Processor.Services
 
                     return result;
                 }
-                /*
-#if !ANDROID
-                try
-                {
-                    var message = "";
-                    long memoryBeforeGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
-                    double memoryBeforeGCMb = (double)memoryBeforeGCBytes / (1024 * 1024);
-                    message += $" Info : Memory used Before GC: {memoryBeforeGCMb:F2} MB : ";
-
-                    GC.Collect();
-
-                    long memoryAfterGCBytes = GC.GetGCMemoryInfo().TotalCommittedBytes;
-                    double memoryAfterGCMb = (double)memoryAfterGCBytes / (1024 * 1024);
-                    message += $" Memory used After GC: {memoryAfterGCMb:F2} MB : ";
-
-                    long noGCRegionSizeBytes = 256 * 1024 * 1024; // 256 MB
-                    bool succeeded = GC.TryStartNoGCRegion(noGCRegionSizeBytes, true);
-
-
-                    if (!succeeded)
-                    {
-                        _logger.LogWarning(" Warning: Unable to collect garbage or start No GC region.");
-                    }
-                    result.Message += message;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error: {ex.Message}");
-                }
-
-#endif
-                */
+                
 
                 List<INetConnect> filteredNetConnects = _netConnectCollection.GetFilteredNetConnects().ToList();
                 // Time interval between Now and NextRun
@@ -540,24 +509,7 @@ namespace NetworkMonitor.Processor.Services
                     }
                     countDown--;
                 };
-                /*
-#if !ANDROID
-                try
-                {
-                    if (GCSettings.LatencyMode == GCLatencyMode.NoGCRegion)
-                    {
-                        GC.EndNoGCRegion();
-                        _logger.LogInformation("No GC Region ended successfully.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning($"Warning: Unable to end No GC Region - {ex.Message}");
-                }
-
-#endif
-                */
-
+               
                 //new System.Threading.ManualResetEvent(false).WaitOne(_pingParams.Timeout);
                 result.Message += " Success : Completed all connections in " + timerInner.Elapsed.TotalMilliseconds + " ms ";
                 result.Success = true;
