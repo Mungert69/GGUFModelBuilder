@@ -5,9 +5,7 @@
     <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
 
     <Nullable>enable</Nullable>
-      <DefineConstants>NetworkMonitorProcessor</DefineConstants>
-      <!-- Ensure all assemblies are copied to the output directory -->
-   
+      <DefineConstants>NetworkMonitorProcessor; WINDOWS</DefineConstants>
   </PropertyGroup>
 
  
@@ -19,6 +17,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
   </ItemGroup>
+
+ 
+
+
   <ItemGroup>
     <ProjectReference Include="..\NetworkMonitor\NetworkMonitor-Maui.csproj" />
   </ItemGroup>
