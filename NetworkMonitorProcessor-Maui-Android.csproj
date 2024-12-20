@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 
-    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net9.0-android</TargetFramework>
 
     <Nullable>enable</Nullable>
       <DefineConstants>NetworkMonitorProcessor</DefineConstants>
@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NetworkMonitor\NetworkMonitor-Maui.csproj" />
+    <ProjectReference Include="..\NetworkMonitor\NetworkMonitor-Maui-Android.csproj" />
   </ItemGroup>
    
 </Project>
