@@ -3,7 +3,8 @@
   <PropertyGroup>
 
     <TargetFramework>net9.0-android</TargetFramework>
-
+    <RootNamespace>NetworkMonitor.Processor</RootNamespace>
+            
     <Nullable>enable</Nullable>
       <DefineConstants>NetworkMonitorProcessor</DefineConstants>
       <!-- Ensure all assemblies are copied to the output directory -->
@@ -11,7 +12,9 @@
   </PropertyGroup>
 
  
-
+<ItemGroup>
+    <AndroidNativeLibrary Remove="openssl-3.3.1/lib64/*" />
+</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0" />
