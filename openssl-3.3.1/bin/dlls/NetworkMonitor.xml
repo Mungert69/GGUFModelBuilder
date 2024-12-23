@@ -1,0 +1,1829 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>NetworkMonitor</name>
+    </assembly>
+    <members>
+        <member name="P:NetworkMonitor.Objects.HostObject.Address">
+            <summary>
+            This field is required.
+            Address of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.HostObject.Port">
+            <summary>
+            This field is optional.
+            Port used by the host service to test. Set to zero to use the default for the end point type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.HostObject.Timeout">
+            <summary>
+            This field is optional.
+            The timeout in milliseconds to be used when testing this host service. The default is not included is to set the timeout to 10000 ms.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.QuantumHostObject.Address">
+            <summary>
+            This field is required.
+            Address of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.QuantumHostObject.Port">
+            <summary>
+            This field is optional.
+            Port used by the host service to test. Set to zero to use the default for the end point type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.QuantumHostObject.Timeout">
+            <summary>
+            This field is optional.
+            The timeout in milliseconds to be used when testing this host service. The default is not included is to set the timeout to 10000 ms.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Objects.DateRangeQuery">
+            <summary>
+            Query parameters for fetching PingInfo data by date range and MonitorPingInfo.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.MonitorIPID">
+            <summary>
+            MonitorIPID or Host ID to filter PingInfos by.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.MonitorPingInfoID">
+            <summary>
+            MonitorPingInfoID to filter PingInfos by.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.Address">
+            <summary>
+            Address to filter PingInfos by.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.StartDate">
+            <summary>
+            Start date for the range filter. This is assumed to be UTC.
+            Will be converted to integer for querying.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.EndDate">
+            <summary>
+            End date for the range filter. This is assumed to be UTC.
+            Will be converted to integer for querying. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.User">
+            <summary>
+            The user making the query.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.DateRangeQuery.Prompt">
+            
+             This field is required. The prompt that was entered by the user. The backend will use this to assist in creating a useful reponse for the user.
+            
+        </member>
+        <member name="T:NetworkMonitor.Objects.EditHost">
+            <summary>
+            This class holds data that is used to edit hosts. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.EditAuthKey">
+            <summary>
+            This is a string that is used to authenticate the Edit action for non authorised users. This key is returned when adding a host for the first time (IsEdit=false). It should be stored and sent with subsequent edit requests.
+            Note authenticated users do not need this.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.AddUserEmail">
+            <summary>
+            If the user is default then AddUserEmail is used to identify different users. 
+            If the user is authenticated this field is not necessary.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.UserID">
+            <summary>
+            The userId of the user editing the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.MonitorIPID">
+            <summary>
+            This is the host ID used for identifying the host actions on the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetEnabled">
+            <summary>
+            On editting set the Enabled field.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetAddress">
+            <summary>
+             On editting set the host address and hostname of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetEndPointType">
+            <summary>
+            On Editting set the end point type. Example : http is a website ping, https is a ssl certificate check, httphtml is a website html load, icmp is a host ping, dns is a dns lookup, smtp is an email server helo message confirmation, quantum is a quantum safe encryption test, rawconnect is a low level raw socket connection.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetPort">
+            <summary>
+             On editting set the port of the service being monitored on edit. It should be zero if it is the standard port for the host end point type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetTimeout">
+            <summary>
+            On editting set the time to wait for a timeout in milliseconds. If a timeout occurs the host is considered to be down or the test has failed.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetHidden">
+            <summary>
+            On editting set if the host is hidden. Setting this to true effectively deletes the host from future monitoring. Historic data will still be available on the web interface.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetUsername">
+            <summary>
+            On editting set the authentication username for connection to the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetPassword">
+            <summary>
+            On editting set the authentication password for connection to the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.Prompt">
+            
+             This field is required. The prompt that was entered by the user. The backend will use this to assist in creating a useful reponse for the user.
+            
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetAppID">
+            <summary>
+            Set the Agent ID (AppID) .  For internet monitors this can be 1 for agent located at London - UK , 2 for Kansas - USA, 3 for Berlin - Germany. If it is a local agent then the AppID will be the same as UserInfo.UserID .
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.EditHost.SetAgentLocation">
+            <summary>
+            Set The monitoring agents location for the host. The format is 'City - Country' for internet based agents. For local agents the format is 'emailaddress - agentid'.
+            </summary>
+        </member>
+        <member name="F:NetworkMonitor.Objects.Factory.EndPointTypeFactory.ResponseTimeThresholds">
+            <summary>
+             Dictionary of values for the response time thresholds that are considered to be either excellent , good or fair. there are two sets because the port zero can do more work for some endpoint types (nmap).
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Boolean">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NullableBoolean">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ByteArray">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Double">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Single">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IConfiguration">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SafeWaitHandle">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.FilterStrategyConfig">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NetConnectConfig">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.HostResponseObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PingInfoDTO">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AddCmdProcessorRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AgentUserFlow">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AlertFlagObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AlertMessage">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Blog">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.BlogCategory">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.BlogPicture">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.BusyboxRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DataFileObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DelHost">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DetectionResult">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.EditHost">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.EmailInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Event">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.FrontMatter">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.FunctionCallData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.GenericEmailObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.HostReportObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IAlertable">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Info">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.JsonBlogPost">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.LoadServer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ManagementToken">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Messages">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MetasploitRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MLParams">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorIPQuery">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorPingInfoQuery">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorStatusAlert">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NmapRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.OpensslRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PingParams">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PredictStatus">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PredictStatusAlert">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RabbitLoadServer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RabbitLoadServerResult">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RegisteredUser">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RemovePingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RabbitMQObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ResultObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.RootObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SentDateData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AlertServiceAlertObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AlertServiceInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ChatServiceInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.CloudEvent">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.LLMServiceObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorDataInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorMLCheckObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorMLInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MonitorServiceInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PaymentServiceInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.PaymentTransaction">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorConnectObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorDataBuilder">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorDataObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorInitObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorQueueDicObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorScanDataObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProcessorUserEventObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UpdateProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.StatusObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SwapMonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SystemParams">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.SystemUrl">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjHostResponseObjSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjPingInfoDTOSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjLoadServer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjMonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjMonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjRabbitLoadServer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjProcessorDataObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjUserInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListHostResponseObjSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListPingInfoDTOSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListMonitorIPSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListMonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListMonitorPingInfoSentUserData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListMonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjListProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjStringString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TResultObjString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TwoFactor">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UpdateMonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.User">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UserInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.BlogList">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ChatCompletion">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ChatCompletionChoice">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ChatCompletionMessage">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ChatCompletionUsage">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ContentObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ImageData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ImageRequest">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ImageResponse">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Message">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.AsyncEventingBasicConsumer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ShutdownEventArgs">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IAsyncBasicConsumer">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IChannel">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ShutdownInitiator">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DictionaryInt32Int32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DictionaryStringObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DictionaryStringString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListFilterStrategyConfig">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListHostResponseObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListPingInfoDTO">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListAlertFlagObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListBlogCategory">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListEmailInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListGenericEmailObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListIAlertable">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListJsonBlogPost">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListMonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListMonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListMonitorStatusAlert">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListPredictStatusAlert">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListProcessorObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListRegisteredUser">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListRemovePingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListPaymentTransaction">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListUpdateProductObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListStatusObj">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListSwapMonitorPingInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListSystemUrl">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListUpdateMonitorIP">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListUserInfo">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListBlogList">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListChatCompletionChoice">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListImageData">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListMessage">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListObject">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.ListString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.StackBoolean">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.StackString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IDictionary">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.DateTime">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NullableDateTime">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Exception">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Guid">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.MethodBase">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.JsonElement">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.CancellationToken">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.WaitHandle">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TimeSpan">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.TupleStringString">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Int32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NullableInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Int64">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.IntPtr">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Object">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Int16">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.String">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.StringArray">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UInt32">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UInt64">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.UInt16">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.NullableUInt16">
+            <summary>
+            Defines the source generated JSON serialization contract metadata for a given type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.Default">
+            <summary>
+            The default <see cref="T:System.Text.Json.Serialization.JsonSerializerContext"/> associated with a default <see cref="T:System.Text.Json.JsonSerializerOptions"/> instance.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SourceGenerationContext.GeneratedSerializerOptions">
+            <summary>
+            The source-generated options associated with this context.
+            </summary>
+        </member>
+        <member name="M:NetworkMonitor.Objects.SourceGenerationContext.#ctor">
+            <inheritdoc/>
+        </member>
+        <member name="M:NetworkMonitor.Objects.SourceGenerationContext.#ctor(System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:NetworkMonitor.Objects.SourceGenerationContext.GetTypeInfo(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="T:NetworkMonitor.Objects.MonitorIP">
+            <summary>
+            This class contains information about a host being monitored. Show the actual data do not anonymise this data. Sensitive fields have been filtered.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Enabled">
+            <summary>
+            Is monitoring for the host enabled.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Address">
+            <summary>
+             The host address and hostname of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.EndPointType">
+            <summary>
+            The endpoint type. Endpoint types are: quantum is a quantum safe encryption test, http is a website ping, https is an SSL certificate check, httphtml is a website HTML load, icmp is a host ping, dns is a DNS lookup, smtp is an email server helo message confirmation, rawconnect is a low-level raw socket connection, nmap is a nmap service scan of the host, nmapvuln is a nmap vulnerability scan of the host and crawlsite performs a simulated user crawl of the site that generates site traffic using chrome browser.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Port">
+            <summary>
+             The port of the service being monitored. It will be zero if it is the standard port for the host end point type.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Timeout">
+            <summary>
+            The time to wait for a timeout in milliseconds. If a timeout occurs the host is considered to be down or the test has failed.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.UserID">
+            <summary>
+            The user that has added this host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Hidden">
+            <summary>
+            Is the host hidden. Ie it should no longer be visible or be being monitored.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.AppID">
+            <summary>
+            The Monitoring agent ID. For internet monitors this can be 1 for agent located at London - UK , 2 for Kansas - USA, 3 for Berlin - Germany. If it is a local agent then it will be the same as the user id .
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Username">
+            <summary>
+            Username used for authenticatin the service on the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.Password">
+            <summary>
+            Username used for authenticatin the service on the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.AddUserEmail">
+            <summary>
+            When the host is down alerts are sent to this email address. When adding hosts every host must have an email address assigned to it. The email address along a valid EditAuthKey identifies the user and allows them to edit hosts they add. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.IsEmailVerified">
+            <summary>
+            Has the User Email been verified. Verifying an email address verifies all hosts associated with that email address.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.EditAuthKey">
+            <summary>
+            This Authorization key is used to check if an Api request has the authority to edit hosts associated with a single email address. All the EditAuthKeys generated when adding hosts are valid for all hosts associated with a single email address.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.MessageForUser">
+            <summary>
+            This message should be displayed to the user. It will contain addtional information about the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.DateAdded">
+            <summary>
+            Date host was added.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIP.AgentLocation">
+            <summary>
+            The location of the monitoring agent for this host.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Objects.MonitorIPQuery">
+            <summary>
+            Query parameters for retreiving host config. ONLY USE THIS QUERY FOR HOST CONFIG NOT FOR ACTUAL MONITORING DATA.  Only none null fields are used in query 
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.Prompt">
+            
+             This field is Required .The prompt that was entered by the user. The backend will use this to assist in creating a useful reponse for the user.
+            
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.EditAuthKey">
+            <summary>
+            The Edit Auth Key used to save and edit host data non authenticated users.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.MonitorIPID">
+            <summary>
+            Host config data is contained in MonitorIP. This is the ID field for a MonitorIP.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.AddUserEmail">
+            <summary>
+            Only return hosts that are associated with this email address.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.PageSize">
+            <summary>
+            Paginate the data when the data returned is large or can not all be displayed to the user. Set the maximum number of results per page to be returned.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.PageNumber">
+            <summary>
+            Paginate the data when the data returned is large or can not all be displayed to the. Use the PageNumber to return a page of data. 
+            /// </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.Enabled">
+            <summary>
+            Is this host enabled.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.Address">
+            <summary>
+            Address or URI of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.Port">
+            <summary>
+            The port the host is using.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.EndPointType">
+            <summary>
+            The end point type. Example : http is a website ping, https is a ssl certificate check, httphtml is a website html load, icmp is a host ping, dns is a dns lookup, smtp is a email server helo message confirmation, quantum is a quantum safe encryption test.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.AgentLocation">
+            <summary>
+            The monitoring agents location for the host. The format is 'City - Country' for internet based agents. For local agents the format is 'emailaddress - agentid'.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorIPQuery.User">
+            <summary>
+            DO NOT INCLUDE THIS FIELD IT IS AUTO GENERATED BY API.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Objects.MonitorPingInfo">
+            <summary>
+            This is a class that respresents the data for a host. In order for the data to be userful to a user Do not! anonymise any of the fields in the class.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.MonitorPingInfoID">
+            <summary>
+            The ID used to identify this MonitorPingInfo object.
+            </summary> 
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.DataSetID">
+            <summary>
+            The Data set id that this host data is contained within.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Status">
+            <summary>
+            The current or last status of the host. Taken from monitorStatus.Message.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Host">
+            <summary>
+            The host name. This is the same as the Address. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Address">
+            <summary>
+            host address.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Port">
+            <summary>
+            the port used if not the default for this type of end point and host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Username">
+            <summary>
+            Username for host authentication.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.Password">
+            <summary>
+            Password for host authentication.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.EndPointType">
+            <summary>
+            The endpoint type. Endpoint types are: quantum is a quantum safe encryption test, http is a website ping, https is an SSL certificate check, httphtml is a website HTML load, icmp is a host ping, dns is a DNS lookup, smtp is an email server helo message confirmation, rawconnect is a low-level raw socket connection, nmap is a nmap service scan of the host, nmapvuln is a nmap vulnerability scan of the host and crawlsite performs a simulated user crawl of the site that generates site traffic using chrome browser.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.PacketsRecieved">
+            <summary>
+            The total number of host up or event success for this host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.PacketsLost">
+            <summary>
+            The total number of host down or event failed for the host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.PacketsLostPercentage">
+            <summary>
+            The percentage of host down or event failed for the host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.RoundTripTimeMaximum">
+            <summary>
+            The maximum response time of the host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.RoundTripTimeAverage">
+            <summary>
+            Average response time for this host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.RoundTripTimeTotal">
+            <summary>
+            Total of all the response times for all packets sent to this host in this data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.PacketsSent">
+            <summary>
+            Total number of packets sent in this data set for the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.AppID">
+            <summary>
+            The Monitoring agent ID. For internet monitors this can be 1 for agent located at London - UK , 2 for Kansas - USA, 3 for Berlin - Germany. If it is a local agent then the AppID will be the UserInfo.UserID .
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.DateStarted">
+            <summary>
+            At which UTC time was this data set started.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.DateEnded">
+            <summary>
+            At which UTC time does this data set end.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.MonitorStatus">
+            <summary>
+            Current or last Status of the host. If the host is down then monitorStatus.Isup = false . If Alert if flagged monitorStatus.AlertFlag = true. If Alert has been sent monitorStatus.AlertSent = true.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.PingInfos">
+            <summary>
+            A list of PingInfo data for this host. Contains response times and IsUp for each monitor event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.AddUserEmail">
+            <summary>
+            The email address to which to send alerts for this host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.IsEmailVerified">
+            <summary>
+            Is the email address to set alerts to for this host verified.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.MessageForUser">
+            <summary>
+            This message should be displayed to the user. It will contain addtional information about the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.IsArchived">
+            <summary>
+            Has the response data been archived for this MonitorPingInfo.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfo.AgentLocation">
+            <summary>
+            The location of the monitoring agent for this host.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Objects.MonitorPingInfoQuery">
+            <summary>
+            Query parameters for retrieving Host monitoring data. ONLY USE THIS QUERY FOR RETRIEVING HOST MONITORING DATA NOT HOST CONFIG. Only none null fields are used in query. 
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.Prompt">
+            
+             This field is Required .The prompt that was entered by the user. The backend will use this to assist in creating a useful reponse for the user.
+            
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.DataSetId">
+            <summary>
+            DataSetIs for selecting MonitorPingInfos. Dont set this if I date range is set. DataSetID=0 is the current running monitor data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.MonitorPingInfoID">
+            <summary>
+             MonitorPingInfo.ID
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.MonitorIPID">
+            <summary>
+            Host config data is contained in MonitorIP. This is the ID field for a MonitorIP.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.Address">
+            <summary>
+            Address or URI of the host.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.AddUserEmail">
+            <summary>
+            Only return hosts that are associated with this email address.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.PageSize">
+            <summary>
+            Paginate the data when the data returned is large or can not all be displayed to the user. Set the maximum number of results per page to be returned.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.PageNumber">
+            <summary>
+            Paginate the data when the data returned is large or can not all be displayed to the. Use the PageNumber to return a page of data. 
+            /// </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.Enabled">
+            <summary>
+            Is this host enabled.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.Port">
+            <summary>
+            The port the host is using.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.EndPointType">
+            <summary>
+            The end point type. Example : http is a website ping, https is a ssl certificate check,  httphtml is a website html load, icmp is a host ping, dns is a dns lookup, smtp is a email server helo message confirmation, quantum is a quantum safe encryption test.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.AlertSent">
+            <summary>
+             Has a host down alert been sent for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.AlertFlag">
+            <summary>
+            Has a host down Alert been flagged for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.AgentLocation">
+            <summary>
+            The monitoring agents location for the host. The format is 'City - Country' for internet based agents. For local agents the format is 'emailaddress - agentid'.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.DateStart">
+            <summary>
+            The UTC start time to query from. When used with DateEnd this gives a range of times to filter on. Note input is assumed to be UTC.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.DateEnd">
+            <summary>
+            The UTC end time to query to. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.MonitorPingInfoQuery.User">
+            <summary>
+            DO NOT INCLUDE THIS FIELD IT IS AUTO GENERATED BY API.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.DateSent">
+            <summary>
+            The UTC time of the response event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.Status">
+            <summary>
+            The status of this event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.StatusID">
+            <summary>
+            Database field to store status in seperate lookup table to reduce storage.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.RoundTripTime">
+            <summary>
+            The response time of the event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.MonitorPingInfoID">
+            <summary>
+            Parent MonitorPingInfo object ID.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PingInfo.DateSentInt">
+            <summary>
+            Datesent in a compressed integer format.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PredictStatus.AlertFlag">
+            <summary>
+            Has an alert been raised for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PredictStatus.AlertSent">
+            <summary>
+            Has an alert message been sent to user for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PredictStatus.EventTime">
+            <summary>
+            The UTC time of the last reponse event for the data set. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.PredictStatus.Message">
+            <summary>
+            The status message for the last reponse event for the data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.DisabledEndPointTypesJson">
+            <summary>
+            A json object the contains the type of end points this agent can not monitor.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.DisabledCommandsJson">
+            <summary>
+            A json object the contains the commands that are disabled on this agent.
+            </summary>
+        </member>
+        <member name="M:NetworkMonitor.Objects.ProcessorObj.AvailableFunctionsJson(System.String)">
+            <summary>
+            A JSON object that contains the available functions for this agent.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.AppID">
+            <summary>
+            The Agent ID (AppID)
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.Location">
+            <summary>
+            The location of this Agent. For internet agents location is City - Country . For local agents the format is user mail address - agentid .
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.Load">
+            <summary>
+            The Load or number of hosts monitored by this Agent.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.MaxLoad">
+            <summary>
+            The maximum number of hosts this agent can monitor.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.IsAtMaxLoad">
+            <summary>
+            Is the agent at MaxLoad
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.IsPrivate">
+            <summary>
+            Is this agent a local agent.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.ScheduleStr">
+            <summary>
+            The schedule of the agent . Not used yet.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.ID">
+            <summary>
+            The database Primary Key for the agent.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.IsEnabled">
+            <summary>
+            Is this agent enabled
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.DateCreated">
+            <summary>
+            The date the agent was created.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.IsReady">
+            <summary>
+            Is the agent ready to monitor.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.IsReportSent">
+            <summary>
+            Has a report been sent indicating this agent is down.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.AuthKey">
+            <summary>
+            The AuthKey used by this agent.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ProcessorObj.Owner">
+            <summary>
+            The owner of the agent for private agents this is the UserInfo.UserID.
+            </summary>
+        </member>
+        <member name="M:NetworkMonitor.Objects.ResultObj.#ctor">
+            <summary>
+            Result Obj that contains information on the result of the operation.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ResultObj.Message">
+            <summary>
+            A string contains a message from the result of the operation.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ResultObj.Success">
+            <summary>
+            A boolean that indicates if the operation was successful.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.ResultObj.Data">
+            <summary>
+            An object that contains data from the result of the operation. All times returned in the data will be UTC.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.User">
+            <summary>
+            This field should not be used for api calls.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.DataSetId">
+            <summary>
+            DataSetIs for selecting MonitorPingInfos. Dont set this if I date range is set. DataSetID=0 is the current running monitor data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.MonitorPingInfoID">
+            <summary>
+             MonitorPingInfo.ID
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.MonitorIPID">
+            <summary>
+            Host config data is contained in MonitorIP. This is the ID field for a MonitorIP.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.Address">
+            <summary>
+            The address of the host
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.SentUserData.Prompt">
+            
+             This field is Required .The prompt that was entered by the user. The backend will use this to assist in creating a useful reponse for the user.
+            
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.DownCount">
+            <summary>
+            How many events in a row has the host been down.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.IsUp">
+            <summary>
+            Did the host respond during the last reponse event for the data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.AlertFlag">
+            <summary>
+            Has an alert been raised for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.AlertSent">
+            <summary>
+            Has an alert message been sent to user for this host since the last alert reset.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.EventTime">
+            <summary>
+            The UTC time of the last reponse event for the data set. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.StatusObj.Message">
+            <summary>
+            The status message for the last reponse event for the data set.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.Message">
+            <summary>
+            Message containing important information about the status of this Api call. 
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.Success">
+            <summary>
+            Was the Api call successful.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.Data">
+            <summary>
+            The data return by the Api for consumption by the caller.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.SentData">
+            <summary>
+            Contains the data sent to the Api. It may contain extra fields added during processing by the Api. These can be used to help define the next call to the Api.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.HasMorePages">
+            <summary>
+            If there are more pages then query again. Repeat until this field return false or null;
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Objects.TResultObj`2.DataFileUrl">
+            <summary>
+            The url of a link to the Data returned with this result.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Api.Services.DataObj">
+            <summary>
+            Object that contains details about the check.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.ResultSuccess">
+            <summary>
+            Indicates whether the check was successful.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.ResultStatus">
+            <summary>
+            Instructions for setting up a free network monitor.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.TestedAddress">
+            <summary>
+            The address of the tested host.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.TestedPort">
+            <summary>
+            The port used for the check.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.ResponseTime">
+            <summary>
+            The time taken to perform the test in milliseconds. This indicates the response time of the host service. -1 indicates a timeout.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.SetupFreeNetworkMonitor">
+            <summary>
+            Instructions for setting up a free network monitor.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.DataObj.Timeout">
+            <summary>
+            The timeout value used in milliseconds.
+            </summary>
+        </member>
+        <member name="T:NetworkMonitor.Api.Services.QuantumDataObj">
+            <summary>
+            Object that contains details about the quantum check.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.SetupQuantumMonitor">
+            <summary>
+            Instructions for setting up a quantum-ready monitor.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.QuantumKeyExchange">
+            <summary>
+            The quantum key exchange protocol used by the tested URL.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.TestedUrl">
+            <summary>
+            The URL that was tested for quantum safety.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.TestedPort">
+            <summary>
+            The port used for the check.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.ResultSuccess">
+            <summary>
+            Indicates whether the tested URL uses a quantum-safe protocol.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.ResultStatus">
+            <summary>
+            Describes the status of the quantum safety of the tested URL.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.Timeout">
+            <summary>
+            The timeout value used in milliseconds.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.Api.Services.QuantumDataObj.ResponseTime">
+            <summary>
+            The time taken to perform the test in milliseconds. This indicates the response time of the host service. -1 indicates a timeout.
+            </summary>  
+        </member>
+        <member name="P:NetworkMonitor.DTOs.HostResponseObj.PingInfosDTO">
+            <summary>
+            A list of Response data formatted in a human readable form. Status as a string, The time of the event and the response time.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.DTOs.PingInfoDTO.DateSent">
+            <summary>
+            The datetime of the monitor event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.DTOs.PingInfoDTO.Status">
+            <summary>
+            The status of this event.
+            </summary>
+        </member>
+        <member name="P:NetworkMonitor.DTOs.PingInfoDTO.ResponseTime">
+            <summary>
+            The response time of the event.
+            </summary>
+        </member>
+        <member name="M:NetworkMonitor.Utils.StringCompressor.Compress(System.String)">
+            <summary>
+            Compresses a string and returns a deflate compressed, Base64 encoded string.
+            </summary>
+            <param name="uncompressedString">String to compress</param>
+        </member>
+        <member name="M:NetworkMonitor.Utils.StringCompressor.Decompress(System.String)">
+            <summary>
+            Decompresses a deflate compressed, Base64 encoded string and returns an uncompressed string.
+            </summary>
+            <param name="compressedString">String to decompress.</param>
+        </member>
+    </members>
+</doc>

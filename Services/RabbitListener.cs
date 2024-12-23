@@ -1281,7 +1281,7 @@ namespace NetworkMonitor.Objects.Repository
 
                 }
                 result = await _cmdProcessorProvider.AddCmdProcessor(processorScanDataObj);
-
+                _logger.LogInformation(result.Message);
             }
             catch (Exception ex)
             {
