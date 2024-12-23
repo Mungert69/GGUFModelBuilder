@@ -153,7 +153,7 @@ namespace NetworkMonitor.Objects.Repository
                 FuncName = "processorCommand",
                 MessageTimeout = 6000000
             });
-             _rabbitMQObjs.Add(new RabbitMQObj()
+            _rabbitMQObjs.Add(new RabbitMQObj()
             {
                 ExchangeName = "cancelCommand" + _netConfig.AppID,
                 FuncName = "cancelCommand",
@@ -385,7 +385,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                                 case "cancelCommand":
+                            case "cancelCommand":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
                             {
@@ -400,7 +400,7 @@ namespace NetworkMonitor.Objects.Repository
                                 }
                             };
                                 break;
-                           
+
                             case "getCmdProcessorHelp":
                                 await rabbitMQObj.ConnectChannel.BasicQosAsync(prefetchSize: 0, prefetchCount: 1, global: false);
                                 rabbitMQObj.Consumer.ReceivedAsync += async (model, ea) =>
@@ -665,8 +665,26 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
+        private async Task PublishAckMessage(ProcessorScanDataObj processorScanDataObj)
+        {
+            // Send acknowledgment to RabbitMQ
+            try
+            {
+                // Prepare the acknowledgment message
+                processorScanDataObj.ScanCommandOutput = $"Acknowledged command with MessageID {processorScanDataObj.MessageID}";
+                processorScanDataObj.IsAck = true;
+                // Publish the acknowledgment to RabbitMQ
+                await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService + "Ack", processorScanDataObj);
 
-     public async Task<ResultObj> CancelCommand(ProcessorScanDataObj? processorScanDataObj)
+                _logger.LogInformation($"Acknowledgment sent for MessageID {processorScanDataObj.MessageID}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error sending acknowledgment for MessageID {processorScanDataObj.MessageID}: {ex.Message}");
+            }
+        }
+
+        public async Task<ResultObj> CancelCommand(ProcessorScanDataObj? processorScanDataObj)
         {
             string? processorType = "";
             var result = new ResultObj();
@@ -709,6 +727,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
+                await PublishAckMessage(processorScanDataObj);
                 var commandResult = await processor.CancelCommand(processorScanDataObj.MessageID);
                 result.Message += $" {processorType} CancelCommand Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
@@ -757,6 +776,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
+                await PublishAckMessage(processorScanDataObj);
                 result = await _cmdProcessorProvider.DeleteCmdProcessor(processorScanDataObj);
 
                 _logger.LogInformation(result.Message);
@@ -815,6 +835,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
+                await PublishAckMessage(processorScanDataObj);
                 var commandResult = await processor.PublishCommandHelp(processorScanDataObj);
                 result.Message += $"Success: Ran get {processorType} help. Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
@@ -829,7 +850,7 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-           public async Task<ResultObj> GetCommandSource(ProcessorScanDataObj? processorScanDataObj)
+        public async Task<ResultObj> GetCommandSource(ProcessorScanDataObj? processorScanDataObj)
         {
             string? processorType = "";
             var result = new ResultObj();
@@ -874,7 +895,8 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                  var resultPublish = await _cmdProcessorProvider.PublishSourceCode(processorScanDataObj);
+                await PublishAckMessage(processorScanDataObj);
+                var resultPublish = await _cmdProcessorProvider.PublishSourceCode(processorScanDataObj);
                 result.Success = resultPublish.Success;
                 result.Message += resultPublish.Message;
                 _logger.LogInformation(result.Message);
@@ -918,6 +940,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
+                await PublishAckMessage(processorScanDataObj);
                 var processorTypes = _cmdProcessorProvider.ProcessorTypes;
                 var processorTypesString = string.Join(", ", processorTypes.Select(type => $"'{type}'"));
                 string message = $"Success: got the list of cmd processor types for the agent. cmd_processor_types : [{processorTypesString}]";
@@ -935,7 +958,41 @@ namespace NetworkMonitor.Objects.Repository
 
             return result;
         }
+        private async Task<ResultObj> AddCmdProcessor(ProcessorScanDataObj? processorScanDataObj)
+        {
+            var result = new ResultObj { Success = false };
 
+            try
+            {
+                if (processorScanDataObj == null)
+                {
+                    result.Success = false;
+                    result.Message += "Error : processorScanDataObj was null .";
+                    _logger.LogError(result.Message);
+                    return result;
+
+                }
+                if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
+                {
+                    result.Success = false;
+                    result.Message += "Error : AuthKey not valid .";
+                    _logger.LogError(result.Message);
+                    return result;
+
+                }
+                await PublishAckMessage(processorScanDataObj);
+                result = await _cmdProcessorProvider.AddCmdProcessor(processorScanDataObj);
+                _logger.LogInformation(result.Message);
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error adding CmdProcessor: {ex.Message}";
+                _logger.LogError(result.Message);
+            }
+
+            return result;
+        }
 
         public async Task<ResultObj> ProcessorScan(ProcessorScanDataObj? processorScanDataObj)
         {
@@ -960,6 +1017,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
+                await PublishAckMessage(processorScanDataObj);
                 _cmdProcessorProvider.GetProcessor("nmap").UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
                 await _cmdProcessorProvider.GetProcessor("nmap").Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
@@ -1258,40 +1316,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             return result;
         }
-        private async Task<ResultObj> AddCmdProcessor(ProcessorScanDataObj? processorScanDataObj)
-        {
-            var result = new ResultObj { Success = false };
 
-            try
-            {
-                if (processorScanDataObj == null)
-                {
-                    result.Success = false;
-                    result.Message += "Error : processorScanDataObj was null .";
-                    _logger.LogError(result.Message);
-                    return result;
-
-                }
-                if (processorScanDataObj.AuthKey != _netConfig.AuthKey)
-                {
-                    result.Success = false;
-                    result.Message += "Error : AuthKey not valid .";
-                    _logger.LogError(result.Message);
-                    return result;
-
-                }
-                result = await _cmdProcessorProvider.AddCmdProcessor(processorScanDataObj);
-                _logger.LogInformation(result.Message);
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Message = $"Error adding CmdProcessor: {ex.Message}";
-                _logger.LogError(result.Message);
-            }
-
-            return result;
-        }
 
     }
 }
