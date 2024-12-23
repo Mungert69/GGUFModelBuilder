@@ -665,25 +665,6 @@ namespace NetworkMonitor.Objects.Repository
             return result;
         }
 
-        private async Task PublishAckMessage(ProcessorScanDataObj processorScanDataObj)
-        {
-            // Send acknowledgment to RabbitMQ
-            try
-            {
-                // Prepare the acknowledgment message
-                processorScanDataObj.ScanCommandOutput = $"Acknowledged command with MessageID {processorScanDataObj.MessageID}";
-                processorScanDataObj.IsAck = true;
-                // Publish the acknowledgment to RabbitMQ
-                await _rabbitRepo.PublishAsync<ProcessorScanDataObj>(processorScanDataObj.CallingService + "Ack", processorScanDataObj);
-
-                _logger.LogInformation($"Acknowledgment sent for MessageID {processorScanDataObj.MessageID}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error sending acknowledgment for MessageID {processorScanDataObj.MessageID}: {ex.Message}");
-            }
-        }
-
         public async Task<ResultObj> CancelCommand(ProcessorScanDataObj? processorScanDataObj)
         {
             string? processorType = "";
@@ -727,7 +708,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 var commandResult = await processor.CancelCommand(processorScanDataObj.MessageID);
                 result.Message += $" {processorType} CancelCommand Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
@@ -776,7 +757,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 result = await _cmdProcessorProvider.DeleteCmdProcessor(processorScanDataObj);
 
                 _logger.LogInformation(result.Message);
@@ -835,7 +816,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 var commandResult = await processor.PublishCommandHelp(processorScanDataObj);
                 result.Message += $"Success: Ran get {processorType} help. Result: {commandResult.Message}";
                 result.Success = commandResult.Success;
@@ -895,7 +876,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 var resultPublish = await _cmdProcessorProvider.PublishSourceCode(processorScanDataObj);
                 result.Success = resultPublish.Success;
                 result.Message += resultPublish.Message;
@@ -940,7 +921,7 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 var processorTypes = _cmdProcessorProvider.ProcessorTypes;
                 var processorTypesString = string.Join(", ", processorTypes.Select(type => $"'{type}'"));
                 string message = $"Success: got the list of cmd processor types for the agent. cmd_processor_types : [{processorTypesString}]";
@@ -980,7 +961,7 @@ namespace NetworkMonitor.Objects.Repository
                     return result;
 
                 }
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 result = await _cmdProcessorProvider.AddCmdProcessor(processorScanDataObj);
                 _logger.LogInformation(result.Message);
             }
@@ -1017,7 +998,7 @@ namespace NetworkMonitor.Objects.Repository
             }
             try
             {
-                await PublishAckMessage(processorScanDataObj);
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
                 _cmdProcessorProvider.GetProcessor("nmap").UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
                 await _cmdProcessorProvider.GetProcessor("nmap").Scan();
                 result.Message += "Success : updated RemovePingInfos. ";
