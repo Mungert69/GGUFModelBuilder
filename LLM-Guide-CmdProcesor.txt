@@ -1,0 +1,611 @@
+Step-by-Step Guide: Creating and Using a Command Processor
+1. Check Available Command Processors
+
+Before attempting to create a new processor, the LLM should first verify the existing processors on the agent.
+Function to Call:
+
+    GetCmdProcessorList
+
+Expected Response:
+
+    A list of existing processors. If the target processor does not exist, proceed to step 2.
+
+2. Create a New Command Processor
+
+If the desired processor does not exist, the LLM must create it.
+Requirements for Processor Code:
+
+    The class name must follow the convention:
+        cmd_processor_type + CmdProcessor (e.g., for MyCustomProcessor, the class name should be MyCustomProcessorCmdProcessor).
+    The class must inherit from CmdProcessor.
+    The class must include:
+        A constructor.
+        RunCommand method (overrides base functionality).
+        GetCommandHelp method (overrides base method and provides help information).
+    YOU MUST include the set of using statements in the examples. failure to do so will result in compilation errors.
+
+For reference and outline of the CmdProcesor Base class is given below :
+
+namespace NetworkMonitor.Connection
+{
+    public interface ICmdProcessor : IDisposable
+    {
+         Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null);
+          string GetCommandHelp();
+    }
+    public abstract class CmdProcessor : ICmdProcessor
+    {
+        protected readonly ILogger _logger;
+        protected readonly ILocalCmdProcessorStates _cmdProcessorStates;
+        protected readonly IRabbitRepo _rabbitRepo;
+        protected readonly NetConnectConfig _netConfig;
+        protected string _rootFolder; // the folder to read and write files to.
+        protected CancellationTokenSource _cancellationTokenSource; // the cmd processor is cancelled using this.
+        protected string _frontendUrl = AppConstants.FrontendUrl;
+     
+
+        public bool UseDefaultEndpoint { get => _cmdProcessorStates.UseDefaultEndpointType; set => _cmdProcessorStates.UseDefaultEndpointType = value; }
+#pragma warning disable CS8618
+        public CmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        {
+            _logger = logger;
+            _cmdProcessorStates = cmdProcessorStates;
+            _rabbitRepo = rabbitRepo;
+            _netConfig = netConfig;
+            _rootFolder = netConfig.CommandPath;  // use _rootFolder to access the agents file system
+        }
+
+        // You will override this method with your implementation.
+        public virtual async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        {
+            var result = new ResultObj();
+            string output = "";
+            try
+            {
+               
+                using (var process = new Process())
+                {
+                    process.StartInfo.FileName = _netConfig.CommandPath + _cmdProcessorStates.CmdName;
+                    process.StartInfo.Arguments = arguments;
+                    process.StartInfo.UseShellExecute = false;
+                    process.StartInfo.RedirectStandardOutput = true;
+                    process.StartInfo.RedirectStandardError = true; // Add this to capture standard error
+
+                    process.StartInfo.CreateNoWindow = true;
+                    process.StartInfo.WorkingDirectory = _netConfig.CommandPath;
+
+                    var outputBuilder = new StringBuilder();
+                    var errorBuilder = new StringBuilder();
+
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            outputBuilder.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        if (e.Data != null)
+                        {
+                            errorBuilder.AppendLine(e.Data);
+                        }
+                    };
+
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    // Register a callback to kill the process if cancellation is requested
+                    using (cancellationToken.Register(() =>
+                    {
+                        if (!process.HasExited)
+                        {
+                            _logger.LogInformation($"Cancellation requested, killing the {_cmdProcessorStates.CmdDisplayName} process...");
+                            process.Kill();
+                        }
+                    }))
+                    {
+                        // Wait for the process to exit or the cancellation token to be triggered
+                        await process.WaitForExitAsync(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested(); // Check if cancelled before processing output
+
+                        output = outputBuilder.ToString();
+                        string errorOutput = errorBuilder.ToString();
+
+                        if (!string.IsNullOrWhiteSpace(errorOutput) && processorScanDataObj != null)
+                        {
+                            output = $"RedirectStandardError : {errorOutput}. \n RedirectStandardOutput : {output}";
+                        }
+                        result.Success = true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error : running {_cmdProcessorStates.CmdName} command. Error was : {e.Message}");
+                output += $"Error : running {_cmdProcessorStates.CmdName} command. Error was : {e.Message}\n";
+                result.Success = false;
+            }
+            result.Message = output;
+            return result;
+        }
+
+        // You can use this helper method in your cmd processor for argument parsing
+ 		protected virtual Dictionary<string, string> ParseArguments(string arguments)
+        {
+            var args = new Dictionary<string, string>();
+            var regex = new Regex(@"--(?<key>\w+)\s+(?<value>[^\s]+)");
+            var matches = regex.Matches(arguments);
+
+            foreach (Match match in matches)
+            {
+                args[match.Groups["key"].Value.ToLower()] = match.Groups["value"].Value;
+            }
+
+            return args;
+        }      
+        public virtual string GetCommandHelp()
+        {
+            // override this method and provide the help as a returned string.
+        }
+   
+    }
+
+}
+
+Basic Template a cmd processor's source code:
+
+Here’s a valid processor implementation. The cmd processor type is MyCustomProcessor and the class name is MyCustomProcessorCmdProcessor:
+
+	using System; // Required base functionality
+    using System.Text; // For StringBuilder
+    using System.Collections.Generic; // For collections
+    using System.Diagnostics; // For debugging (if needed)
+    using System.Threading.Tasks; // For async/await
+    using System.Text.RegularExpressions; // For regex operations
+    using Microsoft.Extensions.Logging; // For logging
+    using System.Linq; // For LINQ operations
+    using NetworkMonitor.Objects; // For application-specific objects
+    using NetworkMonitor.Objects.Repository; // For repository handling
+    using NetworkMonitor.Objects.ServiceMessage; // For service messaging
+    using NetworkMonitor.Connection; // For connection handling
+    using NetworkMonitor.Utils; // For utility methods
+    using System.Xml.Linq; // For XML handling
+    using System.IO; // For file operations
+    using System.Threading; // For CancellationToken
+    using System.Net; // For FTPWebRequest
+
+
+namespace NetworkMonitor.Connection
+{
+    public class MyCustomProcessorCmdProcessor : CmdProcessor
+    {
+        public MyCustomProcessorCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+            : base(logger, cmdProcessorStates, rabbitRepo, netConfig) { }
+
+        public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        {
+            var result = new ResultObj();
+
+            try
+            {
+                // Example logic
+                result.Success = true;
+                result.Message = "Custom processor ran successfully!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Message}");
+                result.Success = false;
+                result.Message = $"Error: {ex.Message}";
+            }
+
+            return result;
+        }
+
+        public override string GetCommandHelp()
+        {
+            return "This is a custom processor. Provide appropriate arguments to perform tasks.";
+        }
+    }
+}
+
+3. Submit the Processor
+
+After preparing the code, the LLM must submit it using:
+Function to Call:
+
+    AddCmdProcessor
+
+Parameters:
+
+    cmdProcessorType: The type name (e.g., MyCustomProcessor).
+    sourceCode: The complete code of the processor.
+    agentLocation: The location of the target agent.
+
+4. Handle Errors During Submission
+
+Errors may occur if:
+
+    Dependencies: Have you added the standard set of using statements plus any extra required. The agent maybe not contain the required dlls. If you are sure you have the correct using statements then prompt the user to add the required dlls in the dlls folder. The dlls folder is in the _rootFolder . You could download the dlls and place them in there manually.
+    Code Issues: Errors like missing types, namespaces, or assembly references will be flagged. Follow the example implementations provided in error messages.
+
+Action:
+
+    Update missing dependencies or fix code based on the error messages.
+
+5. Test the Processor
+
+Once added successfully, test the processor to verify functionality.
+Function to Call:
+
+    RunCmdProcessor
+
+Parameters:
+
+    cmdProcessorType: The type name (e.g., MyCustomProcessor).
+    arguments: Test arguments to run the processor logic.
+    agentLocation: The location of the target agent.
+
+Expected Response:
+
+    A success message indicating the processor executed as expected.
+
+6. Retrieve Processor Help
+
+Provide help documentation for users by retrieving the processor's help message.
+Function to Call:
+
+    GetCmdProcessorHelp
+
+Parameters:
+
+    cmdProcessorType: The type name (e.g., MyCustomProcessor).
+    agentLocation: The location of the target agent.
+
+7. Debugging and Iteration
+
+If the processor does not work as expected, iterate on the implementation. Modify the processor logic as needed by re-submitting updated code using AddCmdProcessor.
+
+Example Scenario
+
+Let’s say we want to create and test a custom processor named MyLoggerProcessor:
+
+    Check Existing Processors:
+        Call GetCmdProcessorList.
+    Write Code:
+        Implement MyLoggerProcessorCmdProcessor with the required methods.
+    Submit Processor:
+        Use AddCmdProcessor to submit the code.
+    Test Execution:
+        Call RunCmdProcessor with arguments, e.g., "Log this test message.".
+    Retrieve Help:
+        Call GetCmdProcessorHelp to fetch usage instructions.
+
+
+Advanced Guide: Creating Complex Command Processors
+
+This guide is for building advanced command processors that go beyond basic logic, such as handling command-line-style arguments, interacting with external services, and managing complex workflows. Using the FTPConnectionTesterCmdProcessor example, the following steps detail how to design and implement a sophisticated command processor.
+
+1. Key Features of Advanced Processors
+
+    Command-Line Style Argument Parsing:
+        Use Regex to parse key-value pairs (e.g., --username admin --password secret).
+        Ensure robust error handling for invalid or missing arguments.
+
+    External Service Interactions:
+        Incorporate interactions with APIs, FTP servers, or databases.
+        Use classes like FtpWebRequest or HttpClient for network operations.
+
+    Detailed Logging:
+        Utilize ILogger for structured logging to track execution flow and errors. Writing a log file to the agents local file system using _rootFolder .
+
+    Concurrency and Cancellations:
+        Leverage CancellationToken for responsive cancellation during long-running operations.
+
+    Rich Help Documentation:
+        Include examples, argument descriptions, and usage instructions in GetCommandHelp.
+
+2. Example Advanced Processor: FTPConnectionTesterCmdProcessor
+
+Here is the source code of the FTPConnectionTester :
+
+       using System; // Required base functionality
+using System.Text; // For StringBuilder
+using System.Collections.Generic; // For collections
+using System.Diagnostics; // For debugging (if needed)
+using System.Threading.Tasks; // For async/await
+using System.Text.RegularExpressions; // For regex operations
+using Microsoft.Extensions.Logging; // For logging
+using System.Linq; // For LINQ operations
+using NetworkMonitor.Objects; // For application-specific objects
+using NetworkMonitor.Objects.Repository; // For repository handling
+using NetworkMonitor.Objects.ServiceMessage; // For service messaging
+using NetworkMonitor.Connection; // For connection handling
+using NetworkMonitor.Utils; // For utility methods
+using System.Xml.Linq; // For XML handling
+using System.IO; // For file operations
+using System.Threading; // For CancellationToken
+using System.Net; // For FTPWebRequest
+
+namespace NetworkMonitor.Connection
+{
+    public class FTPConnectionTesterCmdProcessor : CmdProcessor
+    {
+        public FTPConnectionTesterCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+            : base(logger, cmdProcessorStates, rabbitRepo, netConfig) {}
+
+        public override async Task<ResultObj> RunCommand(string arguments, CancellationToken cancellationToken, ProcessorScanDataObj? processorScanDataObj = null)
+        {
+            var result = new ResultObj();
+            try
+            {
+                // Parse command-line style arguments
+                var args = ParseArguments(arguments);
+                if (!args.ContainsKey("username") || !args.ContainsKey("password") || !args.ContainsKey("host"))
+                {
+                    result.Success = false;
+                    result.Message = "Invalid arguments. Please provide --username, --password, and --host.";
+                    WriteLogToFile(result.Message); // Log the error
+                    return result;
+                }
+
+                string username = args["username"];
+                string password = args["password"];
+                string host = args["host"];
+
+                WriteLogToFile($"Testing FTP connection to {host} with username: {username}");
+
+                // Check for cancellation before starting the operation
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // Test FTP connection
+                var request = (FtpWebRequest)WebRequest.Create($"ftp://{host}");
+                request.Credentials = new NetworkCredential(username, password);
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
+
+                try
+                {
+                    using (var response = await GetResponseWithTimeout(request, cancellationToken))
+                    {
+                        if (response is FtpWebResponse ftpResponse)
+                        {
+                            result.Success = true;
+                            result.Message = $"FTP connection successful. Response status: {ftpResponse.StatusDescription}";
+                            WriteLogToFile(result.Message); // Log the success
+                        }
+                    }
+                }
+                catch (WebException ex)
+                {
+                    if (ex.Response is FtpWebResponse ftpResponse)
+                    {
+                        WriteLogToFile($"FTP error: {ftpResponse.StatusDescription}");
+                        result.Success = false;
+                        result.Message = $"FTP connection failed. Status: {ftpResponse.StatusDescription}";
+                    }
+                    else
+                    {
+                        WriteLogToFile($"FTP error: {ex.Message}");
+                        result.Success = false;
+                        result.Message = $"FTP connection failed. Error: {ex.Message}";
+                    }
+                }
+
+                // Check for cancellation after the operation
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+            catch (OperationCanceledException)
+            {
+                result.Success = false;
+                result.Message = "Operation was canceled.";
+                WriteLogToFile(result.Message); // Log the cancellation
+            }
+            catch (Exception ex)
+            {
+                WriteLogToFile($"Error testing FTP connection: {ex.Message}");
+                result.Success = false;
+                result.Message = $"Error testing FTP connection: {ex.Message}";
+            }
+
+            return result;
+        }
+
+        // Improved Timeout Handling Method
+        private async Task<WebResponse> GetResponseWithTimeout(WebRequest request, CancellationToken cancellationToken)
+        {
+            using (var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token))
+            {
+                var taskCompletionSource = new TaskCompletionSource<WebResponse>();
+                bool responseHandled = false;
+
+                linkedCts.Token.Register(() =>
+                {
+                    if (!responseHandled)
+                    {
+                        request.Abort();
+                        taskCompletionSource.TrySetCanceled();
+                    }
+                }, useSynchronizationContext: false);
+
+                try
+                {
+                    var responseTask = Task.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null);
+
+                    responseTask.ContinueWith(task =>
+                    {
+                        if (!linkedCts.Token.IsCancellationRequested)
+                        {
+                            responseHandled = true;
+                            taskCompletionSource.TrySetResult(task.Result);
+                        }
+                    }, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+                    return await taskCompletionSource.Task;
+                }
+                catch (Exception ex)
+                {
+                    throw new TimeoutException("An exception occurred during the FTP request", ex);
+                }
+            }
+        }
+
+        private void WriteLogToFile(string message)
+        {
+            try
+            {
+                var logFilePath = Path.Combine(_rootFolder, "logs", $"{GetType().Name}_timeout_test.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logFilePath));
+                var logMessage = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} - {message}\n";
+                File.AppendAllText(logFilePath, logMessage);
+            }
+            catch
+            {
+                // Ignore logging failures to avoid interference with main logic.
+            }
+        }
+
+        public override string GetCommandHelp()
+        {
+            return @"
+This command tests an FTP connection by attempting to list the directory contents using provided credentials. 
+It validates the FTP server’s response and provides feedback on connectivity.
+
+Usage:
+    arguments: A command-line style string containing:
+        --username: FTP username.
+        --password: FTP password.
+        --host: FTP host (e.g., 'ftp.example.com').
+
+Examples:
+    - '--username admin --password admin123 --host ftp.example.com':
+        Tests FTP connection to 'ftp.example.com' with the specified credentials.
+";
+        }
+    }
+}
+
+
+
+This processor tests FTP connections by attempting to list directory contents on an FTP server using provided credentials.
+
+
+Code Breakdown
+
+    IMPORTANT : Ensure all these namespaces are used along with any addtional necessary namespaces. Failure to do so will result in compilation errors :
+
+ 		using System; // Required base functionality
+        using System.Text; // For StringBuilder
+        using System.Collections.Generic; // For collections
+        using System.Diagnostics; // For debugging (if needed)
+        using System.Threading.Tasks; // For async/await
+        using System.Text.RegularExpressions; // For regex operations
+        using Microsoft.Extensions.Logging; // For logging
+        using System.Linq; // For LINQ operations
+        using NetworkMonitor.Objects; // For application-specific objects
+        using NetworkMonitor.Objects.Repository; // For repository handling
+        using NetworkMonitor.Objects.ServiceMessage; // For service messaging
+        using NetworkMonitor.Connection; // For connection handling
+        using NetworkMonitor.Utils; // For utility methods
+        using System.Xml.Linq; // For XML handling
+        using System.IO; // For file operations
+        using System.Threading; // For CancellationToken
+        using System.Net; // For FTPWebRequest
+
+
+Constructor: Inherit from CmdProcessor and initialize dependencies:
+
+    public FTPConnectionTesterCmdProcessor(ILogger logger, ILocalCmdProcessorStates cmdProcessorStates, IRabbitRepo rabbitRepo, NetConnectConfig netConfig)
+        : base(logger, cmdProcessorStates, rabbitRepo, netConfig) {}
+
+RunCommand Logic:
+        Parse arguments using a regex.
+        Validate required arguments.
+        Use FtpWebRequest to connect to the FTP server.
+        Handle exceptions gracefully and log detailed errors.
+        
+Helper Methods:
+	Uses the LogToFile(string errorMessage) method and _rootFolder to write to a local file.
+	Uses the ParseArguments(string arguments) base class helper method to parse arguments.
+
+
+Help Documentation: Provide a detailed GetCommandHelp implementation, including usage examples and descriptions.
+
+    Helper Methods:
+        Add methods like ParseArguments to simplify command-line style argument processing.
+
+3. Adding an Advanced Processor
+Steps
+
+    Prepare the Source Code: Use the provided FTPConnectionTesterCmdProcessor example or create your own advanced processor.
+
+    Submit the Processor: Use the AddCmdProcessor function to upload the source code:
+
+    {
+        "cmdProcessorType": "FTPConnectionTester",
+        "sourceCode": "<Complete Source Code>",
+        "agentLocation": "London - UK"
+    }
+
+    Handle Compilation Errors: If the agent returns errors, inspect missing namespaces, dependencies, or logic issues.
+
+4. Using an Advanced Processor
+Test Execution
+
+Use the RunCmdProcessor function with appropriate arguments:
+
+{
+    "cmdProcessorType": "FTPConnectionTester",
+    "arguments": "--username admin --password admin123 --host ftp.example.com",
+    "agentLocation": "London - UK"
+}
+
+Expected Response
+
+The processor should:
+
+    Attempt to connect to the FTP server.
+    Return a success message or detailed error feedback.
+
+5. Retrieving Help Information
+
+To provide user documentation, use GetCmdProcessorHelp:
+
+{
+    "cmdProcessorType": "FTPConnectionTester",
+    "agentLocation": "London - UK"
+}
+
+6. Designing Other Advanced Processors
+Examples
+
+    Database Query Executor:
+        Connect to a database (e.g., MySQL, PostgreSQL).
+        Accept SQL queries as arguments and return results.
+
+    API Tester:
+        Use HttpClient to send GET/POST requests to an API.
+        Parse JSON responses and handle HTTP status codes.
+
+    File System Scanner:
+        Traverse directories and return file metadata.
+        Use arguments to filter files by extensions, size, or creation date.
+
+7. Best Practices for Advanced Processors
+
+    Error Handling:
+        Catch and log exceptions at every step.
+        Provide meaningful error messages to users.
+
+    Extensibility:
+        Modularize logic into helper methods for reusability.
+
+    Scalability:
+        Use asynchronous programming (async/await) to handle multiple tasks efficiently.
+
+    Clear Documentation:
+        Ensure GetCommandHelp explains usage comprehensively.
+
