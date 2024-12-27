@@ -90,8 +90,7 @@ namespace NetworkMonitor.Processor.Services
                 _processorStates.RunningMessage = " Success : Agent shutdown ";
                 _logger.LogInformation(" Saving MonitorPingInfos to state");
                 await PublishRepo.MonitorPingInfos(_logger, _rabbitRepo, _monitorPingCollection.MonitorPingInfos.Values.ToList(), _removeMonitorPingInfoIDs, new List<RemovePingInfo>(), _swapMonitorPingInfos, _monitorPingCollection.PingInfos.Values.ToList(), _netConfig.AppID, _piIDKey, true, _fileRepo, _netConfig.AuthKey);
-                _logger.LogDebug("MonitorPingInfos StateStore : " + JsonUtils.WriteJsonObjectToString(_monitorPingCollection.MonitorPingInfos));
-            }
+                 }
             catch (Exception e)
             {
                 _logger.LogError("Error during saving MonitorPingInfos: " + e.ToString());
