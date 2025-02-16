@@ -41,14 +41,14 @@ until docker exec -it "$CONTAINER_NAME" bash -c "ls /app" >/dev/null 2>&1; do
 done
 
 # Step 5: Update and install all required packages for standard build  in one apt-get call
-docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install curl xvfb libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libxkbcommon-x11-0 libgbm1 libasound2 libnss3 libgdk-pixbuf2.0-0 libpango1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0"
+docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install  curl xvfb libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libxkbcommon-x11-0 libgbm1 libasound2 libnss3 libgdk-pixbuf2.0-0 libpango1.0-0 libpangoft2-1.0-0 libpangocairo-1.0-0"
 
 # Step 6: Push both the standard bug version tag
 docker commit  "$CONTAINER_NAME" "$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"  # Commit to "tag"
 docker push "$DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG"  # Push the "tag" tag
 
 # Step 8: Update and install all required packages for full build.
-docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install gnupg \
+docker exec -it "$CONTAINER_NAME" bash -c "apt-get update && apt-get -y install  gnupg \
     curl \
     nmap \
     postgresql \

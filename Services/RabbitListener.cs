@@ -198,11 +198,18 @@ namespace NetworkMonitor.Objects.Repository
             try
             {
                 foreach (var rabbitMQObj in _rabbitMQObjs)
-
                 {
-                    rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
-                    if (rabbitMQObj.ConnectChannel != null)
+
+		  if (rabbitMQObj.ConnectChannel != null)
                     {
+
+                    	rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
+		    	await rabbitMQObj.ConnectChannel.BasicConsumeAsync(
+                    	queue: rabbitMQObj.QueueName,
+                    	autoAck: false,
+                    	consumer: rabbitMQObj.Consumer
+                	);
+
                         switch (rabbitMQObj.FuncName)
                         {
                             case "processorConnect":
