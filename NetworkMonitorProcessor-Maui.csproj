@@ -8,7 +8,9 @@
       <DefineConstants>NetworkMonitorProcessor; WINDOWS</DefineConstants>
   </PropertyGroup>
 
- 
+<PropertyGroup>
+  <DefaultItemExcludes>$(DefaultItemExcludes);openssl-3.3.1\**\*</DefaultItemExcludes>
+</PropertyGroup>
 
 
   <ItemGroup>
