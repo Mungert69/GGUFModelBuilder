@@ -200,15 +200,15 @@ namespace NetworkMonitor.Objects.Repository
                 foreach (var rabbitMQObj in _rabbitMQObjs)
                 {
 
-		  if (rabbitMQObj.ConnectChannel != null)
+                    if (rabbitMQObj.ConnectChannel != null)
                     {
 
-                    	rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
-		    	await rabbitMQObj.ConnectChannel.BasicConsumeAsync(
-                    	queue: rabbitMQObj.QueueName,
-                    	autoAck: false,
-                    	consumer: rabbitMQObj.Consumer
-                	);
+                        rabbitMQObj.Consumer = new AsyncEventingBasicConsumer(rabbitMQObj.ConnectChannel);
+                        await rabbitMQObj.ConnectChannel.BasicConsumeAsync(
+                                queue: rabbitMQObj.QueueName,
+                                autoAck: false,
+                                consumer: rabbitMQObj.Consumer
+                            );
 
                         switch (rabbitMQObj.FuncName)
                         {
@@ -655,8 +655,8 @@ namespace NetworkMonitor.Objects.Repository
 
             try
             {
-                 await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
-               
+                await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
+
                 TimeSpan timeout = TimeSpan.FromSeconds(processorScanDataObj.TimeoutSeconds);
                 var cts = new CancellationTokenSource(timeout);
                 _logger.LogInformation($"{result.Message} Queued {processorType} Command  message_id {processorScanDataObj.MessageID} with arguments {processorScanDataObj.Arguments}");
@@ -1008,18 +1008,29 @@ namespace NetworkMonitor.Objects.Repository
             try
             {
                 await _cmdProcessorProvider.PublishAckMessage(processorScanDataObj);
-                _cmdProcessorProvider.GetProcessor("nmap").UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
-                await _cmdProcessorProvider.GetProcessor("nmap").Scan();
-                result.Message += "Success : updated RemovePingInfos. ";
-                result.Success = true;
-                _logger.LogInformation(result.Message);
+                var cmdProcessor = _cmdProcessorProvider.GetProcessor("nmap");
+                if (cmdProcessor != null)
+                {
+                    cmdProcessor.UseDefaultEndpoint = processorScanDataObj.UseDefaultEndpoint;
+                    await cmdProcessor.Scan();
+                    result.Message += "Success : updated RemovePingInfos. ";
+                    result.Success = true;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message += " Error : could not find a nmap cmd processor to perform the scan with.";
+                }
+
             }
             catch (Exception e)
             {
                 result.Success = false;
                 result.Message += "Error : Failed to remove PingInfos: Error was : " + e.Message + " ";
-                _logger.LogError(result.Message);
+
             }
+            if (result.Success) _logger.LogInformation(result.Message);
+            else _logger.LogError(result.Message);
             return result;
         }
         public async Task<ResultObj> Init(ProcessorInitObj? initObj)

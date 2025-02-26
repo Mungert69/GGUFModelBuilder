@@ -15,7 +15,8 @@ using NetworkMonitor.Utils; // For utility methods
 using System.Xml.Linq; // For XML handling
 using System.IO; // For file operations
 using System.Threading; // For CancellationToken
-using System.Net; // For HttpWebRequest
+using System.Net; // For HttpClient
+using System.Net.Http; // For HttpClient
 
 // Make sure namespace is declared
 namespace NetworkMonitor.Connection
@@ -43,26 +44,16 @@ namespace NetworkMonitor.Connection
 
                 _logger.LogInformation($"Testing HTTP connection to {arguments}");
 
-                // Test HTTP connection
-                var request = (HttpWebRequest)WebRequest.Create(arguments);
-                request.Method = "GET";
-
-                try
+                // Test HTTP connection using HttpClient
+                using (var httpClient = new HttpClient())
                 {
-                    using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                    try
                     {
-                        result.Success = true;
+                        var response = await httpClient.GetAsync(arguments, cancellationToken);
+                        result.Success = response.IsSuccessStatusCode;
                         result.Message = $"HTTP connection successful. Status Code: {response.StatusCode}";
                     }
-                }
-                catch (WebException ex)
-                {
-                    if (ex.Response is HttpWebResponse httpResponse)
-                    {
-                        result.Success = false;
-                        result.Message = $"HTTP connection failed. Status Code: {httpResponse.StatusCode}";
-                    }
-                    else
+                    catch (HttpRequestException ex)
                     {
                         result.Success = false;
                         result.Message = $"HTTP connection failed. Error: {ex.Message}";

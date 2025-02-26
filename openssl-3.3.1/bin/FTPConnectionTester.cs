@@ -36,11 +36,11 @@ namespace NetworkMonitor.Connection
 
                 _logger.LogInformation($"Testing FTP connection to {host} with username: {username}");
 
-                // Use FluentFTP to test the connection
-                using (var ftpClient = new FtpClient(host, username, password))
+                // Use AsyncFtpClient to test the connection
+                using (var ftpClient = new AsyncFtpClient(host, username, password))
                 {
-                    // Connect to the FTP server
-                    await ftpClient.ConnectAsync(cancellationToken);
+                    // Connect to the FTP server asynchronously
+                    await ftpClient.Connect(cancellationToken);
 
                     // Check if the connection was successful
                     if (ftpClient.IsConnected)
