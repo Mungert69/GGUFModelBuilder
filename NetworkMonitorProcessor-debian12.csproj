@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="openssl\**">
+    <Content Include="openssl-3.3.1\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <TargetPath>openssl\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
