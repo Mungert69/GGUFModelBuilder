@@ -17,11 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentFTP" Version="52.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
