@@ -1,9 +1,11 @@
-libdir=/home/mahadeva/openssl-3.3.1
-includedir=/home/mahadeva/openssl-3.3.1/include
+prefix=/home/mahadeva/code/openssl
+exec_prefix=${prefix}
+libdir=${exec_prefix}
+includedir=${prefix}/include ${prefix}/./include 
 
 Name: OpenSSL-libssl
 Description: Secure Sockets Layer and cryptography libraries
-Version: 3.3.1
+Version: 3.4.2-dev
 Requires.private: libcrypto
 Libs: -L${libdir} -lssl
-Cflags: -I${includedir}
+Cflags: -I${prefix}/include  -I${prefix}/./include 

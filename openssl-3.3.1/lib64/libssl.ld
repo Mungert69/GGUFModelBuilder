@@ -586,5 +586,12 @@ OPENSSL_3.3.0 {
         SSL_poll;
         SSL_set_value_uint;
         SSL_write_ex2;
-    local: *;
 } OPENSSL_3.2.0;
+OPENSSL_3.4.0 {
+    global:
+        SSL_CTX_flush_sessions_ex;
+        SSL_CTX_set_block_padding_ex;
+        SSL_get1_builtin_sigalgs;
+        SSL_set_block_padding_ex;
+    local: *;
+} OPENSSL_3.3.0;
