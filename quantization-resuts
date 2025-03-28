@@ -1,0 +1,27 @@
+## Custom Patch Results (ffn_down: IQ3_XS + IQ2_XXS)
+| Quantization | Perplexity | Time (s) | File Size | Δ Perplexity | Δ Size |
+|--------------|------------|----------|-----------|--------------|--------|
+| IQ1_M        | 15.4075    | 211.90   | 2.5G      | ▼ -43.9%     | ▲ +0.3G|
+| IQ1_S        | 31.9979    | 209.19   | 2.4G      | ▼ -39.7%     | ▲ +0.3G|
+| IQ2_M        | 8.0720     | 252.88   | 3.0G      | ▲ +15.0%     | ▲ +0.1G|
+| IQ2_S        | 9.0202     | 243.65   | 2.9G      | ▼ -36.9%     | ▲ +0.2G|
+| IQ2_XXS      | 9.8411     | 246.16   | 2.6G      | ▼ -12.9%     | ▲ +0.1G|
+| IQ2_XS       | 11.6260    | 245.79   | 2.8G      | ▼ -0.8%      | ▲ +0.1G|
+
+**Notable Improvements:**
+🔥 **IQ1 Quantizations Show Dramatic Gains**  
+The custom patch significantly improves lower-bit quantizations:
+- **IQ1_M**: 15.4 perplexity (vs 27.4 standard) - **44% better accuracy**  
+- **IQ1_S**: 32.0 perplexity (vs 53.1 standard) - **40% better accuracy**
+
+**Tradeoffs:**  
+While IQ1 variants see massive perplexity improvements, they:
+- Require 0.3GB more storage (2.5G vs 2.2G for IQ1_M)
+- Have slightly increased inference times (+5-10s)
+- Still trail higher-bit quantizations in absolute performance
+
+**Why This Matters:**  
+Your patch's mixed quantization appears to particularly benefit 1-bit quantizations by:
+1. Better preserving critical first/last layer information
+2. Compensating for IQ1's limitations through smarter layer selection
+3. Reducing error propagation in the quantization chain

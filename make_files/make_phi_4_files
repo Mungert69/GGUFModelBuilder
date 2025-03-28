@@ -1,0 +1,25 @@
+./llama-quantize --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type F16 --token-embedding-type F16    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-f16-q8.gguf     Q8_0
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type BF16 --token-embedding-type BF16    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-bf16-q8.gguf     Q8_0
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q3_k_l.gguf     Q3_K
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q4_k_l.gguf     Q4_k
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_l.gguf     Q5_K
+./llama-quantize --imatrix microsoft_Phi-4-mini-instruct.imatrix --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q6_k_l.gguf     Q6_k
+./llama-quantize   --imatrix microsoft_Phi-4-mini-instruct.imatrix ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q6_k_m.gguf     Q6_k
+./llama-quantize    --imatrix microsoft_Phi-4-mini-instruct.imatrix ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q4_k_m.gguf     Q4_k
+./llama-quantize    --imatrix microsoft_Phi-4-mini-instruct.imatrix ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q4_k_s.gguf     Q4_K_S
+./llama-quantize   --pure  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q8.gguf     Q8_0
+./llama-quantize   --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_s.gguf  Q5_K_S
+./llama-quantize   --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_m.gguf  Q5_K_M
+./llama-quantize   --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q3_k_m.gguf     Q3_K_M
+./llama-quantize   --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q3_k_s.gguf     Q3_K_S
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_m.gguf     Q5_K
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_s.gguf     Q5_S
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q5_k_s.gguf     Q5_K_S
+./llama-quantize --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-iq4_xs.gguf    IQ4_XS
+./llama-quantize --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-iq3_xs.gguf    IQ3_XS
+./llama-quantize --imatrix microsoft_Phi-4-mini-instruct.imatrix  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-iq4_nl.gguf    IQ4_NL
+./llama-quantize --pure --imatrix microsoft_Phi-4-mini-instruct.imatrix  --output-tensor-type Q8_0 --token-embedding-type Q8_0   ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q4_0.gguf    Q4_0
+./llama-quantize --pure --imatrix microsoft_Phi-4-mini-instruct.imatrix  --output-tensor-type Q8_0 --token-embedding-type Q8_0  ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q4_1.gguf    Q4_1
+./llama-quantize  --imatrix microsoft_Phi-4-mini-instruct.imatrix  --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/phi-4-mini-bf16.gguf     ~/code/models/phi-4-mini-q2_k_l.gguf     Q2_K 
+
+

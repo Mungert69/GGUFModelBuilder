@@ -1,0 +1,14 @@
+{
+  "models": [
+    "allenai/OLMo-2-1124-7B-Instruct",
+    "allenai/OLMo-2-1124-13B-Instruct",
+    "Qwen/Qwen2.5-14B-Instruct-1M",
+    "Qwen/Qwen2.5-7B-Instruct-1M",
+    "ibm-granite/granite-3.2-2b-instruct",
+    "ibm-granite/granite-3.2-8b-instruct",
+    "allenai/OLMo-2-0325-32B-Instruct",
+    "NousResearch/DeepHermes-3-Mistral-24B-Preview",
+    "mistralai/Mistral-Small-24B-Instruct-2501",
+  ]
+}
+

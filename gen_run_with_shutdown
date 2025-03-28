@@ -1,0 +1,4 @@
+sudo su
+source ./venv/bin/activate
+nohup python3 gen-download.py --repo_id Mungert/Phi-4-mini-instruct.gguf --file_name README.md --iterations 20 --delay 1  & disown
+

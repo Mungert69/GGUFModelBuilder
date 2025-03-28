@@ -1,0 +1,5 @@
+python3 -m venv venv
+source venv/bin/activate
+pip install  python-dotenv huggingface_hub llama-cpp-python
+python3 ~/code/NetworkMonitorKokoro/install_dependencies.py 
+nohup python3 run_all_from_json.py  models.json &

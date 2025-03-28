@@ -1,0 +1,4 @@
+source venv/bin/activate
+nohup  python3 model_coverter.py > model_convert.log 2>&1 &
+nohup python3 auto_build_new_models.py > auto_build.log 2>&1 &
+

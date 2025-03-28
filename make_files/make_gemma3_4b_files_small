@@ -1,0 +1,13 @@
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  --output-tensor-type Q8_0 --token-embedding-type Q8_0    ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-q2_k_l.gguf     Q2_K 
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq2_xs.gguf IQ2_XS
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq2_s.gguf IQ2_S
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq2_m.gguf IQ2_M
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq1_s.gguf IQ1_S
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq1_m.gguf IQ1_M
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-tq1_0.gguf TQ1_0
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-tq2_0.gguf TQ2_0
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-q2_k_s.guuf Q2_K_S
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq3_xss.gguf IQ3_XSS
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq3_s.gguf IQ3_S
+./llama-quantize  --imatrix google_gemma-3-4b-it.imatrix  ~/code/models/google_gemma-3-4b-it-bf16.gguf     ~/code/models/google_gemma-3-4b-it-iq3_m.gguf IQ3_M
+
