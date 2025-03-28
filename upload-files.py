@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import argparse
 import shutil
-from upload_large_file extract_quant_folder_name  import make_files
+from make_files import upload_large_file , extract_quant_folder_name 
 # Load the .env file
 load_dotenv()
 

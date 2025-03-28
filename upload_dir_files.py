@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import argparse
 import shutil
-
+from make_files import upload_large_file , extract_quant_folder_name 
 # Load the .env file
 load_dotenv()
 
@@ -63,19 +63,9 @@ try:
         file_path = os.path.join(upload_dir, file_name)
         if os.path.isfile(file_path) and file_name != "README.md":
             print(f"Uploading {file_name}...")
-            try:
-                api.upload_file(
-                    path_or_fileobj=file_path,
-                    path_in_repo=file_name,  # Change this if you want a subdirectory in the repo
-                    repo_id=repo_id,
-                    token=api_token,
-                )
-                print(f"Uploaded {file_name} successfully.")
-                # Delete the file only if the upload succeeds
-                os.remove(file_path)
-                print(f"Deleted {file_name} locally.")
-            except Exception as e:
-                print(f"Error uploading {file_name}: {e}")
+            quant_type=extract_quant_folder_name(file_name);
+            upload_large_file(file_path, repo_id, quant_type)
+
 except Exception as e:
     print(f"An error occurred during the upload process: {e}")
 
