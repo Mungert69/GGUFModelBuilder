@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 import argparse
 import shutil
-
+from upload_large_file extract_quant_folder_name  import make_files
 # Load the .env file
 load_dotenv()
 
@@ -47,12 +47,8 @@ try:
         file_path = os.path.join(upload_dir, file_name)
         if os.path.isfile(file_path) :
             print(f"Uploading {file_name}...")
-            api.upload_file(
-                path_or_fileobj=file_path,
-                path_in_repo=file_name,
-                repo_id=repo_id,
-                token=api_token,
-            )
+            quant_type=extract_quant_folder_name(file_name);
+            upload_large_file(file_path, repo_id, quant_type)
             print(f"Uploaded {file_name} successfully.")
 except Exception as e:
     print(f"An error occurred during the upload process: {e}")
