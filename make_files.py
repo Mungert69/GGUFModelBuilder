@@ -142,19 +142,19 @@ def extract_quant_folder_name(filename):
     # Remove .gguf extension if present
     base_name = filename.replace('.gguf', '')
     
-    # Pattern to match quantization suffixes (bf16-q4_k, q3_k_l, etc.)
+    # Updated patterns to handle bf16/f16 and other quant suffixes
     patterns = [
-        r'(?:.*-)?(bf16-[^\-]+)$',  # Matches bf16-* at end
-        r'(?:.*-)?([^\-]+)$',       # Matches last part if no bf16
+        r'(?:.*-)?(bf16|f16|q[0-9]_[kmls]|iq\d_\w+)$',  # Standalone bf16/f16 or quant types
+        r'(?:.*-)?([^\-]+)$'  # Fallback to last part
     ]
     
     for pattern in patterns:
-        match = re.search(pattern, base_name)
+        match = re.search(pattern, base_name, re.IGNORECASE)
         if match:
-            return match.group(1)
+            return match.group(1).lower()  # Return lowercase for consistency
+    
     # Fallback to entire filename if no match
     return base_name
-
 
 def upload_file_to_hf(file_path, repo_id, create_dir=False):
     """Upload a file to Hugging Face Hub with optional subdirectory organization.
