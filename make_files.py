@@ -152,7 +152,6 @@ def extract_quant_folder_name(filename):
         match = re.search(pattern, base_name)
         if match:
             return match.group(1)
-    
     # Fallback to entire filename if no match
     return base_name
 
