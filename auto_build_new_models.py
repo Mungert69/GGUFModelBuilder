@@ -33,8 +33,8 @@ HEADERS = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
 MAX_TOKENS = 4096
 MODELS_JSON_PATH = "models-complete.json"
 # Local GGUF model
-LOCAL_MODEL_PATH = "~/code/models/Meta-Llama-3-8B-Instruct-q4_k_m.gguf"
-GRAMMAR_FILE_PATH = "~/code/model/llama.cpp/grammars/json.gbnf"  # Path to your JSON grammar file
+LOCAL_MODEL_PATH = os.path.expanduser("~/code/models/Meta-Llama-3-8B-Instruct-q4_k_m.gguf")
+GRAMMAR_FILE_PATH = os.path.expanduser("~/code/models/llama.cpp/grammars/json.gbnf")
 MODEL_CATALOG_FILE = "model_catalog.json"
 
 # Load the JSON grammar
