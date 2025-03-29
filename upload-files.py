@@ -4,6 +4,9 @@ import os
 import argparse
 import shutil
 from make_files import upload_large_file , extract_quant_folder_name 
+
+base_dir = os.path.expanduser("~/code/models")
+
 # Load the .env file
 load_dotenv()
 
@@ -33,7 +36,7 @@ model_base = args.model_name
 repo_id = f"Mungert/{model_base}-GGUF"
 
 # Directory containing the files to upload (matches model name folder from quantization script)
-upload_dir = os.path.join("./", model_base)
+upload_dir = os.path.join(base_dir, model_base)
 
 # Hugging Face cache directory
 hf_cache_dir = os.path.expanduser("~/.cache/huggingface/hub/")

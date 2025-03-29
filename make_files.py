@@ -11,6 +11,8 @@ from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
 from pathlib import Path
 
+base_dir = os.path.expanduser("~/code/models")
+
 # Load the .env file
 load_dotenv()
 
@@ -508,7 +510,7 @@ def main():
         exit(1)
 
     company_name, model_name = args.model_id.split("/", 1)
-    model_dir = os.path.join(os.getcwd(), model_name)
+    model_dir = os.path.join(base_dir, model_name)
     quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name)
 
 if __name__ == "__main__":
