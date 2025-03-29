@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 base_dir = os.path.expanduser("~/code/models")
+run_dir = os.path.abspath("./")
 
 # Load the .env file
 load_dotenv()
@@ -314,7 +315,7 @@ def download_imatrix(input_dir, company_name, model_name):
             bf16_model_path = os.path.join(input_dir, f"{model_name}-bf16.gguf")
             if not os.path.exists(bf16_model_path):
                 raise FileNotFoundError(f"Cannot generate imatrix: {bf16_model_path} not found")
-            imatrix_train_set = "imatrix-train-set"
+            imatrix_train_set = f"{run_dir}/imatrix-train-set"
             command = [
                 f"{base_dir}/llama.cpp/llama-imatrix",
                 "-m", bf16_model_path,
