@@ -1,6 +1,5 @@
 {
   "models": [
-          "Qwen/Qwen2.5-VL-32B-Instruct",
               "nvidia/Llama-3_3-Nemotron-Super-49B-v1",
               "open-r1/OlympicCoder-32B",
               "allenai/OLMo-2-0325-32B-Instruct",
