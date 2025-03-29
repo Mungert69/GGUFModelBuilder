@@ -316,7 +316,7 @@ def download_imatrix(input_dir, company_name, model_name):
                 raise FileNotFoundError(f"Cannot generate imatrix: {bf16_model_path} not found")
             imatrix_train_set = "imatrix-train-set"
             command = [
-                "./llama.cpp/llama-imatrix",
+                f"{base_dir}/llama.cpp/llama-imatrix",
                 "-m", bf16_model_path,
                 "-f", imatrix_train_set,
                 "-o", imatrix_file
@@ -361,7 +361,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
     
     def run_quantization(t_type, e_type):
         """Helper function to run quantization with specific types"""
-        command = ["./llama.cpp/llama-quantize"]
+        command = [f"{base_dir}/llama.cpp/llama-quantize"]
         if use_imatrix:
             command.extend(["--imatrix", use_imatrix])
         if use_pure:
