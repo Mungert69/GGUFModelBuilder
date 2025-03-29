@@ -1,0 +1,13 @@
+{
+  "UW/OLMo2-11B-SuperBPE-t180k": {
+    "added": "2025-03-28T23:29:15.903169",
+    "parameters": 11000000000.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": []
+  }
+}
