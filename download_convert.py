@@ -33,6 +33,7 @@ args = parser.parse_args()
 repo_id = args.repo_id
 output_dir = os.path.abspath(args.output_dir)
 os.makedirs(output_dir, exist_ok=True)
+llama_dir = os.path.expanduser("~/code/models/llama.cpp")
 
 # Define the final BF16 file path
 model_base_name = repo_id.split("/")[-1]
@@ -96,7 +97,7 @@ if not bf16_model_path:
     model_snapshot_dir = os.path.dirname(downloaded_files[0])
     
     # Update the path to the convert_hf_to_gguf.py script
-    convert_script_path = "./llama.cpp/convert_hf_to_gguf.py"
+    convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
     
     convert_command = [
         "python3", convert_script_path,
