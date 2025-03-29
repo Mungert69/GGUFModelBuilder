@@ -126,8 +126,5 @@ if model_snapshot_dir and os.path.exists(model_snapshot_dir):
     except Exception as e:
         print(f"Error while deleting the cache directory: {e}")
 
-# Update README.md after BF16 creation
-update_readme(output_dir, model_base_name)
-
 # Exit with success
 exit(0)
