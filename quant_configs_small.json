@@ -16,6 +16,6 @@
     {"name": "iq3_xs", "type": "IQ3_XS", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq3_xxs", "type": "IQ3_XXS", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq3_s", "type": "IQ3_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
-    {"name": "iq3_m", "type": "IQ3_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
+    {"name": "iq3_m", "type": "IQ3_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false}
 ]
 
