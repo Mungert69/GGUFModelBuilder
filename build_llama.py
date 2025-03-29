@@ -4,11 +4,11 @@ import shutil
 import sys
 
 # Define paths
-llama_cpp_dir = os.path.abspath("./llama.cpp")
+llama_cpp_dir = os.path.expanduser("~/code/models/llama.cpp")
 src_dir = os.path.join(llama_cpp_dir, "src")
 build_dir = os.path.join(llama_cpp_dir, "build")
 bin_dir = os.path.join(build_dir, "bin")
-patch_file = os.path.abspath("my_quant_changes.patch")
+patch_file = os.path.abspath("./my_quant_changes.patch")
 
 # CMake configuration
 cmake_command = [
