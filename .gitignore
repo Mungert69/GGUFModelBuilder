@@ -358,3 +358,4 @@ main.log
 /histories/*
 /venv/*
 .env
+__pycache__

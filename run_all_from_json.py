@@ -5,6 +5,8 @@ import os
 import shutil
 import threading
 
+base_dir = os.path.expanduser("~/code/models")
+
 def run_script(script_name, args):
     """Runs a script with arguments and streams output in real time.
     Returns True if the script succeeds, False otherwise."""
@@ -55,7 +57,7 @@ def run_script(script_name, args):
 
 def cleanup_model_dir(model_name):
     """Clean up the model directory to free up disk space."""
-    model_dir = os.path.join("./", model_name)  # Directly use model's folder name
+    model_dir = os.path.join(base_dir, model_name)  # Directly use model's folder name
     
     if os.path.exists(model_dir):
         print(f"\nCleaning up directory: {model_dir}")
