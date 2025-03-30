@@ -5,6 +5,7 @@ from huggingface_hub import hf_hub_download, list_repo_files, login, HfApi
 from dotenv import load_dotenv
 import shutil
 from update_readme import update_readme  # Import the update_readme function
+from add_metadata_gguf import add_metadata
 
 # Load the .env file
 load_dotenv()
@@ -116,6 +117,14 @@ if not bf16_model_path:
         print("Error during conversion:")
         print(result.stderr)
         exit(1)  # Explicitly indicate failure
+
+# Add metadata using the imported function
+try:
+    print("\nAdding metadata to the BF16 GGUF file...")
+    add_metadata(Path(bf16_output_file))  # Convert string to Path object
+except Exception as e:
+    print(f"Failed to add metadata: {e}")
+    exit(1)  # Explicitly indicate failure
 
 # Delete the cache directory to save disk space after conversion
 if model_snapshot_dir and os.path.exists(model_snapshot_dir):
