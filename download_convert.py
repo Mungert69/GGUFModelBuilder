@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import shutil
 from update_readme import update_readme  # Import the update_readme function
 from add_metadata_gguf import add_metadata
+from pathlib import Path
 
 # Load the .env file
 load_dotenv()
