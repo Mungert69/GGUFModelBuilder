@@ -244,3 +244,12 @@ I'm experimenting with **function calling** against my network monitoring servic
         file.write(updated_content)
 
     print(f"README.md updated successfully for {base_name}.")
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("model_dir", help="Path to the model directory")
+    parser.add_argument("base_name", help="Base name of the model")
+    parser.add_argument("--iquant", action="store_true", help="Add iquant section")
+    args = parser.parse_args()
+    
+    update_readme(args.model_dir, args.base_name, args.iquant)
