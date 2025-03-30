@@ -1,5 +1,251 @@
 [
   {
+    "sha": "0bb2919335d00ff0bc79d5015da95c422de51f03",
+    "node_id": "C_kwDOJH_K4NoAKDBiYjI5MTkzMzVkMDBmZjBiYzc5ZDUwMTVkYTk1YzQyMmRlNTFmMDM",
+    "commit": {
+      "author": {
+        "name": "Djip007",
+        "email": "3705339+Djip007@users.noreply.github.com",
+        "date": "2025-03-29T13:07:37Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-29T13:07:37Z"
+      },
+      "message": "llama : change cpu_buft_list order: ACCEL -> GPU host -> CPU extra -> CPU (#12632)\n\nthis allow to use GPU host when possible over CPU repack.\nthis have the same effect to resolve this issues (#12498) without\ncompletely disable CPU extra buffer.\n\nCo-authored-by: philou <philou@framework>",
+      "tree": {
+        "sha": "9f56800e2c73e1428c38e6ab06dde9604030b946",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/9f56800e2c73e1428c38e6ab06dde9604030b946"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/0bb2919335d00ff0bc79d5015da95c422de51f03",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn5/CZCRC1aQ7uu5UhlAAA24YQAIw3xU5r99SEdAI6rWlsYj1B\neuH5wkXuKng+ocI6uu4EHUp2XKdswazGIo8lus9nIzTAR6/gShdDLUhBkFGNmYQC\ntpvBOgxy3D27pG3JLUlNffAAYGVqlsxLmqpj1aODY//OExUipBTN1ZjwMuxcrOW5\nEERTVkXj9F3zsZQgikVhkzN0bDGbMNiD8EFwMr3MoTanbZeZViiC+LmZI3obRrus\nAcXj39+vcCP4lNMAfp8d3vivLArMb03lTDd0IJ5LWH1E+LnXXq/cHiyFWxnrvM+N\n0MT/MobXmK/Gut3ZuXpeUAXPR9jVE5bIk8OgRc0Llo4lwsCBT0/BCls6W6jMPSPl\nXwvbORIHCkomA0DpTYpLxMQiH5JYISXqQMF5lwmsfKRqFjfFSAirdVV8VG+GKYM3\nMtPpY+d5sXZcTHLfeM8on0QzLH18ALGj/Mctsjb0f6jCmK9w4+ytmmT9kN2H1NnS\nEIEh/tTQuiqkiyV08jAZh3J1PGj1fWw/juHZrC4lQfbocSAkcEAN23JNhbViRiFM\nfRoOCHIrX4LZOqL8Ud6XorbFjBw0T56Gy1RRdUWipmU0C1zNRySrpIsOdG9v+8M1\nDeUidDpP1pDWoPaKsXpFxjm3+yVC4/4LuH7fi8qYfLXfFTvQzvO63Yz7UtgDG5gh\ns21A6ai5hbdcrSdFYAc9\n=VJ5k\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 9f56800e2c73e1428c38e6ab06dde9604030b946\nparent a69f8463510a70fe0c85701b8c7ede283a0d1a7d\nauthor Djip007 <3705339+Djip007@users.noreply.github.com> 1743253657 +0100\ncommitter GitHub <noreply@github.com> 1743253657 +0100\n\nllama : change cpu_buft_list order: ACCEL -> GPU host -> CPU extra -> CPU (#12632)\n\nthis allow to use GPU host when possible over CPU repack.\nthis have the same effect to resolve this issues (#12498) without\ncompletely disable CPU extra buffer.\n\nCo-authored-by: philou <philou@framework>",
+        "verified_at": "2025-03-29T13:07:40Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/0bb2919335d00ff0bc79d5015da95c422de51f03",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/0bb2919335d00ff0bc79d5015da95c422de51f03",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/0bb2919335d00ff0bc79d5015da95c422de51f03/comments",
+    "author": {
+      "login": "Djip007",
+      "id": 3705339,
+      "node_id": "MDQ6VXNlcjM3MDUzMzk=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3705339?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Djip007",
+      "html_url": "https://github.com/Djip007",
+      "followers_url": "https://api.github.com/users/Djip007/followers",
+      "following_url": "https://api.github.com/users/Djip007/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Djip007/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Djip007/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Djip007/subscriptions",
+      "organizations_url": "https://api.github.com/users/Djip007/orgs",
+      "repos_url": "https://api.github.com/users/Djip007/repos",
+      "events_url": "https://api.github.com/users/Djip007/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Djip007/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/a69f8463510a70fe0c85701b8c7ede283a0d1a7d"
+      }
+    ]
+  },
+  {
+    "sha": "a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+    "node_id": "C_kwDOJH_K4NoAKGE2OWY4NDYzNTEwYTcwZmUwYzg1NzAxYjhjN2VkZTI4M2EwZDFhN2Q",
+    "commit": {
+      "author": {
+        "name": "Jay",
+        "email": "BusyJay@users.noreply.github.com",
+        "date": "2025-03-29T10:04:58Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-29T10:04:58Z"
+      },
+      "message": "cmake : fix ccache conflict (#12522)\n\nIf users already set CMAKE_C_COMPILER_LAUNCHER globally, setting it in\r\ncmake again will lead to conflict and compile fail.\n\nSigned-off-by: Jay <BusyJay@users.noreply.github.com>",
+      "tree": {
+        "sha": "d8232aa13c557a90d8b759a15e7854d2856295bf",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/d8232aa13c557a90d8b759a15e7854d2856295bf"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn58XKCRC1aQ7uu5UhlAAAFUwQAIvuypOT50t6L9VoXF/TV3xy\nOnwVEiJnLvrJvnDKGjyEF+xrD59RoPZkuiTaMRZPwsKp93y6Fgv/TVSNXcLonE5/\nC+m3ZcIeicJvc+z4soVCcEFRiew0GrA5T+U/wZjIUYaGmas+aYXJbORI1s4VIZly\n1CmmijbnCYTUHrmfbTpkxvr5Nyt/HL+5TV22PuFahH3eDUQx/FyjhlRCFpqTyHoj\n96WJHD9qE3IocFUYfKUTBAiim33rqirjNqTQm6gHbzE8ORXtL7vHESkSXi8WKw9/\nlsCNI/ZJutuKDU4FNv7/3oabOIhJ5ZeJOaKu4518PiyDZVosmoRlsdS9rKdnzSaN\nsqBBldCtPO7xf+9tHuS7eqIJBy9/9D4qknsPb4XW7rv9RgnTXAKp6FECtkHJTUc0\nYzXackgJTMCo/IxHSBi2qiZZWylxtCePgGNwfm2IS3w/U/bKmNx8yhdikrVyCQ6w\n+r5GvAu/E2OlXI8QRlNQPcyoU/qOuMumDPK+qQ/8kIHTpyrEZwNrF7sVy/cilLKe\nzziAnTaI6uN4cWxpmZnwm9U7HLgLG6t83SlkQ5Fn/OSrqO8QATwqeuVXW7aMoau4\n4YuWZSYXPLD2kH6KI87CHk93f7FreMmPyDtS0+Dwkqt2VJ65wWhEd/ptzAF7Wpmn\niueSZ/YIkck9DtEUZY+N\n=n0Lv\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree d8232aa13c557a90d8b759a15e7854d2856295bf\nparent d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f\nauthor Jay <BusyJay@users.noreply.github.com> 1743242698 +0800\ncommitter GitHub <noreply@github.com> 1743242698 +0100\n\ncmake : fix ccache conflict (#12522)\n\nIf users already set CMAKE_C_COMPILER_LAUNCHER globally, setting it in\r\ncmake again will lead to conflict and compile fail.\n\nSigned-off-by: Jay <BusyJay@users.noreply.github.com>",
+        "verified_at": "2025-03-29T10:05:02Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/a69f8463510a70fe0c85701b8c7ede283a0d1a7d",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a69f8463510a70fe0c85701b8c7ede283a0d1a7d/comments",
+    "author": {
+      "login": "BusyJay",
+      "id": 1701473,
+      "node_id": "MDQ6VXNlcjE3MDE0NzM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1701473?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/BusyJay",
+      "html_url": "https://github.com/BusyJay",
+      "followers_url": "https://api.github.com/users/BusyJay/followers",
+      "following_url": "https://api.github.com/users/BusyJay/following{/other_user}",
+      "gists_url": "https://api.github.com/users/BusyJay/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/BusyJay/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/BusyJay/subscriptions",
+      "organizations_url": "https://api.github.com/users/BusyJay/orgs",
+      "repos_url": "https://api.github.com/users/BusyJay/repos",
+      "events_url": "https://api.github.com/users/BusyJay/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/BusyJay/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f"
+      }
+    ]
+  },
+  {
+    "sha": "d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+    "node_id": "C_kwDOJH_K4NoAKGQwN2EwZDdhNzliYWZiMDFmYjNiNmM4OTkyMTIxZTc1YzU3YzBjMmY",
+    "commit": {
+      "author": {
+        "name": "hipudding",
+        "email": "huafengchun@gmail.com",
+        "date": "2025-03-29T10:03:28Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-29T10:03:28Z"
+      },
+      "message": "CANN : remove clang-format in ggml-cann (#12607)",
+      "tree": {
+        "sha": "ed0b89d3c01391725a01d365ba71aa0281777275",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/ed0b89d3c01391725a01d365ba71aa0281777275"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn58VxCRC1aQ7uu5UhlAAARg8QABZqwUc5Me3GMzN46AtIpqCI\nW+WiZ6/zQqbvG5Vp7nxVDmdRbbgNR+6PLFOcKD9S5pEPXCqCuCs0g7aPi8oqmq+c\njzo+FdsvUZjFxaWvgMMDqRrUxOabyyGt9+L7PuuUaDnIsdHQgN+2mU5Gj0Z+pZJ5\nxOV7K3SGbqoq8wbYTjKTw9ZnxKgzSfl4rv9UU1hBudKfO7O7YJtE5hrRsbgxCoT+\n8+IgS7CzlOHSSwjQAswOR4gQS2KnqiqzbgvcSb7XcT7tfnD3kBUANDsDDsQZoIez\nyZ1g7v50tUEh+DdznoJTqBqjo7lZAq/ErpbWz+afJMhfIJTmPuUsVpovXRM4WQSJ\n/VhVoQYhwPcg3P/AqnfMtK0qU6P/URehCPQeYP+u/8vi87bQiH8qnL5sYxia6nMd\n5qw4EhZ6edZEYP4XJNuV8cUZVjnt2Mfcn1hsr44J8WFilo/e89+XMsYdQ2YJdu7K\nCZ/sTw6xJZ0LrkZn+f0RlM7yJXQouxr/hWFP3Q9eYFV8Hal5I7gY2V6aFN5g2Njj\n5R7+Ff4XRiMc2QtB817CcUO6p6LLMLXpcgI07bYgF+j0QAV38dzP1rMCJ0lg3a/O\nVPFrf/dQsxzUxnpxjm5dVbhsxXOS5Q5KxAB6LXn2WEdKjB0kCgksENG0P5nTYDnG\nWblUQukzoIO5QIRgIzqU\n=YhQv\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree ed0b89d3c01391725a01d365ba71aa0281777275\nparent 3714c3ee1a62ed64ac328ec7d699410ad1219150\nauthor hipudding <huafengchun@gmail.com> 1743242608 +0800\ncommitter GitHub <noreply@github.com> 1743242608 +0100\n\nCANN : remove clang-format in ggml-cann (#12607)\n\n",
+        "verified_at": "2025-03-29T10:03:32Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d07a0d7a79bafb01fb3b6c8992121e75c57c0c2f/comments",
+    "author": {
+      "login": "hipudding",
+      "id": 3837401,
+      "node_id": "MDQ6VXNlcjM4Mzc0MDE=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3837401?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/hipudding",
+      "html_url": "https://github.com/hipudding",
+      "followers_url": "https://api.github.com/users/hipudding/followers",
+      "following_url": "https://api.github.com/users/hipudding/following{/other_user}",
+      "gists_url": "https://api.github.com/users/hipudding/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/hipudding/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/hipudding/subscriptions",
+      "organizations_url": "https://api.github.com/users/hipudding/orgs",
+      "repos_url": "https://api.github.com/users/hipudding/repos",
+      "events_url": "https://api.github.com/users/hipudding/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/hipudding/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "3714c3ee1a62ed64ac328ec7d699410ad1219150",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3714c3ee1a62ed64ac328ec7d699410ad1219150",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/3714c3ee1a62ed64ac328ec7d699410ad1219150"
+      }
+    ]
+  },
+  {
     "sha": "3714c3ee1a62ed64ac328ec7d699410ad1219150",
     "node_id": "C_kwDOJH_K4NoAKDM3MTRjM2VlMWE2MmVkNjRhYzMyOGVjN2Q2OTk0MTBhZDEyMTkxNTA",
     "commit": {
@@ -3850,252 +4096,6 @@
         "sha": "ba932dfb50cc694645b1a148c72f8c06ee080b17",
         "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/ba932dfb50cc694645b1a148c72f8c06ee080b17",
         "html_url": "https://github.com/ggml-org/llama.cpp/commit/ba932dfb50cc694645b1a148c72f8c06ee080b17"
-      }
-    ]
-  },
-  {
-    "sha": "ba932dfb50cc694645b1a148c72f8c06ee080b17",
-    "node_id": "C_kwDOJH_K4NoAKGJhOTMyZGZiNTBjYzY5NDY0NWIxYTE0OGM3MmY4YzA2ZWUwODBiMTc",
-    "commit": {
-      "author": {
-        "name": "Georgi Gerganov",
-        "email": "ggerganov@gmail.com",
-        "date": "2025-03-22T14:23:26Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-22T14:23:26Z"
-      },
-      "message": "ggml : fix quantized cpy op (#12310)\n\n* ggml : fix quantized cpy op\n\nggml-ci\n\n* tests : add cpy tests for all types\n\nggml-ci\n\n* tests : add BF16 copy tests\n\nggml-ci\n\n* tests : fix loop for same-type copy\r\n\r\nggml-ci\n\n* tests : add option to permute the dst tensor\n\nggml-ci",
-      "tree": {
-        "sha": "1a64468559a7fd60e88de41f1f093ebdaf9dff78",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/1a64468559a7fd60e88de41f1f093ebdaf9dff78"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/ba932dfb50cc694645b1a148c72f8c06ee080b17",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn3sfeCRC1aQ7uu5UhlAAA0dgQAKWNPFqBY6nWVPBXVU4+0EVM\nhcxd36adlQCgB7wtjYRJjfGGZefXLhkspPuLdL13cnLZ1fiAIFdcspQtMpdacNpX\ngXDstdnQCSB/0VI+eWkKifwRj4hSRlcD3CtoHAvypYFHq8kEzI0rbL8doDsjjDa+\nrwbnnvb1uYkffTNAWnuGdg4X4szM7A7M8LKqO291gN06kX6TmrFuO1i/l7vP8A96\nqANM6S9Zj+lOWMkZQJOcY2HEopC1areiQV/wFcEOcQQnyumja0jd5wq9jFsje/SK\nPruosvjmk2Se9t40EuitbxDBD7w+wRrGEpBPFp0R+RqA5gKrvCC8zhAbH2Q/RGQ7\nodrr5sk9ULukxrPujbcm02uQnFwuOXHcKO+ReC07oxS9YRq+OLcyvDCf6vPkLkWj\n1h9y9H06Ga8QVYcyd/cEqcdmb5RE/OXcsycpG6+Iuo4Z8dlAx3OKaCFgH//QXfnB\n3DdPfWjpng3l25b8tMQl4cfZYsBnsokNWev2s+1TK5orIyfHXuHiY2PaENg/EWz9\nvI4bJeRWlu3cE7W/Mbkgnj9oduzmfxZOtxoyTYj2jsGABwC5LcDZ5sxW+CVFEC8G\naSJer4CR3cGVBvVaFVkCzeZ6mcX9VCIa5blhTyQ0Kzl3wKbc3NHsJHc30MPmiQrW\nYB12DVRf3KRVah6BzwC1\n=M5+W\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 1a64468559a7fd60e88de41f1f093ebdaf9dff78\nparent fac63a3d786b2a0f97876c30add02cb525a9648e\nauthor Georgi Gerganov <ggerganov@gmail.com> 1742653406 +0200\ncommitter GitHub <noreply@github.com> 1742653406 +0200\n\nggml : fix quantized cpy op (#12310)\n\n* ggml : fix quantized cpy op\n\nggml-ci\n\n* tests : add cpy tests for all types\n\nggml-ci\n\n* tests : add BF16 copy tests\n\nggml-ci\n\n* tests : fix loop for same-type copy\r\n\r\nggml-ci\n\n* tests : add option to permute the dst tensor\n\nggml-ci",
-        "verified_at": "2025-03-22T14:23:30Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/ba932dfb50cc694645b1a148c72f8c06ee080b17",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/ba932dfb50cc694645b1a148c72f8c06ee080b17",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/ba932dfb50cc694645b1a148c72f8c06ee080b17/comments",
-    "author": {
-      "login": "ggerganov",
-      "id": 1991296,
-      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/ggerganov",
-      "html_url": "https://github.com/ggerganov",
-      "followers_url": "https://api.github.com/users/ggerganov/followers",
-      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
-      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
-      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
-      "repos_url": "https://api.github.com/users/ggerganov/repos",
-      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "fac63a3d786b2a0f97876c30add02cb525a9648e",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fac63a3d786b2a0f97876c30add02cb525a9648e",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/fac63a3d786b2a0f97876c30add02cb525a9648e"
-      }
-    ]
-  },
-  {
-    "sha": "fac63a3d786b2a0f97876c30add02cb525a9648e",
-    "node_id": "C_kwDOJH_K4NoAKGZhYzYzYTNkNzg2YjJhMGY5Nzg3NmMzMGFkZDAyY2I1MjVhOTY0OGU",
-    "commit": {
-      "author": {
-        "name": "R0CKSTAR",
-        "email": "xiaodong.ye@mthreads.com",
-        "date": "2025-03-22T09:11:37Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-22T09:11:37Z"
-      },
-      "message": "musa: refine compute capability (#12493)\n\n* musa: refine compute capability\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n---------\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
-      "tree": {
-        "sha": "7e6587b343068d853bca4ca58d2d90d87d62501c",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/7e6587b343068d853bca4ca58d2d90d87d62501c"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/fac63a3d786b2a0f97876c30add02cb525a9648e",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn3n7JCRC1aQ7uu5UhlAAAqs8QAGEw12EFK/tivA9euZwy47R4\nYrE2pVFh/ijxDI0KUrYGRXDmxIyyIoxnifkiMO8zM4RWD9rDiGsQVTC0cBsQXCnc\nHK5BpwkFQXKFw2K8EIGEbQDcFYtVCVnRa58WeW7I+wVXjX6su2CXjEcAIls08GG9\nagksrkwLCcniLSV9Rs54BPAhQyxEV7KJPnrJ7pmID/7RKrChtNZ7Mz4FX62BIkSM\nuqNAja5YELCd/Wzc5jSnk3jxPSDKEfTzrCWAb3imy4aE6q5W75IxbLHfkqCrjrW6\nrQJtN0Ev+tHYrjCwuWBZ5+bUienx7+ajrGPyFZupZwlYCmgPL5/jzytSrlehST9H\n2kddT8YkikTCua5cKFDdOiS7eSXtrXf5U01RkOcn5mNYAWXPp8w2pFNLnVWrv3b5\nkaG3EPto273M2sb+L33FypnmNlzTU2cma/DgjcLaOZVl3LOjnQA8Xn7y0Yjkf9uG\nK76fNMiXknRu7N5CGXVKikh4EiSm7BIk63xja6kYqB/Vv9mjR5c3hE8vp25CmoiI\niZ9CeDrjpj+LqtBdku0PPrreNdj35a884jcquknXFCXUnZhdNbAVSBqlIDnQqF4Y\nq9ZBcLVTK3S7gDQ3rZiDXyEmkiSgYjePOynIjGmRPK4c++Uab/rmLNFlrGJQ+sQ9\nbz6/rz1ete4cH3y9Gpmb\n=5PyU\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 7e6587b343068d853bca4ca58d2d90d87d62501c\nparent eddfb438502bd5d1014d63a812e9b6d03d326f8c\nauthor R0CKSTAR <xiaodong.ye@mthreads.com> 1742634697 +0800\ncommitter GitHub <noreply@github.com> 1742634697 +0100\n\nmusa: refine compute capability (#12493)\n\n* musa: refine compute capability\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n---------\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
-        "verified_at": "2025-03-22T09:11:38Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fac63a3d786b2a0f97876c30add02cb525a9648e",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/fac63a3d786b2a0f97876c30add02cb525a9648e",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fac63a3d786b2a0f97876c30add02cb525a9648e/comments",
-    "author": {
-      "login": "yeahdongcn",
-      "id": 2831050,
-      "node_id": "MDQ6VXNlcjI4MzEwNTA=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2831050?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/yeahdongcn",
-      "html_url": "https://github.com/yeahdongcn",
-      "followers_url": "https://api.github.com/users/yeahdongcn/followers",
-      "following_url": "https://api.github.com/users/yeahdongcn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/yeahdongcn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/yeahdongcn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/yeahdongcn/subscriptions",
-      "organizations_url": "https://api.github.com/users/yeahdongcn/orgs",
-      "repos_url": "https://api.github.com/users/yeahdongcn/repos",
-      "events_url": "https://api.github.com/users/yeahdongcn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/yeahdongcn/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/eddfb438502bd5d1014d63a812e9b6d03d326f8c"
-      }
-    ]
-  },
-  {
-    "sha": "eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-    "node_id": "C_kwDOJH_K4NoAKGVkZGZiNDM4NTAyYmQ1ZDEwMTRkNjNhODEyZTliNmQwM2QzMjZmOGM",
-    "commit": {
-      "author": {
-        "name": "Jeff Bolz",
-        "email": "jbolz@nvidia.com",
-        "date": "2025-03-22T08:40:11Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-22T08:40:11Z"
-      },
-      "message": "vulkan: Optimize mul_mat_vec p021 and nc shaders (#12505)\n\n* tests: add mul_mat perf/functional tests for p021/nc vulkan shaders\n\n* vulkan: Optimize mul_mat_vec p021 and nc shaders.\n\nThese shaders are used in attention calculations, and when the KV cache grows\nlarge they start to dominate the run time. For the nc shader (which is called\nwith large 'k' dimension), use unrolling and vector loads. For the p021 shader\n(which is called with large 'm' and small 'k' dimensions), take advantage of\ngrouped query attention to reuse loads from the A matrix for the whole group,\nand reduce the number of workgroups (too much overhead from tiny dispatches).\n\nUsing subgroupAdd in the p021 shader also helps, use that conditionally.",
-      "tree": {
-        "sha": "0900c1e2908b45dbf8eaaf9a6bfe4e12c406011b",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/0900c1e2908b45dbf8eaaf9a6bfe4e12c406011b"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn3ndrCRC1aQ7uu5UhlAAAAU4QAJ86gdoB89FOnKFi15el54RW\nOWuZU0SpA8Hjm8RMre0Q5KOzAY6pJZYq2rDy1YYhMmbvdeZewuOePcqzLZtXrDK0\nOy//QzFwZ8nWafxUeTI7hJrwcDlBpJadPn1ly71HGRYbwgIS8/YHzz2dGOuvsN9V\nOasHtyD3rMDd4tavBU3bVBgEYMWQxs4EPN8TH5ZGutOK3SPxQbLEk208fn4qL4YN\nf5JPnI2EHKsAN8i8H1QKd5jw3a0Z3EZxR/NxjirZfbL5OeqZTHMB9QXAifyqpxUm\nPbTsF61QZjLS80UARiSGw2eYsE6vr0zHDrjhfe2hPKLYppMo6qFwqda5+vj9gWUo\newuCbMYIq400gKaSp6uVB5+ABz7Egpnbdp2vLZ+bxVYeRNdDNxuL8ZV7gQFkifQE\nEdz882fARUK2uWrlpGFUATadK2q6l8kA2s2lwfWZEV19ryHpjJDxEF/p/Uh/5LJV\n50eYbk7zAMgHhEovJshIKQ/suTj0I4qVz/BRAquudwZQZMihnqbwXfyhRbdWRbTf\nlXJSrfO/U8n/AWSpfKKoscRDndbZ09Dk3qTfvuqp4Zd5yehvD7csW4L1OLcOEcnZ\nN0/bAEp0tb6rXfkG26WEgK3NnBlGU/A2B5bpGozDkdBqnspefEVKr8B1VfO0iRm9\nA7UbBWeTw1Z0QnWMBz53\n=8rX6\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 0900c1e2908b45dbf8eaaf9a6bfe4e12c406011b\nparent 4375415b4abf94fb36a5fd15f233ac0ee23c0bd1\nauthor Jeff Bolz <jbolz@nvidia.com> 1742632811 -0500\ncommitter GitHub <noreply@github.com> 1742632811 +0100\n\nvulkan: Optimize mul_mat_vec p021 and nc shaders (#12505)\n\n* tests: add mul_mat perf/functional tests for p021/nc vulkan shaders\n\n* vulkan: Optimize mul_mat_vec p021 and nc shaders.\n\nThese shaders are used in attention calculations, and when the KV cache grows\nlarge they start to dominate the run time. For the nc shader (which is called\nwith large 'k' dimension), use unrolling and vector loads. For the p021 shader\n(which is called with large 'm' and small 'k' dimensions), take advantage of\ngrouped query attention to reuse loads from the A matrix for the whole group,\nand reduce the number of workgroups (too much overhead from tiny dispatches).\n\nUsing subgroupAdd in the p021 shader also helps, use that conditionally.",
-        "verified_at": "2025-03-22T08:40:16Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/eddfb438502bd5d1014d63a812e9b6d03d326f8c",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/eddfb438502bd5d1014d63a812e9b6d03d326f8c/comments",
-    "author": {
-      "login": "jeffbolznv",
-      "id": 8260565,
-      "node_id": "MDQ6VXNlcjgyNjA1NjU=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/8260565?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/jeffbolznv",
-      "html_url": "https://github.com/jeffbolznv",
-      "followers_url": "https://api.github.com/users/jeffbolznv/followers",
-      "following_url": "https://api.github.com/users/jeffbolznv/following{/other_user}",
-      "gists_url": "https://api.github.com/users/jeffbolznv/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/jeffbolznv/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/jeffbolznv/subscriptions",
-      "organizations_url": "https://api.github.com/users/jeffbolznv/orgs",
-      "repos_url": "https://api.github.com/users/jeffbolznv/repos",
-      "events_url": "https://api.github.com/users/jeffbolznv/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/jeffbolznv/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "4375415b4abf94fb36a5fd15f233ac0ee23c0bd1",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/4375415b4abf94fb36a5fd15f233ac0ee23c0bd1",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/4375415b4abf94fb36a5fd15f233ac0ee23c0bd1"
       }
     ]
   }
