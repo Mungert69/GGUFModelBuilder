@@ -216,23 +216,45 @@ These models are optimized for **extreme memory efficiency**, making them ideal 
 - Prefer IQ4_NL for better accuracy.
 
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
+❤ **Please click "Like" if you find this useful!**  
+Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
+👉 [Free Network Monitor](https://freenetworkmonitor.click/dashboard)  
 
-Please click like ❤ . Also I'd really appreciate it if you could test my Network Monitor Assistant at 👉 [Network Monitor Assitant](https://freenetworkmonitor.click/dashboard).
+💬 **How to test**:  
+1. Click the **chat icon** (bottom right on any page)  
+2. Choose an **AI assistant type**:  
+   - `TurboLLM` (GPT-4-mini)  
+   - `FreeLLM` (Open-source)  
+   - `TestLLM` (Experimental CPU-only)  
 
-💬 Click the **chat icon** (bottom right of the main and dashboard pages) . Choose a LLM; toggle between the LLM Types TurboLLM -> FreeLLM -> TestLLM.
+### **What I’m Testing**  
+I’m pushing the limits of **small open-source models for AI network monitoring**, specifically:  
+- **Function calling** against live network services  
+- **How small can a model go** while still handling:  
+  - Automated **Nmap scans**  
+  - **Quantum-readiness checks**  
+  - **Metasploit integration**  
 
-### What I'm Testing
+🟡 **TestLLM** – Current experimental model (llama.cpp on 6 CPU threads):  
+- ✅ **Zero-configuration setup**  
+- ⏳ 30s load time (slow inference but **no API costs**)  
+- 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
 
-I'm experimenting with **function calling** against my network monitoring service. Using small open source models. I am into the question "How small can it go and still function".
+### **Other Assistants**  
+🟢 **TurboLLM** – Uses **gpt-4-mini** for:  
+- **Real-time network diagnostics**  
+- **Automated penetration testing** (Nmap/Metasploit)  
+- 🔑 Get more tokens by [downloading our Free Network Monitor Agent](https://freenetworkmonitor.click/download)  
 
-🟡 **TestLLM** – Runs the current testing model using llama.cpp on 6 threads of a Cpu VM (Should take about 15s to load. Inference speed is quite slow and it only processes one user prompt at a time—still working on scaling!). If you're curious, I'd be happy to share how it works! .
+🔵 **HugLLM** – Open-source models (≈8B params):  
+- **2x more tokens** than TurboLLM  
+- **AI-powered log analysis**  
+- 🌐 Runs on Hugging Face Inference API  
 
-### The other Available AI Assistants
-
-🟢 **TurboLLM** – Uses **gpt-4o-mini** Fast! . Note: tokens are limited since OpenAI models are pricey, but you can [Login](https://freenetworkmonitor.click) or [Download](https://freenetworkmonitor.click/download) the Free Network Monitor agent to get more tokens, Alternatively use the TestLLM .
-
-🔵 **HugLLM** – Runs **open-source Hugging Face models** Fast, Runs small models (≈8B) hence lower quality, Get 2x more tokens (subject to Hugging Face API availability)
-
+### 💡 **Example AI Commands to Test**:  
+1. `"Give me info on my websites SSL certificate"`  
+2. `"Check if my server is using quantum safe encyption for communication"`  
+3. `"Run a quick Nmap vulnerability test"`  
 
 """
 
