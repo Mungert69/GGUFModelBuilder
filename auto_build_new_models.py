@@ -16,15 +16,57 @@ load_dotenv()
 # Initialize Redis catalog
 REDIS_HOST = os.getenv("REDIS_HOST", "redis.freenetworkmonitor.click")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
+REDIS_USER = os.getenv("REDIS_USER","admin")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 model_catalog = init_redis_catalog(
     host=REDIS_HOST,
     port=REDIS_PORT,
     password=REDIS_PASSWORD,
+    user=REDIS_USER,
     ssl=True
 )
 
-model_catalog.initialize_from_file("models-complete.json")
+model_catalog.initialize_from_file("model_catalog.json")
+
+# ... (previous imports and setup code remains the same)
+
+model_catalog.initialize_from_file("model_catalog.json")
+
+# Verification step
+try:
+    # Load back the catalog from Redis
+    redis_catalog = model_catalog.load_catalog()
+    
+    # Load the original file for comparison
+    with open("model_catalog.json") as f:
+        file_catalog = json.load(f)
+    
+    # Compare counts
+    redis_count = len(redis_catalog)
+    file_count = len(file_catalog)
+    
+    logging.info(f"Verification: Redis contains {redis_count} models, file contains {file_count} models")
+    
+    if redis_count == file_count:
+        logging.info("✅ Catalog successfully written to Redis")
+    else:
+        logging.warning(f"⚠️ Count mismatch: Redis has {redis_count} models, expected {file_count}")
+        
+    # Spot check a few models
+    test_models = ["google/gemma-3-4b-it", "mistralai/Mistral-7B-Instruct-v0.3"]
+    for model_id in test_models:
+        redis_model = redis_catalog.get(model_id)
+        file_model = file_catalog.get(model_id)
+        
+        if redis_model and file_model and redis_model == file_model:
+            logging.info(f"✅ {model_id} matches between Redis and file")
+        else:
+            logging.warning(f"⚠️ Mismatch found for {model_id}")
+            
+except Exception as e:
+    logging.error(f"Verification failed: {e}")
+
+
 # Read other config from .env
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 

@@ -7,7 +7,7 @@ import redis
 from redis.exceptions import WatchError, RedisError
 
 class RedisModelCatalog:
-    def __init__(self, host: str, port: int, password: str, ssl: bool = True):
+    def __init__(self, host: str, port: int, password: str, user: str, ssl: bool = True):
         """
         Initialize Redis connection for model catalog operations.
         
@@ -15,12 +15,14 @@ class RedisModelCatalog:
             host: Redis server host
             port: Redis server port
             password: Redis password
+            user: Redis user
             ssl: Whether to use SSL/TLS
         """
         self.r = redis.Redis(
             host=host,
             port=port,
             password=password,
+            username=user,
             ssl=ssl,
             ssl_cert_reqs='none',  # Disable cert verification for testing
             decode_responses=True,
@@ -165,8 +167,8 @@ class RedisModelCatalog:
 # Singleton instance (configure in your main script)
 model_catalog = None
 
-def init_redis_catalog(host: str, port: int, password: str, ssl: bool = True):
+def init_redis_catalog(host: str, port: int, password: str, user: str , ssl: bool = True):
     """Initialize the global Redis catalog instance."""
     global model_catalog
-    model_catalog = RedisModelCatalog(host, port, password, ssl)
+    model_catalog = RedisModelCatalog(host, port, password, user,  ssl)
     return model_catalog
