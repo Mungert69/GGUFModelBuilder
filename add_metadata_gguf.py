@@ -6,13 +6,14 @@ import tempfile
 from pathlib import Path
 import subprocess
 
-def add_metadata(input_file: Path):
+def add_metadata(input_file_path: str):
     """
-    Adds metadata to the GGUF file specified by input_file.
+    Adds metadata to the GGUF file specified by input_file_path.
     
     Args:
-        input_file (Path): Path to the input GGUF file.
+        input_file_path (str): Path to the input GGUF file as a string.
     """
+    input_file = Path(input_file_path)
     if not input_file.is_file():
         print(f"The specified input GGUF file {input_file} does not exist.")
         sys.exit(1)
@@ -86,9 +87,8 @@ def main():
         sys.exit(1)
 
     # Path to the input GGUF file (received as argument)
-    input_file = Path(sys.argv[1])
-    add_metadata(input_file)
+    input_file_path = sys.argv[1]
+    add_metadata(input_file_path)
 
 if __name__ == "__main__":
     main()
-
