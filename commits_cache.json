@@ -1,5 +1,907 @@
 [
   {
+    "sha": "2c3f8b850a4a6cff0f5dda2135c03fc81d33ed8b",
+    "node_id": "C_kwDOJH_K4NoAKDJjM2Y4Yjg1MGE0YTZjZmYwZjVkZGEyMTM1YzAzZmM4MWQzM2VkOGI",
+    "commit": {
+      "author": {
+        "name": "Sigbj\u00f8rn Skj\u00e6ret",
+        "email": "sigbjorn.skjaeret@scala.com",
+        "date": "2025-03-30T20:21:03Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-30T20:21:03Z"
+      },
+      "message": "llama : support BailingMoE (Ling) (#12634)",
+      "tree": {
+        "sha": "dd968063aa5a8da5fa1f9ae8d9e84a7b8d52681b",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/dd968063aa5a8da5fa1f9ae8d9e84a7b8d52681b"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/2c3f8b850a4a6cff0f5dda2135c03fc81d33ed8b",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6aevCRC1aQ7uu5UhlAAABZgQAAbXI15h14x2KsHwGvCftlEf\n0hbxpmVCLUuz9CBX6s0BKlPcAf2QN80A8CzBjWGBLQ2syYJIoIOciX/SbtBuH2dB\nNkgCh4genPIgCGo25fvvPbN3KcwiYu9xwoffhiWEQrFB8QmyvRx5Lpml4Cli2lLc\nBRmAtruRb6QZ29nJA9HkmwDBwXbQi6qQOJYq1u2hX2Y8Rrvn//P/gg2KTZz0m8zt\n32DclhxDLTrhnGc9AekvmwVGBG4JK7A9zqIa7uNksgbxokbqSpTZnsssix5/NwW3\nE8i15vQ/bfykZXd+FZY/+06WMaO4cVSGtBTUpZr5NoqulQm3rK8gxSTrd+97OFhn\nmdw9qw1D/sZ8VphEbkzSvyiJkFgSl3GvHNFF1Z5Vi8KnoODv8nb24xPfHnM3x28e\nH9HBfDMCwjpfnb/2c0Tv0OpkFku4jFbuNI+pnjiJ6IP/KmS5W1ZESJGfMKXbBKGr\nn60D/Xqd4gDlF8g9bXuv/sG7jMEeatIN009ZcmfEtT6dewG1KRc8myrwntKwHC0l\n1RKr7CZb76/qOM8cbboU/COe0bT/rSfpbPYkRqI0SLTD7/1lXOD4QJrvuP4FJlfi\nSfJDCmc/TX+QRfXLn/0uWoKoxstlrwJRNNoHnsfGl/+2+dNw0kyFyBo1+hvfCza8\nGq7LZ0hqUTcGGev48nxx\n=4T8p\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree dd968063aa5a8da5fa1f9ae8d9e84a7b8d52681b\nparent 4663bd353c61c1136cd8a97b9908755e4ab30cec\nauthor Sigbj\u00f8rn Skj\u00e6ret <sigbjorn.skjaeret@scala.com> 1743366063 +0200\ncommitter GitHub <noreply@github.com> 1743366063 +0200\n\nllama : support BailingMoE (Ling) (#12634)\n\n",
+        "verified_at": "2025-03-30T20:21:06Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/2c3f8b850a4a6cff0f5dda2135c03fc81d33ed8b",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/2c3f8b850a4a6cff0f5dda2135c03fc81d33ed8b",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/2c3f8b850a4a6cff0f5dda2135c03fc81d33ed8b/comments",
+    "author": {
+      "login": "CISC",
+      "id": 1629204,
+      "node_id": "MDQ6VXNlcjE2MjkyMDQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1629204?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/CISC",
+      "html_url": "https://github.com/CISC",
+      "followers_url": "https://api.github.com/users/CISC/followers",
+      "following_url": "https://api.github.com/users/CISC/following{/other_user}",
+      "gists_url": "https://api.github.com/users/CISC/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/CISC/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/CISC/subscriptions",
+      "organizations_url": "https://api.github.com/users/CISC/orgs",
+      "repos_url": "https://api.github.com/users/CISC/repos",
+      "events_url": "https://api.github.com/users/CISC/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/CISC/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "4663bd353c61c1136cd8a97b9908755e4ab30cec",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/4663bd353c61c1136cd8a97b9908755e4ab30cec",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/4663bd353c61c1136cd8a97b9908755e4ab30cec"
+      }
+    ]
+  },
+  {
+    "sha": "4663bd353c61c1136cd8a97b9908755e4ab30cec",
+    "node_id": "C_kwDOJH_K4NoAKDQ2NjNiZDM1M2M2MWMxMTM2Y2Q4YTk3Yjk5MDg3NTVlNGFiMzBjZWM",
+    "commit": {
+      "author": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T19:04:04Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-30T19:04:04Z"
+      },
+      "message": "metal : use constexpr in FA kernels + fix typedef (#12659)\n\n* metal : use constexpr in FA kernels\n\nggml-ci\n\n* cont\n\nggml-ci\n\n* cont : fix typedef\n\nggml-ci",
+      "tree": {
+        "sha": "3119e42aad7441809ee5e5199968d52eee3b11fa",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/3119e42aad7441809ee5e5199968d52eee3b11fa"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/4663bd353c61c1136cd8a97b9908755e4ab30cec",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6ZWkCRC1aQ7uu5UhlAAAGMoQAIV6zJaqMslJEiX1AU3jbWF7\n5PlIV7BwjGgAVWPAF7QG8k2tlSiofjuS9H0JmklCMUPREIXo2ViwH1UiZI6i4/rr\n5euHk4lB3PHWwkF/3YYdSIP8J14h2dLlCYfIs7iH56rdbXSPc1aMXnLtTIcAunGS\nl0LEDv0a9y6wOhYi81U/vrT1ddFdR8M932SNlNeTBloXoppS2ATuxS5xECiGljES\nlQUqBIm2vRSDA7GfUB+H1jTmB/qO0IgQIlNx1oPg0ugc2QnKP+Cd6Cu+4kl/cJC/\nopSti6KSSs5ONV5Um/m90An/e997mdXs9YPJxJMyh5T7hwHftmD/5WS+hddq8lSI\nZUhwxeid/Mm9Wu7riFmgK6u6xZtiMEmSknCmDxoUx+IIZXj8KxZyxjm7sq27RSpk\nLW+gSY2Jlh0d6SeEOGFsxOR6ybhmKYVe+jpiLleCNKhFlwxXduZ1T2yAqG9cJWrg\n9yoVUvoBoyHsMEiRUEOcbiKuLPVYZy43G/phUzVnE4Fi0MkHPlpUK7xH2w3dFIrF\nGMiDtVFoytNXTGIAzmj9bzOvpAf3Lph5asfPPPu3AOmwRLQvoym2K41DVkChW2sy\nGDfHF/VTpKo8veLF2Lc1GYdh/bvUJq7wbBUdr0Sx97UGImqloIXGZbOQDi98RQVr\nhlh1zMudLlJgsSU3FxzL\n=ak+B\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 3119e42aad7441809ee5e5199968d52eee3b11fa\nparent b3de7cac732e7dc0e10e1bb07502a500b0ee9022\nauthor Georgi Gerganov <ggerganov@gmail.com> 1743361444 +0300\ncommitter GitHub <noreply@github.com> 1743361444 +0300\n\nmetal : use constexpr in FA kernels + fix typedef (#12659)\n\n* metal : use constexpr in FA kernels\n\nggml-ci\n\n* cont\n\nggml-ci\n\n* cont : fix typedef\n\nggml-ci",
+        "verified_at": "2025-03-30T19:04:06Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/4663bd353c61c1136cd8a97b9908755e4ab30cec",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/4663bd353c61c1136cd8a97b9908755e4ab30cec",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/4663bd353c61c1136cd8a97b9908755e4ab30cec/comments",
+    "author": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/b3de7cac732e7dc0e10e1bb07502a500b0ee9022"
+      }
+    ]
+  },
+  {
+    "sha": "b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+    "node_id": "C_kwDOJH_K4NoAKGIzZGU3Y2FjNzMyZTdkYzBlMTBlMWJiMDc1MDJhNTAwYjBlZTkwMjI",
+    "commit": {
+      "author": {
+        "name": "Juyoung Suk",
+        "email": "juyoung.suk@trillionlabs.co",
+        "date": "2025-03-30T18:38:33Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-30T18:38:33Z"
+      },
+      "message": "llama : add Trillion 7B model support (#12556)\n\n* Support Trillion 7B\n\n* Update llama.h\n\n* Update llama.h\n\n* Update llama-vocab.cpp for Trillion\n\n* Update llama-vocab.cpp",
+      "tree": {
+        "sha": "dbde7c00db79dd0c04506e595f815524b787e347",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/dbde7c00db79dd0c04506e595f815524b787e347"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6Y+pCRC1aQ7uu5UhlAAA2noQAIg6KKpWLm2vgxUZgwNc+AhB\n2nA/0WmQwt3ko2DoUrt1Oh0LnK8yHDPjbVVpb4lIOPzCzAaoc8iHU+5Dru49hIGp\nT62HmBoPNa4tNqKhv9LGWr/5glDkNU7eobBG+b3lLSTzfimDbeOvAprRCdyqrfGP\nYSDy1aWR4G0ISexrU1SUkfrM872PYv+zwIUgFO496yj05VjxP4EusNJ24/VA9AOb\nHg++g56TB0MvdSONWvqEsJ4QePBfMRW5JN+YD0cXSDNZRkqiUHlKCwWwueLTHQ8l\n+mkA9rH+RzX/xDmjCcZt5HnvKTKo9hjnQHCNzNYbEBT30t08u2+AVFPu3i7w2j0e\nmz0naERihaqfWwG1W7IlHo+xkx3PA3u0smclSh80nsB5Z04f+Ezddun8C2FFu54p\nIX51X+NLi/ZdhFkCQBj7hiNQK273dmjwPCrxFayo43H5GVp4hZHMV2q2HW+pKNzO\nLlz1BHFjNKbVYao71WoWh+5EO5jnK0iXuWk1qUjW2KBys/yBvotQdLW70pFNkCT2\nufVLX4DyDw2n0K/BCEppPs9kmz6O1G0SG22rHeZoi8JaBalKfCfpil5MVos1h5Qu\nkMBDb+NtsNORylDbJnr4MmDMR366iqtlGiKe3T1owxcE5v+hhpzlGfQV3qt8/qI8\n412zdiB2faVVp1FBbqFp\n=Da5E\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree dbde7c00db79dd0c04506e595f815524b787e347\nparent 7242dd96756472f90ba41db4e5ebb3969dfc7e7c\nauthor Juyoung Suk <juyoung.suk@trillionlabs.co> 1743359913 +0900\ncommitter GitHub <noreply@github.com> 1743359913 +0200\n\nllama : add Trillion 7B model support (#12556)\n\n* Support Trillion 7B\n\n* Update llama.h\n\n* Update llama.h\n\n* Update llama-vocab.cpp for Trillion\n\n* Update llama-vocab.cpp",
+        "verified_at": "2025-03-30T18:38:37Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/b3de7cac732e7dc0e10e1bb07502a500b0ee9022",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/b3de7cac732e7dc0e10e1bb07502a500b0ee9022/comments",
+    "author": {
+      "login": "juyoung-trl",
+      "id": 187231419,
+      "node_id": "U_kgDOCyjsuw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/187231419?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/juyoung-trl",
+      "html_url": "https://github.com/juyoung-trl",
+      "followers_url": "https://api.github.com/users/juyoung-trl/followers",
+      "following_url": "https://api.github.com/users/juyoung-trl/following{/other_user}",
+      "gists_url": "https://api.github.com/users/juyoung-trl/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/juyoung-trl/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/juyoung-trl/subscriptions",
+      "organizations_url": "https://api.github.com/users/juyoung-trl/orgs",
+      "repos_url": "https://api.github.com/users/juyoung-trl/repos",
+      "events_url": "https://api.github.com/users/juyoung-trl/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/juyoung-trl/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/7242dd96756472f90ba41db4e5ebb3969dfc7e7c"
+      }
+    ]
+  },
+  {
+    "sha": "7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+    "node_id": "C_kwDOJH_K4NoAKDcyNDJkZDk2NzU2NDcyZjkwYmE0MWRiNGU1ZWJiMzk2OWRmYzdlN2M",
+    "commit": {
+      "author": {
+        "name": "Sergei Vorobyov",
+        "email": "sergei.vorobyov01@gmail.com",
+        "date": "2025-03-30T18:12:03Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-30T18:12:03Z"
+      },
+      "message": "llama-chat : Add Yandex instruct model template support (#12621)\n\n* add yandex template\n\n* update yandex chat template\n\n* fix tests\n\n* adjust chat template\n\n* fix style\n\n* fix tool macro in template\n\n* add clarify comment\n\n---------\n\nCo-authored-by: Sergei Vorobev <serv01@yandex-team.ru>\nCo-authored-by: Xuan-Son Nguyen <thichthat@gmail.com>",
+      "tree": {
+        "sha": "27c5d70bed773b2f10941631b1dd9dbcf08f6374",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/27c5d70bed773b2f10941631b1dd9dbcf08f6374"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6YlzCRC1aQ7uu5UhlAAAOTkQABRNGKcvLQt9HsxPP+95ayrs\nn/Phz1+IBwiiLoHwrGaKsV5h85qXlq5RC1ndO9lucnwo4urQ1ZfugSib/1nCKidL\n3gmOo2WO2bN2znNyEAUyDkBgv9CJCQjZInvq8BUXqs3ZnQLY913Nk3RWYl1V7HLX\nSRN3C+A94nTBzuPexdfPOqmBpPRM4rawljZPWVwLW5KJatWO62usdANMhAJzVsAk\naKAB95UD2MfHADPXp295FcyjMgTKQCzcKwhlItrJPmxCi02MTHjKpnAHWr8hUHnL\nEtbW/ypztiFrR0uGFaXYD0UksoghZiuIdyK3uAUbFnnniGRXYhB1ZMrVrRqOWjFI\n5mR+yQvP8iOJ27VHisCZSIa2BeVhUAZHnh96EtMtrzWzwu/UXeoN0w/oZTOpP8/f\njOHFaYcAXzRWq0zrIAKX1OapuuRlyJXaBqHaZ/+oo2vjL5AjaYViiMQR0+g0qMs5\nb7KE49REOGRUbUd1KsD6LNMiZiW0zenztOeiTr0nAetR4ZUid0+qL2uCDbJAwN/Q\n1BqVKUO/sdQbJdaA0a//vBjTiupcgru8XGjAZdn2iJGFfVZHgILRH4gYUJZossbP\nq1pIwfOgSt7mIDuNOPb1HqcjjyHXgYQZ30GbsifnEDp2Wdzf4sThSkD+fejC93JK\n8IvsxblZ5aH+JFM1ebMx\n=7l1J\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 27c5d70bed773b2f10941631b1dd9dbcf08f6374\nparent 492d7f1ff77e116e44962b832cc3db24cfc46d24\nauthor Sergei Vorobyov <sergei.vorobyov01@gmail.com> 1743358323 +0300\ncommitter GitHub <noreply@github.com> 1743358323 +0200\n\nllama-chat : Add Yandex instruct model template support (#12621)\n\n* add yandex template\n\n* update yandex chat template\n\n* fix tests\n\n* adjust chat template\n\n* fix style\n\n* fix tool macro in template\n\n* add clarify comment\n\n---------\n\nCo-authored-by: Sergei Vorobev <serv01@yandex-team.ru>\nCo-authored-by: Xuan-Son Nguyen <thichthat@gmail.com>",
+        "verified_at": "2025-03-30T18:12:06Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/7242dd96756472f90ba41db4e5ebb3969dfc7e7c",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7242dd96756472f90ba41db4e5ebb3969dfc7e7c/comments",
+    "author": {
+      "login": "vorobyov01",
+      "id": 25695019,
+      "node_id": "MDQ6VXNlcjI1Njk1MDE5",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25695019?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/vorobyov01",
+      "html_url": "https://github.com/vorobyov01",
+      "followers_url": "https://api.github.com/users/vorobyov01/followers",
+      "following_url": "https://api.github.com/users/vorobyov01/following{/other_user}",
+      "gists_url": "https://api.github.com/users/vorobyov01/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/vorobyov01/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/vorobyov01/subscriptions",
+      "organizations_url": "https://api.github.com/users/vorobyov01/orgs",
+      "repos_url": "https://api.github.com/users/vorobyov01/repos",
+      "events_url": "https://api.github.com/users/vorobyov01/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/vorobyov01/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "492d7f1ff77e116e44962b832cc3db24cfc46d24",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/492d7f1ff77e116e44962b832cc3db24cfc46d24",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/492d7f1ff77e116e44962b832cc3db24cfc46d24"
+      }
+    ]
+  },
+  {
+    "sha": "492d7f1ff77e116e44962b832cc3db24cfc46d24",
+    "node_id": "C_kwDOJH_K4NoAKDQ5MmQ3ZjFmZjc3ZTExNmU0NDk2MmI4MzJjYzNkYjI0Y2ZjNDZkMjQ",
+    "commit": {
+      "author": {
+        "name": "R0CKSTAR",
+        "email": "xiaodong.ye@mthreads.com",
+        "date": "2025-03-30T08:59:38Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-30T08:59:38Z"
+      },
+      "message": "musa: fix all warnings, re-enable `-DLLAMA_FATAL_WARNINGS=ON` in ci and update doc (#12611)\n\n* musa: fix all warnings\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* musa: enable -DLLAMA_FATAL_WARNINGS=ON in run.sh\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* musa: update ci doc (install ccache)\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* fix Windows build issue\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n---------\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
+      "tree": {
+        "sha": "e9549d2a436b75f3ddce7845d8e64b80146f4a92",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/e9549d2a436b75f3ddce7845d8e64b80146f4a92"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/492d7f1ff77e116e44962b832cc3db24cfc46d24",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6Qf6CRC1aQ7uu5UhlAAAdc8QACAQpsTEoglfZIYA2DjSNCED\n6maVwB6jFtgDIU0xY4eqZAiB3LXPrlUjziBTa+XygYijE3nOBezirHZRRpHmhADs\nJuB8ye1+IuL+W48yXx8mOzTFI+AHj0UKh03DNu9bImva666TbtesOfRFzVgmGzNb\nHROxFWAdCn7XDZWIWuxVsvtfILgJbO56a7moDvF453huChyY2gmMWteo6NxlDrG0\n7lGEBre2cTWimd/AJ47FLrMr1oUJ0vj6+3aQiEgti1HFeJNCtb9UEf22uQT3CmOv\nmIoNFKRFn92k5o/9AQFVWVFZPKJtHdXNTyj2ZLPBpvo5qU+3szqyruTIW6piqMNz\n5a2++oLFGpwXkZW6W7nKrHICxzVw/aM87Jx34VrNpIRA2PRGJC+lby+9PTXOIRJd\ny2IPys69mWgAvo6jLulM1XBOvmIOZAbKgjwrsri1bPfk/e1hFBdawiBUDsIqLr51\n7n0PH0mHQfnhYgPmjGgVxyBrFwNc/5zMRgwAXiU7JzpxQ4JzReGe2kxdDDdwqnOn\ny7oXov71ZXtIeFmV3LNmPwFOAGjuNbu9c/QL39wqwrQQKrttOlrX0ZBwFCGT7jGq\ndZ/uS5Adrd9Lref1T7kySjLUg7EZuBJPCz3RQoxswmZbsEABcg5/hg8TLnR63pZ7\n5kgQ4tTv39j4XbsvtaqQ\n=VKqP\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree e9549d2a436b75f3ddce7845d8e64b80146f4a92\nparent d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8\nauthor R0CKSTAR <xiaodong.ye@mthreads.com> 1743325178 +0800\ncommitter GitHub <noreply@github.com> 1743325178 +0200\n\nmusa: fix all warnings, re-enable `-DLLAMA_FATAL_WARNINGS=ON` in ci and update doc (#12611)\n\n* musa: fix all warnings\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* musa: enable -DLLAMA_FATAL_WARNINGS=ON in run.sh\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* musa: update ci doc (install ccache)\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* fix Windows build issue\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n* Address review comments\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>\n\n---------\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
+        "verified_at": "2025-03-30T08:59:42Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/492d7f1ff77e116e44962b832cc3db24cfc46d24",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/492d7f1ff77e116e44962b832cc3db24cfc46d24",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/492d7f1ff77e116e44962b832cc3db24cfc46d24/comments",
+    "author": {
+      "login": "yeahdongcn",
+      "id": 2831050,
+      "node_id": "MDQ6VXNlcjI4MzEwNTA=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2831050?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/yeahdongcn",
+      "html_url": "https://github.com/yeahdongcn",
+      "followers_url": "https://api.github.com/users/yeahdongcn/followers",
+      "following_url": "https://api.github.com/users/yeahdongcn/following{/other_user}",
+      "gists_url": "https://api.github.com/users/yeahdongcn/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/yeahdongcn/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/yeahdongcn/subscriptions",
+      "organizations_url": "https://api.github.com/users/yeahdongcn/orgs",
+      "repos_url": "https://api.github.com/users/yeahdongcn/repos",
+      "events_url": "https://api.github.com/users/yeahdongcn/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/yeahdongcn/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8"
+      }
+    ]
+  },
+  {
+    "sha": "d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+    "node_id": "C_kwDOJH_K4NoAKGQzZjFmMGFjZmJmOGFhYWZkMmNlNDk0MzA5YTEwYTdjYzkyMDQyYzg",
+    "commit": {
+      "author": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-29T13:37:54Z"
+      },
+      "committer": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T05:33:31Z"
+      },
+      "message": "sync : ggml\n\nggml-ci",
+      "tree": {
+        "sha": "dcb169f873ff3b95388ee879e09764e60615e0bb",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/dcb169f873ff3b95388ee879e09764e60615e0bb"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/d3f1f0acfbf8aaafd2ce494309a10a7cc92042c8/comments",
+    "author": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "360dc22c007c7b926d0721930e279d87317d8466",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/360dc22c007c7b926d0721930e279d87317d8466",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/360dc22c007c7b926d0721930e279d87317d8466"
+      }
+    ]
+  },
+  {
+    "sha": "360dc22c007c7b926d0721930e279d87317d8466",
+    "node_id": "C_kwDOJH_K4NoAKDM2MGRjMjJjMDA3YzdiOTI2ZDA3MjE5MzBlMjc5ZDg3MzE3ZDg0NjY",
+    "commit": {
+      "author": {
+        "name": "Xuan-Son Nguyen",
+        "email": "son@huggingface.co",
+        "date": "2025-03-29T10:59:56Z"
+      },
+      "committer": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T05:33:31Z"
+      },
+      "message": "cpu : rm unused variable (ggml/1166)",
+      "tree": {
+        "sha": "6a60263ee8306c62e10afdc8ae958c1fca356954",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/6a60263ee8306c62e10afdc8ae958c1fca356954"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/360dc22c007c7b926d0721930e279d87317d8466",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/360dc22c007c7b926d0721930e279d87317d8466",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/360dc22c007c7b926d0721930e279d87317d8466",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/360dc22c007c7b926d0721930e279d87317d8466/comments",
+    "author": {
+      "login": "ngxson",
+      "id": 7702203,
+      "node_id": "MDQ6VXNlcjc3MDIyMDM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7702203?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ngxson",
+      "html_url": "https://github.com/ngxson",
+      "followers_url": "https://api.github.com/users/ngxson/followers",
+      "following_url": "https://api.github.com/users/ngxson/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ngxson/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ngxson/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ngxson/subscriptions",
+      "organizations_url": "https://api.github.com/users/ngxson/orgs",
+      "repos_url": "https://api.github.com/users/ngxson/repos",
+      "events_url": "https://api.github.com/users/ngxson/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ngxson/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/a62d7fa7a979d21bcd760f1d7c19a66e55611f44"
+      }
+    ]
+  },
+  {
+    "sha": "a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+    "node_id": "C_kwDOJH_K4NoAKGE2MmQ3ZmE3YTk3OWQyMWJjZDc2MGYxZDdjMTlhNjZlNTU2MTFmNDQ",
+    "commit": {
+      "author": {
+        "name": "cmdr2",
+        "email": "secondary.cmdr2@gmail.com",
+        "date": "2025-03-29T06:07:13Z"
+      },
+      "committer": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T05:33:31Z"
+      },
+      "message": "cpu: de-duplicate some of the operators and refactor (ggml/1144)\n\n* cpu: de-duplicate some of the operators and refactor\n\n* Fix PR comments\n\n* Fix PR comments",
+      "tree": {
+        "sha": "bb5517f81193a3541d5377e743193d64404f79c7",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/bb5517f81193a3541d5377e743193d64404f79c7"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/a62d7fa7a979d21bcd760f1d7c19a66e55611f44",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/a62d7fa7a979d21bcd760f1d7c19a66e55611f44/comments",
+    "author": {
+      "login": "cmdr2",
+      "id": 844287,
+      "node_id": "MDQ6VXNlcjg0NDI4Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/844287?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/cmdr2",
+      "html_url": "https://github.com/cmdr2",
+      "followers_url": "https://api.github.com/users/cmdr2/followers",
+      "following_url": "https://api.github.com/users/cmdr2/following{/other_user}",
+      "gists_url": "https://api.github.com/users/cmdr2/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/cmdr2/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/cmdr2/subscriptions",
+      "organizations_url": "https://api.github.com/users/cmdr2/orgs",
+      "repos_url": "https://api.github.com/users/cmdr2/repos",
+      "events_url": "https://api.github.com/users/cmdr2/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/cmdr2/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "e408d4351a4ad143656672479d8ae1479306ce31",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/e408d4351a4ad143656672479d8ae1479306ce31",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/e408d4351a4ad143656672479d8ae1479306ce31"
+      }
+    ]
+  },
+  {
+    "sha": "e408d4351a4ad143656672479d8ae1479306ce31",
+    "node_id": "C_kwDOJH_K4NoAKGU0MDhkNDM1MWE0YWQxNDM2NTY2NzI0NzlkOGFlMTQ3OTMwNmNlMzE",
+    "commit": {
+      "author": {
+        "name": "Daniel Bevenius",
+        "email": "daniel.bevenius@gmail.com",
+        "date": "2025-03-24T08:53:38Z"
+      },
+      "committer": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T05:33:31Z"
+      },
+      "message": "ggml : add logging for native build options/vars (whisper/2935)\n\nThis commit adds debug level logging for the native build options and\nvariables to ggml/CMakeLists.txt.\n\nThe motivation for this is that it can be useful to see the effective\nresult of `GGML_NATIVE`, `GGML_NATIVE_DEFAULT`, and `INS_ENB` for a\ncmake build. I've found myself adding similar logging a few times now,\nso I thought it might be a good idea to add this.\n\nExample output, specifying `-DCMAKE_MESSAGE_LOG_LEVEL=DEBUG` when\nrunning cmake produces the following output:\n```console\n-- GGML_NATIVE         : OFF\n-- GGML_NATIVE_DEFAULT : OFF\n-- INS_ENB             : OFF\n```",
+      "tree": {
+        "sha": "ca35a57aead0895310c4c5eeeca4bdc0fd7381a7",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/ca35a57aead0895310c4c5eeeca4bdc0fd7381a7"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/e408d4351a4ad143656672479d8ae1479306ce31",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/e408d4351a4ad143656672479d8ae1479306ce31",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/e408d4351a4ad143656672479d8ae1479306ce31",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/e408d4351a4ad143656672479d8ae1479306ce31/comments",
+    "author": {
+      "login": "danbev",
+      "id": 432351,
+      "node_id": "MDQ6VXNlcjQzMjM1MQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/432351?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/danbev",
+      "html_url": "https://github.com/danbev",
+      "followers_url": "https://api.github.com/users/danbev/followers",
+      "following_url": "https://api.github.com/users/danbev/following{/other_user}",
+      "gists_url": "https://api.github.com/users/danbev/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/danbev/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/danbev/subscriptions",
+      "organizations_url": "https://api.github.com/users/danbev/orgs",
+      "repos_url": "https://api.github.com/users/danbev/repos",
+      "events_url": "https://api.github.com/users/danbev/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/danbev/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/3891e183c61c1e25c2c61afe68d7b95019ea3f89"
+      }
+    ]
+  },
+  {
+    "sha": "3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+    "node_id": "C_kwDOJH_K4NoAKDM4OTFlMTgzYzYxYzFlMjVjMmM2MWFmZTY4ZDdiOTUwMTllYTNmODk",
+    "commit": {
+      "author": {
+        "name": "Daniel Bevenius",
+        "email": "daniel.bevenius@gmail.com",
+        "date": "2025-03-20T06:02:18Z"
+      },
+      "committer": {
+        "name": "Georgi Gerganov",
+        "email": "ggerganov@gmail.com",
+        "date": "2025-03-30T05:33:31Z"
+      },
+      "message": "examples : command.wasm updates (whisper/2904)\n\nThis commit updates the command.wasm example by adding a server.py script to make it easy to start a local http server to try out the example, updates the build instructions, and also addresses some of the compiler warnings that were being generated.\n\n* emscripten : fix TOTAL_STACK for wasm\n\nThis commit moves the TOTAL_STACK setting from the compile flags to the\nlinker flags. This is because the TOTAL_STACK setting is a linker\nsetting.\n\nThe motivation for this change is that currently the following warnings\nare generated when building:\n```console\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'TOTAL_STACK' [-Wunused-command-line-argument]\n```\n\n* examples : suppress C++17 deprecation warning for std::codecvt_utf8\n\nThis commit suppresses the C++17 deprecation warning for\nstd::codecvt_utf8 similar to what is done in\nexamples/talk-llama/unicode.cpp.\n\nThe motivation for this change is to suppress these warnings:\n```console\n/Users/danbev/work/ai/whisper-work/examples/common.cpp:251:31: warning: 'codecvt_utf8<wchar_t>' is deprecated [-Wdeprecated-declarations]\n  251 |     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;\n      |                               ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/codecvt:193:28: note: 'codecvt_utf8<wchar_t>' has been explicitly marked deprecated here\n  193 | class _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX17 codecvt_utf8 : public __codecvt_utf8<_Elem> {\n      |                            ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:723:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX17'\n  723 | #    define _LIBCPP_DEPRECATED_IN_CXX17 _LIBCPP_DEPRECATED\n      |                                         ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:688:49: note: expanded from macro '_LIBCPP_DEPRECATED'\n  688 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))\n      |                                                 ^\n/Users/danbev/work/ai/whisper-work/examples/common.cpp:251:10: warning: 'wstring_convert<std::codecvt_utf8<wchar_t>>' is deprecated [-Wdeprecated-declarations]\n  251 |     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;\n      |          ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/locale:3145:28: note: 'wstring_convert<std::codecvt_utf8<wchar_t>>' has been explicitly marked deprecated here\n 3145 | class _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX17 wstring_convert {\n      |                            ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:723:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX17'\n  723 | #    define _LIBCPP_DEPRECATED_IN_CXX17 _LIBCPP_DEPRECATED\n      |                                         ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:688:49: note: expanded from macro '_LIBCPP_DEPRECATED'\n  688 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))\n      |                                                 ^\n/Users/danbev/work/ai/whisper-work/examples/common.cpp:257:31: warning: 'codecvt_utf8<wchar_t>' is deprecated [-Wdeprecated-declarations]\n  257 |     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;\n      |                               ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/codecvt:193:28: note: 'codecvt_utf8<wchar_t>' has been explicitly marked deprecated here\n  193 | class _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX17 codecvt_utf8 : public __codecvt_utf8<_Elem> {\n      |                            ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:723:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX17'\n  723 | #    define _LIBCPP_DEPRECATED_IN_CXX17 _LIBCPP_DEPRECATED\n      |                                         ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:688:49: note: expanded from macro '_LIBCPP_DEPRECATED'\n  688 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))\n      |                                                 ^\n/Users/danbev/work/ai/whisper-work/examples/common.cpp:257:10: warning: 'wstring_convert<std::codecvt_utf8<wchar_t>>' is deprecated [-Wdeprecated-declarations]\n  257 |     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;\n      |          ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/locale:3145:28: note: 'wstring_convert<std::codecvt_utf8<wchar_t>>' has been explicitly marked deprecated here\n 3145 | class _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX17 wstring_convert {\n      |                            ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:723:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX17'\n  723 | #    define _LIBCPP_DEPRECATED_IN_CXX17 _LIBCPP_DEPRECATED\n      |                                         ^\n/Users/danbev/work/wasm/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:688:49: note: expanded from macro '_LIBCPP_DEPRECATED'\n  688 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))\n      |                                                 ^\n4 warnings generated.\n```\n\n* ggml : suppress double-promotion warning in GGML_F16x4_REDUCE\n\nThis commit adds a cast to `ggml_float` in the `GGML_F16x4_REDUCE` macro\nto suppress a double-promotion warning.\n\nCurrently the following warning is generated when compiling the\ncommand.wasm example:\n```console\n/whisper-work/src/ggml-cpu/ggml-cpu.c:1592:5: warning: implicit conversion increases floating-point precision: 'float' to 'ggml_float' (aka 'double') [-Wdouble-promotion]\n 1592 |     GGML_F16_VEC_REDUCE(sumf, sum);\n      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/Users/danbev/work/ai/whisper-work/src/ggml-cpu/ggml-cpu.c:932:37: note: expanded from macro 'GGML_F16_VEC_REDUCE'\n  932 | #define GGML_F16_VEC_REDUCE         GGML_F16x4_REDUCE\n      |                                     ^\n/Users/danbev/work/ai/whisper-work/src/ggml-cpu/ggml-cpu.c:920:44: note: expanded from macro 'GGML_F16x4_REDUCE'\n  918 |     res = wasm_f32x4_extract_lane(x[0], 0) +       \\\n      |         ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  919 |           wasm_f32x4_extract_lane(x[0], 1) +       \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  920 |           wasm_f32x4_extract_lane(x[0], 2) +       \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~\n  921 |           wasm_f32x4_extract_lane(x[0], 3);        \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/whisper-work/src/ggml-cpu/ggml-cpu.c:1640:9: warning: implicit conversion increases floating-point precision: 'float' to 'ggml_float' (aka 'double') [-Wdouble-promotion]\n 1640 |         GGML_F16_VEC_REDUCE(sumf[k], sum[k]);\n      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n/Users/danbev/work/ai/whisper-work/src/ggml-cpu/ggml-cpu.c:932:37: note: expanded from macro 'GGML_F16_VEC_REDUCE'\n  932 | #define GGML_F16_VEC_REDUCE         GGML_F16x4_REDUCE\n      |                                     ^\n/Users/danbev/work/ai/whisper-work/src/ggml-cpu/ggml-cpu.c:920:44: note: expanded from macro 'GGML_F16x4_REDUCE'\n  918 |     res = wasm_f32x4_extract_lane(x[0], 0) +       \\\n      |         ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  919 |           wasm_f32x4_extract_lane(x[0], 1) +       \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n  920 |           wasm_f32x4_extract_lane(x[0], 2) +       \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~\n  921 |           wasm_f32x4_extract_lane(x[0], 3);        \\\n      |           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n2 warnings generated.\n```\nwasm_f32x4_extract_lane returns a 32-bit float and this is what the\naddition is performed on. But there is an implicit conversion from\n32-bit float to 64-bit double when the result is assigned to `res`,\nwhich is of type `ggml_float`. My understanding here is that this is\nintentional and adding a cast to `ggml_float` should suppress the\nwarning.\n\n* emscripten : add -Wno-deprecated to for emscripten\n\nThis commit adds -Wno-deprecated to the CMAKE_CXX_FLAGS for emscripten\nbuilds.\n\nThe motivation for this is that currently there a number of warnings\ngenerated like the following:\n```console\nwarning: JS library symbol '$print' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nwarning: JS library symbol '$printErr' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nem++: warning: warnings in JS library compilation [-Wjs-compiler]\nem++: warning: linker setting ignored during compilation: 'ENVIRONMENT' [-Wunused-command-line-argument]\nwarning: JS library symbol '$print' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nwarning: JS library symbol '$printErr' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nem++: warning: warnings in JS library compilation [-Wjs-compiler]\nwarning: JS library symbol '$print' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nwarning: JS library symbol '$printErr' is deprecated. Please open a bug if you have a continuing need for this symbol [-Wdeprecated]\nem++: warning: warnings in JS library compilation [-Wjs-compiler]\nem++: warning: linker setting ignored during compilation: 'ENVIRONMENT' [-Wunused-command-line-argument]\nem++: warning: linker setting ignored during compilation: 'ENVIRONMENT' [-Wunused-command-line-argument]\n```\n\nThe downside of this is that we might miss other deprecation warnings\nin the future so I'm not sure if this is acceptable. But it make the\nwasm examples cleaner without the warnings.\n\n* examples : fix tautological-compare warning in stb_vorbis.c [no ci]\n\nThis commit applies a fix to address a tautological-compare warning\nin stb_vorbis.c.\n\nThe motivation for this is that currently the following warning is\ngenerated when compiling the commmand-wasm example:\n```console\n/Users/danbev/work/ai/whisper-work/examples/stb_vorbis.c:1404:75: warning: pointer comparison always evaluates to false [-Wtautological-compare]\n 1404 |       if (f->stream_start + loc >= f->stream_end || f->stream_start + loc < f->stream_start) {\n      |                                                                           ^\n1 warning generated.\n```\n\nThis fix was taken from an open pull request on the stb repository\nthat addreses this issue:\nhttps://github.com/nothings/stb/pull/1746\n\n* squash! examples : update command.wasm instructions [no ci]\n\nThis commit adds a Python script to serve the the wasm examples build\nin the `build-em` directory. Initially I thought that it would be enough\nto start a simple python server but I did not notice that there was an\nerror in the browser console when I did that:\n```console\ncommand.js:1 Uncaught (in promise) DataCloneError: Failed to execute 'postMessage' on 'Worker': SharedArrayBuffer transfer requires self.crossOriginIsolated.\n    at command.js:1:1206224\n    at new Promise (<anonymous>)\n    at loadWasmModuleToWorker (command.js:1:1204981)\n    at Array.map (<anonymous>)\n    at Object.loadWasmModuleToAllWorkers (command.js:1:1206428)\n    at command.js:1:1204318\n    at callRuntimeCallbacks (command.js:1:1202062)\n    at preRun (command.js:1:6136)\n    at run (command.js:1:1294094)\n    at removeRunDependency (command.js:1:7046)\n```\nWe need a few CORS headers to be set and in order hopefully make this\neasy for users a Python script is added to the examples directory.\nThis should be able to server all the wasm examples provided they have\nbeen built. command.wasm's README.md is updated to reflect this change.\n\n* examples : remove unused functions\n\nThis commit removed the unused functions convert_to_utf8 and\nconvert_to_wstring from examples/common.cpp.\n\n* Revert \"examples : fix tautological-compare warning in stb_vorbis.c [no ci]\"\n\nThis reverts commit 8e3c47d96141c7675c985562ebdc705e839e338a.\n\nWe should not make this change here and instead when the upstream PR is\nmerged we can sync with it.\n\nRefs: https://github.com/ggerganov/whisper.cpp/issues/2784",
+      "tree": {
+        "sha": "13e1b1b0d8fc2ca79a0f17613a74b9f48816d5e5",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/13e1b1b0d8fc2ca79a0f17613a74b9f48816d5e5"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/3891e183c61c1e25c2c61afe68d7b95019ea3f89",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3891e183c61c1e25c2c61afe68d7b95019ea3f89/comments",
+    "author": {
+      "login": "danbev",
+      "id": 432351,
+      "node_id": "MDQ6VXNlcjQzMjM1MQ==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/432351?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/danbev",
+      "html_url": "https://github.com/danbev",
+      "followers_url": "https://api.github.com/users/danbev/followers",
+      "following_url": "https://api.github.com/users/danbev/following{/other_user}",
+      "gists_url": "https://api.github.com/users/danbev/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/danbev/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/danbev/subscriptions",
+      "organizations_url": "https://api.github.com/users/danbev/orgs",
+      "repos_url": "https://api.github.com/users/danbev/repos",
+      "events_url": "https://api.github.com/users/danbev/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/danbev/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "ggerganov",
+      "id": 1991296,
+      "node_id": "MDQ6VXNlcjE5OTEyOTY=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1991296?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ggerganov",
+      "html_url": "https://github.com/ggerganov",
+      "followers_url": "https://api.github.com/users/ggerganov/followers",
+      "following_url": "https://api.github.com/users/ggerganov/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ggerganov/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ggerganov/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ggerganov/subscriptions",
+      "organizations_url": "https://api.github.com/users/ggerganov/orgs",
+      "repos_url": "https://api.github.com/users/ggerganov/repos",
+      "events_url": "https://api.github.com/users/ggerganov/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ggerganov/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1"
+      }
+    ]
+  },
+  {
+    "sha": "af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+    "node_id": "C_kwDOJH_K4NoAKGFmNmFlMWVmYjI3YTlhN2MzZjdmN2Y4NDYzOWQyMjQzZjczMDNhYzE",
+    "commit": {
+      "author": {
+        "name": "Xuan-Son Nguyen",
+        "email": "son@huggingface.co",
+        "date": "2025-03-29T23:07:37Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-03-29T23:07:37Z"
+      },
+      "message": "llama : fix non-causal mask for gemma 3 (#12615)",
+      "tree": {
+        "sha": "62f4de417de67b2e124e8cdb153105c68be27374",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/62f4de417de67b2e124e8cdb153105c68be27374"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn6H05CRC1aQ7uu5UhlAAARYAQAISIryIVsCIsMlentNQiLSsd\nVGj1FuJ31tWz0DdGI1M84E+BXYHMpY1FyLhG8JUxijHZBnUltRywHql+a8ZEOI9+\nSSzmNDBMLdVCx2csZZu7pKw4WsO9rBz7B4n1qXHQBlppEawMMrdkOjuGpxWWIdhK\nmNHV1XM1TsuPS5rSTdk8cgHIBqZdxU1ILMUYtkgWp7uIAn1J8rVCpsZnSKmK7kQb\nrxO4QdqJJNug/nBbzbLOLsa+zV5E/oqTDgQQfuQH+rsd+O3doOMIvFdnz/8fmt2c\n4YxlRTKQUc3fGf3joohsSeFIrdc/lUzVIZTvcVuhNs9NyIyCQ7juC6fivVoUY5ZA\n5gGOfVWyFQGmZQtHTYrH37logB2Q6amcgoo3MEulu+kzgpkAWebM00Dfr2y0hoNc\nEISCeoFwIJ1MMW6MJXU90B5YR2M9lyC4ooeai9l7EiISwcftGVOTxgBF0gYd6o1+\nYqW92/GTuTn+/tsiVPbeWvElInPuDRqNHPpTQoMF6Jj6g2y2Y3GHhnPyIH8ETeyp\n0nyLXP8h+m6fsW4mS6OtSQy263tqQ9JSlSf1hrA2NWOL+3CBAIICwjkQDhHX908I\nffKT+EibjQ8QLWNrG6G728fCf+KG0c7Hz+lMywFXtGWiw58CpQdEoMee5cA1hmA+\nbA2Pg9zDfmaa23KMlJW/\n=Y6Es\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 62f4de417de67b2e124e8cdb153105c68be27374\nparent 0bb2919335d00ff0bc79d5015da95c422de51f03\nauthor Xuan-Son Nguyen <son@huggingface.co> 1743289657 +0100\ncommitter GitHub <noreply@github.com> 1743289657 +0100\n\nllama : fix non-causal mask for gemma 3 (#12615)\n\n",
+        "verified_at": "2025-03-29T23:07:41Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/af6ae1efb27a9a7c3f7f7f84639d2243f7303ac1/comments",
+    "author": {
+      "login": "ngxson",
+      "id": 7702203,
+      "node_id": "MDQ6VXNlcjc3MDIyMDM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7702203?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ngxson",
+      "html_url": "https://github.com/ngxson",
+      "followers_url": "https://api.github.com/users/ngxson/followers",
+      "following_url": "https://api.github.com/users/ngxson/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ngxson/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ngxson/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ngxson/subscriptions",
+      "organizations_url": "https://api.github.com/users/ngxson/orgs",
+      "repos_url": "https://api.github.com/users/ngxson/repos",
+      "events_url": "https://api.github.com/users/ngxson/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ngxson/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "0bb2919335d00ff0bc79d5015da95c422de51f03",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/0bb2919335d00ff0bc79d5015da95c422de51f03",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/0bb2919335d00ff0bc79d5015da95c422de51f03"
+      }
+    ]
+  },
+  {
     "sha": "0bb2919335d00ff0bc79d5015da95c422de51f03",
     "node_id": "C_kwDOJH_K4NoAKDBiYjI5MTkzMzVkMDBmZjBiYzc5ZDUwMTVkYTk1YzQyMmRlNTFmMDM",
     "commit": {
@@ -3194,908 +4096,6 @@
         "sha": "c95fa362b3587d1822558f7e28414521075f254f",
         "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c95fa362b3587d1822558f7e28414521075f254f",
         "html_url": "https://github.com/ggml-org/llama.cpp/commit/c95fa362b3587d1822558f7e28414521075f254f"
-      }
-    ]
-  },
-  {
-    "sha": "c95fa362b3587d1822558f7e28414521075f254f",
-    "node_id": "C_kwDOJH_K4NoAKGM5NWZhMzYyYjM1ODdkMTgyMjU1OGY3ZTI4NDE0NTIxMDc1ZjI1NGY",
-    "commit": {
-      "author": {
-        "name": "Akarshan Biswas",
-        "email": "akarshan@menlo.ai",
-        "date": "2025-03-24T17:35:38Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T17:35:38Z"
-      },
-      "message": "ci: [SYCL] ggml-ci Use main GPU and enable sysman (#12547)",
-      "tree": {
-        "sha": "4d94e95bbef1c873d835f0be7d9443c3b6ae67a6",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/4d94e95bbef1c873d835f0be7d9443c3b6ae67a6"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/c95fa362b3587d1822558f7e28414521075f254f",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4ZfqCRC1aQ7uu5UhlAAAFiYQAIKeCmMlwGq/CFLx+tK4TeM7\nMATHE1m1/TqGAYGX9KxzBpVEZNs/X2xXKoUC/do3FNWYNAN1ezhWRa0LPBxDRXm4\nionQsANgbr8z2ygQdIj4ZwXvdKBgnXt9pkm2axzdCTTp9FmLTZSgz4EzWxPJPKQw\nmJllU5yznZBHW+nsH701O2WOykwUkZQtRkJj5FzbqQfx47AOgW2M6KibnL/7HCYF\n9UyBDdBKTnNnXiMvjXsMl6EHCye3L5zfS/kW9iifBCnV21pLjcf7v0vA1yqhedMs\noQN0DJuWXsj2bHCeNUQBMfsmtHTg+1sAPn9lPQ+3KML1naNjMqQMxXm7qciiLSNo\nCEXwOXtFVjRYGqKlSgy4U4kkEqUAdNZl0MbBVjsbiBRYE2Zvp+MB5KviMma31eMx\nGSIfBhoJ23N0yOKdmVNFHY6taeFY8dy2tXazwov2r8pzyi6/UtTZaUq6bSqdnl7E\nhL0cJ6619wbB/VjKkXliY5qt6yuBGPhBSgqS/DLAeSFGhTj7J9+8zztlgAB+Oy76\nRHdMv/O8g7cS14b+cP411boZC9Xp5aajgdKdvrG54r/da8zXZ38/8gYcWY+RenYf\nuqtlx+5uXB2ahaaHEkvFoaZRDeIWWqLX1HlpVsaAipl95cU4h2GiU6+HcoVoI19C\nMgK0V6d4LTOd3GmLuv2+\n=eMTZ\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 4d94e95bbef1c873d835f0be7d9443c3b6ae67a6\nparent 2b65ae30299b9c67e25c51ee567e9a2ef22279ab\nauthor Akarshan Biswas <akarshan@menlo.ai> 1742837738 +0530\ncommitter GitHub <noreply@github.com> 1742837738 +0200\n\nci: [SYCL] ggml-ci Use main GPU and enable sysman (#12547)\n\n",
-        "verified_at": "2025-03-24T17:35:42Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c95fa362b3587d1822558f7e28414521075f254f",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/c95fa362b3587d1822558f7e28414521075f254f",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c95fa362b3587d1822558f7e28414521075f254f/comments",
-    "author": {
-      "login": "qnixsynapse",
-      "id": 17230826,
-      "node_id": "MDQ6VXNlcjE3MjMwODI2",
-      "avatar_url": "https://avatars.githubusercontent.com/u/17230826?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/qnixsynapse",
-      "html_url": "https://github.com/qnixsynapse",
-      "followers_url": "https://api.github.com/users/qnixsynapse/followers",
-      "following_url": "https://api.github.com/users/qnixsynapse/following{/other_user}",
-      "gists_url": "https://api.github.com/users/qnixsynapse/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/qnixsynapse/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/qnixsynapse/subscriptions",
-      "organizations_url": "https://api.github.com/users/qnixsynapse/orgs",
-      "repos_url": "https://api.github.com/users/qnixsynapse/repos",
-      "events_url": "https://api.github.com/users/qnixsynapse/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/qnixsynapse/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/2b65ae30299b9c67e25c51ee567e9a2ef22279ab"
-      }
-    ]
-  },
-  {
-    "sha": "2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-    "node_id": "C_kwDOJH_K4NoAKDJiNjVhZTMwMjk5YjljNjdlMjVjNTFlZTU2N2U5YTJlZjIyMjc5YWI",
-    "commit": {
-      "author": {
-        "name": "lhez",
-        "email": "quic_lih@quicinc.com",
-        "date": "2025-03-24T16:20:47Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T16:20:47Z"
-      },
-      "message": "opencl: simplify kernel embedding logic in cmakefile (#12503)\n\nCo-authored-by: Max Krasnyansky <quic_maxk@quicinc.com>",
-      "tree": {
-        "sha": "15a817a4af3d20e937fcc9f1c07f786e74bb0ef6",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/15a817a4af3d20e937fcc9f1c07f786e74bb0ef6"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4YZfCRC1aQ7uu5UhlAAAgUgQAIf28gnJggYsU9MoBfi3gFFx\nBJ/FYn+c+nqpkjIt4lLaRtVyTBXxwarOt6X4TvNTA3iDx+7QMfma1LlXHNRfL7yN\nTE3REnSCtxtDTMy4OvfXMYuTborl3cwMSeED5J0HWSkMfTtRxHdP5dYLGJ6pij2I\nxzJubuRvhTnbYOhsIOSXDlf0qRWZhW5wbwYRLS0se3f3cDnDhPZwpWhaejywOSZB\ngBBKflBB4uMhZ6z+df2718nfbzNnFUpsa+tG9YRP3i+dTpe5bGPTSQpGnejlfRbS\nAVoxMMxpU5PKWYcWTLxCZ4Uvlw5GajqCOxNj6CR7Y2An59t1zMZKi3I9Fpk2jfTK\n3p6npcApRhp9iD/TdxIwoNGLaDsYujms5Fy+d8U8C/4BElXIFkuaZqDU2XPDqaHt\nKVX5MQWHgAYnbBvB3HoKpvtuS3L0nS87UIci9gqvvwBSJiaWGs2rlKZBlPMEha32\n+NvXPSEfx1cy8t0VQbe2/0mH691J8Ary60XlAAlgnTOzAW57+ajnI1UfjDRZv73h\nnRIgBWktzfE6MrpIKIz5u6ZnAFpk1OvMb/vfZRfi4zLyvav5ZqfPU5vbtrrtbYew\nBJpkD5K/8lBLEw2CPNrc7Jod9PIB7En00oMTA/kmI7Fd9SEDXe1xNiMNcFfqGZrB\nETkrxx1q6hk0K8kayT9N\n=DLaw\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 15a817a4af3d20e937fcc9f1c07f786e74bb0ef6\nparent 48d7021c61ceda6fcf1a7294d2115b8e1a53ae95\nauthor lhez <quic_lih@quicinc.com> 1742833247 -0700\ncommitter GitHub <noreply@github.com> 1742833247 -0700\n\nopencl: simplify kernel embedding logic in cmakefile (#12503)\n\nCo-authored-by: Max Krasnyansky <quic_maxk@quicinc.com>",
-        "verified_at": "2025-03-24T16:20:52Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/2b65ae30299b9c67e25c51ee567e9a2ef22279ab",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/2b65ae30299b9c67e25c51ee567e9a2ef22279ab/comments",
-    "author": {
-      "login": "lhez",
-      "id": 91686602,
-      "node_id": "U_kgDOBXcGyg",
-      "avatar_url": "https://avatars.githubusercontent.com/u/91686602?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/lhez",
-      "html_url": "https://github.com/lhez",
-      "followers_url": "https://api.github.com/users/lhez/followers",
-      "following_url": "https://api.github.com/users/lhez/following{/other_user}",
-      "gists_url": "https://api.github.com/users/lhez/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/lhez/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/lhez/subscriptions",
-      "organizations_url": "https://api.github.com/users/lhez/orgs",
-      "repos_url": "https://api.github.com/users/lhez/repos",
-      "events_url": "https://api.github.com/users/lhez/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/lhez/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95"
-      }
-    ]
-  },
-  {
-    "sha": "48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-    "node_id": "C_kwDOJH_K4NoAKDQ4ZDcwMjFjNjFjZWRhNmZjZjFhNzI5NGQyMTE1YjhlMWE1M2FlOTU",
-    "commit": {
-      "author": {
-        "name": "Akarshan Biswas",
-        "email": "akarshan@menlo.ai",
-        "date": "2025-03-24T12:58:32Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T12:58:32Z"
-      },
-      "message": "CI: fix SYCL build (#12546)",
-      "tree": {
-        "sha": "778d76974a4db7650839d78579ab609e60fc9bf8",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/778d76974a4db7650839d78579ab609e60fc9bf8"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4Vb4CRC1aQ7uu5UhlAAAmngQAGFAhQ/VeYVF6nzbqfaVMGkQ\n51PQxa2VlEnn06qVPwiShI+iImdA0DOqJOQrD83T/AAQR5rMCu4frisvzoDR8BYm\nHgDMaBL5DNFfS6RJVJ8p9R6dC5AIYytmzXU2aPatArH7cpFGiyVW2AHE4f6/LXZC\ngu1FJG94yjRyaf8ezMt48NBrPainP5ov+EDc20+fYw0iA6eAHLQCHBAzyEwIqtc7\ntTted3kTs3mw9Og4B6iM/DcR4crEGKw1BM7ARt4YzTp/9ZaToi9uDvpVXYUde7Ho\nNor0GaHOb7EFaOBIdiCNyv2j+kWN+OoOkquoPg4bhiLUPiNDrKGtOKffXLMyhAph\n/99Q2f5ziTEpq+BDIeTIGuJ+vQj9Krk+2Q0zxHX23T9GQfPTfbVG4Sq0xPgqcCrF\nInH9FNGAd49ypk3WOAWlyvXpunDs9gym/qr4Vdy+MdogBUGha8m7nAAwtCOP6rR9\nYqxtq3CCoPLfpD7gOEYjhFG8NgJInw98p1XjM9H9eJJlcppnMIHmV/cS9/2NJgr7\nIoaEZl4/voyRWPB5KJJ/ig6b3X6eoYUPq2INyc5MAgCNbDWLQ7acsfsCzYhE3pbX\ne+Z6akCsiWlb1FlfJWT9jK7b0ZeKZD4uoGvVEgVgT3XuaoUnvC7rC7QB2IHhb9En\n1cquhWkc3C+au4hlFaWI\n=UnwA\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 778d76974a4db7650839d78579ab609e60fc9bf8\nparent 3361e2deba0f24942877559b35c430dec68528c3\nauthor Akarshan Biswas <akarshan@menlo.ai> 1742821112 +0530\ncommitter GitHub <noreply@github.com> 1742821112 +0200\n\nCI: fix SYCL build (#12546)\n\n",
-        "verified_at": "2025-03-24T12:58:36Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/48d7021c61ceda6fcf1a7294d2115b8e1a53ae95/comments",
-    "author": {
-      "login": "qnixsynapse",
-      "id": 17230826,
-      "node_id": "MDQ6VXNlcjE3MjMwODI2",
-      "avatar_url": "https://avatars.githubusercontent.com/u/17230826?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/qnixsynapse",
-      "html_url": "https://github.com/qnixsynapse",
-      "followers_url": "https://api.github.com/users/qnixsynapse/followers",
-      "following_url": "https://api.github.com/users/qnixsynapse/following{/other_user}",
-      "gists_url": "https://api.github.com/users/qnixsynapse/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/qnixsynapse/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/qnixsynapse/subscriptions",
-      "organizations_url": "https://api.github.com/users/qnixsynapse/orgs",
-      "repos_url": "https://api.github.com/users/qnixsynapse/repos",
-      "events_url": "https://api.github.com/users/qnixsynapse/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/qnixsynapse/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "3361e2deba0f24942877559b35c430dec68528c3",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3361e2deba0f24942877559b35c430dec68528c3",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/3361e2deba0f24942877559b35c430dec68528c3"
-      }
-    ]
-  },
-  {
-    "sha": "3361e2deba0f24942877559b35c430dec68528c3",
-    "node_id": "C_kwDOJH_K4NoAKDMzNjFlMmRlYmEwZjI0OTQyODc3NTU5YjM1YzQzMGRlYzY4NTI4YzM",
-    "commit": {
-      "author": {
-        "name": "Tei Home",
-        "email": "taiteitonghome@proton.me",
-        "date": "2025-03-24T11:02:26Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T11:02:26Z"
-      },
-      "message": "docs: update: improve the Fedoa CUDA guide (#12536)\n\n* docs: update fedora-cuda guide\n\n- Rename and place into Backend Folder.\n- Update Host-Supplied Packages.\n- Expand Recommended Users Section.\n\n* docs: improve the flow of CUDA-FEDORA.md",
-      "tree": {
-        "sha": "7f4c1954f082231d58024da67a0bbe6e4e8310f7",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/7f4c1954f082231d58024da67a0bbe6e4e8310f7"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/3361e2deba0f24942877559b35c430dec68528c3",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4TvCCRC1aQ7uu5UhlAAAS2AQAJt7z1nAGV1v0fa79qDrrvA1\noygQWwC6quL2d3GWyK8MbcglUsZfMOwBBxE1uVaZgn9JC0Kv+P+9sgxngQe+ELqZ\nGAhrAHj+r5kcNYyCK77MuzpjZRM4uHgWP/nwrW0Z8T0f0X09Pv/xGJMO6vmTpmqo\nhFThOgIFwcgjgBqIxfGDitEk7PmuQB2F9UDKeLlEuzrSdVpruQWFu81AX/O6A+16\nmD9D24QywmT5FtHSnstd3o1l2cckCpchAyKTO52mMlrpKRMOihMijgrkM4QTIDE8\nx8kc7cu0ksL831lNBXx5sZGMn8l/k5VPJcQ6tn/RT2pyP7cHgpEulS2Jpq4/JxZa\nSXglMkokFQdCxLHcRXH+iOOucnfS+0E+GrVnhwKCV9VmB29WEPEjydC11uqCMmnK\nogkyGxWH3TrlQXV4VtDQk68TMTCvpNRIk6MHF+l3gZ7S4tx7GUECzsEfNXwkwguf\nN+zZpyYED42H0ssfT+8iAgy3hHIbLEYd0wDm3yXO6o50r5O7SLsh5U47kXmE+CvR\nr1z935NGjblpC4mPGZ+8d2AXv8vY06ZZ9egPGBhzPlvupEtFETWCOqw7ij5B7dG+\n/XN1gz68refua5RgfFz0VW2IODes3+IE+9sdZJdvBH7gjCXPhwUsGbhHkusO45Ul\nfvwngIITXq55Dtr5UJOu\n=RPug\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 7f4c1954f082231d58024da67a0bbe6e4e8310f7\nparent 00d53800e00bb22a26bf710fa6bd1150e412cc1d\nauthor Tei Home <taiteitonghome@proton.me> 1742814146 +0800\ncommitter GitHub <noreply@github.com> 1742814146 +0000\n\ndocs: update: improve the Fedoa CUDA guide (#12536)\n\n* docs: update fedora-cuda guide\n\n- Rename and place into Backend Folder.\n- Update Host-Supplied Packages.\n- Expand Recommended Users Section.\n\n* docs: improve the flow of CUDA-FEDORA.md",
-        "verified_at": "2025-03-24T11:02:31Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3361e2deba0f24942877559b35c430dec68528c3",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/3361e2deba0f24942877559b35c430dec68528c3",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3361e2deba0f24942877559b35c430dec68528c3/comments",
-    "author": {
-      "login": "teihome",
-      "id": 184243228,
-      "node_id": "U_kgDOCvtUHA",
-      "avatar_url": "https://avatars.githubusercontent.com/u/184243228?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/teihome",
-      "html_url": "https://github.com/teihome",
-      "followers_url": "https://api.github.com/users/teihome/followers",
-      "following_url": "https://api.github.com/users/teihome/following{/other_user}",
-      "gists_url": "https://api.github.com/users/teihome/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/teihome/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/teihome/subscriptions",
-      "organizations_url": "https://api.github.com/users/teihome/orgs",
-      "repos_url": "https://api.github.com/users/teihome/repos",
-      "events_url": "https://api.github.com/users/teihome/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/teihome/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/00d53800e00bb22a26bf710fa6bd1150e412cc1d"
-      }
-    ]
-  },
-  {
-    "sha": "00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-    "node_id": "C_kwDOJH_K4NoAKDAwZDUzODAwZTAwYmIyMmEyNmJmNzEwZmE2YmQxMTUwZTQxMmNjMWQ",
-    "commit": {
-      "author": {
-        "name": "compilade",
-        "email": "git@compilade.net",
-        "date": "2025-03-24T10:47:24Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T10:47:24Z"
-      },
-      "message": "llama-vocab : add SuperBPE pre-tokenizer (#12532)",
-      "tree": {
-        "sha": "bc4eebf57a94c3718f5e9f562d693312a2c52798",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/bc4eebf57a94c3718f5e9f562d693312a2c52798"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4Tg8CRC1aQ7uu5UhlAAAG0EQAGyKofNFvnJnCld5n5BfBPSO\n0zA8ycI/W3R0F/DohFJnKDQ7UrcuO89RreroCx7+26jqi7lK1BRVrvzmGupOsUp2\nKJgY7iCEuD54tvn5awtpd6bRA3aXw3GGAFsfGQCH1h1HkG9Jgt/JBaEjQxaigpNV\nvxLpfIBTKIblUIP4yKfuGp8nOzQdhFCU8G77YCkP7Htdo3VaNeQQnVANU9paOAIW\n2EDCPKrxa2Y/IxjEGzXxPvqqNpvEqpiqJ8dlMPVymlXAPlTPZwzDQ28MPTZj2pnX\nUZo3w79EBKxDwkght+UzPYeDZqRg3kIbH00k02iIL7xxt9w/RdewcXJ9eR/K3AfU\nWPljOgxLz0IJZjpt8Gq78VvvT11wxivSWFsbWTOBmRhpEbc2l1STVfeu9Wo3asZO\nIeTAbCThgkM/jLNh81+u/ou52P6pQsiCMW1R2wybU2ZQenSGgL02hxUzeLJhQBXZ\nUoj4eyboPbrCtWsSvkVpdU/4kMTFKfYpXxeUOuDqMc5Ti/3L0V+gA35pVyrIEo5W\nezHcw+0X6kmQR947V/1QxwVNWk8iha3KiGr01MCLL2rd083nx2BUedxw4T2Yekb8\nwruSVcHnAd5ltRx5aRt9XHOrBg4fKTKmp/08eU6tUtBbavwiVBWWYv4TI/K3Nu18\nEzpIV/hkaPva0tUCHht7\n=OFfv\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree bc4eebf57a94c3718f5e9f562d693312a2c52798\nparent 7ea75035b67f44c22ed7039967f718011fd35ce5\nauthor compilade <git@compilade.net> 1742813244 -0400\ncommitter GitHub <noreply@github.com> 1742813244 +0100\n\nllama-vocab : add SuperBPE pre-tokenizer (#12532)\n\n",
-        "verified_at": "2025-03-24T10:47:28Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/00d53800e00bb22a26bf710fa6bd1150e412cc1d",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/00d53800e00bb22a26bf710fa6bd1150e412cc1d/comments",
-    "author": {
-      "login": "compilade",
-      "id": 113953597,
-      "node_id": "U_kgDOBsrLPQ",
-      "avatar_url": "https://avatars.githubusercontent.com/u/113953597?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/compilade",
-      "html_url": "https://github.com/compilade",
-      "followers_url": "https://api.github.com/users/compilade/followers",
-      "following_url": "https://api.github.com/users/compilade/following{/other_user}",
-      "gists_url": "https://api.github.com/users/compilade/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/compilade/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/compilade/subscriptions",
-      "organizations_url": "https://api.github.com/users/compilade/orgs",
-      "repos_url": "https://api.github.com/users/compilade/repos",
-      "events_url": "https://api.github.com/users/compilade/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/compilade/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "7ea75035b67f44c22ed7039967f718011fd35ce5",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7ea75035b67f44c22ed7039967f718011fd35ce5",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/7ea75035b67f44c22ed7039967f718011fd35ce5"
-      }
-    ]
-  },
-  {
-    "sha": "7ea75035b67f44c22ed7039967f718011fd35ce5",
-    "node_id": "C_kwDOJH_K4NoAKDdlYTc1MDM1YjY3ZjQ0YzIyZWQ3MDM5OTY3ZjcxODAxMWZkMzVjZTU",
-    "commit": {
-      "author": {
-        "name": "R0CKSTAR",
-        "email": "xiaodong.ye@mthreads.com",
-        "date": "2025-03-24T10:28:34Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T10:28:34Z"
-      },
-      "message": "CUDA: Fix clang warnings (#12540)\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
-      "tree": {
-        "sha": "911bec6fd06bc2462e573497f380298880d82a66",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/911bec6fd06bc2462e573497f380298880d82a66"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/7ea75035b67f44c22ed7039967f718011fd35ce5",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4TPSCRC1aQ7uu5UhlAAAsL8QADf9Y2koeeSYwoF/yR3kcr0T\nMKx1XChbetkhb8p+XXcoIBvEk6GCXG1p218euO1f/K+N9iErNM34nTi5s7RV7kaS\nKoSEcsC13rFzgviZlKyCchh+5jdMbhd834ujd75ZsuCcBbauBwAheEJjtb/5Eja1\nWK/xDc+z8AUfy5SpmsRRSEx/1SQ/m7/R1D3k3pDn5WA662rH+j8oHgVO4UxkzkLS\ngiTTBHhYQ1CxvWwX67LrefdnLB/5e2RNZF1Jcz9htCVdyo9WuFco11+vj4zmzCaE\nB9eJjkKhyiZOni+kmX4Pbn218C3+419QOYwWaovKuBrvse+O6pSZI3vaBX0CbxcZ\noquIW8OAIy/TGM1+j6Kv8l2vQLUQWkUqe+VJYBXCuWfw733EenuAI0lw+u9HzjHz\nyCUiG8l5rD1jVqoFgTTDYZ/1qxENdgeKBsLIeTdEltuSQvEjT8NvCHihH5qm1R07\nCury0jLCnOm0UaoYOkg7/xZHi03Pd8JgWkfIhoXkHeH2wuZZLqFp2JhI27kCTpty\nLo5jgMHNgUMW16OFabgixv4QTT+FoV8WcOWRc8RXhfD1MsigtPp768gsfy0ymucg\nHTsHr87HVan1FfQ9dn9LQA6GwLfjNM8iSUPXqeqtEPs3Sc1bUAipodG+ctBlQi9D\ndQqo9oxxWn4OnmL3o4tB\n=u7hq\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 911bec6fd06bc2462e573497f380298880d82a66\nparent c54f6b7988b63714b87b0390e01a1e69aee79a12\nauthor R0CKSTAR <xiaodong.ye@mthreads.com> 1742812114 +0800\ncommitter GitHub <noreply@github.com> 1742812114 +0100\n\nCUDA: Fix clang warnings (#12540)\n\nSigned-off-by: Xiaodong Ye <xiaodong.ye@mthreads.com>",
-        "verified_at": "2025-03-24T10:28:36Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7ea75035b67f44c22ed7039967f718011fd35ce5",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/7ea75035b67f44c22ed7039967f718011fd35ce5",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/7ea75035b67f44c22ed7039967f718011fd35ce5/comments",
-    "author": {
-      "login": "yeahdongcn",
-      "id": 2831050,
-      "node_id": "MDQ6VXNlcjI4MzEwNTA=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2831050?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/yeahdongcn",
-      "html_url": "https://github.com/yeahdongcn",
-      "followers_url": "https://api.github.com/users/yeahdongcn/followers",
-      "following_url": "https://api.github.com/users/yeahdongcn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/yeahdongcn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/yeahdongcn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/yeahdongcn/subscriptions",
-      "organizations_url": "https://api.github.com/users/yeahdongcn/orgs",
-      "repos_url": "https://api.github.com/users/yeahdongcn/repos",
-      "events_url": "https://api.github.com/users/yeahdongcn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/yeahdongcn/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "c54f6b7988b63714b87b0390e01a1e69aee79a12",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c54f6b7988b63714b87b0390e01a1e69aee79a12",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/c54f6b7988b63714b87b0390e01a1e69aee79a12"
-      }
-    ]
-  },
-  {
-    "sha": "c54f6b7988b63714b87b0390e01a1e69aee79a12",
-    "node_id": "C_kwDOJH_K4NoAKGM1NGY2Yjc5ODhiNjM3MTRiODdiMDM5MGUwMWExZTY5YWVlNzlhMTI",
-    "commit": {
-      "author": {
-        "name": "Prajwal B Mehendarkar",
-        "email": "prajwal.b.mehendarkar@ibm.com",
-        "date": "2025-03-24T10:17:10Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T10:17:10Z"
-      },
-      "message": "mmap : skip resource limit checks on AIX (#12541)",
-      "tree": {
-        "sha": "70c2221214fc6a5d3051531f6b49020cf79def12",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/70c2221214fc6a5d3051531f6b49020cf79def12"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/c54f6b7988b63714b87b0390e01a1e69aee79a12",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4TEmCRC1aQ7uu5UhlAAAucsQAIzcXLEp5EUutykwWJxm22ab\nvCeMNha0iX1+9KLLSJ08Z1alqj4mY5hGuO1r1TImAox7wUzEOHCgOGeiPGVMFqbz\nGhoaCfHxOzkEjmKwchyjU+odI6dBoa4mQiUTaqmmkYUF1JO+Luvz1p7oEAwJBdOW\nkmhNHwI5zn9VyHkXDFJn3W+mtSeBWrlkGfe/WUlX9fs2xSN/DTL+nY2giAsM7y04\nVJ17FuZWHmiZ+0CZtfWvYS3xDTmnkwdSE+WoP3i4VKcm7U0IWGlPvFj0fVt3rBQ4\nTq05EGNZ7CSjTDLEI2bNJhjc7j4N5nz6zKsPImqniyGobI4Cr9byBs8VDsKkSj4C\nhyHPdFW8jUeYYCpKFlUFmDNecLK3OhlOR/mVHcPbJYUIT87v6GrmM2Qfw2DVEYM/\nHsPawLAN//C9qRIDJrCku49KYiBAyhnAWdFBcQpr2IRnWnptnPCZjyCpaVnCxk0o\nxYu2+3AsEjHTtLgM/zVJkHPjI0uB7/NAoepVwYBGhaY9EvcyYpfnob4cCEGHsIlR\nPDez/LeRKn0fuDEmvWM55gOuxYc8pf9vTsIEsgTqPCvEwZWA2DedG8mLHGA8d6Ii\nGo4cJ1pV8KoWD8/pyyr2duiMFFr0+V8mrbUcr2nQyvDqjor0vauAA5qzYU5uJtop\nUehZUTas973lgv5qubJN\n=uqLv\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 70c2221214fc6a5d3051531f6b49020cf79def12\nparent 9b169a4d4e01af7bc07a6981b53b27c18c9470d8\nauthor Prajwal B Mehendarkar <prajwal.b.mehendarkar@ibm.com> 1742811430 +0530\ncommitter GitHub <noreply@github.com> 1742811430 +0200\n\nmmap : skip resource limit checks on AIX (#12541)\n\n",
-        "verified_at": "2025-03-24T10:17:14Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c54f6b7988b63714b87b0390e01a1e69aee79a12",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/c54f6b7988b63714b87b0390e01a1e69aee79a12",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/c54f6b7988b63714b87b0390e01a1e69aee79a12/comments",
-    "author": {
-      "login": "mehendarkarprajwal",
-      "id": 187517901,
-      "node_id": "U_kgDOCy1LzQ",
-      "avatar_url": "https://avatars.githubusercontent.com/u/187517901?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/mehendarkarprajwal",
-      "html_url": "https://github.com/mehendarkarprajwal",
-      "followers_url": "https://api.github.com/users/mehendarkarprajwal/followers",
-      "following_url": "https://api.github.com/users/mehendarkarprajwal/following{/other_user}",
-      "gists_url": "https://api.github.com/users/mehendarkarprajwal/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/mehendarkarprajwal/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/mehendarkarprajwal/subscriptions",
-      "organizations_url": "https://api.github.com/users/mehendarkarprajwal/orgs",
-      "repos_url": "https://api.github.com/users/mehendarkarprajwal/repos",
-      "events_url": "https://api.github.com/users/mehendarkarprajwal/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/mehendarkarprajwal/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/9b169a4d4e01af7bc07a6981b53b27c18c9470d8"
-      }
-    ]
-  },
-  {
-    "sha": "9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-    "node_id": "C_kwDOJH_K4NoAKDliMTY5YTRkNGUwMWFmN2JjMDdhNjk4MWI1M2IyN2MxOGM5NDcwZDg",
-    "commit": {
-      "author": {
-        "name": "Jeff Bolz",
-        "email": "jbolz@nvidia.com",
-        "date": "2025-03-24T06:56:17Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-24T06:56:17Z"
-      },
-      "message": "vulkan: fix mul_mat_vec failure in backend tests (#12529)\n\nThe OOB calculation could be wrong if the last iteration was during one of\nthe unrolled loops. Adjust the unrolling counts to avoid this. Add a couple\nnew backend tests that hit this failure on NVIDIA GPUs.",
-      "tree": {
-        "sha": "1adaf5969f6fd7cbc392d1b9c9e8b8c9f47b22d9",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/1adaf5969f6fd7cbc392d1b9c9e8b8c9f47b22d9"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4QIRCRC1aQ7uu5UhlAAAbF4QAJzlXKSMX9pRT8+ff4ILS2PS\nyG9zKs1Es+5kRBiUk20Qo/mGcVdtiT3O4uMTLRMqEKVj9Ra9kNrYNGcBNX6tmPz/\nO8HoM5iUmXcohtL2omvpbv8NySeD+XI8r865xkyxvLcQvB0NDt6l184IJPPdZd6E\nF/+9vUKU9/tO8rpbr5p3od4rsTqJ/HDtM6bI5J9mskUOebkXrzGrKgJyb/qGqNOb\nHWUBCrw/RohXDQ2XM6wok8/qenGD5eCHB2ppUiOupd8LtojWpyU3Xfsja8MI0oVw\nIdBT739i4XpGuQS+BKcS+K/NDSrm4sPu9jeRu34TkfI4EvRtya1rnDmXkFWGggbi\neZYJR0a91oHaQHJZmGFO1q+hgVnBqFpx/pVWblRj1PMt9IXttZIWg7F3IJALpSKL\nEvwLO0v7iFL4dn1297S2GIOpno4Eq+HnueMC+ntum+Ub1EFO81Fs8m7MZdbuB6ds\npje1OUmaU7zoecR1dE48AbtPSWL68EUfiFynVE7dOfO/7EiJp7PCXzSef7bN45+x\ntY5KI7faHzKr47XNMNeTilVznwRmqtZHwXxNRC9TUX873wxEX/C3VPJW6cydcC7B\nnS1pxDa+yKiDeFAQSGmLxHgSWZn3io6TzpObPF0rV7GqiRpiuQs1IDhwFLtJr9SI\n2NjVmiMT2/ZOUD/ndaHG\n=j3rM\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 1adaf5969f6fd7cbc392d1b9c9e8b8c9f47b22d9\nparent 77f9c6bbe55fccd9ea567794024cb80943947901\nauthor Jeff Bolz <jbolz@nvidia.com> 1742799377 -0500\ncommitter GitHub <noreply@github.com> 1742799377 +0100\n\nvulkan: fix mul_mat_vec failure in backend tests (#12529)\n\nThe OOB calculation could be wrong if the last iteration was during one of\nthe unrolled loops. Adjust the unrolling counts to avoid this. Add a couple\nnew backend tests that hit this failure on NVIDIA GPUs.",
-        "verified_at": "2025-03-24T06:56:21Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/9b169a4d4e01af7bc07a6981b53b27c18c9470d8",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/9b169a4d4e01af7bc07a6981b53b27c18c9470d8/comments",
-    "author": {
-      "login": "jeffbolznv",
-      "id": 8260565,
-      "node_id": "MDQ6VXNlcjgyNjA1NjU=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/8260565?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/jeffbolznv",
-      "html_url": "https://github.com/jeffbolznv",
-      "followers_url": "https://api.github.com/users/jeffbolznv/followers",
-      "following_url": "https://api.github.com/users/jeffbolznv/following{/other_user}",
-      "gists_url": "https://api.github.com/users/jeffbolznv/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/jeffbolznv/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/jeffbolznv/subscriptions",
-      "organizations_url": "https://api.github.com/users/jeffbolznv/orgs",
-      "repos_url": "https://api.github.com/users/jeffbolznv/repos",
-      "events_url": "https://api.github.com/users/jeffbolznv/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/jeffbolznv/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "77f9c6bbe55fccd9ea567794024cb80943947901",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/77f9c6bbe55fccd9ea567794024cb80943947901",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/77f9c6bbe55fccd9ea567794024cb80943947901"
-      }
-    ]
-  },
-  {
-    "sha": "77f9c6bbe55fccd9ea567794024cb80943947901",
-    "node_id": "C_kwDOJH_K4NoAKDc3ZjljNmJiZTU1ZmNjZDllYTU2Nzc5NDAyNGNiODA5NDM5NDc5MDE",
-    "commit": {
-      "author": {
-        "name": "Marius Gerdes",
-        "email": "141485318+mglambda@users.noreply.github.com",
-        "date": "2025-03-23T18:30:26Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-23T18:30:26Z"
-      },
-      "message": "server : Add verbose output to OAI compatible chat endpoint. (#12246)\n\nAdd verbose output to server_task_result_cmpl_final::to_json_oaicompat_chat_stream, making it conform with server_task_result_cmpl_final::to_json_oaicompat_chat, as well as the other to_json methods.",
-      "tree": {
-        "sha": "87199aad3b95982b7dc5dda9be7edc875cb2411d",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/87199aad3b95982b7dc5dda9be7edc875cb2411d"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/77f9c6bbe55fccd9ea567794024cb80943947901",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn4FNCCRC1aQ7uu5UhlAAAuh8QADfcqYZXXM4XtUpD1GJgKznS\nZEGXN5GrujTlDpW9T6bKzEnvFIFAV94y7QcAULmOfEgVUrhbqBld04Za/0Q8Bklq\nOnO9ovIKsd0mV6zFVVLKX8AgNzlfGZ1Gp4vI6MDuQRFkU5aZtBFIarrQuRHSTEDo\nGHs4oCSR0gzIdhA+4y2DGch1z7dVzjabTLawwO5CIQ8c6AZkLXJLzwZy6mqBN8wD\nqEdQTPJq6E0aqikbwNkTkckh+ZE/je64qOD83yyNcsU4PCwT8COlOVMkrg8GMph/\neAPyx7wbCgWpJKksLH7DOaS7/QtYLUt2G/GjupkPcGct7i384IptpkyYbTzBuoKU\niYNS+L+TFsdDwlVGvBrXGRh3y12tXr38lVZfEqcJTAD38f8SRieOTRZLPN4McKZR\nvisiUXW0ttbTKULjeRX3BK+snM2x3s9Uv5yg+lqqCCm5epsG7DVDQg0bqCkjoHGB\nuSu9b5iPuY0ySGFX47qousWZ3JoSrSifo5iVGL6If4J5YBIXwxBVt/EmgFKEXWFY\n86TkV+7pZfAr1koix71nmZMNMhjQh0hcos5RnU87cRe3xHnKEMdUauLNltyGq8p4\nZPuAlMQ7KtQDEhFixd7wWaagURMfUNFGqI7MC4QZ+ynnCPfzNJA4btivvYyt67lY\nUS+vhH85DZohDF9iqfSN\n=mMIA\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 87199aad3b95982b7dc5dda9be7edc875cb2411d\nparent 18b663d8e4ef352a9a15ff15d695fc3258801d60\nauthor Marius Gerdes <141485318+mglambda@users.noreply.github.com> 1742754626 +0100\ncommitter GitHub <noreply@github.com> 1742754626 +0100\n\nserver : Add verbose output to OAI compatible chat endpoint. (#12246)\n\nAdd verbose output to server_task_result_cmpl_final::to_json_oaicompat_chat_stream, making it conform with server_task_result_cmpl_final::to_json_oaicompat_chat, as well as the other to_json methods.",
-        "verified_at": "2025-03-23T18:30:30Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/77f9c6bbe55fccd9ea567794024cb80943947901",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/77f9c6bbe55fccd9ea567794024cb80943947901",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/77f9c6bbe55fccd9ea567794024cb80943947901/comments",
-    "author": {
-      "login": "mglambda",
-      "id": 141485318,
-      "node_id": "U_kgDOCG7lBg",
-      "avatar_url": "https://avatars.githubusercontent.com/u/141485318?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/mglambda",
-      "html_url": "https://github.com/mglambda",
-      "followers_url": "https://api.github.com/users/mglambda/followers",
-      "following_url": "https://api.github.com/users/mglambda/following{/other_user}",
-      "gists_url": "https://api.github.com/users/mglambda/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/mglambda/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/mglambda/subscriptions",
-      "organizations_url": "https://api.github.com/users/mglambda/orgs",
-      "repos_url": "https://api.github.com/users/mglambda/repos",
-      "events_url": "https://api.github.com/users/mglambda/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/mglambda/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "18b663d8e4ef352a9a15ff15d695fc3258801d60",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/18b663d8e4ef352a9a15ff15d695fc3258801d60",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/18b663d8e4ef352a9a15ff15d695fc3258801d60"
-      }
-    ]
-  },
-  {
-    "sha": "18b663d8e4ef352a9a15ff15d695fc3258801d60",
-    "node_id": "C_kwDOJH_K4NoAKDE4YjY2M2Q4ZTRlZjM1MmE5YTE1ZmYxNWQ2OTVmYzMyNTg4MDFkNjA",
-    "commit": {
-      "author": {
-        "name": "Lars Sonchocky-Helldorf",
-        "email": "lars.sonchocky-helldorf@hamburg.de",
-        "date": "2025-03-23T08:21:48Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-23T08:21:48Z"
-      },
-      "message": "install : add macports (#12518)\n\nMacPorts section added",
-      "tree": {
-        "sha": "2a858f32c598c772d1f9af13272ad0ce8327d6be",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/2a858f32c598c772d1f9af13272ad0ce8327d6be"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/18b663d8e4ef352a9a15ff15d695fc3258801d60",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn38ScCRC1aQ7uu5UhlAAA7aoQAFJ+RY/lWL6otwzanLjNgfgy\nyTwSULKUmunzfku08FNnCjUW3mKzHGGfBbfjDdwveOEF/fABZn/dHNhVaW+n0q/d\ntuEFiaen8Eh7gvZZFKpGEcbRrBtrN7X1O3CEA0pvUdbGn7yXd4fC+R2exeMkZ/Mr\nT8THselTwb1dPtV1lrpCShmz4wlTzbxEevI1QwWHQgtIlZPZJCc0Wc3hTpoCKuYA\nbqhQCJc1hCE8wg72400COk00RVWVKOAkDwiPPE1ub+YD8K30HmWe3DKnoYKu3Rgd\n/WB/P7zCOePRAZQDEQVxbE3pJwONGbPmoJz5hkTG1zw176TF+Xo5U3rvdhD1eMpX\nDIdVbGmX3StCoEAezZES1nqAAq+BfBcEwaPDAWDHTA1d6nR+CknZMWCxVW9zYoW2\nUQpkecellqOf8zZ9IuCZpPEr7o2OjJzP6ZN8JBQE5AYF0QKfryHqM0vL9y8kzqaL\nTaZuwLpVEfTTqnEpl3wOy57ITktompkW7Ls5OIOx+Q1CyPX1eFC7djrJI3Qqo1YR\nBa5EUmUQ3vHNvXpC6GrDV49J8+NEgLKmd0UFeosK7QbL5RQ/Z9mvgOcf9WYA3LTt\na20pDr0ujua5q2LSEDT2HkzLijPRpOAVirpqgRucpucOn+lpnhtVlbpezof8glpf\nv2B/VwQgzEQeFsVbcoxg\n=6xOn\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 2a858f32c598c772d1f9af13272ad0ce8327d6be\nparent fbdfefe74e736f1a3687283c25ac21b11ba07b2e\nauthor Lars Sonchocky-Helldorf <lars.sonchocky-helldorf@hamburg.de> 1742718108 +0100\ncommitter GitHub <noreply@github.com> 1742718108 +0200\n\ninstall : add macports (#12518)\n\nMacPorts section added",
-        "verified_at": "2025-03-23T08:21:52Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/18b663d8e4ef352a9a15ff15d695fc3258801d60",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/18b663d8e4ef352a9a15ff15d695fc3258801d60",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/18b663d8e4ef352a9a15ff15d695fc3258801d60/comments",
-    "author": {
-      "login": "IOOI-SqAR",
-      "id": 9305009,
-      "node_id": "MDQ6VXNlcjkzMDUwMDk=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/9305009?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/IOOI-SqAR",
-      "html_url": "https://github.com/IOOI-SqAR",
-      "followers_url": "https://api.github.com/users/IOOI-SqAR/followers",
-      "following_url": "https://api.github.com/users/IOOI-SqAR/following{/other_user}",
-      "gists_url": "https://api.github.com/users/IOOI-SqAR/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/IOOI-SqAR/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/IOOI-SqAR/subscriptions",
-      "organizations_url": "https://api.github.com/users/IOOI-SqAR/orgs",
-      "repos_url": "https://api.github.com/users/IOOI-SqAR/repos",
-      "events_url": "https://api.github.com/users/IOOI-SqAR/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/IOOI-SqAR/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/fbdfefe74e736f1a3687283c25ac21b11ba07b2e"
-      }
-    ]
-  },
-  {
-    "sha": "fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-    "node_id": "C_kwDOJH_K4NoAKGZiZGZlZmU3NGU3MzZmMWEzNjg3MjgzYzI1YWMyMWIxMWJhMDdiMmU",
-    "commit": {
-      "author": {
-        "name": "Xuan-Son Nguyen",
-        "email": "son@huggingface.co",
-        "date": "2025-03-22T22:28:19Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-03-22T22:28:19Z"
-      },
-      "message": "llama : gemma3 : use output tensor if it exists in model weight (#12506)\n\n* llama : gemma3 : use output tensor if it exists in model weight\n\n* also add to the llm_tensor_names",
-      "tree": {
-        "sha": "728312dda4aa3eb204060f1d5924f385d5907ac0",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/728312dda4aa3eb204060f1d5924f385d5907ac0"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-      "comment_count": 0,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJn3zmDCRC1aQ7uu5UhlAAAONwQAIBFp0OvQ6nAJLmJClsQ0gth\nFDsHJwkleIfxMZElZJVJAdIte9xqExM3L0t3ojPlOOmvi26+Qf2gsgL/sMR27ukw\n8EnEU6gYp5nJYJCoJo+hL6uj5YqqiikfzzouMuKFW0rCz1lYLuhY37SWSJdqF2qP\n9ld+MJRR0A4anD9+qsvxcrndcNtOJfhNvbr14iaIvD/uBidW/uFV/1O37c3exFDn\neg73a9v2KwRDmJD2VTq0awSnpFqFl7UsVMLb0XlyMvdGewuGwgqrh9XANRNrGV5r\nVxSmmzc4txKTGus77V16rImxnef7r+n1j09ycxy330+JWGU4EqK419tm/BGJhPF0\n3R2BtAprFmgBv5f5XaT/8w5N39KYjF3p0OKr0cqPjl+QoVu868XNy1voeHbZAynF\nWPvYwTKRNmev3warasS1XSnfJg4Ihji5sAVndc5e4d7n7h/nTE9rJpgQ1ia88bj0\nCd2dZZggzUW7c6GXeC1vD3GTSVZFnKZSSoLjioMS+5EOqksYUuXwbNrCECBlgthX\nOulVhGP+x56MW3Gm5S+mAtBK+7tMld0T5cOsrqP1oHtzvo8cps7V9lfsHi5IX2jg\npSBQGGfpoiPZSuj3rqez1Gj3IY2lNupmiyz6iubKy4A7lYnvYL6kc1CYp3+xOx3U\nM4tOOUx5UEO4igWRBSMQ\n=RT85\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree 728312dda4aa3eb204060f1d5924f385d5907ac0\nparent ba932dfb50cc694645b1a148c72f8c06ee080b17\nauthor Xuan-Son Nguyen <son@huggingface.co> 1742682499 +0100\ncommitter GitHub <noreply@github.com> 1742682499 +0100\n\nllama : gemma3 : use output tensor if it exists in model weight (#12506)\n\n* llama : gemma3 : use output tensor if it exists in model weight\n\n* also add to the llm_tensor_names",
-        "verified_at": "2025-03-22T22:28:20Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/fbdfefe74e736f1a3687283c25ac21b11ba07b2e",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/fbdfefe74e736f1a3687283c25ac21b11ba07b2e/comments",
-    "author": {
-      "login": "ngxson",
-      "id": 7702203,
-      "node_id": "MDQ6VXNlcjc3MDIyMDM=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/7702203?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/ngxson",
-      "html_url": "https://github.com/ngxson",
-      "followers_url": "https://api.github.com/users/ngxson/followers",
-      "following_url": "https://api.github.com/users/ngxson/following{/other_user}",
-      "gists_url": "https://api.github.com/users/ngxson/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/ngxson/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/ngxson/subscriptions",
-      "organizations_url": "https://api.github.com/users/ngxson/orgs",
-      "repos_url": "https://api.github.com/users/ngxson/repos",
-      "events_url": "https://api.github.com/users/ngxson/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/ngxson/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "ba932dfb50cc694645b1a148c72f8c06ee080b17",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/ba932dfb50cc694645b1a148c72f8c06ee080b17",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/ba932dfb50cc694645b1a148c72f8c06ee080b17"
       }
     ]
   }
