@@ -109,6 +109,7 @@ class ModelConverter:
                             total_size += sum(f['size'] for f in safetensors_files)
                     except Exception as ls_err:
                         print(f"[DEBUG] Failed to list files in {path}: {str(ls_err)}")
+                        return 0
 
                 if not found_files:
                     print(f"[WARNING] No .safetensors files found for {model_id}")
