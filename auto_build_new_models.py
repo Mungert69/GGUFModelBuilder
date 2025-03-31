@@ -142,14 +142,31 @@ def analyze_commit(commit):
         logging.error(f"Failed to load model: {e}")
         exit(1)
 
-    commit_sha = commit.get("sha", "UNKNOWN_SHA")
+    commit_sha = commit.get("sha", "UNKNOWN_SHA")[:8]  # Shorten SHA for readability
     message = commit.get("commit", {}).get("message", "No commit message found")
     files = commit.get("files", [])
 
+    # Enhanced logging for commit info
+    logging.info(f"\n{'='*50}\nAnalyzing commit: {commit_sha}")
+    logging.info(f"Commit message preview: {message[:200]}...")  # First 200 chars
+    logging.info(f"Total files changed: {len(files)}")
+
     file_changes = extract_relevant_file_changes(files)
+    logging.info(f"Relevant files found: {len(file_changes)}")
+    for i, change in enumerate(file_changes[:3]):  # Show first 3 relevant files
+        logging.info(f"  {i+1}. {change['filename']}")
+        logging.info(f"     Changes preview: {change['patch_preview'][:100]}...")
+
     prompt_messages = build_commit_analysis_prompt(message, file_changes)
+    
+    # Log the system prompt (first message)
+    if prompt_messages and len(prompt_messages) > 0:
+        logging.debug("System prompt:")
+        for line in prompt_messages[0]['content'].split('\n')[:10]:  # First 10 lines
+            logging.debug(f"  {line}")
 
     try:
+        logging.info("Sending prompt to LLM...")
         llm_response = llm.create_chat_completion(
             messages=prompt_messages,
             max_tokens=MAX_TOKENS,
@@ -157,21 +174,37 @@ def analyze_commit(commit):
             grammar=grammar
         )
 
+        # Log full LLM response for debugging
+        logging.debug(f"Raw LLM response: {json.dumps(llm_response, indent=2)}")
+
         choice = llm_response.get("choices", [{}])[0]
         response_text = choice["message"].get("content", "").strip() if "message" in choice else choice.get("text", "").strip()
+        
+        # Log the raw response before parsing
+        logging.info(f"LLM raw response: {response_text[:200]}...")  # First 200 chars
         
         llm_output = parse_and_validate_llm_response(response_text)
         is_new_model = llm_output.get("is_new_model", False)
         model_name = llm_output.get("model_name_if_found", None)
+        confidence = llm_output.get("confidence", "unknown")
+        reason = llm_output.get("reason_for_answer", "No reason provided")
         
-        logging.info(f"LLM Decision: {is_new_model}")
+        logging.info(f"\nCommit Analysis Results:")
+        logging.info(f"  New model detected: {is_new_model}")
         if model_name:
-            logging.info(f"LLM Detected Model Name: {model_name}")
+            logging.info(f"  Model name: {model_name}")
+        logging.info(f"  Confidence: {confidence}")
+        logging.info(f"  Reason: {reason}")
+        logging.info(f"{'='*50}\n")
 
         return is_new_model, model_name
 
     except (json.JSONDecodeError, ValueError) as e:
         logging.error(f"Invalid LLM response format: {e}")
+        logging.error(f"Response that failed parsing: {response_text[:500]}...")  # First 500 chars
+        return False, None
+    except Exception as e:
+        logging.error(f"Unexpected error during LLM analysis: {e}")
         return False, None
 
 def extract_relevant_file_changes(files):
