@@ -211,7 +211,7 @@ class ModelConverter:
         try:
             print(f"Converting {model_id}...")
             scripts = [
-                ("download_convert.py", [model_id, model_id.split('/')[-1]]),
+                ("download_convert.py", [model_id]),
                 ("make_files.py", [model_id]),
                 ("upload-files.py", [model_id.split('/')[-1]])
             ]

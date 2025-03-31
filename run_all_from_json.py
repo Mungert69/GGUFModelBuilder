@@ -78,7 +78,7 @@ def process_model(model_id):
     company_name, model_name = model_id.split("/", 1)
     model_dir = os.path.join(base_dir, model_name)  # Directly use model's folder name
     # 1. Download and Convert (download_convert.py)
-    download_convert_args = [model_id, model_dir]  # Store in model_name directory
+    download_convert_args = [model_id]  # Store in model_name directory
     run_script("download_convert.py", download_convert_args)
 
     # 2. Quantize model (make_files.py)

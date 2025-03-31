@@ -13,6 +13,8 @@ load_dotenv()
 
 # Read the API token from the .env file
 api_token = os.getenv("HF_API_TOKEN")
+base_dir = os.path.expanduser("~/code/models")
+run_dir = os.path.abspath("./")
 
 if not api_token:
     print("Error: Hugging Face API token not found in .env file.")
@@ -29,17 +31,16 @@ except Exception as e:
 # Parse arguments
 parser = argparse.ArgumentParser(description="Download HF model and convert to BF16 GGUF")
 parser.add_argument("repo_id", help="Hugging Face repository ID (e.g., google/gemma-3-1b-it)")
-parser.add_argument("output_dir", help="Directory to store downloaded and converted files")
 args = parser.parse_args()
 
 repo_id = args.repo_id
-output_dir = os.path.abspath(args.output_dir)
-os.makedirs(output_dir, exist_ok=True)
 llama_dir = os.path.expanduser("~/code/models/llama.cpp")
 
 # Define the final BF16 file path
-model_base_name = repo_id.split("/")[-1]
-bf16_output_file = os.path.join(output_dir, f"{model_base_name}-bf16.gguf")
+company_name, model_name = repo_id.split("/", 1)
+output_dir = os.path.join(base_dir,model_name)
+os.makedirs(output_dir, exist_ok=True)
+bf16_output_file = os.path.join(output_dir, f"{model_name}-bf16.gguf")
 
 # Check if the final BF16 file already exists
 if os.path.exists(bf16_output_file):
@@ -91,7 +92,7 @@ for file_name in files:
 bf16_model_path = None
 for file_path in downloaded_files:
     if file_path.endswith(".gguf") and "bf16" in file_path:
-        bf16_model_path = file_path
+        bf16_model_path = f"{output_dir}/{file_path}"
         break
 
 if not bf16_model_path:
@@ -105,7 +106,7 @@ if not bf16_model_path:
         "python3", convert_script_path,
         model_snapshot_dir,
         "--outfile", bf16_output_file,
-        "--model-name", model_base_name,
+        "--model-name", model_name,
         "--outtype", "bf16"
     ]
     
@@ -122,7 +123,7 @@ if not bf16_model_path:
 # Add metadata using the imported function
 try:
     print("\nAdding metadata to the BF16 GGUF file...")
-    add_metadata(Path(bf16_output_file))  # Convert string to Path object
+    add_metadata(bf16_output_file)  # Convert string to Path object
 except Exception as e:
     print(f"Failed to add metadata: {e}")
     exit(1)  # Explicitly indicate failure
