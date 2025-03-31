@@ -197,6 +197,30 @@ class ModelConverter:
                 
                 if not self.model_catalog.add_model(model_id, new_entry):
                     print(f"Model {model_id} already exists in Redis")
+    def cleanup_hf_cache(self, model_id):
+        """Clean up Hugging Face cache folders for a specific model"""
+        model_name = model_id.replace('/', '--')  # HF uses -- instead of / in cache paths
+        cache_dir = self.HF_CACHE_DIR
+        
+        if not cache_dir.exists():
+            print(f"No cache directory found at {cache_dir}")
+            return
+        
+        deleted = False
+        for entry in cache_dir.iterdir():
+            if model_name in entry.name:
+                try:
+                    if entry.is_dir():
+                        shutil.rmtree(entry)
+                    else:
+                        entry.unlink()
+                    print(f"Deleted cache entry: {entry}")
+                    deleted = True
+                except Exception as e:
+                    print(f"Failed to delete {entry}: {e}")
+        
+        if not deleted:
+            print(f"No cache entries found for {model_id}")
 
     def convert_model(self, model_id):
         """Run conversion pipeline using the run_script function"""
@@ -235,7 +259,10 @@ class ModelConverter:
         except Exception as e:
             model_data["error_log"].append(str(e))
             print(f"Conversion failed for {model_id}: {e}")
-        
+        # Clean up cache if we've reached max attempts
+        if model_data["attempts"] >= self.MAX_ATTEMPTS or model_data["converted"]:
+            print(f"Max attempts reached for {model_id}, cleaning cache...")
+            self.cleanup_hf_cache(model_id)        
         # Update the model in Redis
         self.model_catalog.update_model_field(
             model_id,
