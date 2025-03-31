@@ -9,6 +9,11 @@ from llama_cpp import Llama, LlamaGrammar
 from huggingface_hub import HfApi
 from dotenv import load_dotenv
 from redis_utils import init_redis_catalog  # Import our Redis utility
+# Configure logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    level=logging.INFO
+)
 
 # Load the .env file
 load_dotenv()
@@ -25,56 +30,38 @@ model_catalog = init_redis_catalog(
     user=REDIS_USER,
     ssl=True
 )
+# Test Redis connection
+try:
+    ping_response = model_catalog.r.ping()
+    logging.info(f"Redis connection test: {'Success' if ping_response else 'Failed'}")
+except Exception as e:
+    logging.error(f"Redis connection failed: {e}")
+    exit(1)
 
-model_catalog.initialize_from_file("model_catalog.json")
-
-# ... (previous imports and setup code remains the same)
-
-model_catalog.initialize_from_file("model_catalog.json")
-
-# Verification step
+# Verification step - print Redis catalog content
 try:
     # Load back the catalog from Redis
     redis_catalog = model_catalog.load_catalog()
     
-    # Load the original file for comparison
-    with open("model_catalog.json") as f:
-        file_catalog = json.load(f)
+    # Print the entire Redis catalog
+    logging.info("Current Redis catalog content:")
+    logging.info("="*50)
+    for model_id, model_data in redis_catalog.items():
+        logging.info(f"Model ID: {model_id}")
+        # Pretty-print the model data with 2-space indentation
+        formatted_data = json.dumps(model_data, indent=2)
+        for line in formatted_data.split('\n'):
+            logging.info(line)
+        logging.info("-"*50)
     
-    # Compare counts
-    redis_count = len(redis_catalog)
-    file_count = len(file_catalog)
+    logging.info(f"Total models in Redis: {len(redis_catalog)}")
     
-    logging.info(f"Verification: Redis contains {redis_count} models, file contains {file_count} models")
-    
-    if redis_count == file_count:
-        logging.info("✅ Catalog successfully written to Redis")
-    else:
-        logging.warning(f"⚠️ Count mismatch: Redis has {redis_count} models, expected {file_count}")
-        
-    # Spot check a few models
-    test_models = ["google/gemma-3-4b-it", "mistralai/Mistral-7B-Instruct-v0.3"]
-    for model_id in test_models:
-        redis_model = redis_catalog.get(model_id)
-        file_model = file_catalog.get(model_id)
-        
-        if redis_model and file_model and redis_model == file_model:
-            logging.info(f"✅ {model_id} matches between Redis and file")
-        else:
-            logging.warning(f"⚠️ Mismatch found for {model_id}")
-            
 except Exception as e:
-    logging.error(f"Verification failed: {e}")
-
+    logging.error(f"Failed to load Redis catalog: {e}")
 
 # Read other config from .env
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
-# Configure logging
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
 
 # GitHub API settings
 GITHUB_REPO = "ggml-org/llama.cpp"
