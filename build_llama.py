@@ -70,11 +70,17 @@ def apply_patch():
         os.chdir(original_dir)
 
 def prepare_repo():
-    """Clean and update repository"""
-    print("Resetting repository...")
+    """Forcefully clean and update repository"""
+    print("Forcefully resetting repository...")
+    # First, stash any changes (including untracked files)
+    run_command(["git", "stash", "--include-untracked", "--all"], cwd=llama_cpp_dir)
+    # Then discard the stash
+    run_command(["git", "stash", "drop"], cwd=llama_cpp_dir)
+    # Reset any remaining changes
     run_command(["git", "reset", "--hard", "HEAD"], cwd=llama_cpp_dir)
-    print("Cleaning untracked files...")
+    # Clean any remaining untracked files
     run_command(["git", "clean", "-fd"], cwd=llama_cpp_dir)
+    # Now pull the latest changes
     print("Pulling latest changes...")
     run_command(["git", "pull"], cwd=llama_cpp_dir)
 
