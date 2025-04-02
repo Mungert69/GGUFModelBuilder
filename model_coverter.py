@@ -232,6 +232,18 @@ class ModelConverter:
         model_data["attempts"] += 1
         model_data["last_attempt"] = datetime.now().isoformat()
 
+        # First update the attempt count and last attempt time
+        self.model_catalog.update_model_field(
+            model_id,
+            "attempts",
+            model_data["attempts"]
+        )
+        self.model_catalog.update_model_field(
+            model_id,
+            "last_attempt",
+            model_data["last_attempt"]
+        )
+
         success = True
         try:
             print(f"Converting {model_id}...")
@@ -248,33 +260,14 @@ class ModelConverter:
                     success = False
                     break
 
-            if success:
-                model_data["converted"] = True
-                model_data["success_date"] = datetime.now().isoformat()
-                model_data["error_log"] = []
-                print(f"Successfully converted {model_id}.")
-            else:
-                print(f"Conversion failed for {model_id} due to script errors.")
-
         except Exception as e:
             model_data["error_log"].append(str(e))
             print(f"Conversion failed for {model_id}: {e}")
-        # Clean up cache if we've reached max attempts
-        if model_data["attempts"] >= self.MAX_ATTEMPTS or model_data["converted"]:
-            print(f"Max attempts reached for {model_id}, cleaning cache...")
-            self.cleanup_hf_cache(model_id)        
-        # Update the model in Redis
-        self.model_catalog.update_model_field(
-            model_id,
-            "attempts",
-            model_data["attempts"]
-        )
-        self.model_catalog.update_model_field(
-            model_id,
-            "last_attempt",
-            model_data["last_attempt"]
-        )
+            success = False
+
+        # Update converted status and success date if successful
         if success:
+            print(f"Successfully converted {model_id}.")
             self.model_catalog.update_model_field(
                 model_id,
                 "converted",
@@ -283,8 +276,21 @@ class ModelConverter:
             self.model_catalog.update_model_field(
                 model_id,
                 "success_date",
-                model_data["success_date"]
+                datetime.now().isoformat()
             )
+            # Clear error log on success
+            self.model_catalog.update_model_field(
+                model_id,
+                "error_log",
+                []
+            )
+        else:
+            print(f"Conversion failed for {model_id}.")
+
+        # Clean up cache if we've reached max attempts or succeeded
+        if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
+            print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
+            self.cleanup_hf_cache(model_id)
 
     def run_conversion_cycle(self):
         """Process all unconverted models in batch"""
