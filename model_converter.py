@@ -261,30 +261,20 @@ class ModelConverter:
                     print(f"Model {model_id} already exists in Redis")
 
     def cleanup_hf_cache(self, model_id):
-        """Clean up Hugging Face cache folders for a specific model"""
-        
+        """Simple cache cleanup using system rm -rf command"""
         model_name = model_id.replace('/', '--')  # HF uses -- instead of / in cache paths
-        cache_dir = Path(self.HF_CACHE_DIR)
+        cache_path = os.path.join(self.HF_CACHE_DIR, f"models--{model_name}")
         
-        if not cache_dir.exists():
-            print(f"No cache directory found at {cache_dir}")
+        if not os.path.exists(cache_path):
+            print(f"No cache directory found at {cache_path}")
             return
         
-        deleted = False
-        for entry in cache_dir.iterdir():
-            if model_name in entry.name:
-                try:
-                    if entry.is_dir():
-                        shutil.rmtree(entry)
-                    else:
-                        entry.unlink()
-                    print(f"Deleted cache entry: {entry}")
-                    deleted = True
-                except Exception as e:
-                    print(f"Failed to delete {entry}: {e}")
-        
-        if not deleted:
-            print(f"No cache entries found for {model_id}")
+        try:
+            # Use system command for more reliable deletion
+            subprocess.run(["rm", "-rf", cache_path], check=True)
+            print(f"Successfully deleted cache directory: {cache_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to delete cache directory {cache_path}: {e}")
 
     def convert_model(self, model_id):
         """Run conversion pipeline using the run_script function"""
