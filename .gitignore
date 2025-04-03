@@ -359,3 +359,5 @@ main.log
 /venv/*
 .env
 __pycache__
+models.json
+quant_configs.json
