@@ -6,6 +6,29 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+def import_models(catalog):
+    """UI handler for model imports"""
+    print("\n=== Import Models ===")
+    file_path = input("Enter path to JSON file containing models: ")
+    
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            models_to_import = data.get('models', [])
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return
+    
+    if not models_to_import:
+        print("No models found in the file!")
+        return
+    
+    print(f"\nFound {len(models_to_import)} models in the file")
+    result = catalog.import_models_from_list(models_to_import)
+    
+    print(f"\nImport completed:")
+    print(f"- {result['added']} new models added")
+    print(f"- {result['updated']} existing models updated")
 
 def initialize_catalog():
     """Initialize Redis connection"""
@@ -198,7 +221,8 @@ def main():
         print("2. Edit a model by exact ID")
         print("3. Backup catalog to file")
         print("4. Restore catalog from file")
-        print("5. Exit")
+        print("5. Import models from JSON")
+        print("6. Exit")
         
         choice = input("Choose an option: ")
         
@@ -241,8 +265,9 @@ def main():
                     print("Restore successful!")
                 else:
                     print("Restore failed!")
-                    
         elif choice == '5':
+            import_models(catalog)
+        elif choice == '6':
             print("Exiting...")
             break
             

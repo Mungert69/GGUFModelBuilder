@@ -163,6 +163,66 @@ class RedisModelCatalog:
             logging.error(f"Initialization failed: {e}")
             return False
 
+    def import_models_from_list(self, model_ids: list, defaults: Optional[dict] = None) -> dict:
+        """
+        Import multiple models from a list, marking them as converted.
+        
+        Args:
+            model_ids: List of model IDs to import
+            defaults: Optional default values for new models
+            
+        Returns:
+            dict: Summary of operations {'added': x, 'updated': y}
+        """
+        if not defaults:
+            defaults = {
+                'converted': True,
+                'added': datetime.now().isoformat(),
+                'parameters': 0,
+                'has_config': False,
+                'attempts': 0,
+                'error_log': [],
+                'quantizations': []
+            }
+        
+        added = 0
+        updated = 0
+        
+        def _process_batch():
+            nonlocal added, updated
+            with self.r.pipeline() as pipe:
+                while True:
+                    try:
+                        pipe.watch(self.catalog_key)
+                        current_catalog = {
+                            k: json.loads(v) 
+                            for k, v in pipe.hgetall(self.catalog_key).items()
+                        }
+                        
+                        for model_id in model_ids:
+                            if model_id in current_catalog:
+                                # Update existing if needed
+                                if not current_catalog[model_id].get('converted', False):
+                                    current_catalog[model_id]['converted'] = True
+                                    updated += 1
+                            else:
+                                # Add new entry
+                                current_catalog[model_id] = defaults.copy()
+                                added += 1
+                        
+                        # Update Redis in one operation
+                        pipe.multi()
+                        pipe.delete(self.catalog_key)
+                        if current_catalog:
+                            for model_id, model_data in current_catalog.items():
+                                pipe.hset(self.catalog_key, model_id, json.dumps(model_data))
+                        pipe.execute()
+                        break
+                    except WatchError:
+                        continue
+        
+        self._safe_operation(_process_batch)
+        return {'added': added, 'updated': updated}
 
 # Singleton instance (configure in your main script)
 model_catalog = None
