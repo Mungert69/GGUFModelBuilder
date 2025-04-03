@@ -11,11 +11,6 @@ DOCKER_IMAGE_FULL=$(grep 'image:' $DOCKER_COMPOSE_FILE | awk '{ print $2 }')
 DOCKER_IMAGE_NAME=$(echo $DOCKER_IMAGE_FULL | cut -d':' -f1)  # Extracts only the name, without the tag
 DOCKER_IMAGE_TAG=$(echo $DOCKER_IMAGE_FULL | cut -d':' -f2)  # Extracts only the tag, without the name
 echo "Docker Image Full is $DOCKER_IMAGE_FULL . Name is $DOCKER_IMAGE_NAME ."
-# Step 1: Pull the latest code from GitHub
-if ! git pull "$REPO_URL"; then
-    echo "Failed to pull from GitHub repository. Exiting..."
-    exit 1
-fi
 
 # Step 2: Build and publish the Docker container
 if ! dotnet publish NetworkMonitorProcessor-debian12.csproj --os linux --arch x64 -c Release; then
