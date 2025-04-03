@@ -5,6 +5,8 @@ import requests
 import subprocess
 import threading
 import sys
+import shutil
+from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 from make_files import get_model_size
@@ -248,10 +250,12 @@ class ModelConverter:
                 
                 if not self.model_catalog.add_model(model_id, new_entry):
                     print(f"Model {model_id} already exists in Redis")
+
     def cleanup_hf_cache(self, model_id):
         """Clean up Hugging Face cache folders for a specific model"""
+        
         model_name = model_id.replace('/', '--')  # HF uses -- instead of / in cache paths
-        cache_dir = self.HF_CACHE_DIR
+        cache_dir = Path(self.HF_CACHE_DIR)
         
         if not cache_dir.exists():
             print(f"No cache directory found at {cache_dir}")
