@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Search Models</h2>
+<form method="POST">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <select name="search_type" class="form-select">
+                <option value="id">Model ID</option>
+                <option value="all">All Fields</option>
+                {% if fields %}
+                    <optgroup label="Specific Fields">
+                    {% for field in fields %}
+                        <option value="field">{{ field }}</option>
+                    {% endfor %}
+                    </optgroup>
+                {% endif %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" name="search_term" class="form-control" 
+                   placeholder="Search term...">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
+
+{% if results %}
+<hr>
+<h4>Results ({{ results|length }})</h4>
+<div class="list-group">
+    {% for model_id, data in results %}
+    <a href="/edit/{{ model_id }}" class="list-group-item list-group-item-action">
+        {{ model_id }}
+        <small class="text-muted">
+            {% if data.converted %}
+                <span class="badge bg-success">Converted</span>
+            {% else %}
+                <span class="badge bg-warning">Pending</span>
+            {% endif %}
+        </small>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

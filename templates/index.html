@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Model Catalog</h2>
+
+{% if not models %}
+<div class="alert alert-warning">
+    No models found or Redis not configured. Check your <a href="/settings">settings</a>.
+</div>
+{% else %}
+<div class="list-group mt-3">
+    {% for model_id, data in models %}
+    <a href="/edit/{{ model_id }}" class="list-group-item list-group-item-action">
+        {{ model_id }}
+        <span class="badge bg-{{ 'success' if data.converted else 'warning' }} float-end">
+            {{ 'Converted' if data.converted else 'Pending' }}
+        </span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="/search" class="btn btn-primary me-2">Search Models</a>
+    <a href="/import" class="btn btn-secondary">Import Models</a>
+</div>
+{% endblock %}
