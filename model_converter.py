@@ -2,8 +2,10 @@ import os
 import json
 import time
 import requests
+import subprocess
+import threading
+import sys
 from datetime import datetime
-from run_all_from_json import run_script
 from dotenv import load_dotenv
 from make_files import get_model_size
 from huggingface_hub import HfApi, HfFileSystem, login
@@ -13,6 +15,7 @@ from redis_utils import init_redis_catalog
 load_dotenv()
 
 class ModelConverter:
+
     def __init__(self):
         # Initialize Redis connection
         REDIS_HOST = os.getenv("REDIS_HOST", "redis.freenetworkmonitor.click")
@@ -38,7 +41,8 @@ class ModelConverter:
 
         self.hf_token = os.getenv("HF_API_TOKEN")
         self.MAX_PARAMETERS = 9e9  # 9 billion parameters
-        
+        self.MAX_ATTEMPTS = 3        
+        self.HF_CACHE_DIR = os.path.expanduser("~/.cache/huggingface/hub")
         # Authenticate with Hugging Face Hub
         if not self.hf_token:
             print("Error: Hugging Face API token not found in .env file.")
@@ -52,6 +56,53 @@ class ModelConverter:
         
         self.api = HfApi()
         self.fs = HfFileSystem()
+    def run_script(self, script_name, args):
+        """Runs a script with arguments and streams output in real time.
+        Returns True if the script succeeds, False otherwise."""
+        script_path = os.path.join(os.getcwd(), script_name)  # Ensure absolute path
+        if not os.path.exists(script_path):
+            print(f"Error: Script {script_name} not found at {script_path}")
+            return False  # Indicate failure
+
+        print(f"\nRunning {script_name} with arguments: {args}")
+
+        # Run the script with real-time output streaming
+        process = subprocess.Popen(
+            ["python3", script_path] + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=-1,  # Use default buffering
+            universal_newlines=False  # Read output as raw bytes
+        )
+
+        # Function to read and print output in real time
+        def read_output(pipe, is_stderr=False):
+            for line in iter(pipe.readline, b''):  # Read bytes
+                if is_stderr:
+                    sys.stderr.buffer.write(line)  # Write binary to stderr
+                else:
+                    sys.stdout.buffer.write(line)  # Write binary to stdout
+                sys.stdout.flush()
+            pipe.close()
+
+        # Start threads to read stdout and stderr
+        stdout_thread = threading.Thread(target=read_output, args=(process.stdout,))
+        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, True))
+        stdout_thread.start()
+        stderr_thread.start()
+
+        # Wait for the process to complete
+        process.wait()
+        stdout_thread.join()
+        stderr_thread.join()
+
+        exit_code = process.returncode
+        if exit_code != 0:
+            print(f"\nError running {script_name}, exited with code {exit_code}")
+            return False  # Indicate failure
+        else:
+            print(f"Successfully ran {script_name}")
+            return True  # Indicate success
 
     def load_catalog(self):
         """Load catalog from Redis"""
@@ -255,7 +306,7 @@ class ModelConverter:
 
             for script_name, script_args in scripts:
                 print(f"Running {script_name}...")
-                if not run_script(script_name, script_args):
+                if not self.run_script(script_name, script_args):
                     print(f"Script {script_name} failed.")
                     success = False
                     break
@@ -302,7 +353,7 @@ class ModelConverter:
             for model_id, entry in current_catalog.items():
                 parameters = entry.get("parameters", -1)
 
-                if entry["converted"] or entry["attempts"] >= 3 or parameters > self.MAX_PARAMETERS or parameters == -1:
+                if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
                     print(f"Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
                     continue
 
