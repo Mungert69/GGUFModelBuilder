@@ -6,6 +6,29 @@ from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+def import_models(catalog):
+    """UI handler for model imports"""
+    print("\n=== Import Models ===")
+    file_path = input("Enter path to JSON file containing models: ")
+    
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            models_to_import = data.get('models', [])
+    except Exception as e:
+        print(f"Error loading file: {e}")
+        return
+    
+    if not models_to_import:
+        print("No models found in the file!")
+        return
+    
+    print(f"\nFound {len(models_to_import)} models in the file")
+    result = catalog.import_models_from_list(models_to_import)
+    
+    print(f"\nImport completed:")
+    print(f"- {result['added']} new models added")
+    print(f"- {result['updated']} existing models updated")
 
 def initialize_catalog():
     """Initialize Redis connection"""
@@ -32,23 +55,111 @@ def initialize_catalog():
     )
 
 def search_models(catalog):
-    """Search models in catalog"""
+    """Two-level search: first select field, then search term"""
     print("\n=== Search Models ===")
-    search_term = input("Enter search term (leave empty for all): ")
     
+    # Load all models first
     all_models = catalog.load_catalog()
     if not all_models:
         print("No models found in catalog!")
         return []
     
-    matched_models = []
-    for model_id, data in all_models.items():
-        if not search_term or search_term.lower() in model_id.lower():
-            matched_models.append((model_id, data))
+    # Get all possible fields from the first model (assuming consistent schema)
+    sample_model = next(iter(all_models.values()))
+    available_fields = list(sample_model.keys())
     
+    print("\nAvailable search fields:")
+    for i, field in enumerate(available_fields, 1):
+        print(f"{i}. {field}")
+    print("a. Search ALL fields (slower)")
+    print("i. Search just model IDs (fastest)")
+    
+    field_choice = input("\nChoose field to search (number/a/i): ").lower()
+    
+    # Validate field selection
+    selected_field = None
+    if field_choice == 'a':
+        search_type = "all"
+    elif field_choice == 'i':
+        search_type = "id"
+    else:
+        try:
+            field_num = int(field_choice) - 1
+            if 0 <= field_num < len(available_fields):
+                selected_field = available_fields[field_num]
+                search_type = "specific"
+            else:
+                print("Invalid field number!")
+                return []
+        except ValueError:
+            print("Invalid choice!")
+            return []
+    
+    # Get search term
+    search_term = input(f"\nEnter search term for {selected_field or search_type} (leave empty for all): ").lower()
+    
+    matched_models = []
+    
+    for model_id, model_data in all_models.items():
+        # Always include if no search term
+        if not search_term:
+            matched_models.append((model_id, model_data))
+            continue
+            
+        # ID-only search
+        if search_type == "id":
+            if search_term in model_id.lower():
+                matched_models.append((model_id, model_data))
+        
+        # Specific field search
+        elif search_type == "specific":
+            field_value = model_data.get(selected_field, "")
+            
+            # Handle different field types
+            if isinstance(field_value, (list, dict)):
+                try:
+                    str_value = json.dumps(field_value).lower()
+                except:
+                    str_value = str(field_value).lower()
+            else:
+                str_value = str(field_value).lower()
+                
+            if search_term in str_value:
+                matched_models.append((model_id, model_data))
+        
+        # Full catalog search
+        else:
+            match_found = False
+            if search_term in model_id.lower():
+                matched_models.append((model_id, model_data))
+                continue
+                
+            for field, value in model_data.items():
+                if isinstance(value, (list, dict)):
+                    try:
+                        if search_term in json.dumps(value).lower():
+                            match_found = True
+                            break
+                    except:
+                        if search_term in str(value).lower():
+                            match_found = True
+                            break
+                elif search_term in str(value).lower():
+                    match_found = True
+                    break
+                    
+            if match_found:
+                matched_models.append((model_id, model_data))
+    
+    # Display results
     print(f"\nFound {len(matched_models)} models:")
-    for i, (model_id, _) in enumerate(matched_models, 1):
+    for i, (model_id, model_data) in enumerate(matched_models, 1):
         print(f"{i}. {model_id}")
+        if search_term and search_type == "specific":
+            value = model_data.get(selected_field, "")
+            if isinstance(value, (list, dict)):
+                value = json.dumps(value)
+            print(f"   {selected_field}: {str(value)[:100]}{'...' if len(str(value)) > 100 else ''}")
     
     return matched_models
 
@@ -198,7 +309,8 @@ def main():
         print("2. Edit a model by exact ID")
         print("3. Backup catalog to file")
         print("4. Restore catalog from file")
-        print("5. Exit")
+        print("5. Import models from JSON")
+        print("6. Exit")
         
         choice = input("Choose an option: ")
         
@@ -241,8 +353,9 @@ def main():
                     print("Restore successful!")
                 else:
                     print("Restore failed!")
-                    
         elif choice == '5':
+            import_models(catalog)
+        elif choice == '6':
             print("Exiting...")
             break
             

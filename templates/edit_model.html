@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Editing {{ model_id }}</h2>
+
+<div class="card">
+    <form method="POST">
+        <div class="card-body">
+            {% for field, value in model.items() %}
+            <div class="mb-3">
+                <label class="form-label">{{ field }}</label>
+                
+                {% if field in ['error_log', 'quantizations'] %}
+                <textarea class="form-control" name="{{ field }}" rows="3">{{ value|tojson|safe }}</textarea>
+                {% elif field == 'converted' %}
+                <select class="form-select" name="{{ field }}">
+                    <option value="true" {{ 'selected' if value }}>True</option>
+                    <option value="false" {{ 'selected' if not value }}>False</option>
+                </select>
+                {% else %}
+                <input type="text" class="form-control" name="{{ field }}" 
+                       value="{{ value if value is not none else '' }}">
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/" class="btn btn-secondary">Cancel</a>
+            <button type="button" class="btn btn-danger float-end" 
+                    onclick="if(confirm('Delete this model?')){ fetch('/delete/{{ model_id }}', {method:'POST'}).then(()=>window.location='/') }">
+                Delete
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

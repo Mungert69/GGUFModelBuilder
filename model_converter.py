@@ -2,8 +2,12 @@ import os
 import json
 import time
 import requests
+import subprocess
+import threading
+import sys
+import shutil
+from pathlib import Path
 from datetime import datetime
-from run_all_from_json import run_script
 from dotenv import load_dotenv
 from make_files import get_model_size
 from huggingface_hub import HfApi, HfFileSystem, login
@@ -13,6 +17,7 @@ from redis_utils import init_redis_catalog
 load_dotenv()
 
 class ModelConverter:
+
     def __init__(self):
         # Initialize Redis connection
         REDIS_HOST = os.getenv("REDIS_HOST", "redis.freenetworkmonitor.click")
@@ -38,7 +43,8 @@ class ModelConverter:
 
         self.hf_token = os.getenv("HF_API_TOKEN")
         self.MAX_PARAMETERS = 9e9  # 9 billion parameters
-        
+        self.MAX_ATTEMPTS = 3        
+        self.HF_CACHE_DIR = os.path.expanduser("~/.cache/huggingface/hub")
         # Authenticate with Hugging Face Hub
         if not self.hf_token:
             print("Error: Hugging Face API token not found in .env file.")
@@ -52,6 +58,62 @@ class ModelConverter:
         
         self.api = HfApi()
         self.fs = HfFileSystem()
+    def run_script(self, script_name, args):
+        """Runs a script with arguments and streams output in real time.
+        Returns True if the script succeeds, False otherwise."""
+        script_path = os.path.join(os.getcwd(), script_name)
+        if not os.path.exists(script_path):
+            print(f"Error: Script {script_name} not found at {script_path}")
+            return False
+
+        print(f"\nRunning {script_name} with arguments: {args}")
+
+        # Collect all output for error reporting
+        output_lines = []
+        error_lines = []
+
+        process = subprocess.Popen(
+            ["python3", script_path] + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=1,  # Line buffering
+            universal_newlines=True  # Read as text
+        )
+
+        # Read output in real time while also collecting it
+        def read_output(pipe, collection, is_stderr=False):
+            for line in iter(pipe.readline, ''):
+                collection.append(line)
+                if is_stderr:
+                    sys.stderr.write(line)
+                else:
+                    sys.stdout.write(line)
+                sys.stdout.flush()
+            pipe.close()
+
+        stdout_thread = threading.Thread(
+            target=read_output,
+            args=(process.stdout, output_lines)
+        )
+        stderr_thread = threading.Thread(
+            target=read_output,
+            args=(process.stderr, error_lines, True)
+        )
+        
+        stdout_thread.start()
+        stderr_thread.start()
+
+        process.wait()
+        stdout_thread.join()
+        stderr_thread.join()
+
+        exit_code = process.returncode
+        if exit_code != 0:
+            print(f"\nError running {script_name}, exited with code {exit_code}")
+            print("Error output:")
+            print(''.join(error_lines))
+            return False
+        return True
 
     def load_catalog(self):
         """Load catalog from Redis"""
@@ -197,30 +259,22 @@ class ModelConverter:
                 
                 if not self.model_catalog.add_model(model_id, new_entry):
                     print(f"Model {model_id} already exists in Redis")
+
     def cleanup_hf_cache(self, model_id):
-        """Clean up Hugging Face cache folders for a specific model"""
+        """Simple cache cleanup using system rm -rf command"""
         model_name = model_id.replace('/', '--')  # HF uses -- instead of / in cache paths
-        cache_dir = self.HF_CACHE_DIR
+        cache_path = os.path.join(self.HF_CACHE_DIR, f"models--{model_name}")
         
-        if not cache_dir.exists():
-            print(f"No cache directory found at {cache_dir}")
+        if not os.path.exists(cache_path):
+            print(f"No cache directory found at {cache_path}")
             return
         
-        deleted = False
-        for entry in cache_dir.iterdir():
-            if model_name in entry.name:
-                try:
-                    if entry.is_dir():
-                        shutil.rmtree(entry)
-                    else:
-                        entry.unlink()
-                    print(f"Deleted cache entry: {entry}")
-                    deleted = True
-                except Exception as e:
-                    print(f"Failed to delete {entry}: {e}")
-        
-        if not deleted:
-            print(f"No cache entries found for {model_id}")
+        try:
+            # Use system command for more reliable deletion
+            subprocess.run(["rm", "-rf", cache_path], check=True)
+            print(f"Successfully deleted cache directory: {cache_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to delete cache directory {cache_path}: {e}")
 
     def convert_model(self, model_id):
         """Run conversion pipeline using the run_script function"""
@@ -255,7 +309,7 @@ class ModelConverter:
 
             for script_name, script_args in scripts:
                 print(f"Running {script_name}...")
-                if not run_script(script_name, script_args):
+                if not self.run_script(script_name, script_args):
                     print(f"Script {script_name} failed.")
                     success = False
                     break
@@ -302,7 +356,7 @@ class ModelConverter:
             for model_id, entry in current_catalog.items():
                 parameters = entry.get("parameters", -1)
 
-                if entry["converted"] or entry["attempts"] >= 3 or parameters > self.MAX_PARAMETERS or parameters == -1:
+                if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
                     print(f"Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
                     continue
 

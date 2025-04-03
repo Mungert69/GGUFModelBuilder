@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Import Models</h2>
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="modelFile" class="form-label">Models JSON File</label>
+                <input class="form-control" type="file" id="modelFile" name="file" accept=".json" required>
+                <div class="form-text">Upload a JSON file with model IDs in format: {"models": ["org/model1", "org/model2"]}</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Import</button>
+        </form>
+    </div>
+</div>
+
+{% if imported_count %}
+<div class="alert alert-success mt-3">
+    Successfully imported {{ imported_count }} models
+</div>
+{% endif %}
+{% endblock %}
