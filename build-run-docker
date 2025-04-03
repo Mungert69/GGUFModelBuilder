@@ -17,7 +17,7 @@ if ! dotnet publish NetworkMonitorProcessor-debian12.csproj --os linux --arch x6
     echo "Failed to publish the Docker container. Exiting..."
     exit 1
 fi
-cp ~/code/NetworkMonitorProcessor/bin/Release/net9.0/linux-x64/NetworkMonitor.dll ~/code/NetworkMonitorProcessor/openssl-3.3.1/bin/dlls/
+cp ~/code/NetworkMonitorProcessor/bin/Release/net9.0/linux-x64/NetworkMonitor.dll ~/code/NetworkMonitorProcessor/openssl-3.4.2/bin/dlls/
 if ! dotnet publish NetworkMonitorProcessor-debian12.csproj --os linux --arch x64 /t:PublishContainer -c Release; then
     echo "Failed to publish the Docker container. Exiting..."
     exit 1
