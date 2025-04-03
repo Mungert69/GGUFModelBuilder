@@ -1,6 +1,9 @@
 {
   "models": [
-          "Qwen/Qwen2.5-VL-72B-Instruct"
+          "Qwen/Qwen2.5-VL-72B-Instruct",
+	  "meta-llama/Llama-3.1-70B-Instruct",
+"meta-llama/Llama-3.3-70B-Instruct"
+
   ]
 
 }
