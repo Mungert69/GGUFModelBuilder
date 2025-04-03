@@ -61,39 +61,48 @@ class ModelConverter:
     def run_script(self, script_name, args):
         """Runs a script with arguments and streams output in real time.
         Returns True if the script succeeds, False otherwise."""
-        script_path = os.path.join(os.getcwd(), script_name)  # Ensure absolute path
+        script_path = os.path.join(os.getcwd(), script_name)
         if not os.path.exists(script_path):
             print(f"Error: Script {script_name} not found at {script_path}")
-            return False  # Indicate failure
+            return False
 
         print(f"\nRunning {script_name} with arguments: {args}")
 
-        # Run the script with real-time output streaming
+        # Collect all output for error reporting
+        output_lines = []
+        error_lines = []
+
         process = subprocess.Popen(
             ["python3", script_path] + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            bufsize=-1,  # Use default buffering
-            universal_newlines=False  # Read output as raw bytes
+            bufsize=1,  # Line buffering
+            universal_newlines=True  # Read as text
         )
 
-        # Function to read and print output in real time
-        def read_output(pipe, is_stderr=False):
-            for line in iter(pipe.readline, b''):  # Read bytes
+        # Read output in real time while also collecting it
+        def read_output(pipe, collection, is_stderr=False):
+            for line in iter(pipe.readline, ''):
+                collection.append(line)
                 if is_stderr:
-                    sys.stderr.buffer.write(line)  # Write binary to stderr
+                    sys.stderr.write(line)
                 else:
-                    sys.stdout.buffer.write(line)  # Write binary to stdout
+                    sys.stdout.write(line)
                 sys.stdout.flush()
             pipe.close()
 
-        # Start threads to read stdout and stderr
-        stdout_thread = threading.Thread(target=read_output, args=(process.stdout,))
-        stderr_thread = threading.Thread(target=read_output, args=(process.stderr, True))
+        stdout_thread = threading.Thread(
+            target=read_output,
+            args=(process.stdout, output_lines)
+        )
+        stderr_thread = threading.Thread(
+            target=read_output,
+            args=(process.stderr, error_lines, True)
+        )
+        
         stdout_thread.start()
         stderr_thread.start()
 
-        # Wait for the process to complete
         process.wait()
         stdout_thread.join()
         stderr_thread.join()
@@ -101,10 +110,10 @@ class ModelConverter:
         exit_code = process.returncode
         if exit_code != 0:
             print(f"\nError running {script_name}, exited with code {exit_code}")
-            return False  # Indicate failure
-        else:
-            print(f"Successfully ran {script_name}")
-            return True  # Indicate success
+            print("Error output:")
+            print(''.join(error_lines))
+            return False
+        return True
 
     def load_catalog(self):
         """Load catalog from Redis"""
