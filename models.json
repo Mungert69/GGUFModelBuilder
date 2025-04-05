@@ -1,6 +1,5 @@
 {
   "models": [
-<<<<<<< HEAD
 	    "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
     "meta-llama/Llama-3.1-8B",
     "meta-llama/Meta-Llama-3-8B",
@@ -11,13 +10,3 @@
 
   ]
 }
-=======
-              "allenai/OLMo-2-0325-32B-Instruct",
-              "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-              "NousResearch/DeepHermes-3-Mistral-24B-Preview",
-              "Qwen/QwQ-32B"
-  ]
-
-}
-
->>>>>>> c959c19bc92981638358b1ffb24590be7aebb3f9

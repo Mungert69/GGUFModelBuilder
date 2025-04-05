@@ -283,7 +283,7 @@ class ModelConverter:
             print(f"Model {model_id} not found in catalog")
             return
 
-        model_data["attempts"] += 1
+        model_data["attempts"] = int(model_data.get("attempts", 0)) + 1
         model_data["last_attempt"] = datetime.now().isoformat()
 
         # First update the attempt count and last attempt time
