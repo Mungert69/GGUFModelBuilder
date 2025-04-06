@@ -1,12 +1,6 @@
 {
   "models": [
-	    "NousResearch/DeepHermes-3-Llama-3-8B-Preview",
-    "meta-llama/Llama-3.1-8B",
-    "meta-llama/Meta-Llama-3-8B",
-    "meta-llama/Llama-Guard-3-8B",
-    "meetkai/functionary-v4r-small-preview",
-    "meetkai/functionary-small-v3.2",
-    "meetkai/functionary-small-v3.1"
+    "unsloth/Llama-4-Scout-17B-16E-Instruct"
 
   ]
 }
