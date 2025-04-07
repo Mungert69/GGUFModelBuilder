@@ -362,7 +362,9 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
     
     def run_quantization(t_type, e_type):
         """Helper function to run quantization with specific types"""
+        print(f"trying with quants embedding {e_type} output {t_type} quant type {quant_type}")
         command = [f"{base_dir}/llama.cpp/llama-quantize"]
+        command.append("--allow-requantize")
         if use_imatrix:
             command.extend(["--imatrix", use_imatrix])
         if use_pure:
@@ -371,7 +373,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
         command.extend([model_path, temp_output, quant_type])
-        
+        print(f"Running command {command}")        
         result = subprocess.run(command, capture_output=True, text=True)
         if result.stdout:
             print("Output:", result.stdout)
