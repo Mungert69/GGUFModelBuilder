@@ -1,7 +1,7 @@
 [
-    {"name": "q2_k_m", "type": "Q2_K_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
+    {"name": "q2_k_m", "type": "Q2_K_M", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q2_k_s", "type": "Q2_K_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
-    {"name": "q3_k_m", "type": "Q3_K_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
+    {"name": "q3_k_m", "type": "Q3_K_M", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q3_k_s", "type": "Q3_K_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "q4_k_m", "type": "Q4_K", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q4_k_s", "type": "Q4_K_S", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},

@@ -1,6 +1,7 @@
 {
   "models": [
-    "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+    "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+    "Qwen/Qwen2.5-72B-Instruct"
 
   ]
 }
