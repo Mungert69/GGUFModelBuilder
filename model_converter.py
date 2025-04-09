@@ -58,6 +58,17 @@ class ModelConverter:
         
         self.api = HfApi()
         self.fs = HfFileSystem()
+        self.EXCLUDED_COMPANIES = [
+            "VIDraft",  
+            "openfree",
+            "agentica-org"
+        ]
+
+    def is_excluded_company(self, model_id):
+        """Check if the model belongs to an excluded company"""
+        company = model_id.split('/')[0]
+        return company in self.EXCLUDED_COMPANIES
+
     def run_script(self, script_name, args):
         """Runs a script with arguments and streams output in real time.
         Returns True if the script succeeds, False otherwise."""
@@ -218,7 +229,6 @@ class ModelConverter:
         for model in models:
             model_id = model['modelId']
             print(f"Processing model: {model_id}")
-            
             if not self.has_config_json(model_id):
                 print(f"Skipping {model_id} - config.json not found")
                 continue
@@ -354,6 +364,9 @@ class ModelConverter:
 
         try:
             for model_id, entry in current_catalog.items():
+                if self.is_excluded_company(model_id):
+                    print(f"Skipping {model_id} - from excluded company")
+                    continue
                 parameters = entry.get("parameters", -1)
 
                 if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:

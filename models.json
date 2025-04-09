@@ -1,7 +1,6 @@
 {
   "models": [
-    "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-    "Qwen/Qwen2.5-72B-Instruct"
+    "Qwen/QwQ-32B"
 
   ]
 }
