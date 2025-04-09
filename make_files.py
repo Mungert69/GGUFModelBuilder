@@ -356,7 +356,7 @@ def needs_compatibility_check(quant_type, tensor_type, embed_type):
             embed_type in ["Q5_K", "Q6_K"])
 
 def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None, embed_type=None, 
-                         use_imatrix=None, use_pure=False):
+                         use_imatrix=None, use_pure=False, allow_requantize=False):
     """Perform quantization with automatic fallback for Q5_K/Q6_K tensor/embed types"""
     temp_output = f"{output_path}.tmp"
     
@@ -364,7 +364,8 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         """Helper function to run quantization with specific types"""
         print(f"trying with quants embedding {e_type} output {t_type} quant type {quant_type}")
         command = [f"{base_dir}/llama.cpp/llama-quantize"]
-        command.append("--allow-requantize")
+        if allow_requantize:
+            command.append("--allow-requantize")
         if use_imatrix:
             command.extend(["--imatrix", use_imatrix])
         if use_pure:
@@ -415,7 +416,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         pass
     return False
 
-def quantize_model(input_model, company_name, base_name):
+def quantize_model(input_model, company_name, base_name, allow_requantize=False):
     """Quantize the model and upload files following HF standards."""
     # Setup paths and directories
     input_dir = os.path.dirname(input_model)
@@ -452,7 +453,8 @@ def quantize_model(input_model, company_name, base_name):
             tensor_type=tensor_type,
             embed_type=embed_type,
             use_imatrix=imatrix_file if use_imatrix else None,
-            use_pure=use_pure
+            use_pure=use_pure,
+            allow_requantize=allow_requantize
         )
         
         if not success:
@@ -506,6 +508,8 @@ def quantize_model(input_model, company_name, base_name):
 def main():
     parser = argparse.ArgumentParser(description="Automate GGUF model quantization")
     parser.add_argument("model_id", help="Full Hugging Face model ID (e.g., 'company/model')")
+    parser.add_argument("--allow-requantize", action="store_true", help="Allow requantization of already quantized models")
+    
     args = parser.parse_args()
 
     if "/" not in args.model_id:
@@ -514,7 +518,8 @@ def main():
 
     company_name, model_name = args.model_id.split("/", 1)
     model_dir = os.path.join(base_dir, model_name)
-    quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name)
+    allow_requantize=args.allow_requantize
+    quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name, args.allow_requantize)
 
 if __name__ == "__main__":
     main()
