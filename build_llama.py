@@ -15,7 +15,8 @@ cmake_command = [
     "cmake", "-B", build_dir,
     "-DGGML_BLAS=ON",
     "-DGGML_BLAS_VENDOR=OpenBLAS",
-    "-DBLAS_INCLUDE_DIRS=~/code/models/OpenBLAS"
+    "-DBLAS_INCLUDE_DIRS=~/code/models/OpenBLAS",
+    "-DLLAMA_CURL=OFF"
 ]
 build_command = ["cmake", "--build", build_dir, "--config", "Release", "-j"]
 
