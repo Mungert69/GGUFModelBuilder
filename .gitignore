@@ -355,3 +355,4 @@ values.xml
 appsetting-baks.json
 appsetting-dev.json
 appsetting.json
+.env
