@@ -313,7 +313,7 @@ def download_imatrix(input_dir, company_name, model_name):
                 f"{base_dir}/llama.cpp/llama-imatrix",
                 "-m", bf16_model_path,
                 "-f", imatrix_train_set,
-                "-o", imatrix_file
+                "-o", imatrix_file,
                 "--threads", str(get_half_threads())
             ]
             print("Running:", " ".join(command))
