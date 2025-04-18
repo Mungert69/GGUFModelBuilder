@@ -10,6 +10,11 @@ import shutil
 from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
 from pathlib import Path
+import multiprocessing
+
+def get_half_threads():
+    total_threads = multiprocessing.cpu_count()
+    return max(2, total_threads // 2) 
 
 base_dir = os.path.expanduser("~/code/models")
 run_dir = os.path.abspath("./")
@@ -321,6 +326,7 @@ def download_imatrix(input_dir, company_name, model_name):
                 "-m", bf16_model_path,
                 "-f", imatrix_train_set,
                 "-o", imatrix_file
+                "--threads", str(get_half_threads())
             ]
             print("Running:", " ".join(command))
             result = subprocess.run(command, capture_output=True, text=True)
@@ -373,6 +379,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         if t_type and e_type:
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
+        command.extend(["--threads", str(get_half_threads())])
         command.extend([model_path, temp_output, quant_type])
         print(f"Running command {command}")        
         result = subprocess.run(command, capture_output=True, text=True)

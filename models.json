@@ -1,7 +1,5 @@
 {
   "models": [
-    "watt-ai/watt-tool-8B",
-    "agentica-org/DeepCoder-1.5B-Preview",
     "watt-ai/watt-tool-70B"
 
   ]

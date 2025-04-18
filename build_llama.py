@@ -73,17 +73,33 @@ def apply_patch():
 def prepare_repo():
     """Forcefully clean and update repository"""
     print("Forcefully resetting repository...")
-    # First, stash any changes (including untracked files)
-    run_command(["git", "stash", "--include-untracked", "--all"], cwd=llama_cpp_dir)
-    # Then discard the stash
-    run_command(["git", "stash", "drop"], cwd=llama_cpp_dir)
-    # Reset any remaining changes
-    run_command(["git", "reset", "--hard", "HEAD"], cwd=llama_cpp_dir)
-    # Clean any remaining untracked files
-    run_command(["git", "clean", "-fd"], cwd=llama_cpp_dir)
-    # Now pull the latest changes
-    print("Pulling latest changes...")
-    run_command(["git", "pull"], cwd=llama_cpp_dir)
+    
+    # Check if we have any commits
+    has_commits = subprocess.run(["git", "rev-list", "-n", "1", "--all"], 
+                               cwd=llama_cpp_dir, capture_output=True).returncode == 0
+    
+    if has_commits:
+        # First, stash any changes (including untracked files)
+        stash_result = subprocess.run(["git", "stash", "--include-untracked", "--all"], 
+                                    cwd=llama_cpp_dir, capture_output=True)
+        if stash_result.returncode == 0:
+            # Then discard the stash if we created one
+            subprocess.run(["git", "stash", "drop"], cwd=llama_cpp_dir, capture_output=True)
+        
+        # Reset any remaining changes
+        subprocess.run(["git", "reset", "--hard", "HEAD"], cwd=llama_cpp_dir)
+    else:
+        print("No commits yet - skipping stash/reset operations")
+    
+    # Clean any remaining untracked files (works even without commits)
+    subprocess.run(["git", "clean", "-fd"], cwd=llama_cpp_dir)
+    
+    # Now pull the latest changes (only if we have commits)
+    if has_commits:
+        print("Pulling latest changes...")
+        subprocess.run(["git", "pull"], cwd=llama_cpp_dir)
+    else:
+        print("No commits yet - skipping pull")
 
 def build_and_copy():
     """Main build process"""
@@ -122,3 +138,4 @@ if __name__ == "__main__":
         sys.exit(1)
         
     sys.exit(0 if build_and_copy() else 1)
+
