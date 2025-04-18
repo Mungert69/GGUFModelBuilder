@@ -145,80 +145,68 @@ def split_file_standard(file_path, quant_type, chunk_size=45*1024**3):
                 pass
         raise RuntimeError(f"Failed to split file: {str(e)}")
 
-def extract_quant_folder_name(filename):
-    """Extract the quantization part from filename to use as folder name"""
-    base_name = filename.replace('.gguf', '')
-    
-    # Handle both standalone bf16/f16 and quant types
-    match = re.search(r'(?:.*-)?(bf16|f16|q[0-9]_[kmls]|iq\d_\w+)$', base_name, re.IGNORECASE)
-    if match:
-        return match.group(1).lower()
-    
-    # Special case for chunked files
-    if re.search(r'\d{5}-of-\d{5}', base_name):
-        base_part = re.sub(r'-\d{5}-of-\d{5}$', '', base_name)
-        return extract_quant_folder_name(base_part + '.gguf')
-    
-    return base_name
-
-def upload_file_to_hf(file_path, repo_id, create_dir=False):
-    """Upload a file to Hugging Face Hub with optional subdirectory organization.
-    
-    Args:
-        file_path: Local path to the file
-        repo_id: HF repository ID (e.g., "username/repo")
-        create_dir: If True, organizes files in quant-type subfolders
-    """
+def upload_file_to_hf(file_path, repo_id, create_dir=False, quant_name=None):
+    """Robust uploader with explicit folder control"""
     try:
         filename = os.path.basename(file_path)
         
         if create_dir:
-            # Extract quantization folder name (e.g., "q4_k" from "model-q4_k.gguf")
-            folder_name = extract_quant_folder_name(filename)
-            path_in_repo = f"{folder_name}/{filename}"
-            
-            # Check/create folder (HF API automatically handles path creation)
-            print(f"📂 Organizing in subfolder: {folder_name}/")
+            if not quant_name:
+                raise ValueError("quant_name required when create_dir=True")
+            # Standardize folder naming
+            folder_name = quant_name.lower().strip().replace("_", "-")
+            path_in_repo = f"{folder_name}/{filename}".replace("\\", "/")
         else:
-            path_in_repo = filename  # Default: root directory
+            path_in_repo = filename
 
         api.upload_file(
             path_or_fileobj=file_path,
-            path_in_repo=path_in_repo,  # Now includes directory if create_dir=True
+            path_in_repo=path_in_repo,
             repo_id=repo_id,
             token=api_token,
         )
         return True
     except Exception as e:
-        print(f"❌ Error uploading {filename}: {e}")
+        print(f"❌ Error uploading {filename}: {str(e)}")
         return False
 
-def upload_large_file(file_path, repo_id, quant_type):
-    """Enhanced upload with detailed error reporting"""
+
+def upload_large_file(file_path, repo_id, quant_name):
+    """Enhanced large file handler with clear folder rules"""
     try:
         file_size = os.path.getsize(file_path)
         print(f"\n📦 Processing: {os.path.basename(file_path)} ({file_size/1024**3:.2f}GB)")
         
-        if file_size <= 49.5 * 1024**3:
-            print("🔼 Direct upload (under 49.5GB)")
-            return upload_file_to_hf(file_path, repo_id)
-            
-        print("🔪 Splitting large file...")
-        chunks = split_file_standard(file_path, quant_type)
-        print(f"✂ Created {len(chunks)} chunks")
+        # Base model detection
+        is_base_model = any(x in os.path.basename(file_path).lower() 
+                          for x in ['bf16', 'f16', 'fp16', '-untuned'])
         
-        for idx, chunk in enumerate(chunks, 1):
-            print(f"⤴ Uploading chunk {idx}/{len(chunks)} ({os.path.basename(chunk)})")
-            if not upload_file_to_hf(chunk, repo_id, create_dir=True):
-                raise RuntimeError(f"Chunk {idx} upload failed")
+        if file_size <= 49.5 * 1024**3:
+            if is_base_model:
+                print("🔼 Uploading base model to root directory")
+                return upload_file_to_hf(file_path, repo_id)
+            print(f"🔼 Uploading quant to '{quant_name}' folder")
+            return upload_file_to_hf(file_path, repo_id, 
+                                   create_dir=True, 
+                                   quant_name=quant_name)
+
+        # Large file chunking
+        print("🔪 Splitting large file...")
+        chunks = split_file_standard(file_path, quant_name)
+        for chunk in chunks:
+            if not upload_file_to_hf(chunk, repo_id, 
+                                   create_dir=True, 
+                                   quant_name=quant_name):
+                raise RuntimeError(f"Chunk upload failed: {chunk}")
             os.remove(chunk)
-            print(f"✅ Chunk {idx} uploaded and cleaned")
-            
         return True
         
     except Exception as e:
-        print(f"❌ Error: {str(e)}")
-        print(f"⚠ Keeping original file: {file_path}")
+        print(f"❌ Critical upload error: {str(e)}")
+        if 'chunks' in locals():  # Cleanup any remaining chunks
+            for chunk in chunks:
+                try: os.remove(chunk)
+                except: pass
         return False
 
 def get_model_size(base_name):
@@ -483,7 +471,8 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False)
         
         # Handle file upload with standardized large file support
         if repo_created:
-            if upload_large_file(output_path, repo_id, quant_type):
+            # Pass the suffix (name) as the folder name
+            if upload_large_file(output_path, repo_id, suffix):
                 print(f"Uploaded {output_file} successfully.")
                 try:
                     os.remove(output_path)
@@ -495,6 +484,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False)
     
     # Upload imatrix file if repository was created
     if os.path.exists(imatrix_file) and repo_created:
+        # Use "imatrix" as the folder name
         if upload_large_file(imatrix_file, repo_id, "imatrix"):
             print(f"Uploaded {os.path.basename(imatrix_file)} successfully.")
             try:
