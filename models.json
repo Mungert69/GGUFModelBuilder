@@ -1,6 +1,8 @@
 {
   "models": [
-    "watt-ai/watt-tool-70B"
+    "deepcogito/cogito-v1-preview-llama-70B",
+    "deepcogito/cogito-v1-preview-llama-8B",
+    "deepcogito/cogito-v1-preview-llama-3B"
 
   ]
 }
