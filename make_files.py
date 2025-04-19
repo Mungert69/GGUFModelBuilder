@@ -367,8 +367,8 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         if t_type and e_type:
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
-        command.append( str(get_half_threads()))
         command.extend([model_path, temp_output, quant_type])
+        command.append( str(get_half_threads()))
         print(f"Running command {command}")        
         result = subprocess.run(command, capture_output=True, text=True)
         if result.stdout:
