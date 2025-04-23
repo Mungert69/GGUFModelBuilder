@@ -172,41 +172,25 @@ def upload_file_to_hf(file_path, repo_id, create_dir=False, quant_name=None):
 
 
 def upload_large_file(file_path, repo_id, quant_name):
-    """Enhanced large file handler with clear folder rules"""
+    """Enhanced large file handler - directory only for chunked uploads"""
     try:
         file_size = os.path.getsize(file_path)
-        print(f"\n📦 Processing: {os.path.basename(file_path)} ({file_size/1024**3:.2f}GB)")
-        
-        # Base model detection
-        is_base_model = any(x in os.path.basename(file_path).lower() 
-                          for x in ['bf16', 'f16', 'fp16', '-untuned'])
+        print(f"\n📦 Processing: {os.path.basename(file_path)} ({file_size / 1024**3:.2f}GB)")
         
         if file_size <= 49.5 * 1024**3:
-            if is_base_model:
-                print("🔼 Uploading base model to root directory")
-                return upload_file_to_hf(file_path, repo_id)
-            print(f"🔼 Uploading quant to '{quant_name}' folder")
-            return upload_file_to_hf(file_path, repo_id, 
-                                   create_dir=True, 
-                                   quant_name=quant_name)
+            print("🔼 Uploading file directly (no chunking)")
+            return upload_file_to_hf(file_path, repo_id)
 
         # Large file chunking
         print("🔪 Splitting large file...")
         chunks = split_file_standard(file_path, quant_name)
         for chunk in chunks:
-            if not upload_file_to_hf(chunk, repo_id, 
-                                   create_dir=True, 
-                                   quant_name=quant_name):
+            if not upload_file_to_hf(chunk, repo_id, create_dir=True, quant_name=quant_name):
                 raise RuntimeError(f"Chunk upload failed: {chunk}")
             os.remove(chunk)
         return True
-        
     except Exception as e:
-        print(f"❌ Critical upload error: {str(e)}")
-        if 'chunks' in locals():  # Cleanup any remaining chunks
-            for chunk in chunks:
-                try: os.remove(chunk)
-                except: pass
+        print(f"❌ Error during upload: {e}")
         return False
 
 def get_model_size(base_name):
@@ -499,6 +483,8 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False)
     try:
         print("\n📝 Updating README.md...")
         update_readme(input_dir, base_name, add_iquant_txt=has_iq1_iq2_files)
+        readme_path=os.path.join(output_dir,"README.md")
+        upload_large_file(readme_path,repo_id,"readme")
     except Exception as e:
         print(f"⚠ Failed to update README: {e}")
 
