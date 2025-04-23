@@ -14,7 +14,7 @@
 
 
 <PropertyGroup>
-  <DefaultItemExcludes>$(DefaultItemExcludes);openssl-3.3.1\**\*</DefaultItemExcludes>
+  <DefaultItemExcludes>$(DefaultItemExcludes);openssl-3.4.2\**\*</DefaultItemExcludes>
 </PropertyGroup>
 
 
