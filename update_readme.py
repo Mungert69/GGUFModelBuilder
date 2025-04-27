@@ -1,12 +1,24 @@
 import os
-
+import subprocess
 def update_readme(model_dir, base_name, add_iquant_txt=False):
     readme_file = os.path.join(model_dir, "README.md")
     
     # Check if README.md exists
     if not os.path.exists(readme_file):
         raise FileNotFoundError(f"README.md not found in {model_dir}")
+
+    # Get Git commit info from llama.cpp repo
+    llama_cpp_path = os.path.expanduser("~/code/models/llama.cpp")
+    full_hash, short_hash = get_git_commit_info(llama_cpp_path)
     
+    git_info = ""
+    if short_hash:
+        git_info = f"""
+## <span style="color: #7F7FFF;">Model Generation Details</span>
+
+This model was generated using [llama.cpp](https://github.com/ggerganov/llama.cpp) at commit [`{short_hash}`](https://github.com/ggerganov/llama.cpp/commit/{full_hash}).
+
+"""
     # Read the existing content of the README.md
     with open(readme_file, "r") as file:
         readme_content = file.read()
@@ -76,7 +88,11 @@ All tests conducted on **Llama-3-8B-Instruct** using:
     new_section = f"""
 
 # <span style="color: #7FFF7F;">{base_name} GGUF Models</span>
+
+{git_info}
+
 {iquant_section}
+
 ## **Choosing the Right Model Format**  
 
 Selecting the correct model format depends on your **hardware capabilities** and **memory constraints**.  
@@ -266,6 +282,26 @@ I’m pushing the limits of **small open-source models for AI network monitoring
         file.write(updated_content)
 
     print(f"README.md updated successfully for {base_name}.")
+
+def get_git_commit_info(repo_path):
+    """Get short and full Git commit hash for a repository."""
+    try:
+        # Get full commit hash
+        full_hash = subprocess.check_output(
+            ["git", "-C", repo_path, "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL
+        ).decode("utf-8").strip()
+        
+        # Get short commit hash (7 chars like GitHub)
+        short_hash = subprocess.check_output(
+            ["git", "-C", repo_path, "rev-parse", "--short", "HEAD"],
+            stderr=subprocess.DEVNULL
+        ).decode("utf-8").strip()
+        
+        return full_hash, short_hash
+    except subprocess.CalledProcessError:
+        return None, None
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
