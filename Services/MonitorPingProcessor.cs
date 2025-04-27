@@ -213,6 +213,7 @@ namespace NetworkMonitor.Processor.Services
                 _netConfig.AgentUserFlow.IsAuthorized = true;
                 _netConfig.AgentUserFlow.IsLoggedInWebsite = false;
                 _netConfig.AgentUserFlow.IsHostsAdded = false;
+                _netConfig.AgentUserFlow.IsChatOpened =false ;
                 _fileRepo.CheckFileExists("appsettings.json", _logger);
                 string copy = _netConfig.OqsProviderPath;
                 _netConfig.OqsProviderPath = _netConfig.OqsProviderPathReadOnly;
@@ -259,6 +260,7 @@ namespace NetworkMonitor.Processor.Services
                 result.Message += $" Success : Updated AgentUserFlow.IsHostsAdded to {_netConfig.AgentUserFlow.IsHostsAdded}";
                 isValueChanged = true;
             }
+            
             if (result.Success == false)
             {
                 result.Success = true;
