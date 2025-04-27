@@ -94,6 +94,52 @@ def copy_with_new_metadata(reader: gguf.GGUFReader, writer: gguf.GGUFWriter, new
 
     writer.close()
 
+def parse_override(override_str: str) -> tuple[str, MetadataDetails]:
+    """
+    Parse strings like "glm4.rope.dimension_count=int:64".
+    Returns (key, MetadataDetails).
+    """
+    try:
+        key, type_val = override_str.split("=", 1)
+        type_str, val_str = type_val.split(":", 1)
+
+        # Map type strings to GGUFValueType
+        type_map = {
+            "int": gguf.GGUFValueType.UINT32,
+            "float": gguf.GGUFValueType.FLOAT32,
+            "bool": gguf.GGUFValueType.BOOL,
+            "str": gguf.GGUFValueType.STRING,
+        }
+
+        val_type = type_map.get(type_str.lower())
+        if val_type is None:
+            raise ValueError(f"Unknown type: {type_str}")
+
+        # Convert value to Python type
+        if val_type == gguf.GGUFValueType.UINT32:
+            val = int(val_str)
+        elif val_type == gguf.GGUFValueType.FLOAT32:
+            val = float(val_str)
+        elif val_type == gguf.GGUFValueType.BOOL:
+            val = val_str.lower() == "true"
+        else:  # STRING
+            val = val_str
+
+        return key, MetadataDetails(val_type, val)
+
+    except Exception as e:
+        raise ValueError(f"Invalid override format: '{override_str}'. Expected 'key=type:value'") from e
+
+def load_overrides_from_file(file_path: Path) -> dict[str, MetadataDetails]:
+    """Load overrides from a file (one key=type:value per line)."""
+    overrides = {}
+    with open(file_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#"):  # Skip empty lines/comments
+                key, details = parse_override(line)
+                overrides[key] = details
+    return overrides
 
 def set_custom_metadata() -> dict[str, MetadataDetails]:
     return {
@@ -120,6 +166,12 @@ def main() -> None:
     parser.add_argument("--special-token-by-id", action="append", type=str, help="Special token by id", nargs=2, metavar=(' | '.join(token_names.keys()), '0'))
     parser.add_argument("--force", action="store_true", help="Bypass warnings without confirmation")
     parser.add_argument("--verbose", action="store_true", help="Increase output verbosity")
+    parser.add_argument("--override", action="append", type=str,
+                      help="Override any metadata field (format: key=type:value)",
+                      metavar="glm4.rope.dimension_count=int:64")
+    parser.add_argument("--override-file", type=Path,
+                      help="File with key=type:value overrides (one per line)",
+                      metavar="overrides.txt")
     args = parser.parse_args(None if len(sys.argv) > 2 else ["--help"])
 
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
@@ -144,7 +196,12 @@ def main() -> None:
                 new_metadata[gguf.Keys.Tokenizer.CHAT_TEMPLATE] = MetadataDetails(gguf.GGUFValueType.STRING, template)
     if args.pre_tokenizer:
         new_metadata[gguf.Keys.Tokenizer.PRE] = MetadataDetails(gguf.GGUFValueType.STRING, args.pre_tokenizer)
-
+    if args.override_file:
+        new_metadata.update(load_overrides_from_file(args.override_file))
+    if args.override:
+        for override_str in args.override:
+            key, details = parse_override(override_str)
+            new_metadata[key] = details
     # Merge custom metadata updates
     new_metadata.update(set_custom_metadata())
 
