@@ -256,7 +256,8 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 - 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
 
 ### **Other Assistants**  
-🟢 **TurboLLM** – Uses **gpt-4o-mini** for:  
+🟢 **TurboLLM** – Uses **gpt-4o-mini** for: 
+- **Create custom cmd processors to run .net code on Free Network Monitor Agents**
 - **Real-time network diagnostics and monitoring**
 - **Security Audits**
 - **Penetration testing** (Nmap/Metasploit)  
@@ -268,7 +269,8 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 ### 💡 **Example commands to you could test**:  
 1. `"Give me info on my websites SSL certificate"`  
 2. `"Check if my server is using quantum safe encyption for communication"`  
-3. `"Run a comprehensive security audit on my server"`  
+3. `"Run a comprehensive security audit on my server"`
+4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
 """
 
