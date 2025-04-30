@@ -197,7 +197,7 @@ namespace NetworkMonitor.Objects.Repository
             var result = new ResultObj();
             try
             {
-                foreach (var rabbitMQObj in _rabbitMQObjs)
+                await Parallel.ForEachAsync(_rabbitMQObjs, async (rabbitMQObj, cancellationToken) =>
                 {
 
                     if (rabbitMQObj.ConnectChannel != null)
@@ -487,7 +487,7 @@ namespace NetworkMonitor.Objects.Repository
                                 break;
                         }
                     }
-                }
+                });
                 result.Success = true;
                 result.Message += " Success : Declared all consumers ";
             }
