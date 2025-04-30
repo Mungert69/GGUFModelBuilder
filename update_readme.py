@@ -234,13 +234,12 @@ These models are optimized for **extreme memory efficiency**, making them ideal 
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
 ❤ **Please click "Like" if you find this useful!**  
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
-👉 [Free Network Monitor](https://freenetworkmonitor.click/dashboard)  
+👉 [Free Network Monitor](https://freenetworkmonitor.click/dashboard/?assistant=open)  
 
 💬 **How to test**:  
-1. Click the **chat icon** (bottom right on any page)  
-2. Choose an **AI assistant type**:  
-   - `TurboLLM` (GPT-4-mini)  
-   - `FreeLLM` (Open-source)  
+ Choose an **AI assistant type**:  
+   - `TurboLLM` (GPT-4o-mini)  
+   - `HugLLM` (Hugginface Open-source)  
    - `TestLLM` (Experimental CPU-only)  
 
 ### **What I’m Testing**  
@@ -249,28 +248,27 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 - **How small can a model go** while still handling:  
   - Automated **Nmap scans**  
   - **Quantum-readiness checks**  
-  - **Metasploit integration**  
+  - **Network Monitoring tasks**  
 
-🟡 **TestLLM** – Current experimental model (llama.cpp on 6 CPU threads):  
+🟡 **TestLLM** – Current experimental model (llama.cpp on 2 CPU threads):  
 - ✅ **Zero-configuration setup**  
 - ⏳ 30s load time (slow inference but **no API costs**)  
 - 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
 
 ### **Other Assistants**  
-🟢 **TurboLLM** – Uses **gpt-4-mini** for:  
-- **Real-time network diagnostics**  
-- **Automated penetration testing** (Nmap/Metasploit)  
-- 🔑 Get more tokens by [downloading our Free Network Monitor Agent](https://freenetworkmonitor.click/download)  
+🟢 **TurboLLM** – Uses **gpt-4o-mini** for:  
+- **Real-time network diagnostics and monitoring**
+- **Security Audits**
+- **Penetration testing** (Nmap/Metasploit)  
+- 🔑 Get more tokens by logging in or [downloading our Free Network Monitor Agent with integrated AI Assistant](https://freenetworkmonitor.click/download)  
 
-🔵 **HugLLM** – Open-source models (≈8B params):  
-- **2x more tokens** than TurboLLM  
-- **AI-powered log analysis**  
+🔵 **HugLLM** – Latest Open-source models:  
 - 🌐 Runs on Hugging Face Inference API  
 
-### 💡 **Example AI Commands to Test**:  
+### 💡 **Example commands to you could test**:  
 1. `"Give me info on my websites SSL certificate"`  
 2. `"Check if my server is using quantum safe encyption for communication"`  
-3. `"Run a quick Nmap vulnerability test"`  
+3. `"Run a comprehensive security audit on my server"`  
 
 """
 
