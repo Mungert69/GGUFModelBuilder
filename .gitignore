@@ -345,7 +345,7 @@ healthchecksdb
 /Report20210116-1159.diagsession
 appsettings*
 https.pfx
-https-freenetworkmonitor.pfx
+https-*.pfx
 obj/staticwebassets.pack.sentinel
 ProcessorDataObj
 PingParams
