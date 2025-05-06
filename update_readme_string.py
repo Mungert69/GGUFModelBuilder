@@ -24,8 +24,8 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = "https://freenetworkmonitor.click/dashboard"
-new_text = "https://freenetworkmonitor.click"
+old_text = "freenetworkmonitor.click"
+new_text = "readyforquantum.com"
 
 def update_readme(repo_id, require_confirmation=True):
     try:

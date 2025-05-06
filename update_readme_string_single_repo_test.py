@@ -24,10 +24,10 @@ except Exception as e:
 api = HfApi()
 
 # Updated to match the exact formatting with bold markers
-old_text = "🔵 **FreeLLM** – Runs **open-source Hugging Face models** Medium speed (unlimited, subject to Hugging Face API availability)."
+old_text = "freenetworkmonitor.click"
 
 # New text with same formatting
-new_text = "🔵 **HugLLM** – Runs **open-source Hugging Face models** Fast, Runs small models (≈8B) hence lower quality, Get 2x more tokens (subject to Hugging Face API availability)"
+new_text = "readyforquantum.com"
 
 def update_readme(repo_id):
     print(f"\nProcessing repository: {repo_id}")
