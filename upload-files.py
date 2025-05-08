@@ -27,6 +27,8 @@ def get_quant_name(filename):
             return config[0]
     if 'imatrix' in filename.lower():
         return "imatrix"
+    if "bf16.gguf" in filename.lower():
+        return "bf16"
     return None
 
 def main():
