@@ -14,7 +14,10 @@ import multiprocessing
 
 def get_half_threads():
     total_threads = multiprocessing.cpu_count()
-    return max(2, total_threads // 2) 
+    
+    if total_threads < 4:
+        return total_threads
+    return max(4, total_threads // 2)
 
 base_dir = os.path.expanduser("~/code/models")
 run_dir = os.path.abspath("./")
