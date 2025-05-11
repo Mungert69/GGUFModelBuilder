@@ -4,16 +4,17 @@ import argparse
 
 # Ordered list of quant levels (lowest precision to highest)
 quant_levels = [
-    "IQ1_S", "IQ1_M",
-    "IQ2_XXS", "IQ2_XS", "IQ2_S", 
-    "Q2_K", 
-    "IQ3_XXS",  "IQ3_S", 
-    "Q3_K",
+     "IQ1_S", "IQ1_M",
+     "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M",
+    "Q2_K", "Q2_K_S",
+    "IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M",
+    "Q3_K_S", "Q3_K",
+    "Q4_0", "Q4_1",
     "IQ4_NL", "IQ4_XS",
-    "Q4_K",
-    "Q5_K",
+    "Q4_K_S", "Q4_K",
+    "Q5_0", "Q5_1", "Q5_K_S", "Q5_K",
     "Q6_K",
-    "Q8_0"
+     "Q8_0"
 ]
 quant_groups = {
     "verylow": [
@@ -36,10 +37,6 @@ quant_groups = {
     ]
 }
 
-def clean_tensor_name(name):
-    """Remove .weight suffix and any whitespace/newlines"""
-    return name.replace('.weight', '').strip()
-
 def read_imatrix(file_path):
     weights = {}
     with open(file_path, "rb") as f:
@@ -47,7 +44,7 @@ def read_imatrix(file_path):
             n_entries = struct.unpack('<i', f.read(4))[0]
             for _ in range(n_entries):
                 name_len = struct.unpack('<i', f.read(4))[0]
-                name = clean_tensor_name(f.read(name_len).decode('utf-8'))
+                name = f.read(name_len).decode('utf-8')
                 n_call = struct.unpack('<i', f.read(4))[0]
                 n_values = struct.unpack('<i', f.read(4))[0]
                 values = np.frombuffer(f.read(n_values * 4), dtype=np.float32)
@@ -64,7 +61,7 @@ def normalize_matrix(matrix):
     min_val, max_val = np.min(matrix), np.max(matrix)
     return np.zeros_like(matrix) if max_val - min_val == 0 else (matrix - min_val) / (max_val - min_val)
 
-def determine_quant_tier(base_quant: str, mad: float, corr: float, mad_threshold: float = 0.002, corr_threshold: float = 0.95) -> str:
+def determine_quant_tier(base_quant: str, mad: float, corr: float) -> str:
     try:
         base_idx = quant_levels.index(base_quant)
     except ValueError:
@@ -85,21 +82,20 @@ def determine_quant_tier(base_quant: str, mad: float, corr: float, mad_threshold
     elif group == "low":
         bump_scale = 3
     elif group == "medium":
-        bump_scale = 2.0
+        bump_scale = 2
     else:  # high
-        bump_scale = 1  # conservative bumping
+        bump_scale = 1.0  # conservative bumping
 
-    # Use the provided thresholds instead of hardcoded values
-    if mad > mad_threshold * 5 or corr < corr_threshold - 0.15:  # Most sensitive
+    if mad > 0.01 or corr < 0.80:
+        bump = int(3 * bump_scale)
+    elif mad > 0.005 or corr < 0.90:
         bump = int(2 * bump_scale)
-    elif mad > mad_threshold * 2.5 or corr < corr_threshold - 0.05:  # Moderately sensitive
-        bump = int(1.5 * bump_scale)
-    elif mad > mad_threshold or corr < corr_threshold:  # Slightly sensitive
+    elif mad > 0.002 or corr < 0.95:
         bump = int(1 * bump_scale)
     else:
         bump = 0
 
-    new_idx = min(base_idx + bump, len(quant_levels) - 1)  # Ensure we don't go beyond available levels
+    new_idx = min(base_idx + bump, len(quant_levels) - 1)
     return quant_levels[new_idx]
 
 def compare_imatrix(file1, file2, mad_threshold=0.002, corr_threshold=0.95, base_quant="Q4_K_M"):
@@ -133,7 +129,7 @@ def compare_imatrix(file1, file2, mad_threshold=0.002, corr_threshold=0.95, base
 
         if mad > mad_threshold or corr < corr_threshold:
             print("  -> Sensitive layer")
-            suggested_quant = determine_quant_tier(base_quant, mad, corr, mad_threshold=mad_threshold,  corr_threshold=corr_threshold)
+            suggested_quant = determine_quant_tier(base_quant, mad, corr)
             quant_suggestions.append((name, suggested_quant))
 
         total_mad += mad
@@ -141,15 +137,15 @@ def compare_imatrix(file1, file2, mad_threshold=0.002, corr_threshold=0.95, base
         total_corr += corr
         total_weights += 1
 
-    print("\n=== Suggested --tensor-type arguments (copy-ready) ===")
-    tensor_args = " ".join([f"--tensor-type {name}={quant}" for name, quant in quant_suggestions])
-    print(tensor_args)
+    print("\n=== Suggested --tensor-type arguments ===")
+    for name, quant in quant_suggestions:
+        print(f"--tensor-type {name}={quant}")
 
     if total_weights > 0:
         print("\n=== Summary ===")
-        print(f"Avg MAD: {total_mad / total_weights:.6f}".strip())
-        print(f"Avg MSD: {total_msd / total_weights:.6f}".strip())
-        print(f"Avg Corr: {total_corr / total_weights:.6f}".strip())
+        print(f"Avg MAD: {total_mad / total_weights:.6f}")
+        print(f"Avg MSD: {total_msd / total_weights:.6f}")
+        print(f"Avg Corr: {total_corr / total_weights:.6f}")
     else:
         print("No weights compared.")
 
@@ -172,3 +168,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

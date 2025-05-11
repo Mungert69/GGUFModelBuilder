@@ -7,7 +7,7 @@ from pathlib import Path
 import argparse
 
 # Configuration
-BIN_DIR = Path("./llama.cpp")
+BIN_DIR = Path("../models/llama.cpp")
 TEST_TEXT = Path("./perplexity_test_data.txt")
 MIN_TOKENS = 4160
 RESULTS_FILE = Path("./model_comparison.csv")

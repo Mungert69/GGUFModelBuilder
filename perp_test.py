@@ -6,7 +6,7 @@ import csv
 from pathlib import Path
 
 # Configuration
-BIN_DIR = Path("./llama.cpp")
+BIN_DIR = Path("../models/llama.cpp")
 INPUT_MODEL = Path("./Meta-Llama-3-8B-bf16.gguf")
 TEST_TEXT = Path("./perplexity_test_data.txt")
 IMATRIX_FILE = Path("./imatrix-files/Meta-Llama-3-8B.imatrix")
