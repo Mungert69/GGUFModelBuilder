@@ -1,10 +1,6 @@
 {
   "models": [
-	  "JetBrains/Mellum-4b-base",
-	  "ibm-granite/granite-4.0-tiny-preview",
-	  "shuttleai/shuttle-3.5",
-	  "allenai/OLMo-2-0425-1B",
-	  "Tesslate/UIGEN-T2-7B"
+	  ""
 
   ]
 }
