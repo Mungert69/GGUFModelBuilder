@@ -11,14 +11,31 @@ quant_levels = [
     "IQ1_S", "IQ1_M",
     "IQ2_XXS", "IQ2_XS", "IQ2_S", 
     "Q2_K", 
-    "IQ3_XXS",  "IQ3_S", 
+    "IQ3_XXS", "IQ3_S", 
     "Q3_K",
-    "IQ4_NL", "IQ4_XS",
+    "IQ4_XS","IQ4_NL", 
     "Q4_K",
     "Q5_K",
     "Q6_K",
     "Q8_0"
 ]
+
+quant_substitutions = {
+    "IQ1_M": "IQ1_S",
+    "IQ2_M": "IQ2_S",  
+    "IQ3_M": "IQ3_S", 
+    "IQ3_XS": "IQ3_XXS",
+    "Q2_K_S": "Q2_K",
+    "Q3_K_S": "Q3_K",
+    "Q4_K_S": "Q4_K",
+    "Q5_K_S": "Q5_K",
+    "Q6_K_S": "Q6_K",
+    "Q2_K_M": "Q2_K",
+    "Q3_K_M": "Q3_K",
+    "Q4_K_M": "Q4_K",
+    "Q5_K_M": "Q5_K",
+    "Q6_K_M": "Q6_K",
+}
 
 def extract_layer_order(name: str) -> int:
     """
@@ -104,75 +121,63 @@ def determine_quant_tier(base_quant: str,
                          layer_order: float = None, 
                          quant_rules: list = None) -> tuple:
     """
-    Improved quantization tier determination with wildcards and F32 protection
+    Improved quantization tier determination with wildcards and F32 protection.
+    Returns (suggested_quant, reason, bump_applied)
     """
-    # Never bump F32 layers - keep original precision
     if base_quant == "F32":
-        return (base_quant, "Keeping original F32 precision")
-    
+        return base_quant, "Keeping original F32 precision", False
+
     try:
         base_idx = quant_levels.index(base_quant)
         target_idx = quant_levels.index(target_type)
     except ValueError:
         base_idx = quant_levels.index("Q4_K")
         target_idx = quant_levels.index("Q4_K")
-    
-    default_return = (target_type, "No specific rule applied, using target type")
-    
+
     if not quant_rules:
-        return default_return
-    
+        return target_type, "No specific rule applied, using target type", False
+
     total_bump = 0
     bump_reason = ""
-    
+
     for rule in quant_rules:
-        # Skip if target type doesn't match (supporting arrays)
         rule_base_types = rule.get('base_type', [])
         if isinstance(rule_base_types, str):
             rule_base_types = [rule_base_types]
         if target_type not in rule_base_types:
             continue
-        
-        # Skip if layer name doesn't match (with wildcard support)
+
         if 'layer_name' in rule:
             layer_patterns = rule['layer_name']
             if isinstance(layer_patterns, str):
                 layer_patterns = [layer_patterns]
-            
-            layer_matched = False
-            for pattern in layer_patterns:
-                if is_layer_match(layer_name, pattern):
-                    layer_matched = True
-                    break
-            
-            if not layer_matched:
+
+            if not any(is_layer_match(layer_name, pattern) for pattern in layer_patterns):
                 continue
-        
-        # Apply bumps
+
         base_bump = rule.get('bump_experts', rule.get('bump', 0)) if is_moe else rule.get('bump', 0)
         total_bump += int(base_bump)
-        
-        # Layer order bumps
+
         if layer_order is not None and 'bump_order_low' in rule:
             bump_order_low = rule.get('bump_order_low', float('-inf'))
             bump_order_high = rule.get('bump_order_high', float('inf'))
-            
+
             if layer_order <= bump_order_low or layer_order >= bump_order_high:
                 order_bump = rule.get('bump_order_val', 0)
                 total_bump += int(order_bump)
                 bump_reason += f"Layer order bump: {order_bump} "
-    
+
     if total_bump == 0:
-        return default_return
-    
+        return target_type, "No specific rule applied, using target type", False
+
     new_idx = min(target_idx + total_bump, len(quant_levels) - 1)
     full_reason = f"Bumped from {target_type} by {total_bump} levels"
     if layer_name:
         full_reason += f" for {layer_name}"
     if bump_reason:
         full_reason += f" ({bump_reason.strip()})"
-    
-    return quant_levels[new_idx], full_reason
+
+    return quant_levels[new_idx], full_reason, True
 
 def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False):
     """
@@ -201,11 +206,13 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
         
         # Normalize layer order to 0-10 range
         normalized_layer_order = normalize_layer_order(layer_order, max_layer_order)
-        
+        # Normalize target_type
+        normalized_target_type = quant_substitutions.get(target_type, target_type)
+
         # Determine suggested quantization
-        suggested_quant, reason = determine_quant_tier(
+        suggested_quant, reason, bump_applied = determine_quant_tier(
             base_quant=current_quant,
-            target_type=target_type,
+            target_type=normalized_target_type,
             layer_name=name,
             is_moe=is_moe,
             layer_order=normalized_layer_order,
@@ -213,7 +220,7 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
         )
         
         # Only add suggestion if it's different from current
-        if suggested_quant != current_quant:
+        if bump_applied and suggested_quant != current_quant:
             quant_suggestions.append((name, suggested_quant, reason))
     
     # Print results
