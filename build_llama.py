@@ -9,7 +9,7 @@ src_dir = os.path.join(llama_cpp_dir, "src")
 build_dir = os.path.join(llama_cpp_dir, "build")
 bin_dir = os.path.join(build_dir, "bin")
 patch_file = os.path.abspath("./my_quant_changes.patch")
-pathh_file2 = os.path.abspath("./imatrix_word_boundary.patch")
+patch_file2 = os.path.abspath("./imatrix_word_boundary.patch")
  
 # CMake configuration
 cmake_command = [
