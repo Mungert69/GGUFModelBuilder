@@ -182,7 +182,8 @@ class RedisModelCatalog:
                 'has_config': False,
                 'attempts': 0,
                 'error_log': [],
-                'quantizations': []
+                'quantizations': [],
+                "is_moe":False
             }
         
         added = 0

@@ -20,7 +20,7 @@ class ModelConverter:
 
     def __init__(self):
         # Initialize Redis connection
-        REDIS_HOST = os.getenv("REDIS_HOST", "redis.freenetworkmonitor.click")
+        REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
         REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
         REDIS_USER = os.getenv("REDIS_USER", "admin")
         REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
@@ -63,7 +63,56 @@ class ModelConverter:
             "openfree",
             "agentica-org"
         ]
+    def check_moe_from_config(self, model_id):
+        """Check if model is MoE by examining its config.json"""
+        try:
+            config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
+            response = requests.get(config_url)
+            response.raise_for_status()
+            config = response.json()
+            
+            # Check standard MoE config parameters
+            if config.get("architectures", [""])[0].lower() in ["moe_model", "switchtransformers"]:
+                return True
+                
+            # Check for expert-related parameters
+            moe_indicators = [
+                ("num_experts", lambda x: x > 1),
+                ("num_local_experts", lambda x: x > 1),
+                ("moe_layer_frequency", lambda x: x > 0),
+                ("output_router_logits", True),
+                ("router_bias", True),
+                ("expert_capacity", lambda x: x > 0)
+            ]
+            
+            for key, condition in moe_indicators:
+                if key in config:
+                    value = config[key]
+                    if (callable(condition) and condition(value)) or (value == condition):
+                        return True
+                    
+            # Check for MoE-specific class names
+            if any("moe" in (config.get(k, "") or "").lower() for k in ["model_type", "architecture", "class_name"]):
+                return True
+                
+            return False
+            
+        except Exception as e:
+            print(f"Error checking config for {model_id}: {e}")
+            return False
 
+    def is_moe_model(self, model_id):
+        """Main MoE detection method that tries multiple approaches"""
+        try:
+            # First try config.json (most reliable)
+            if self.check_moe_from_config(model_id):
+                return True
+                
+
+            return False
+        except Exception as e:
+            print(f"MoE detection failed for {model_id}: {e}")
+            return False
     def is_excluded_company(self, model_id):
         """Check if the model belongs to an excluded company"""
         company = model_id.split('/')[0]
@@ -222,6 +271,35 @@ class ModelConverter:
             print(f"Error fetching models: {e}")
             return []
 
+    def check_moe_from_readme(self, model_id):
+        """Check if a model is MoE by parsing its README file"""
+        try:
+            # Try to get README content from Hugging Face
+            readme_url = f"https://huggingface.co/{model_id}/raw/main/README.md"
+            response = requests.get(readme_url)
+            response.raise_for_status()
+            readme_content = response.text.lower()  # Case insensitive search
+
+            # Common MoE indicators in READMEs
+            moe_keywords = [
+                'mixture of experts',
+                'moe',
+                'multiple experts'
+            ]
+
+            # Check for any MoE indicators
+            is_moe = any(keyword in readme_content for keyword in moe_keywords)
+            print(f"MoE check for {model_id}: {'Yes' if is_moe else 'No'}")
+            return is_moe
+
+        except requests.exceptions.RequestException as e:
+            print(f"Couldn't fetch README for {model_id}: {e}")
+            return False
+        except Exception as e:
+            print(f"Error parsing README for {model_id}: {e}")
+            return False
+
+
     def update_catalog(self, models):
         """Add new models to catalog if they don't exist"""
         current_catalog = self.load_catalog()
@@ -253,7 +331,7 @@ class ModelConverter:
                 if parameters > self.MAX_PARAMETERS:
                     print(f"Skipping {model_id} - {parameters} parameters exceed limit.")
                     continue
-                
+                is_moe = self.check_moe_from_readme(model_id)
                 print(f"Adding {model_id} with parameters={parameters}")
                 new_entry = {
                     "added": datetime.now().isoformat(),
@@ -264,7 +342,8 @@ class ModelConverter:
                     "last_attempt": None,
                     "success_date": None,
                     "error_log": [],
-                    "quantizations": []
+                    "quantizations": [],
+                    "is_moe": is_moe
                 }
                 
                 if not self.model_catalog.add_model(model_id, new_entry):
@@ -286,7 +365,7 @@ class ModelConverter:
         except subprocess.CalledProcessError as e:
             print(f"Failed to delete cache directory {cache_path}: {e}")
 
-    def convert_model(self, model_id):
+    def convert_model(self, model_id, is_moe):
         """Run conversion pipeline using the run_script function"""
         model_data = self.model_catalog.get_model(model_id)
         if not model_data:
@@ -313,7 +392,7 @@ class ModelConverter:
             print(f"Converting {model_id}...")
             scripts = [
                 ("download_convert.py", [model_id]),
-                ("make_files.py", [model_id]),
+                ("make_files.py", [model_id, "--is_moe"] if is_moe else [model_id]),
                 ("upload-files.py", [model_id.split('/')[-1]])
             ]
 
@@ -363,7 +442,7 @@ class ModelConverter:
         self.update_catalog(models)
 
         try:
-            for model_id, entry in current_catalog.items():
+            for model_id, entry, is_moe in current_catalog.items():
                 if self.is_excluded_company(model_id):
                     print(f"Skipping {model_id} - from excluded company")
                     continue
@@ -376,9 +455,9 @@ class ModelConverter:
                 if not entry["has_config"]:
                     print(f"Skipping {model_id} - config.json not found")
                     continue
-
+                is_moe = entry.get("is_moe", False) 
                 try:
-                    self.convert_model(model_id)
+                    self.convert_model(model_id, is_moe)
                 except Exception as e:
                     print(f"⚠ Error converting {model_id}: {e}")
 

@@ -21,7 +21,6 @@ quant_levels = [
 ]
 
 quant_substitutions = {
-    "IQ1_M": "IQ1_S",
     "IQ2_M": "IQ2_S",  
     "IQ3_M": "IQ3_S", 
     "IQ3_XS": "IQ3_XXS",

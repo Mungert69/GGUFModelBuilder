@@ -7,12 +7,13 @@ import subprocess
 import argparse
 import urllib.request
 from update_readme import update_readme  # Importing the update_readme function
-from tensor_list_builder from 
+from tensor_list_builder import process_quantization
 import shutil
 from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
 from pathlib import Path
 import multiprocessing
+import shlex
 
 def get_half_threads():
     total_threads = multiprocessing.cpu_count()
@@ -244,7 +245,7 @@ def filter_quant_configs(base_name, configs):
             filtered.append(config)
         else:
             print(f"⚠ Skipping {quant_type} ({bits}bit) for {base_name} "
-                  f"({model_size/1e9:.1f}B) - too aggressive")
+                f"({model_size/1e9:.1f}B) - too aggressive")
 
     return filtered
 
@@ -339,7 +340,7 @@ def needs_compatibility_check(quant_type, tensor_type, embed_type):
             embed_type in ["Q5_K", "Q6_K"])
 
 def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None, embed_type=None, 
-                         use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False):
+                        use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False):
     """Perform quantization with automatic fallback for Q5_K/Q6_K tensor/embed types"""
     temp_output = f"{output_path}.tmp"
     tensor_args = process_quantization(
@@ -348,9 +349,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         target_type=quant_type,
         is_moe=is_moe
     )
-    print(f"Got tensor args : {tensor_args}")
-
-    sys.exit()
+    print(f"is_moe is {is_moe} using tensor args : {tensor_args}")
 
     def run_quantization(t_type, e_type):
         """Helper function to run quantization with specific types"""
@@ -365,7 +364,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         if t_type and e_type:
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
-        command.append(tensor_args)
+        command.extend(shlex.split(tensor_args)) 
         command.extend([model_path, temp_output, quant_type])
         command.append( str(get_half_threads()))
         print(f"Running command {command}")        
@@ -398,6 +397,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
     adjusted_embed = embed_type if embed_type not in ["Q5_K", "Q6_K"] else "Q5_1"
     
     result = run_quantization(adjusted_tensor, adjusted_embed)
+    sys.exit()
     if result.returncode == 0:
         os.rename(temp_output, output_path)
         return True
@@ -410,7 +410,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         pass
     return False
 
-def quantize_model(input_model, company_name, base_name, allow_requantize=False):
+def quantize_model(input_model, company_name, base_name, allow_requantize=False, is_moe=False):
     """Quantize the model and upload files following HF standards."""
     # Setup paths and directories
     input_dir = os.path.dirname(input_model)
@@ -437,8 +437,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False)
     # Process each quantization config
     for suffix, quant_type, tensor_type, embed_type, use_imatrix, use_pure in filtered_configs:
         output_file = f"{base_name}-{suffix}.gguf"
-        output_path = os.path.join(output_dir, output_file)
-       
+        output_path = os.path.join(output_dir, output_file)    
         print(f"\n🏗 Processing {output_file}...")
         success = quantize_with_fallback(
             bf16_model_file,
@@ -448,7 +447,8 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False)
             embed_type=embed_type,
             use_imatrix=imatrix_file if use_imatrix else None,
             use_pure=use_pure,
-            allow_requantize=allow_requantize
+            allow_requantize=allow_requantize,
+            is_moe=is_moe 
         )
         
         if not success:
@@ -507,6 +507,7 @@ def main():
     parser = argparse.ArgumentParser(description="Automate GGUF model quantization")
     parser.add_argument("model_id", help="Full Hugging Face model ID (e.g., 'company/model')")
     parser.add_argument("--allow-requantize", action="store_true", help="Allow requantization of already quantized models")
+    parser.add_argument("--is_moe", action="store_true", help="The model is a MOE model")
     
     args = parser.parse_args()
 
@@ -517,7 +518,7 @@ def main():
     company_name, model_name = args.model_id.split("/", 1)
     model_dir = os.path.join(base_dir, model_name)
     allow_requantize=args.allow_requantize
-    quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name, args.allow_requantize)
+    quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name, args.allow_requantize, args.is_moe )
 
 if __name__ == "__main__":
     main()

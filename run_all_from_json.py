@@ -3,9 +3,16 @@ import json
 from datetime import datetime
 from model_converter import ModelConverter
 
-def process_model(converter, model_id):
+def process_model(converter, model_entry):
     """Process a single model using the ModelConverter"""
-    print(f"\nProcessing model: {model_id}")
+    if isinstance(model_entry, str):
+        model_id = model_entry
+        is_moe = False  # Default for backward compatibility
+    else:
+        model_id = model_entry["name"]
+        is_moe = model_entry.get("is_moe", False)
+    
+    print(f"\nProcessing model: {model_id} (MoE: {'Yes' if is_moe else 'No'})")
     
     # Check if model exists in catalog and get its data
     model_data = converter.model_catalog.get_model(model_id)
@@ -22,13 +29,25 @@ def process_model(converter, model_id):
             "last_attempt": None,
             "success_date": None,
             "error_log": [],
-            "quantizations": []
+            "quantizations": [],
+            "is_moe": is_moe
         }
         if not converter.model_catalog.add_model(model_id, model_data):
             print(f"Failed to add model {model_id} to catalog")
+            raise RuntimeError(f"Failed to add model {model_id} to Redis catalog")
 
-    # Run the conversion using the existing convert_model method
-    converter.convert_model(model_id)
+    # Update MoE status if it's different from what's in Redis
+    if model_data.get("is_moe", False) != is_moe:
+        print(f"Updating MoE status for {model_id} to {is_moe}")
+        if not converter.model_catalog.update_model_field(
+            model_id,
+            "is_moe",
+            is_moe
+        ):
+            raise RuntimeError(f"Failed to update MoE status for {model_id}")
+
+    # Run the conversion - will raise exception on failure
+    converter.convert_model(model_id, is_moe)
 
 def main():
     if len(sys.argv) != 2:
@@ -42,25 +61,29 @@ def main():
     try:
         with open(sys.argv[1], "r") as f:
             data = json.load(f)
-            model_ids = data.get("models", [])
-            if isinstance(model_ids, dict):  # Handle case where models is an object
-                model_ids = list(model_ids.keys())
+            model_entries = data.get("models", [])
+            
+            if not model_entries:
+                print("No models found in the JSON file.")
+                sys.exit(1)
+                
     except Exception as e:
         print(f"Error loading JSON file: {e}")
         sys.exit(1)
 
-    if not model_ids:
-        print("No model IDs found in the JSON file.")
+    print(f"Found {len(model_entries)} models to process")
+    
+    # Process each model - will stop on first failure
+    try:
+        for i, model_entry in enumerate(model_entries, 1):
+            print(f"\nProcessing model {i}/{len(model_entries)}")
+            process_model(converter, model_entry)
+    except Exception as e:
+        print(f"\nFATAL ERROR: {e}")
+        print("Stopping processing due to failure.")
         sys.exit(1)
 
-    print(f"Found {len(model_ids)} models to process")
-    
-    # Process each model
-    for i, model_id in enumerate(model_ids, 1):
-        print(f"\nProcessing model {i}/{len(model_ids)}")
-        process_model(converter, model_id)
-
-    print("\nAll models processed.")
+    print("\nAll models processed successfully.")
 
 if __name__ == "__main__":
     main()
