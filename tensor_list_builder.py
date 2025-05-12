@@ -121,62 +121,73 @@ def determine_quant_tier(base_quant: str,
                          layer_order: float = None, 
                          quant_rules: list = None) -> tuple:
     """
-    Improved quantization tier determination with wildcards and F32 protection.
-    Returns (suggested_quant, reason, bump_applied)
+    Improved quantization tier determination with wildcards and F32 protection
     """
+    # Never bump F32 layers - keep original precision
     if base_quant == "F32":
-        return base_quant, "Keeping original F32 precision", False
+        return (base_quant, "Keeping original F32 precision", False)
+    
 
     try:
-        base_idx = quant_levels.index(base_quant)
-        target_idx = quant_levels.index(target_type)
+        target_idx = quant_levels.index(quant_substitutions.get(target_type, target_type))
     except ValueError:
-        base_idx = quant_levels.index("Q4_K")
         target_idx = quant_levels.index("Q4_K")
-
+    
+    default_return = (target_type, "No specific rule applied, using target type", False)
+    
     if not quant_rules:
-        return target_type, "No specific rule applied, using target type", False
-
+        return default_return
+    
     total_bump = 0
     bump_reason = ""
-
+    
     for rule in quant_rules:
+        # Skip if target type doesn't match (supporting arrays)
         rule_base_types = rule.get('base_type', [])
         if isinstance(rule_base_types, str):
             rule_base_types = [rule_base_types]
         if target_type not in rule_base_types:
             continue
-
+        
+        # Skip if layer name doesn't match (with wildcard support)
         if 'layer_name' in rule:
             layer_patterns = rule['layer_name']
             if isinstance(layer_patterns, str):
                 layer_patterns = [layer_patterns]
-
-            if not any(is_layer_match(layer_name, pattern) for pattern in layer_patterns):
+            
+            layer_matched = False
+            for pattern in layer_patterns:
+                if is_layer_match(layer_name, pattern):
+                    layer_matched = True
+                    break
+            
+            if not layer_matched:
                 continue
-
+        
+        # Apply bumps
         base_bump = rule.get('bump_experts', rule.get('bump', 0)) if is_moe else rule.get('bump', 0)
         total_bump += int(base_bump)
-
+        
+        # Layer order bumps
         if layer_order is not None and 'bump_order_low' in rule:
             bump_order_low = rule.get('bump_order_low', float('-inf'))
             bump_order_high = rule.get('bump_order_high', float('inf'))
-
+            
             if layer_order <= bump_order_low or layer_order >= bump_order_high:
-                order_bump = rule.get('bump_order_val', 0)
+                order_bump = rule.get('bump_order_experts_val', rule.get('bump_order_val', 0)) if is_moe else rule.get('bump_order_val', 0)
                 total_bump += int(order_bump)
                 bump_reason += f"Layer order bump: {order_bump} "
-
+    
     if total_bump == 0:
-        return target_type, "No specific rule applied, using target type", False
-
+        return default_return
+    
     new_idx = min(target_idx + total_bump, len(quant_levels) - 1)
     full_reason = f"Bumped from {target_type} by {total_bump} levels"
     if layer_name:
         full_reason += f" for {layer_name}"
     if bump_reason:
         full_reason += f" ({bump_reason.strip()})"
-
+    
     return quant_levels[new_idx], full_reason, True
 
 def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False):
@@ -222,7 +233,12 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
         # Only add suggestion if it's different from current
         if bump_applied and suggested_quant != current_quant:
             quant_suggestions.append((name, suggested_quant, reason))
-    
+    # Sort by layer number before printing
+    def layer_sort_key(item):
+        return extract_layer_order(item[0])
+
+    quant_suggestions.sort(key=layer_sort_key)
+
     # Print results
     print("\n=== Quantization Suggestions ===")
     for name, quant, reason in quant_suggestions:
@@ -234,7 +250,7 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
     # Generate tensor-type arguments
     print("=== Suggested --tensor-type arguments (copy-ready) ===")
     tensor_args = " ".join([f"--tensor-type {name}={quant}" for name, quant, _ in quant_suggestions])
-    print(tensor_args)
+    return tensor_args
 
 def main():
     parser = argparse.ArgumentParser(
@@ -248,12 +264,13 @@ def main():
     
     args = parser.parse_args()
     
-    process_quantization(
+    tensor_args = process_quantization(
         gguf_file=args.gguf_file,
         quant_rules_file=args.quant_rules,
         target_type=args.target_type,
         is_moe=args.moe
     )
+    print(tensor_args)
 
 if __name__ == "__main__":
     main()

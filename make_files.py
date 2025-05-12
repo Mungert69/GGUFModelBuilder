@@ -2,10 +2,12 @@ import os
 import json
 import re
 import math
+import sys
 import subprocess
 import argparse
 import urllib.request
 from update_readme import update_readme  # Importing the update_readme function
+from tensor_list_builder from 
 import shutil
 from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
@@ -21,7 +23,7 @@ def get_half_threads():
 
 base_dir = os.path.expanduser("~/code/models")
 run_dir = os.path.abspath("./")
-
+quant_rules_path=os.path.abspath("./quant_rules.json")
 # Load the .env file
 load_dotenv()
 
@@ -337,10 +339,19 @@ def needs_compatibility_check(quant_type, tensor_type, embed_type):
             embed_type in ["Q5_K", "Q6_K"])
 
 def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None, embed_type=None, 
-                         use_imatrix=None, use_pure=False, allow_requantize=False):
+                         use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False):
     """Perform quantization with automatic fallback for Q5_K/Q6_K tensor/embed types"""
     temp_output = f"{output_path}.tmp"
-    
+    tensor_args = process_quantization(
+        gguf_file=model_path,
+        quant_rules_file=quant_rules_path,
+        target_type=quant_type,
+        is_moe=is_moe
+    )
+    print(f"Got tensor args : {tensor_args}")
+
+    sys.exit()
+
     def run_quantization(t_type, e_type):
         """Helper function to run quantization with specific types"""
         print(f"trying with quants embedding {e_type} output {t_type} quant type {quant_type}")
@@ -354,6 +365,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         if t_type and e_type:
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
+        command.append(tensor_args)
         command.extend([model_path, temp_output, quant_type])
         command.append( str(get_half_threads()))
         print(f"Running command {command}")        
