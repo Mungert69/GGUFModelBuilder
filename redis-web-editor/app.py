@@ -36,7 +36,7 @@ def index():
 @app.route('/settings', methods=['GET', 'POST'))
 def settings():
     if request.method == 'POST':
-        session['redis_host'] = request.form.get('host') or "redis.freenetworkmonitor.click"
+        session['redis_host'] = request.form.get('host') or "redis.readyforquantum.com"
         session['redis_port'] = int(request.form.get('port') or 46379)
         session['redis_user'] = request.form.get('user') or "admin"
         session['redis_password'] = request.form.get('password') or os.getenv("REDIS_PASSWORD")

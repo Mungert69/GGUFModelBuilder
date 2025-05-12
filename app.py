@@ -64,7 +64,7 @@ def get_catalog():
     
     try:
         return init_redis_catalog(
-            host=config.get('host', "redis.freenetworkmonitor.click"),
+            host=config.get('host', "redis.readyforquantum.com"),
             port=config.get('port', 46379),
             password=config.get('password', ""),
             user=config.get('user', "admin"),
@@ -78,7 +78,7 @@ def get_catalog():
 def settings():
     if request.method == 'POST':
         config = {
-            'host': request.form.get('host', "redis.freenetworkmonitor.click"),
+            'host': request.form.get('host', "redis.readyforquantum.com"),
             'port': int(request.form.get('port', 46379)),
             'user': request.form.get('user', "admin"),
             'password': request.form.get('password', ""),

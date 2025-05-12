@@ -145,7 +145,7 @@ def set_custom_metadata() -> dict[str, MetadataDetails]:
     return {
         "general.quantized_by": MetadataDetails(gguf.GGUFValueType.STRING, "Mungert"),
         "general.repo_url": MetadataDetails(gguf.GGUFValueType.STRING, "https://huggingface.co/mungert"),
-        "general.sponsor_url": MetadataDetails(gguf.GGUFValueType.STRING, "https://freenetworkmonitor.click")
+        "general.sponsor_url": MetadataDetails(gguf.GGUFValueType.STRING, "https://readyforquantum.com")
     }
 
 

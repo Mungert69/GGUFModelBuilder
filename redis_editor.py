@@ -33,7 +33,7 @@ def import_models(catalog):
 def initialize_catalog():
     """Initialize Redis connection"""
     print("\n=== Redis Connection Setup ===")
-    host = input("Redis host [redis.freenetworkmonitor.click]: ") or "redis.freenetworkmonitor.click"
+    host = input("Redis host [redis.readyforquantum.com]: ") or "redis.readyforquantum.com"
     port = int(input("Redis port [46379]: ") or 46379)
     user = input("Redis user [admin]: ") or "admin"
     

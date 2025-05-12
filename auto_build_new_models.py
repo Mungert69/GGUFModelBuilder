@@ -19,7 +19,7 @@ logging.basicConfig(
 load_dotenv()
 
 # Initialize Redis catalog
-REDIS_HOST = os.getenv("REDIS_HOST", "redis.freenetworkmonitor.click")
+REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
 REDIS_USER = os.getenv("REDIS_USER","admin")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
