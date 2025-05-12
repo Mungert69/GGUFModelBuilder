@@ -1,0 +1,24 @@
+--- a/tools/imatrix/imatrix.cpp
++++ b/tools/imatrix/imatrix.cpp
+@@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+-    for (int i = 0; i < n_chunk; ++i) {
+-        const int start = i * n_ctx;
+-        const int end   = start + n_ctx;
++    for (int i = 0; i < n_chunk; ++i) {
++        const int start = i * n_ctx;
++        int end = start + n_ctx;
++        // move `end` backwards so that tokens[end-1] ends on a space
++        // or BOS/EOS token, never mid-word
++        while (end > start) {
++            llama_token tk = tokens[end-1];
++            // assuming vocab->is_whitespace() or checking for ' ' in detokenized form
++            if ( llama_token_is_space(vocab, tk) || tk == llama_token_eos(vocab) ) {
++                break;
++            }
++            --end;
++        }
++        // if we fell all the way back, just use the full window
++        if (end <= start) {
++            end = start + n_ctx;
++        }
+

@@ -1,3 +1,3 @@
 Model,Perplexity,Time
-Qwen3-0.6B-abliterated-iq3_xxs.gguf,54.3455,65.10
-Qwen3-4B-iq2_xxs.gguf,21.2786,157.78
+Qwen3-4B-DQ2-iq2_xxs.gguf,14.7982,151.52
+Qwen3-4B-UD-IQ2_M.gguf,19.4049,169.73

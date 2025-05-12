@@ -1,0 +1,214 @@
+diff --git a/tools/imatrix/imatrix.cpp b/tools/imatrix/imatrix.cpp
+index 81d0404..c31836c 100644
+--- a/tools/imatrix/imatrix.cpp
++++ b/tools/imatrix/imatrix.cpp
+@@ -428,6 +428,8 @@ static void process_logits(
+     }
+ }
+ 
++// Improvement to be added to the compute_imatrix function to handle word boundaries
++
+ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+     const llama_model * model = llama_get_model(ctx);
+     const llama_vocab * vocab = llama_model_get_vocab(model);
+@@ -468,9 +470,85 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+         prob_history.resize(tokens.size());
+     }
+ 
+-    const int n_chunk_max = tokens.size() / n_ctx;
++    // Generate chunk boundaries that respect word boundaries
++    std::vector<int> chunk_boundaries;
++    chunk_boundaries.push_back(0); // Start with the first token
++
++    // Find word boundaries in the token sequence
++    // In this context, we're looking for tokens that are likely to begin words
++    
++    // Get the string representation of each token
++    std::vector<std::string> token_strings;
++    token_strings.reserve(tokens.size());
++    const llama_vocab* vocab_ptr = llama_model_get_vocab(model);
++    for (size_t i = 0; i < tokens.size(); i++) {
++        const char* token_str = llama_vocab_get_text(vocab_ptr, tokens[i]);
++        token_strings.push_back(token_str ? std::string(token_str) : std::string());
++    }
++
++    int current_pos = 0;
++    while (current_pos + n_ctx < (int)tokens.size()) {
++        // Default next chunk position
++        int next_pos = current_pos + n_ctx;
++        
++        // Look ahead a bit (within reason) to find a better boundary
++        const int look_ahead = std::min(50, (int)tokens.size() - next_pos);
++        
++        // Find the best word boundary within the look-ahead window
++        int best_boundary = next_pos;
++        bool found_boundary = false;
++        
++        for (int i = 0; i < look_ahead; i++) {
++            int check_pos = next_pos + i;
++            std::string token_str = token_strings[check_pos];
++            
++            // Check if this token is likely to start a word (starts with a space or punctuation)
++            if (!token_str.empty() && (token_str[0] == ' ' || ispunct(token_str[0]))) {
++                best_boundary = check_pos;
++                found_boundary = true;
++                break;
++            }
++        }
++        
++        // If we couldn't find a good boundary, just use the default
++        if (!found_boundary) {
++            // Try looking backwards instead
++            const int look_back = std::min(50, n_ctx);
++            for (int i = 1; i <= look_back; i++) {
++                int check_pos = next_pos - i;
++                std::string token_str = token_strings[check_pos];
++                
++                // Check if the next token is likely to start a word
++                if (check_pos + 1 < (int)token_strings.size()) {
++                    std::string next_token = token_strings[check_pos + 1];
++                    if (!next_token.empty() && (next_token[0] == ' ' || ispunct(next_token[0]))) {
++                        best_boundary = check_pos + 1;
++                        found_boundary = true;
++                        break;
++                    }
++                }
++            }
++            
++            // If still no good boundary, use the default
++            if (!found_boundary) {
++                best_boundary = next_pos;
++            }
++        }
++        
++        chunk_boundaries.push_back(best_boundary);
++        current_pos = best_boundary;
++    }
++    
++    // Add the final boundary if needed
++    if (chunk_boundaries.back() < (int)tokens.size()) {
++        chunk_boundaries.push_back(tokens.size());
++    }
+ 
+-    const int n_chunk = params.n_chunks < 0 ? n_chunk_max : std::min(params.n_chunks, n_chunk_max);
++    const int n_chunk = std::min(params.n_chunks < 0 ? (int)chunk_boundaries.size() - 1 : params.n_chunks, 
++                                (int)chunk_boundaries.size() - 1);
++    
++    LOG_INF("%s: processing %d word-aware chunks\n", __func__, n_chunk);
++    
+     const int n_vocab = llama_vocab_n_tokens(vocab);
+     const int n_batch = params.n_batch;
+ 
+@@ -482,18 +560,16 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+ 
+     std::vector<std::thread> workers(std::thread::hardware_concurrency() - 1);
+ 
+-    const int num_batches = (n_ctx + n_batch - 1) / n_batch;
+-
+     std::vector<float> logits;
+-    if (params.compute_ppl && num_batches > 1) {
+-        logits.reserve((size_t)n_ctx * n_vocab);
+-    }
+ 
+     for (int i = 0; i < n_chunk; ++i) {
+-        const int start =     i * n_ctx;
+-        const int end   = start + n_ctx;
++        const int start = chunk_boundaries[i];
++        const int end = chunk_boundaries[i + 1];
++        const int chunk_size = end - start;
+ 
+-        std::vector<float> logits;
++        if (params.compute_ppl && chunk_size > n_batch) {
++            logits.reserve((size_t)chunk_size * n_vocab);
++        }
+ 
+         const auto t_start = std::chrono::high_resolution_clock::now();
+ 
+@@ -502,9 +578,11 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+ 
+         llama_batch batch = llama_batch_init(n_batch, 0, 1);
+ 
++        const int num_batches = (chunk_size + n_batch - 1) / n_batch;
++
+         for (int j = 0; j < num_batches; ++j) {
+             const int batch_start = start + j * n_batch;
+-            const int batch_size  = std::min(end - batch_start, n_batch);
++            const int batch_size = std::min(end - batch_start, n_batch);
+ 
+             // save original token and restore it after eval
+             const auto token_org = tokens[batch_start];
+@@ -515,8 +593,8 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+             }
+ 
+             common_batch_clear(batch);
+-            for (int i = 0; i < batch_size; i++) {
+-                common_batch_add(batch, tokens[batch_start + i], j*n_batch + i, {0}, true);
++            for (int k = 0; k < batch_size; k++) {
++                common_batch_add(batch, tokens[batch_start + k], j*n_batch + k, {0}, true);
+             }
+ 
+             if (llama_decode(ctx, batch)) {
+@@ -550,13 +628,20 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+         }
+ 
+         if (params.compute_ppl) {
+-            const int first = n_ctx/2;
++            // Use half of the chunk for perplexity calculation
++            const int first = chunk_size / 2;
+             const auto * all_logits = num_batches > 1 ? logits.data() : llama_get_logits(ctx);
+-            process_logits(n_vocab, all_logits + first*n_vocab, tokens.data() + start + first, n_ctx - 1 - first,
+-                    workers, nll, nll2, logit_history.data() + start + first, prob_history.data() + start + first);
+-            count += n_ctx - first - 1;
++            
++            // Make sure we don't go out of bounds
++            const int tokens_to_process = std::min(chunk_size - 1 - first, end - start - first - 1);
++            
++            if (tokens_to_process > 0) {
++                process_logits(n_vocab, all_logits + first*n_vocab, tokens.data() + start + first, tokens_to_process,
++                        workers, nll, nll2, logit_history.data() + start + first, prob_history.data() + start + first);
++                count += tokens_to_process;
++            }
+ 
+-            LOG("[%d]%.4lf,", i + 1, std::exp(nll / count));
++            LOG("[%d]%.4lf,", i + 1, std::exp(nll / (count > 0 ? count : 1)));
+             fflush(stdout);
+ 
+             logits.clear();
+@@ -565,21 +650,29 @@ static bool compute_imatrix(llama_context * ctx, const common_params & params) {
+     LOG("\n");
+ 
+     if (params.compute_ppl) {
+-        nll2 /= count;
+-        nll /= count;
+-        const double ppl = exp(nll);
+-        nll2 -= nll * nll;
+-        if (nll2 > 0) {
+-            nll2 = sqrt(nll2/(count-1));
+-            LOG("Final estimate: PPL = %.4lf +/- %.5lf\n", ppl, nll2*ppl);
++        if (count > 0) {
++            nll2 /= count;
++            nll /= count;
++            const double ppl = exp(nll);
++            nll2 -= nll * nll;
++            if (nll2 > 0 && count > 1) {
++                nll2 = sqrt(nll2/(count-1));
++                LOG("Final estimate: PPL = %.4lf +/- %.5lf\n", ppl, nll2*ppl);
++            } else {
++                LOG("Final estimate: PPL = %.4lf\n", ppl);
++                if (nll2 <= 0) {
++                    LOG("Unexpected negative standard deviation of log(prob)\n");
++                }
++            }
+         } else {
+-            LOG("Unexpected negative standard deviation of log(prob)\n");
++            LOG("No tokens processed for perplexity calculation\n");
+         }
+     }
+ 
+     return true;
+ }
+ 
++
+ int main(int argc, char ** argv) {
+     common_params params;
+ 

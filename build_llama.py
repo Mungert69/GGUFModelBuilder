@@ -9,7 +9,8 @@ src_dir = os.path.join(llama_cpp_dir, "src")
 build_dir = os.path.join(llama_cpp_dir, "build")
 bin_dir = os.path.join(build_dir, "bin")
 patch_file = os.path.abspath("./my_quant_changes.patch")
-
+pathh_file2 = os.path.abspath("./imatrix_word_boundary.patch")
+ 
 # CMake configuration
 cmake_command = [
     "cmake", "-B", build_dir,
@@ -38,6 +39,7 @@ def apply_patch():
         try:
             print("Attempting system patch from src directory...")
             run_command(["patch", "-p1", "-i", patch_file])
+            run_command(["patch", "-p1", "-i", patch_file2])
             return True
         except RuntimeError as e:
             print(f"System patch failed: {e}")
@@ -46,6 +48,7 @@ def apply_patch():
             try:
                 print("Attempting git apply from src directory...")
                 run_command(["git", "apply", "--ignore-space-change", patch_file])
+                run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
                 return True
             except RuntimeError as e:
                 print(f"Git apply failed: {e}")
@@ -54,6 +57,7 @@ def apply_patch():
                 try:
                     print("Attempting 3-way merge...")
                     run_command(["git", "apply", "-3", "--ignore-space-change", patch_file])
+                    run_command(["git", "apply", "-3", "--ignore-space-change", patch_file2])
                     return True
                 except RuntimeError as e:
                     print(f"3-way merge failed: {e}")
