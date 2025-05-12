@@ -1,0 +1,18 @@
+{
+    "rules": [
+        {
+            "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
+            "layer_name": ["*attn_k","*attn_v"],
+            "bump": 1,
+            "bump_experts": 2,
+            "bump_order_low": 2,
+            "bump_order_high": 6
+        },
+        {
+            "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
+            "layer_name": ["*attn_q"],
+            "bump": 1,
+            "bump_experts": 2
+        }
+    ]
+}
