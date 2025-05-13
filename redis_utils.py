@@ -25,6 +25,7 @@ class RedisModelCatalog:
             username=user,
             ssl=ssl,
             ssl_cert_reqs='none',  # Disable cert verification for testing
+            ssl_check_hostname=False,  # <-- Add this line to fix the error
             decode_responses=True,
             retry_on_timeout=True,
             socket_keepalive=True
@@ -233,3 +234,108 @@ def init_redis_catalog(host: str, port: int, password: str, user: str , ssl: boo
     global model_catalog
     model_catalog = RedisModelCatalog(host, port, password, user,  ssl)
     return model_catalog
+
+if __name__ == "__main__":
+    import argparse
+    import os
+
+    # Load environment variables from .env if present
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass  # If python-dotenv is not installed, skip loading .env
+
+    REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
+    REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
+    REDIS_USER = os.getenv("REDIS_USER", "admin")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+
+    parser = argparse.ArgumentParser(description="Redis Model Catalog CLI")
+    parser.add_argument("--host", default=REDIS_HOST)
+    parser.add_argument("--port", type=int, default=REDIS_PORT)
+    parser.add_argument("--password", default=REDIS_PASSWORD)
+    parser.add_argument("--user", default=REDIS_USER)
+    parser.add_argument("--ssl", action="store_true", default=True)
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Add model command
+    add_parser = subparsers.add_parser("add_model", help="Add a model to the catalog")
+    add_parser.add_argument("--model_id", required=True)
+    add_parser.add_argument("--model_info", required=True, help="JSON string of model info")
+
+    # Get model command
+    get_parser = subparsers.add_parser("get_model", help="Get a model from the catalog")
+    get_parser.add_argument("--model_id", required=True)
+
+    # Load catalog command
+    load_parser = subparsers.add_parser("load_catalog", help="Load and print the entire catalog")
+
+    # Update model field command
+    update_parser = subparsers.add_parser("update_model_field", help="Update a field in a model")
+    update_parser.add_argument("--model_id", required=True)
+    update_parser.add_argument("--field", required=True)
+    update_parser.add_argument("--value", required=True)
+    update_parser.add_argument("--condition", help="JSON string of condition dict", default=None)
+
+    # Increment counter command
+    inc_parser = subparsers.add_parser("increment_counter", help="Increment a counter field")
+    inc_parser.add_argument("--model_id", required=True)
+    inc_parser.add_argument("--field", required=True)
+
+    # Backup to file command
+    backup_parser = subparsers.add_parser("backup_to_file", help="Backup catalog to a JSON file")
+    backup_parser.add_argument("--file_path", required=True)
+
+    # Initialize from file command
+    init_parser = subparsers.add_parser("initialize_from_file", help="Initialize catalog from a JSON file")
+    init_parser.add_argument("--file_path", required=True)
+
+    # Import models from list command
+    import_parser = subparsers.add_parser("import_models_from_list", help="Import models from a list")
+    import_parser.add_argument("--model_ids", required=True, help="Comma-separated list of model IDs")
+    import_parser.add_argument("--defaults", help="JSON string of default values", default=None)
+
+    args = parser.parse_args()
+    catalog = init_redis_catalog(args.host, args.port, args.password, args.user, args.ssl)
+
+    # Optional: Test connection before proceeding
+    try:
+        catalog.r.ping()
+    except Exception as e:
+        print(f"Could not connect to Redis: {e}")
+        exit(1)
+
+    import json
+
+    if args.command == "add_model":
+        model_info = json.loads(args.model_info)
+        result = catalog.add_model(args.model_id, model_info)
+        print("Added" if result else "Already exists or failed")
+    elif args.command == "get_model":
+        result = catalog.get_model(args.model_id)
+        print(json.dumps(result, indent=2) if result else "Model not found")
+    elif args.command == "load_catalog":
+        result = catalog.load_catalog()
+        print(json.dumps(result, indent=2))
+    elif args.command == "update_model_field":
+        value = json.loads(args.value) if args.value.startswith("{") or args.value.startswith("[") else args.value
+        condition = json.loads(args.condition) if args.condition else None
+        result = catalog.update_model_field(args.model_id, args.field, value, condition)
+        print("Updated" if result else "Update failed")
+    elif args.command == "increment_counter":
+        result = catalog.increment_counter(args.model_id, args.field)
+        print("Incremented" if result else "Increment failed")
+    elif args.command == "backup_to_file":
+        result = catalog.backup_to_file(args.file_path)
+        print("Backup successful" if result else "Backup failed")
+    elif args.command == "initialize_from_file":
+        result = catalog.initialize_from_file(args.file_path)
+        print("Initialization successful" if result else "Initialization failed")
+    elif args.command == "import_models_from_list":
+        model_ids = [mid.strip() for mid in args.model_ids.split(",")]
+        defaults = json.loads(args.defaults) if args.defaults else None
+        result = catalog.import_models_from_list(model_ids, defaults)
+        print(json.dumps(result, indent=2))
+    else:
+        print("Unknown command")
