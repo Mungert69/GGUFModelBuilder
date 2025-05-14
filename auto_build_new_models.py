@@ -243,6 +243,7 @@ def build_commit_analysis_prompt(message, file_changes):
 def build_commit_analysis_prompt(message, file_changes):
     """Build the prompt messages for analyzing a commit."""
     system_message = (
+        "/no_think\n"
         "You are an AI assistant that analyzes GitHub commits to detect new AI models.\n"
         "Your task is to determine if a new AI model is being added based on the commit message and file changes.\n"
         "Respond ONLY in valid JSON format with the following structure:\n"
@@ -319,42 +320,58 @@ def extract_parameter_size(model_id):
     return None
 
 def find_huggingface_model(model_name, max_parameters=15):
-    """Search for the model on Hugging Face and return its ID and base model information."""
+    """Search for the model on Hugging Face with authentication."""
     api = HfApi()
-    models = list(api.list_models(search=model_name))
-    if not models:
+    try:
+        # Add token from environment
+        token = os.getenv("HF_API_TOKEN")
+        if not token:
+            logging.error("No Hugging Face token found in environment variables")
+            return None
+            
+        models = list(api.list_models(
+            search=model_name,
+            token=token  # Explicitly pass the token
+        ))
+        
+        if not models:
+            return None
+
+        # Rest of your existing filtering logic...
+        filtered_models = []
+        for model_info in models:
+            try:
+                num_parameters = None
+                if hasattr(model_info, "config") and model_info.config is not None:
+                    num_parameters = model_info.config.get("num_parameters", None)
+                if num_parameters is None:
+                    param_size = extract_parameter_size(model_info.modelId)
+                    if param_size is not None:
+                        num_parameters = param_size * 1e9
+                if num_parameters is not None and num_parameters <= max_parameters * 1e9:
+                    filtered_models.append((model_info, num_parameters))
+            except Exception as e:
+                logging.warning(f"Error processing model {model_info.modelId}: {e}")
+
+        if not filtered_models:
+            logging.info(f"No models found with <= {max_parameters}B parameters.")
+            return None
+
+        filtered_models.sort(key=lambda x: x[1], reverse=True)
+        largest_model, num_parameters = filtered_models[0]
+        base_model = None
+        if hasattr(largest_model, "config") and largest_model.config is not None:
+            base_model = largest_model.config.get("base_model", None)
+
+        return {
+            "model_id": largest_model.modelId,
+            "base_model": base_model,
+            "num_parameters": num_parameters
+        }
+        
+    except Exception as e:
+        logging.error(f"Hugging Face API error: {e}")
         return None
-
-    filtered_models = []
-    for model_info in models:
-        try:
-            num_parameters = None
-            if hasattr(model_info, "config") and model_info.config is not None:
-                num_parameters = model_info.config.get("num_parameters", None)
-            if num_parameters is None:
-                param_size = extract_parameter_size(model_info.modelId)
-                if param_size is not None:
-                    num_parameters = param_size * 1e9
-            if num_parameters is not None and num_parameters <= max_parameters * 1e9:
-                filtered_models.append((model_info, num_parameters))
-        except Exception as e:
-            logging.warning(f"Error processing model {model_info.modelId}: {e}")
-
-    if not filtered_models:
-        logging.info(f"No models found with <= {max_parameters}B parameters.")
-        return None
-
-    filtered_models.sort(key=lambda x: x[1], reverse=True)
-    largest_model, num_parameters = filtered_models[0]
-    base_model = None
-    if hasattr(largest_model, "config") and largest_model.config is not None:
-        base_model = largest_model.config.get("base_model", None)
-
-    return {
-        "model_id": largest_model.modelId,
-        "base_model": base_model,
-        "num_parameters": num_parameters
-    }
 
 def main():
     """Main monitoring function."""
