@@ -64,35 +64,39 @@ class ModelConverter:
             "agentica-org"
         ]
     def check_moe_from_config(self, model_id):
-        """Check if model is MoE by examining its config.json"""
+        """Check if model is MoE by examining field names in its config.json"""
         try:
             config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
             response = requests.get(config_url)
             response.raise_for_status()
             config = response.json()
             
-            # Check standard MoE config parameters
-            if config.get("architectures", [""])[0].lower() in ["moe_model", "switchtransformers"]:
+            # Convert all keys to lowercase for case-insensitive search
+            all_keys = [k.lower() for k in config.keys()]
+            
+            # Check if any key contains 'moe'
+            moe_keys = [k for k in all_keys if 'moe' in k]
+            
+            if moe_keys:
+                print(f"Found MoE indicators in config for {model_id}: {moe_keys}")
                 return True
                 
-            # Check for expert-related parameters
-            moe_indicators = [
-                ("num_experts", lambda x: x > 1),
-                ("num_local_experts", lambda x: x > 1),
-                ("moe_layer_frequency", lambda x: x > 0),
-                ("output_router_logits", True),
-                ("router_bias", True),
-                ("expert_capacity", lambda x: x > 0)
-            ]
+            # Also check nested dictionaries recursively
+            def check_nested(obj):
+                if isinstance(obj, dict):
+                    for key, value in obj.items():
+                        if 'moe' in str(key).lower():
+                            return True
+                        if check_nested(value):
+                            return True
+                elif isinstance(obj, (list, tuple)):
+                    for item in obj:
+                        if check_nested(item):
+                            return True
+                return False
             
-            for key, condition in moe_indicators:
-                if key in config:
-                    value = config[key]
-                    if (callable(condition) and condition(value)) or (value == condition):
-                        return True
-                    
-            # Check for MoE-specific class names
-            if any("moe" in (config.get(k, "") or "").lower() for k in ["model_type", "architecture", "class_name"]):
+            if check_nested(config):
+                print(f"Found nested MoE indicators in config for {model_id}")
                 return True
                 
             return False
