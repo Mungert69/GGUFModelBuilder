@@ -46,8 +46,8 @@ graph LR
 
 | Component | Link |
 |-----------|------|
-| Model Converter | [GGUF Model Converter](wiki/Model-Converter) |
-| Catalog Editor | [GGUF Model Catalog Editor](wiki/GGUF-Model-Catalog-Editor) |
+| Model Converter | [GGUF Model Converter](GGUFModelBuilder/wiki/Model-Converter) |
+| Catalog Editor | [GGUF Model Catalog Editor](GGUFModelBuilder/wiki/GGUF-Model-Catalog-Editor) |
 
 
 ## 🌐 Community
