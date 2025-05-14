@@ -18,6 +18,10 @@
 ## 📦 Quick Start
 
 ### Prerequisites
+
+[Build llama.cpp](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md) and have llama-cli llama-quantize llama-imatrix available a path ~/code/models/llama.cpp
+You can also use the build_llama.py script when automating the process
+
 ```bash
 git clone https://github.com/yourorg/GGUFModelBuilder.git
 cd GGUFModelBuilder
@@ -56,5 +60,4 @@ graph LR
   <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="200">
 </a>
 
-Apache 2.0 - See [LICENSE](LICENSE)
 
