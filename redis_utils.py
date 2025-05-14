@@ -93,18 +93,15 @@ class RedisModelCatalog:
         condition: Optional[Dict[str, Any]] = None
     ) -> bool:
         """
-        Update a specific field in a model entry with optional conditions.
+        Returns:
+            bool: True if field now matches desired value, False if failed
         """
         def _normalize_value(v):
             if isinstance(v, str):
-                if v.lower() == 'true':
-                    return True
-                elif v.lower() == 'false':
-                    return False
-                try:
-                    return json.loads(v.lower())
-                except:
-                    return v
+                if v.lower() == 'true': return True
+                if v.lower() == 'false': return False
+                try: return json.loads(v.lower())
+                except: return v
             return v
 
         def _update_operation():
@@ -114,49 +111,42 @@ class RedisModelCatalog:
                         pipe.watch(self.catalog_key)
                         model_json = pipe.hget(self.catalog_key, model_id)
                         if not model_json:
-                            print(f"Error: Model {model_id} not found")
+                            print("Error: Model not found")
                             return False
                             
                         model = json.loads(model_json)
-                        print(f"Current model data: {model}")
-                        
-                        # Normalize the input value first
-                        normalized_value = _normalize_value(value)
-                        print(f"Normalized value: {normalized_value} (type: {type(normalized_value)})")
-                        
-                        # Check if value is already what we want
                         current_value = _normalize_value(model.get(field))
-                        if current_value == normalized_value:
-                            print("Value already matches desired state")
-                            return True
+                        desired_value = _normalize_value(value)
                         
+                        # If already matches, success!
+                        if current_value == desired_value:
+                            print(f"Field '{field}' already has desired value")
+                            return True
+                            
                         # Check conditions if provided
                         if condition:
-                            print(f"Checking conditions: {condition}")
                             for k, v in condition.items():
                                 if _normalize_value(model.get(k)) != _normalize_value(v):
-                                    print(f"Condition failed on {k}")
+                                    print(f"Condition failed on field '{k}'")
                                     return False
                                     
-                        # Update the field
-                        model[field] = normalized_value
-                        
+                        # Perform update
+                        model[field] = desired_value
                         pipe.multi()
                         pipe.hset(self.catalog_key, model_id, json.dumps(model))
-                        result = pipe.execute()
-                        print(f"Update result: {result}")
-                        return True if result else False
+                        pipe.execute()  # We don't actually care about the 0/1 response
+                        return True
+                        
                     except WatchError:
-                        print("WatchError occurred, retrying...")
                         continue
                     except Exception as e:
-                        print(f"Unexpected error: {str(e)}")
+                        print(f"Error during update: {str(e)}")
                         return False
 
-        print(f"\nStarting update for model {model_id}")
-        result = self._safe_operation(_update_operation)
-        print(f"Final update result: {result}\n")
-        return bool(result)
+        print(f"\nUpdating {model_id}.{field} → {value}")
+        success = self._safe_operation(_update_operation)
+        print(f"Operation {'succeeded' if success else 'failed'}\n")
+        return success
 
     def increment_counter(self, model_id: str, field: str) -> bool:
         """Atomically increment a counter field."""
