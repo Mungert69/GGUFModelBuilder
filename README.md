@@ -50,5 +50,11 @@ graph LR
 
 [![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/rne7YaK3)
 
+## 🤝 Sponsors
+
+<a href="https://readyforquantum.com" target="_blank">
+  <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="200">
+</a>
+
 Apache 2.0 - See [LICENSE](LICENSE)
 
