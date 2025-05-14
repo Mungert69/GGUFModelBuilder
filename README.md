@@ -40,15 +40,15 @@ graph LR
     F[llama.cpp] -->|Patched Build| B
 ```
 
-
 | Component | Link |
 |-----------|------|
 | Model Converter | [GGUF Model Converter](wiki/Model-Converter) |
 | Catalog Editor | [GGUF Model Catalog Editor](wiki/GGUF-Model-Catalog-Editor) |
 
-Apache 2.0 - See [LICENSE](LICENSE)
 
 ## 🌐 Community
 
 [![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/rne7YaK3)
+
+Apache 2.0 - See [LICENSE](LICENSE)
 
