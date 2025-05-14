@@ -4,7 +4,21 @@ from datetime import datetime
 from model_converter import ModelConverter
 
 def process_model(converter, model_entry):
-    """Process a single model using the ModelConverter"""
+    """Processes a single model entry by ensuring its presence in the catalog and running the conversion.
+
+    This function adds the model to the catalog if it does not exist, updates its MoE status if needed, and initiates the model conversion process.
+
+    Args:
+        converter: The ModelConverter instance used for catalog operations and conversion.
+        model_entry: The model entry, either as a string (model name) or a dictionary with model details.
+
+    Returns:
+        None
+
+    Raises:
+        RuntimeError: If adding the model to the catalog or updating its MoE status fails.
+    """
+
     if isinstance(model_entry, str):
         model_id = model_entry
         is_moe = False  # Default for backward compatibility
@@ -50,6 +64,16 @@ def process_model(converter, model_entry):
     converter.convert_model(model_id, is_moe)
 
 def main():
+    """Runs the batch model conversion process using a JSON file as input.
+
+    This function loads a list of models from a JSON file, initializes the converter, and processes each model entry in sequence.
+
+    Returns:
+        None
+
+    Raises:
+        SystemExit: If the input arguments are invalid or if any error occurs during processing.
+    """
     if len(sys.argv) != 2:
         print("Usage: python run_all_from_json.py <path_to_models_json>")
         sys.exit(1)

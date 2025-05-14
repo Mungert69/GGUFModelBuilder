@@ -1,3 +1,32 @@
+"""
+update_readme.py
+
+This script provides a function to update the README.md file in a model directory with
+detailed information about the model, quantization methods, and hardware recommendations.
+It can also add a section about ultra-low-bit quantization (IQ-DynamicGate) if requested.
+
+Main Features:
+- Inserts model generation details, including the llama.cpp commit hash.
+- Adds a section on ultra-low-bit quantization if specified.
+- Provides guidance on choosing the right model format for different hardware.
+- Summarizes included files and their quantization types.
+- Appends a call-to-action for users to test and provide feedback.
+
+Functions:
+    - update_readme(model_dir, base_name, add_iquant_txt=False): Updates the README.md file.
+    - get_git_commit_info(repo_path): Returns the full and short git commit hashes for a repo.
+
+Usage:
+    python update_readme.py <model_dir> <base_name> [--iquant]
+
+Arguments:
+    model_dir: Path to the model directory containing README.md.
+    base_name: Base name of the model (used for file references).
+    --iquant: Optional flag to add the IQ-DynamicGate quantization section.
+
+Exits with code 0 on success, raises exceptions on failure.
+"""
+
 import os
 import subprocess
 def update_readme(model_dir, base_name, add_iquant_txt=False):

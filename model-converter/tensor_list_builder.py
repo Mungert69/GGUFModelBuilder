@@ -58,8 +58,8 @@ def get_current_quant_types(gguf_file: str) -> tuple:
         # Run script with explicit paths
         subprocess.run(
             [sys.executable, str(script_path), 
-             str(Path(gguf_file).expanduser().resolve()),  # Handle ~ paths
-             "-o", str(output_file)],
+            str(Path(gguf_file).expanduser().resolve()),  # Handle ~ paths
+            "-o", str(output_file)],
             check=True,
             timeout=30
         )
@@ -114,11 +114,11 @@ def is_layer_match(layer_name: str, pattern: str) -> bool:
     return pattern == layer_name
 
 def determine_quant_tier(base_quant: str, 
-                         target_type: str,
-                         layer_name: str = None, 
-                         is_moe: bool = False, 
-                         layer_order: float = None, 
-                         quant_rules: list = None) -> tuple:
+    target_type: str,
+    layer_name: str = None, 
+    is_moe: bool = False, 
+    layer_order: float = None, 
+    quant_rules: list = None) -> tuple:
     """
     Improved quantization tier determination with wildcards and F32 protection
     """

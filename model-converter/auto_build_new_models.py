@@ -1,3 +1,40 @@
+"""
+auto_build_new_models.py
+
+This script monitors the llama.cpp GitHub repository for new commits, analyzes them using a local LLM
+to detect the addition of new AI models, and updates a Redis-based model catalog accordingly.
+
+Main Steps:
+1. Loads environment variables and configures logging.
+2. Connects to a Redis instance to manage the model catalog.
+3. Loads a JSON grammar and a quantized GGUF model for LLM-based commit analysis.
+4. Fetches recent commits from the llama.cpp GitHub repository.
+5. For each new commit, analyzes commit messages and file changes using the LLM to detect new model additions.
+6. If a new model is detected, searches for it on Hugging Face and adds it to the Redis catalog.
+7. Runs in a continuous loop, checking for new commits every 10 minutes.
+
+Functions:
+    - fetch_last_50_commits(): Fetches and caches the last 50 commits from GitHub.
+    - load_cached_commits(): Loads cached commits from disk.
+    - fetch_commit_details(commit_sha): Fetches details for a specific commit.
+    - analyze_commit(commit): Uses the LLM to analyze a commit for new model detection.
+    - extract_relevant_file_changes(files): Extracts relevant file changes for model detection.
+    - build_commit_analysis_prompt(message, file_changes): Builds the prompt for the LLM.
+    - parse_and_validate_llm_response(response_text): Parses and validates the LLM's JSON response.
+    - extract_parameter_size(model_id): Extracts parameter size from a model ID.
+    - find_huggingface_model(model_name, max_parameters): Searches Hugging Face for a model.
+    - main(): Main monitoring function, processes new commits and updates the catalog.
+
+Usage:
+    python auto_build_new_models.py
+
+Environment:
+    - Requires .env file with Redis and Hugging Face/GitHub credentials.
+    - Expects a quantized GGUF model and a JSON grammar file for LLM analysis.
+
+Exits with code 0 on success, 1 on failure.
+"""
+
 import os
 import json
 import logging

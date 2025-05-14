@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 import os
 import sys
 import shutil
@@ -6,15 +6,47 @@ import tempfile
 from pathlib import Path
 import subprocess
 import argparse
+"""
+add_metadata_gguf.py
 
+This script adds or overrides metadata in a GGUF model file by invoking the update_gguf.py script
+from the llama.cpp/gguf-py/gguf/scripts directory. It supports both direct key=type:value overrides
+and loading overrides from a file.
+
+Main Steps:
+1. Copies update_gguf.py to the expected llama.cpp/gguf-py/gguf/scripts directory.
+2. Runs update_gguf.py with the specified input GGUF file, outputting to a temporary file.
+3. Supports metadata overrides via command-line or file.
+4. Replaces the original GGUF file with the updated file containing new metadata.
+
+Functions:
+    - add_metadata(input_file_path, overrides=None, override_file=None): Adds metadata to a GGUF file.
+    - main(): Parses command-line arguments and invokes add_metadata.
+
+Usage:
+    python add_metadata_gguf.py <input_gguf_file> [--override key=type:value ...] [--override-file overrides.txt]
+
+Arguments:
+    input: Path to the input GGUF file.
+    --override: Metadata override in the format key=type:value (can be repeated).
+    --override-file: Path to a file containing overrides (one per line).
+
+Exits with code 0 on success, 1 on failure.
+"""
 def add_metadata(input_file_path: str, overrides: list[str] = None, override_file: str = None):
-    """
-    Adds metadata to the GGUF file specified by input_file_path.
-    
+    """Adds or overrides metadata in a GGUF model file.
+
+    This function updates the metadata of a GGUF file by invoking the update_gguf.py script,
+    supporting both direct key=type:value overrides and loading overrides from a file.
+
     Args:
-        input_file_path (str): Path to the input GGUF file
-        overrides (list): List of override strings (key=type:value)
-        override_file (str): Path to file containing overrides
+        input_file_path (str): Path to the input GGUF file.
+        overrides (list[str], optional): List of override strings in the format key=type:value.
+        override_file (str, optional): Path to a file containing overrides, one per line.
+
+    Raises:
+        SystemExit: If the input file does not exist, the destination directory is missing,
+            the script copy fails, the update script fails, or the file replacement fails.
     """
     input_file = Path(input_file_path)
     if not input_file.is_file():
@@ -91,14 +123,19 @@ def add_metadata(input_file_path: str, overrides: list[str] = None, override_fil
         sys.exit(1)
 
 def main():
+    """Parses command-line arguments and adds metadata to a GGUF file.
+
+    This function serves as the entry point for the script, handling argument parsing and
+    invoking the metadata update process for the specified GGUF file.
+    """
     parser = argparse.ArgumentParser(description="Add metadata to GGUF file")
     parser.add_argument("input", help="Input GGUF file")
     parser.add_argument("--override", action="append", 
-                      help="Override metadata (key=type:value)",
-                      metavar="glm4.rope.dimension_count=int:64")
+    help="Override metadata (key=type:value)",
+    metavar="glm4.rope.dimension_count=int:64")
     parser.add_argument("--override-file", 
-                      help="File containing metadata overrides",
-                      metavar="overrides.txt")
+    help="File containing metadata overrides",
+    metavar="overrides.txt")
     args = parser.parse_args()
 
     add_metadata(

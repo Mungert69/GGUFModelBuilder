@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
 from __future__ import annotations
-
 import logging
 import argparse
 import os
@@ -21,12 +19,27 @@ logger = logging.getLogger("gguf-new-metadata")
 
 
 class MetadataDetails(NamedTuple):
+    """Represents a single metadata field for a GGUF file.
+
+    This class stores the type, value, and an optional description for a metadata field.
+    """
     type: gguf.GGUFValueType
     value: Any
     description: str = ''
 
 
 def get_field_data(reader: gguf.GGUFReader, key: str) -> Any:
+    """Retrieves the value of a metadata field from a GGUFReader.
+
+    This function returns the contents of the specified field if it exists, otherwise returns None.
+
+    Args:
+        reader (gguf.GGUFReader): The GGUFReader object to query.
+        key (str): The metadata field key to retrieve.
+
+    Returns:
+        Any: The contents of the field if found, otherwise None.
+    """
     field = reader.get_field(key)
     return field.contents() if field else None
 
@@ -41,6 +54,19 @@ def find_token(token_list: Sequence[int], token: str) -> Sequence[int]:
 
 
 def copy_with_new_metadata(reader: gguf.GGUFReader, writer: gguf.GGUFWriter, new_metadata: dict[str, MetadataDetails], remove_metadata: Sequence[str]) -> None:
+    """Copies metadata and tensor information from a GGUFReader to a GGUFWriter, applying modifications and removals as specified.
+
+    This function updates, removes, or adds metadata fields and tensor information to the output GGUF file according to the provided dictionaries.
+    
+    Args:
+        reader (gguf.GGUFReader): The source GGUFReader containing the original metadata and tensors.
+        writer (gguf.GGUFWriter): The destination GGUFWriter to receive the updated metadata and tensors.
+        new_metadata (dict[str, MetadataDetails]): Dictionary of metadata fields to add or modify.
+        remove_metadata (Sequence[str]): List of metadata field names to remove from the output.
+
+    Returns:
+        None
+    """
     for field in reader.fields.values():
         # Suppress virtual fields and fields written by GGUFWriter
         if field.name == gguf.Keys.General.ARCHITECTURE or field.name.startswith('GGUF.'):
@@ -95,9 +121,18 @@ def copy_with_new_metadata(reader: gguf.GGUFReader, writer: gguf.GGUFWriter, new
     writer.close()
 
 def parse_override(override_str: str) -> tuple[str, MetadataDetails]:
-    """
-    Parse strings like "glm4.rope.dimension_count=int:64".
-    Returns (key, MetadataDetails).
+    """Parses a metadata override string into a key and MetadataDetails tuple.
+
+    This function interprets a string in the format 'key=type:value' and returns the key along with its associated metadata details.
+    
+    Args:
+        override_str (str): The override string to parse, formatted as 'key=type:value'.
+
+    Returns:
+        tuple[str, MetadataDetails]: A tuple containing the key and its corresponding MetadataDetails.
+
+    Raises:
+        ValueError: If the override string is not in the correct format or contains an unknown type.
     """
     try:
         key, type_val = override_str.split("=", 1)
@@ -131,7 +166,7 @@ def parse_override(override_str: str) -> tuple[str, MetadataDetails]:
         raise ValueError(f"Invalid override format: '{override_str}'. Expected 'key=type:value'") from e
 
 def load_overrides_from_file(file_path: Path) -> dict[str, MetadataDetails]:
-    """Load overrides from a file (one key=type:value per line)."""
+    
     overrides = {}
     with open(file_path, "r") as f:
         for line in f:

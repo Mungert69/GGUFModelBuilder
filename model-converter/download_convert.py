@@ -1,3 +1,31 @@
+"""
+download_convert.py
+
+This script downloads a model from the Hugging Face Hub, converts it to BF16 GGUF format using llama.cpp,
+adds metadata, and performs cleanup. It is intended to be run as a standalone script.
+
+Main Steps:
+1. Loads Hugging Face API token from .env and authenticates.
+2. Downloads all files from the specified Hugging Face repo.
+3. Checks for an existing BF16 GGUF file; if not found, runs conversion.
+4. Adds metadata to the resulting GGUF file.
+5. Cleans up cache directories to save disk space.
+
+Usage:
+    python download_convert.py <repo_id>
+
+Arguments:
+    repo_id: Hugging Face repository ID (e.g., google/gemma-3-1b-it)
+
+Environment:
+    Requires HF_API_TOKEN in .env file.
+
+Functions:
+    (None - all logic is in the main script body.)
+
+Exits with code 0 on success, 1 on failure.
+"""
+
 import os
 import subprocess
 import argparse

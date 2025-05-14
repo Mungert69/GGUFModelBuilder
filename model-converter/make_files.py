@@ -1,3 +1,41 @@
+"""
+make_files.py
+
+Automates the quantization, chunking, and uploading of GGUF models to Hugging Face Hub.
+
+Main Features:
+- Loads quantization configurations from JSON.
+- Authenticates with Hugging Face Hub.
+- Downloads or generates .imatrix files for quantization.
+- Applies quantization with fallback logic for compatibility.
+- Splits large files into Hugging Face standard chunks.
+- Uploads files and chunks to Hugging Face, creating repos as needed.
+- Updates README.md with quantization and model details.
+
+Key Functions:
+- quantize_model: Orchestrates quantization and upload for a model.
+- split_file_standard: Splits large GGUF files into standard-named chunks.
+- upload_large_file: Handles chunked upload for large files.
+- download_imatrix: Downloads or generates .imatrix files for quantization.
+- filter_quant_configs: Filters quantization configs based on model size.
+- update_readme: Updates README.md with quantization and model info.
+
+Usage:
+    python make_files.py <company/model_name> [--allow-requantize] [--is_moe]
+
+Dependencies:
+- huggingface_hub
+- dotenv
+- update_readme.py
+- tensor_list_builder.py
+- quant_configs.json, quant_rules.json
+
+Environment:
+- Requires HF_API_TOKEN in .env file for Hugging Face authentication.
+
+Author: Mungert
+"""
+
 import os
 import json
 import re
