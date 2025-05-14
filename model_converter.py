@@ -19,6 +19,9 @@ load_dotenv()
 class ModelConverter:
 
     def __init__(self):
+        # Minimum disk space required for conversion (in GB)
+        self.MIN_DISK_SPACE_GB = 10
+
         # Initialize Redis connection
         REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
         REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
@@ -42,9 +45,12 @@ class ModelConverter:
             exit(1)
 
         self.hf_token = os.getenv("HF_API_TOKEN")
-        self.MAX_PARAMETERS = 9e9  # 9 billion parameters
+        self.MAX_PARAMETERS = 33e9  # max < 33 billion parameters
         self.MAX_ATTEMPTS = 3        
         self.HF_CACHE_DIR = os.path.expanduser("~/.cache/huggingface/hub")
+        self.SAFETY_FACTOR = 1.1  # 10% extra space buffer
+        self.BYTES_PER_PARAM = 2  # BF16 uses 2 bytes per parameter
+
         # Authenticate with Hugging Face Hub
         if not self.hf_token:
             print("Error: Hugging Face API token not found in .env file.")
@@ -63,60 +69,69 @@ class ModelConverter:
             "openfree",
             "agentica-org"
         ]
-    def check_moe_from_config(self, model_id):
-        """Check if model is MoE by examining field names in its config.json"""
+    
+    def calculate_required_space(self, model_id):
+        """Calculate required disk space in GB for conversion"""
+        model_data = self.model_catalog.get_model(model_id)
+        if not model_data:
+            return 0
+        
+        params = model_data.get("parameters", 0)
+        if params <= 0:
+            return 0
+        
+        # Calculate space for 3 copies (original BF16 + working copy + split files)
+        bytes_needed = params * self.BYTES_PER_PARAM * 3
+        gb_needed = (bytes_needed / (1024**3)) * self.SAFETY_FACTOR
+        return max(gb_needed, self.MIN_DISK_SPACE_GB)
+    
+    def can_fit_model(self, model_id):
+        """Check if we have space for this model + buffer"""
+        required_gb = self.calculate_required_space(model_id)
+        if required_gb == 0:
+            print(f"⚠️ Couldn't determine size for {model_id}")
+            return False
+        
+        disk_free = self.get_disk_usage()['free_gb']
+        can_fit = disk_free >= required_gb
+        
+        print(f"📊 Space check for {model_id}: "
+            f"Need {required_gb:.1f}GB, have {disk_free:.1f}GB "
+            f"({'✅' if can_fit else '❌'})")
+        
+        return can_fit
+    def get_disk_usage(self, path="."):
+        """Return disk usage statistics in GB"""
+        usage = shutil.disk_usage(path)
+        return {
+            'total_gb': usage.total / (1024**3),
+            'used_gb': usage.used / (1024**3),
+            'free_gb': usage.free / (1024**3),
+            'path': os.path.abspath(path)
+        }
+    
+    def check_disk_space(self, required_gb=10):
+        """Check if we have enough disk space"""
+        usage = self.get_disk_usage()
+        if usage['free_gb'] < max(required_gb, self.MIN_DISK_SPACE_GB):
+            print(f"⚠️ Low disk space: {usage['free_gb']:.2f}GB free in {usage['path']}")
+            return False
+        return True
+    
+    def get_largest_cache_items(self, path, limit=5):
+        """Return the largest items in a directory"""
         try:
-            config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
-            response = requests.get(config_url)
-            response.raise_for_status()
-            config = response.json()
-            
-            # Convert all keys to lowercase for case-insensitive search
-            all_keys = [k.lower() for k in config.keys()]
-            
-            # Check if any key contains 'moe'
-            moe_keys = [k for k in all_keys if 'moe' in k]
-            
-            if moe_keys:
-                print(f"Found MoE indicators in config for {model_id}: {moe_keys}")
-                return True
-                
-            # Also check nested dictionaries recursively
-            def check_nested(obj):
-                if isinstance(obj, dict):
-                    for key, value in obj.items():
-                        if 'moe' in str(key).lower():
-                            return True
-                        if check_nested(value):
-                            return True
-                elif isinstance(obj, (list, tuple)):
-                    for item in obj:
-                        if check_nested(item):
-                            return True
-                return False
-            
-            if check_nested(config):
-                print(f"Found nested MoE indicators in config for {model_id}")
-                return True
-                
-            return False
-            
+            items = []
+            for item in Path(path).glob('*'):
+                try:
+                    size = sum(f.stat().st_size for f in item.glob('**/*') if f.is_file())
+                    items.append((item.name, size / (1024**3)))  # Size in GB
+                except:
+                    continue
+            return sorted(items, key=lambda x: x[1], reverse=True)[:limit]
         except Exception as e:
-            print(f"Error checking config for {model_id}: {e}")
-            return False
-
-    def is_moe_model(self, model_id):
-        """Main MoE detection method that tries multiple approaches"""
-        try:
-            # First try config.json (most reliable)
-            if self.check_moe_from_config(model_id):
-                return True
-                
-
-            return False
-        except Exception as e:
-            print(f"MoE detection failed for {model_id}: {e}")
-            return False
+            print(f"Error scanning cache: {e}")
+            return []
     def is_excluded_company(self, model_id):
         """Check if the model belongs to an excluded company"""
         company = model_id.split('/')[0]
@@ -302,7 +317,60 @@ class ModelConverter:
         except Exception as e:
             print(f"Error parsing README for {model_id}: {e}")
             return False
+    def check_moe_from_config(self, model_id):
+        """Check if model is MoE by examining field names in its config.json"""
+        try:
+            config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
+            response = requests.get(config_url)
+            response.raise_for_status()
+            config = response.json()
+            
+            # Convert all keys to lowercase for case-insensitive search
+            all_keys = [k.lower() for k in config.keys()]
+            
+            # Check if any key contains 'moe'
+            moe_keys = [k for k in all_keys if 'moe' in k]
+            
+            if moe_keys:
+                print(f"Found MoE indicators in config for {model_id}: {moe_keys}")
+                return True
+                
+            # Also check nested dictionaries recursively
+            def check_nested(obj):
+                if isinstance(obj, dict):
+                    for key, value in obj.items():
+                        if 'moe' in str(key).lower():
+                            return True
+                        if check_nested(value):
+                            return True
+                elif isinstance(obj, (list, tuple)):
+                    for item in obj:
+                        if check_nested(item):
+                            return True
+                return False
+            
+            if check_nested(config):
+                print(f"Found nested MoE indicators in config for {model_id}")
+                return True
+                
+            return False
+            
+        except Exception as e:
+            print(f"Error checking config for {model_id}: {e}")
+            return False
 
+    def is_moe_model(self, model_id):
+        """Main MoE detection method that tries multiple approaches"""
+        try:
+            # First try config.json (most reliable)
+            if self.check_moe_from_config(model_id):
+                return True
+                
+
+            return False
+        except Exception as e:
+            print(f"MoE detection failed for {model_id}: {e}")
+            return False
 
     def update_catalog(self, models):
         """Add new models to catalog if they don't exist"""
@@ -335,7 +403,7 @@ class ModelConverter:
                 if parameters > self.MAX_PARAMETERS:
                     print(f"Skipping {model_id} - {parameters} parameters exceed limit.")
                     continue
-                is_moe = self.check_moe_from_readme(model_id)
+                is_moe = self.check_moe_from_config(model_id)
                 print(f"Adding {model_id} with parameters={parameters}")
                 new_entry = {
                     "added": datetime.now().isoformat(),
@@ -353,21 +421,52 @@ class ModelConverter:
                 if not self.model_catalog.add_model(model_id, new_entry):
                     print(f"Model {model_id} already exists in Redis")
 
-    def cleanup_hf_cache(self, model_id):
-        """Simple cache cleanup using system rm -rf command"""
-        model_name = model_id.replace('/', '--')  # HF uses -- instead of / in cache paths
-        cache_path = os.path.join(self.HF_CACHE_DIR, f"models--{model_name}")
+    def aggressive_cache_cleanup(self):
+        """Force clean all possible cache locations"""
+        print("⚡ Performing aggressive cache cleanup")
         
-        if not os.path.exists(cache_path):
-            print(f"No cache directory found at {cache_path}")
-            return
+        # 1. Clear Hugging Face cache
+        self.cleanup_hf_cache("*")  # Special case for all caches
         
-        try:
-            # Use system command for more reliable deletion
-            subprocess.run(["rm", "-rf", cache_path], check=True)
-            print(f"Successfully deleted cache directory: {cache_path}")
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to delete cache directory {cache_path}: {e}")
+        # 2. Clear model working directories
+        model_dirs = [d for d in Path(self.MODEL_WORK_DIR).glob("*") if d.is_dir()]
+        for dir in model_dirs:
+            try:
+                shutil.rmtree(dir)
+                print(f"Deleted working directory: {dir}")
+            except Exception as e:
+                print(f"Failed to delete {dir}: {e}")
+        
+        # 3. Clear any temporary files
+        temp_files = list(Path(".").glob("*.tmp")) + list(Path(".").glob("*.temp"))
+        for file in temp_files:
+            try:
+                file.unlink()
+            except:
+                pass
+
+    def cleanup_hf_cache(self, model_id="*"):
+        """Enhanced cache cleanup with disk space check"""
+        if model_id == "*":
+            # Clean entire cache directory
+            cache_path = self.HF_CACHE_DIR
+            print(f"🧹 Cleaning entire HF cache at {cache_path}")
+            try:
+                shutil.rmtree(cache_path)
+                os.makedirs(cache_path, exist_ok=True)
+                print("✅ Entire HF cache cleared")
+            except Exception as e:
+                print(f"❌ Failed to clear HF cache: {e}")
+        else:
+            # Original single-model cleanup
+            model_name = model_id.replace('/', '--')
+            cache_path = os.path.join(self.HF_CACHE_DIR, f"models--{model_name}")
+            if os.path.exists(cache_path):
+                try:
+                    shutil.rmtree(cache_path)
+                    print(f"✅ Cleared HF cache for {model_id}")
+                except Exception as e:
+                    print(f"❌ Failed to clear cache for {model_id}: {e}")
 
     def convert_model(self, model_id, is_moe):
         """Run conversion pipeline using the run_script function"""
@@ -375,7 +474,25 @@ class ModelConverter:
         if not model_data:
             print(f"Model {model_id} not found in catalog")
             return
-
+        required_gb = self.calculate_required_space(model_id)
+        if not required_gb:
+            print(f"❌ Cannot determine space requirements for {model_id}")
+            return
+        
+        # Check space with model-specific requirements
+        if not self.can_fit_model(model_id):
+            print(f"🚨 Insufficient space for {model_id} (needs {required_gb:.1f}GB)")
+            
+            # Try targeted cleanup first
+            self.cleanup_completed_models()
+            if not self.can_fit_model(model_id):
+                # Emergency measures if still not enough space
+                print("⚡ Attempting targeted large file cleanup...")
+                self.remove_largest_cache_items()
+                if not self.can_fit_model(model_id):
+                    print("❌ Critical: Still insufficient space after cleanup")
+                    return
+        
         model_data["attempts"] = int(model_data.get("attempts", 0)) + 1
         model_data["last_attempt"] = datetime.now().isoformat()
 
@@ -446,7 +563,8 @@ class ModelConverter:
         self.update_catalog(models)
 
         try:
-            for model_id, entry, is_moe in current_catalog.items():
+            for model_id, entry in current_catalog.items():
+                is_moe = entry.get("is_moe", False)
                 if self.is_excluded_company(model_id):
                     print(f"Skipping {model_id} - from excluded company")
                     continue
