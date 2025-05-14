@@ -22,8 +22,22 @@ from redis_utils import init_redis_catalog
 load_dotenv()
 
 class ModelConverter:
+    """
+    ModelConverter handles the conversion of machine learning models from Hugging Face Hub,
+    manages disk space, interacts with a Redis-based model catalog, and automates the
+    conversion pipeline including downloading, converting, and uploading models.
+    """
 
     def __init__(self):
+        """
+        Initialize the ModelConverter instance.
+
+        - Loads environment variables.
+        - Sets up minimum disk space and other conversion parameters.
+        - Initializes Redis connection for the model catalog.
+        - Authenticates with Hugging Face Hub.
+        - Sets up Hugging Face API and file system clients.
+        """
         # Minimum disk space required for conversion (in GB)
         self.MIN_DISK_SPACE_GB = 10
 
@@ -76,7 +90,15 @@ class ModelConverter:
         ]
     
     def calculate_required_space(self, model_id):
-        """Calculate required disk space in GB for conversion"""
+        """
+        Calculate required disk space in GB for conversion of a given model.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            float: Required disk space in GB.
+        """
         model_data = self.model_catalog.get_model(model_id)
         if not model_data:
             return 0
@@ -91,7 +113,15 @@ class ModelConverter:
         return max(gb_needed, self.MIN_DISK_SPACE_GB)
     
     def can_fit_model(self, model_id):
-        """Check if we have space for this model + buffer"""
+        """
+        Check if there is enough disk space to fit the model and its conversion artifacts.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if there is enough space, False otherwise.
+        """
         required_gb = self.calculate_required_space(model_id)
         if required_gb == 0:
             print(f"⚠️ Couldn't determine size for {model_id}")
@@ -106,7 +136,15 @@ class ModelConverter:
         
         return can_fit
     def get_disk_usage(self, path="."):
-        """Return disk usage statistics in GB"""
+        """
+        Return disk usage statistics for the given path.
+
+        Args:
+            path (str): Directory path to check (default is current directory).
+
+        Returns:
+            dict: Dictionary with total, used, and free space in GB.
+        """
         usage = shutil.disk_usage(path)
         return {
             'total_gb': usage.total / (1024**3),
@@ -116,7 +154,15 @@ class ModelConverter:
         }
     
     def check_disk_space(self, required_gb=10):
-        """Check if we have enough disk space"""
+        """
+        Check if there is at least the required amount of free disk space.
+
+        Args:
+            required_gb (float): Minimum required free space in GB.
+
+        Returns:
+            bool: True if enough space, False otherwise.
+        """
         usage = self.get_disk_usage()
         if usage['free_gb'] < max(required_gb, self.MIN_DISK_SPACE_GB):
             print(f"⚠️ Low disk space: {usage['free_gb']:.2f}GB free in {usage['path']}")
@@ -124,7 +170,16 @@ class ModelConverter:
         return True
     
     def get_largest_cache_items(self, path, limit=5):
-        """Return the largest items in a directory"""
+        """
+        Return the largest items in a directory.
+
+        Args:
+            path (str): Directory path to scan.
+            limit (int): Number of largest items to return.
+
+        Returns:
+            list: List of tuples (item_name, size_in_GB).
+        """
         try:
             items = []
             for item in Path(path).glob('*'):
@@ -138,13 +193,29 @@ class ModelConverter:
             print(f"Error scanning cache: {e}")
             return []
     def is_excluded_company(self, model_id):
-        """Check if the model belongs to an excluded company"""
+        """
+        Check if the model belongs to an excluded company.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if the model is from an excluded company, False otherwise.
+        """
         company = model_id.split('/')[0]
         return company in self.EXCLUDED_COMPANIES
 
     def run_script(self, script_name, args):
-        """Runs a script with arguments and streams output in real time.
-        Returns True if the script succeeds, False otherwise."""
+        """
+        Run a Python script with arguments and stream output in real time.
+
+        Args:
+            script_name (str): Name of the script to run.
+            args (list): List of arguments to pass to the script.
+
+        Returns:
+            bool: True if the script succeeds, False otherwise.
+        """
         script_path = os.path.join(os.getcwd(), script_name)
         if not os.path.exists(script_path):
             print(f"Error: Script {script_name} not found at {script_path}")
@@ -200,15 +271,32 @@ class ModelConverter:
         return True
 
     def load_catalog(self):
-        """Load catalog from Redis"""
+        """
+        Load the model catalog from Redis.
+
+        Returns:
+            dict: The model catalog.
+        """
         return self.model_catalog.load_catalog()
 
     def save_catalog(self, catalog=None):
-        """Save catalog to Redis (no-op since Redis updates are immediate)"""
+        """
+        Save the model catalog to Redis.
+
+        Note: This is a no-op since Redis updates are immediate through model_catalog methods.
+        """
         pass  # Redis updates are done immediately through model_catalog methods
 
     def estimate_parameters(self, file_size):
-        """Estimate the number of parameters based on file size."""
+        """
+        Estimate the number of model parameters based on file size.
+
+        Args:
+            file_size (int): File size in bytes.
+
+        Returns:
+            float: Estimated number of parameters.
+        """
         if file_size == 0:
             return 0
 
@@ -219,7 +307,15 @@ class ModelConverter:
         return estimated_params_fp32
 
     def get_file_sizes(self, model_id):
-        """Get the total size of .safetensors files in the repository."""
+        """
+        Get the total size of .safetensors files in the Hugging Face repository.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            int: Total size in bytes of all .safetensors files.
+        """
         try:
             print(f"\n[DEBUG] Starting file size check for: {model_id}")
             
@@ -273,7 +369,15 @@ class ModelConverter:
             return 0
 
     def has_config_json(self, model_id):
-        """Check if the repository has a config.json file"""
+        """
+        Check if the repository has a config.json file.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if config.json exists, False otherwise.
+        """
         try:
             files = self.api.list_repo_files(model_id)
             return "config.json" in files
@@ -282,7 +386,15 @@ class ModelConverter:
             return False
 
     def get_trending_models(self, limit=100):
-        """Fetch trending models from Hugging Face API"""
+        """
+        Fetch trending models from the Hugging Face API.
+
+        Args:
+            limit (int): Number of models to fetch.
+
+        Returns:
+            list: List of trending model metadata.
+        """
         url = "https://huggingface.co/api/models"
         params = {"limit": limit}
         
@@ -296,7 +408,15 @@ class ModelConverter:
             return []
 
     def check_moe_from_readme(self, model_id):
-        """Check if a model is MoE by parsing its README file"""
+        """
+        Check if a model is a Mixture of Experts (MoE) by parsing its README file.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if MoE indicators are found, False otherwise.
+        """
         try:
             # Try to get README content from Hugging Face
             readme_url = f"https://huggingface.co/{model_id}/raw/main/README.md"
@@ -323,7 +443,15 @@ class ModelConverter:
             print(f"Error parsing README for {model_id}: {e}")
             return False
     def check_moe_from_config(self, model_id):
-        """Check if model is MoE by examining field names in its config.json"""
+        """
+        Check if a model is a Mixture of Experts (MoE) by examining field names in its config.json.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if MoE indicators are found, False otherwise.
+        """
         try:
             config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
             response = requests.get(config_url)
@@ -365,7 +493,15 @@ class ModelConverter:
             return False
 
     def is_moe_model(self, model_id):
-        """Main MoE detection method that tries multiple approaches"""
+        """
+        Main MoE detection method that tries multiple approaches.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+
+        Returns:
+            bool: True if the model is detected as MoE, False otherwise.
+        """
         try:
             # First try config.json (most reliable)
             if self.check_moe_from_config(model_id):
@@ -378,7 +514,12 @@ class ModelConverter:
             return False
 
     def update_catalog(self, models):
-        """Add new models to catalog if they don't exist"""
+        """
+        Add new models to the catalog if they don't already exist.
+
+        Args:
+            models (list): List of model metadata dictionaries.
+        """
         current_catalog = self.load_catalog()
         
         for model in models:
@@ -427,7 +568,10 @@ class ModelConverter:
                     print(f"Model {model_id} already exists in Redis")
 
     def aggressive_cache_cleanup(self):
-        """Force clean all possible cache locations"""
+        """
+        Force clean all possible cache locations, including Hugging Face cache,
+        model working directories, and temporary files.
+        """
         print("⚡ Performing aggressive cache cleanup")
         
         # 1. Clear Hugging Face cache
@@ -451,7 +595,12 @@ class ModelConverter:
                 pass
 
     def cleanup_hf_cache(self, model_id="*"):
-        """Enhanced cache cleanup with disk space check"""
+        """
+        Clean up Hugging Face cache.
+
+        Args:
+            model_id (str): Model ID to clean cache for, or "*" to clean all.
+        """
         if model_id == "*":
             # Clean entire cache directory
             cache_path = self.HF_CACHE_DIR
@@ -474,7 +623,13 @@ class ModelConverter:
                     print(f"❌ Failed to clear cache for {model_id}: {e}")
 
     def convert_model(self, model_id, is_moe):
-        """Run conversion pipeline using the run_script function"""
+        """
+        Run the conversion pipeline for a given model using the run_script function.
+
+        Args:
+            model_id (str): The Hugging Face model ID.
+            is_moe (bool): Whether the model is a Mixture of Experts (MoE).
+        """
         model_data = self.model_catalog.get_model(model_id)
         if not model_data:
             print(f"Model {model_id} not found in catalog")
@@ -562,7 +717,9 @@ class ModelConverter:
             self.cleanup_hf_cache(model_id)
 
     def run_conversion_cycle(self):
-        """Process all unconverted models in batch"""
+        """
+        Process all unconverted models in batch, updating the catalog and converting models as needed.
+        """
         current_catalog = self.load_catalog()
         models = self.get_trending_models()
         self.update_catalog(models)
@@ -592,7 +749,9 @@ class ModelConverter:
             print(f"Error during conversion cycle: {e}")
 
     def start_daemon(self):
-        """Run continuously with 15 minute intervals"""
+        """
+        Run the conversion process continuously with 15 minute intervals between cycles.
+        """
         while True:
             print("Starting conversion cycle...")
             self.run_conversion_cycle()
