@@ -50,5 +50,5 @@ Apache 2.0 - See [LICENSE](LICENSE)
 
 ## 🌐 Community
 
-[![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/your-link)
-[![Twitter](https://img.shields.io/twitter/follow/yourhandle?style=social)](https://twitter.com/yourhandle)
+[![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/rne7YaK3)
+
