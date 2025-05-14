@@ -189,7 +189,8 @@ def edit_model(catalog, model_id):
         "last_attempt": str,
         "success_date": (str, type(None)),
         "error_log": list,
-        "quantizations": list
+        "quantizations": list,
+        "is_moe": bool
     }
     
     def convert_value(value, target_type):

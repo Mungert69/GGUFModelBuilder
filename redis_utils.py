@@ -94,16 +94,19 @@ class RedisModelCatalog:
     ) -> bool:
         """
         Update a specific field in a model entry with optional conditions.
-        
-        Args:
-            model_id: The model identifier
-            field: Field name to update
-            value: New value
-            condition: Optional dictionary of field/value pairs that must match current values
-            
-        Returns:
-            bool: True if update succeeded
         """
+        def _normalize_value(v):
+            if isinstance(v, str):
+                if v.lower() == 'true':
+                    return True
+                elif v.lower() == 'false':
+                    return False
+                try:
+                    return json.loads(v.lower())
+                except:
+                    return v
+            return v
+
         def _update_operation():
             with self.r.pipeline() as pipe:
                 while True:
@@ -111,26 +114,49 @@ class RedisModelCatalog:
                         pipe.watch(self.catalog_key)
                         model_json = pipe.hget(self.catalog_key, model_id)
                         if not model_json:
+                            print(f"Error: Model {model_id} not found")
                             return False
                             
                         model = json.loads(model_json)
+                        print(f"Current model data: {model}")
+                        
+                        # Normalize the input value first
+                        normalized_value = _normalize_value(value)
+                        print(f"Normalized value: {normalized_value} (type: {type(normalized_value)})")
+                        
+                        # Check if value is already what we want
+                        current_value = _normalize_value(model.get(field))
+                        if current_value == normalized_value:
+                            print("Value already matches desired state")
+                            return True
                         
                         # Check conditions if provided
                         if condition:
+                            print(f"Checking conditions: {condition}")
                             for k, v in condition.items():
-                                if model.get(k) != v:
+                                if _normalize_value(model.get(k)) != _normalize_value(v):
+                                    print(f"Condition failed on {k}")
                                     return False
                                     
                         # Update the field
-                        model[field] = value
+                        model[field] = normalized_value
                         
                         pipe.multi()
                         pipe.hset(self.catalog_key, model_id, json.dumps(model))
-                        return pipe.execute()[0]
+                        result = pipe.execute()
+                        print(f"Update result: {result}")
+                        return True if result else False
                     except WatchError:
+                        print("WatchError occurred, retrying...")
                         continue
+                    except Exception as e:
+                        print(f"Unexpected error: {str(e)}")
+                        return False
 
-        return self._safe_operation(_update_operation) or False
+        print(f"\nStarting update for model {model_id}")
+        result = self._safe_operation(_update_operation)
+        print(f"Final update result: {result}\n")
+        return bool(result)
 
     def increment_counter(self, model_id: str, field: str) -> bool:
         """Atomically increment a counter field."""
