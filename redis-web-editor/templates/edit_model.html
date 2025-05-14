@@ -2,32 +2,38 @@
 
 {% block content %}
 <h2>Editing {{ model_id }}</h2>
-<form method="POST">
-    <div class="card">
+
+<div class="card">
+    <form method="POST">
         <div class="card-body">
             {% for field, value in model.items() %}
             <div class="mb-3">
                 <label class="form-label">{{ field }}</label>
-                <input type="text" class="form-control" 
-                       name="{{ field }}" value="{{ value }}">
+                
+                {% if field in ['error_log', 'quantizations'] %}
+                <textarea class="form-control" name="{{ field }}" rows="3">{{ value|tojson|safe }}</textarea>
+                {% elif field == 'converted' %}
+                <select class="form-select" name="{{ field }}">
+                    <option value="true" {{ 'selected' if value }}>True</option>
+                    <option value="false" {{ 'selected' if not value }}>False</option>
+                </select>
+                {% else %}
+                <input type="text" class="form-control" name="{{ field }}" 
+                       value="{{ value if value is not none else '' }}">
+                {% endif %}
             </div>
             {% endfor %}
         </div>
-        <div class="card-footer">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="/" class="btn btn-secondary">Cancel</a>
-            <button type="button" class="btn btn-danger float-end" 
-                    onclick="confirmDelete()">Delete</button>
+        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap">
+            <div class="btn-group" role="group">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
         </div>
-    </div>
-</form>
-
-<script>
-function confirmDelete() {
-    if (confirm('Are you sure you want to delete this model?')) {
-        fetch('/delete/{{ model_id }}', { method: 'POST' })
-            .then(() => window.location = '/');
-    }
-}
-</script>
+    </form>
+    <form method="POST" action="{{ url_for('delete_model', model_id=model_id) }}" 
+          onsubmit="return confirm('Are you sure you want to delete this model?');" class="mt-3 text-end">
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+</div>
 {% endblock %}

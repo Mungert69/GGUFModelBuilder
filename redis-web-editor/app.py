@@ -1,7 +1,12 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+print("sys.path:", sys.path)
+print("Parent dir contents:", os.listdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 from redis_utils import init_redis_catalog
-import os
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -91,19 +96,35 @@ def settings():
     
     current_config = get_config() or {}
     return render_template('settings.html',
-                         host=current_config.get('host', ''),
-                         port=current_config.get('port', ''),
-                         user=current_config.get('user', ''),
-                         ssl=current_config.get('ssl', True))
+        host=current_config.get('host', ''),
+        port=current_config.get('port', ''),
+        user=current_config.get('user', ''),
+        ssl=current_config.get('ssl', True))
 
 @app.route('/')
 def index():
     catalog = get_catalog()
     if not catalog: 
         return redirect(url_for('settings'))
-    
-    models = list(catalog.load_catalog().items())[-10:]
-    return render_template('index.html', models=models)
+
+    # Pagination logic
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+
+    all_models = list(catalog.load_catalog().items())
+    total = len(all_models)
+    total_pages = (total + per_page - 1) // per_page
+
+    start = (page - 1) * per_page
+    end = start + per_page
+    models = all_models[start:end]
+
+    return render_template(
+        'index.html',
+        models=models,
+        page=page,
+        total_pages=total_pages
+    )
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -115,7 +136,7 @@ def search():
     search_type = 'i'  # Default to ID search
     selected_field = None
     results = []
-    
+
     # Get field list from first model
     all_models = catalog.load_catalog() or {}
     fields = []
@@ -142,7 +163,7 @@ def search():
             if search_type == 'i':
                 if not search_term or search_term in model_id.lower():
                     matched = True
-            
+
             # All fields search
             elif search_type == 'a':
                 for field, value in data.items():
@@ -150,7 +171,7 @@ def search():
                         matched = True
                         match_info.append(field)
                         break
-            
+
             # Specific field search
             elif search_type == 'field' and selected_field:
                 value = data.get(selected_field)
@@ -161,11 +182,23 @@ def search():
             if matched:
                 results.append((model_id, data, match_info))
 
+    # Always define pagination variables, even if no results or GET request
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total = len(results)
+    total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_results = results[start:end]
+
     return render_template('search.html',
-                         results=results,
-                         fields=fields,
-                         search_term=search_term,
-                         search_type=search_type)
+        results=paginated_results,
+        fields=fields,
+        search_term=search_term,
+        search_type=search_type,
+        page=page,
+        total_pages=total_pages
+    )
 
 def _value_matches_search(value, search_term):
     """Check if a field value matches the search term"""
@@ -213,6 +246,44 @@ def edit_model(model_id):
     
     return render_template('edit_model.html', model_id=model_id, model=model_data)
 
+@app.route('/add', methods=['GET', 'POST'])
+def add_model():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+
+    if request.method == 'POST':
+        model_id = request.form.get('model_id', '').strip()
+        if not model_id:
+            flash("Model ID is required!", "danger")
+            return render_template('add_model.html')
+
+        # Provide all default fields expected by the app and catalog
+        model_data = {
+            'converted': False,
+            'added': datetime.now().isoformat(),
+            'parameters': 0,
+            'has_config': False,
+            'attempts': 0,
+            'error_log': [],
+            'quantizations': [],
+            "is_moe": False
+        }
+        # Add/override with any fields from the form (except model_id)
+        for key in request.form:
+            if key != 'model_id':
+                model_data[key] = request.form[key]
+
+        if catalog.get_model(model_id):
+            flash("Model ID already exists!", "danger")
+            return render_template('add_model.html')
+
+        catalog.add_model(model_id, model_data)
+        flash("Model added successfully!", "success")
+        return redirect(url_for('edit_model', model_id=model_id))
+
+    return render_template('add_model.html')
+
 @app.route('/import', methods=['GET', 'POST'])
 def import_models():
     catalog = get_catalog()
@@ -247,17 +318,66 @@ def backup():
         flash("Backup failed!", "danger")
     return redirect(url_for('index'))
 
-@app.route('/delete/<model_id>', methods=['POST'])
+@app.route('/delete/<path:model_id>', methods=['POST'])
 def delete_model(model_id):
     catalog = get_catalog()
     if not catalog: 
         return redirect(url_for('settings'))
-    
-    if catalog.r.hdel(catalog.catalog_key, model_id):
+
+    print(f"Attempting to delete model: {model_id}")
+    before = catalog.get_model(model_id)
+    print(f"Model before delete: {before}")
+
+    result = catalog.delete_model(model_id)
+    print(f"Delete result: {result}")
+
+    after = catalog.get_model(model_id)
+    print(f"Model after delete: {after}")
+
+    if result:
         flash("Model deleted successfully!", "success")
     else:
         flash("Delete failed!", "danger")
     return redirect(url_for('index'))
+
+@app.route('/export', methods=['GET'])
+def export():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+
+    file_path = f"export_{datetime.now().isoformat()}.json"
+    if catalog.backup_to_file(file_path):
+        from flask import send_file
+        return send_file(file_path, as_attachment=True)
+    else:
+        flash("Export failed!", "danger")
+        return redirect(url_for('index'))
+
+@app.route('/restore', methods=['GET', 'POST'])
+def restore():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+
+    if request.method == 'POST' and 'file' in request.files:
+        file = request.files['file']
+        if file.filename.endswith('.json'):
+            try:
+                # Save uploaded file temporarily
+                file_path = f"/tmp/restore_{datetime.now().isoformat()}.json"
+                file.save(file_path)
+                if catalog.initialize_from_file(file_path):
+                    flash("Catalog restored successfully!", "success")
+                else:
+                    flash("Restore failed!", "danger")
+            except Exception as e:
+                flash(f"Error processing file: {e}", "danger")
+        else:
+            flash("Invalid file format! Please upload a JSON file.", "danger")
+        return redirect(url_for('index'))
+
+    return render_template('restore.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

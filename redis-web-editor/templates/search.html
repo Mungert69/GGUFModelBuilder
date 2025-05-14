@@ -2,47 +2,117 @@
 
 {% block content %}
 <h2>Search Models</h2>
-<form method="POST">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <select name="search_type" class="form-select">
-                <option value="id">Model ID</option>
-                <option value="all">All Fields</option>
-                {% if fields %}
-                    <optgroup label="Specific Fields">
-                    {% for field in fields %}
-                        <option value="field">{{ field }}</option>
-                    {% endfor %}
-                    </optgroup>
-                {% endif %}
-            </select>
-        </div>
-        <div class="col-md-6">
-            <input type="text" name="search_term" class="form-control" 
-                   placeholder="Search term...">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Search Type</label>
+                    <select name="search_type" class="form-select">
+                        <option value="i" {% if search_type == 'i' %}selected{% endif %}>Model IDs (i)</option>
+                        <option value="a" {% if search_type == 'a' %}selected{% endif %}>All Fields (a)</option>
+                        {% if fields %}
+                        <optgroup label="Specific Fields">
+                            {% for field in fields %}
+                            <option value="{{ loop.index }}" 
+                                    {% if search_type == loop.index|string %}selected{% endif %}>
+                                {{ field }} ({{ field|field_type }})
+                            </option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Search Term</label>
+                    <input type="text" name="search_term" class="form-control" 
+                           placeholder="Leave empty for all" value="{{ search_term }}">
+                    <small class="text-muted">
+                        For boolean fields: true/false, yes/no, 1/0
+                    </small>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 {% if results %}
-<hr>
-<h4>Results ({{ results|length }})</h4>
-<div class="list-group">
-    {% for model_id, data in results %}
-    <a href="/edit/{{ model_id }}" class="list-group-item list-group-item-action">
-        {{ model_id }}
-        <small class="text-muted">
-            {% if data.converted %}
-                <span class="badge bg-success">Converted</span>
-            {% else %}
-                <span class="badge bg-warning">Pending</span>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Results ({{ results|length }})</span>
+        <small>Showing {{ results|length }} models</small>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for model_id, data, matches in results %}
+        <a href="{{ url_for('edit_model', model_id=model_id) }}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ model_id }}</h5>
+                <div>
+                    <span class="badge bg-{{ 'success' if data.converted else 'warning' }}">
+                        {{ 'Converted' if data.converted else 'Pending' }}
+                    </span>
+                </div>
+            </div>
+            
+            {% if matches %}
+            <div class="mt-2">
+                <small class="text-muted">Matched in:</small>
+                {% for field in matches %}
+                <span class="badge bg-light text-dark me-1">
+                    {{ field }}: {{ data[field]|string|truncate(30) }}
+                </span>
+                {% endfor %}
+            </div>
             {% endif %}
-        </small>
-    </a>
-    {% endfor %}
+        </a>
+        {% endfor %}
+    </div>
 </div>
+
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation">
+  <ul class="pagination mt-4">
+    {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link"
+           href="{{ url_for('search', page=page-1, search_term=search_term, search_type=search_type) }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+      </li>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+      {% if p == page %}
+        <li class="page-item active">
+          <span class="page-link">{{ p }}</span>
+        </li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link"
+             href="{{ url_for('search', page=p, search_term=search_term, search_type=search_type) }}">{{ p }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page < total_pages %}
+      <li class="page-item">
+        <a class="page-link"
+           href="{{ url_for('search', page=page+1, search_term=search_term, search_type=search_type) }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next</span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% elif request.method == 'POST' %}
+<div class="alert alert-warning">No models found matching your search</div>
 {% endif %}
 {% endblock %}
