@@ -41,12 +41,12 @@ graph LR
 ```
 
 
+| Component | Link |
+|-----------|------|
+| Model Converter | [GGUF Model Converter](wiki/Model-Converter) |
+| Catalog Editor | [GGUF Model Catalog Editor](wiki/GGUF-Model-Catalog-Editor) |
+
 Apache 2.0 - See [LICENSE](LICENSE)
-
-## 📚 Documentation
-
-Full documentation available at:  
-[https://github.com/yourorg/GGUFModelBuilder/wiki](https://github.com/yourorg/GGUFModelBuilder/wiki)
 
 ## 🌐 Community
 
