@@ -631,15 +631,12 @@ class ModelConverter:
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
         # Lock check: prevent duplicate conversions
-        if hasattr(self.model_catalog, "is_converting") and hasattr(self.model_catalog, "mark_converting") and hasattr(self.model_catalog, "unmark_converting"):
-            if self.model_catalog.is_converting(model_id):
-                print(f"Model {model_id} is already being converted by another process. Skipping.")
-                return
-            if not self.model_catalog.mark_converting(model_id):
-                print(f"Another process started converting {model_id} just now. Skipping.")
-                return
-        else:
-            print("Warning: RedisModelCatalog does not support lock methods. Proceeding without lock.")
+        if self.model_catalog.is_converting(model_id):
+            print(f"Model {model_id} is already being converted by another process. Skipping.")
+            return
+        if not self.model_catalog.mark_converting(model_id):
+            print(f"Another process started converting {model_id} just now. Skipping.")
+            return
 
         try:
             model_data = self.model_catalog.get_model(model_id)
@@ -685,11 +682,9 @@ class ModelConverter:
             )
 
             # --- Quant progress tracking ---
-            quant_progress = None
-            if hasattr(self.model_catalog, "get_quant_progress"):
-                quant_progress = self.model_catalog.get_quant_progress(model_id)
-                if quant_progress:
-                    print(f"Resuming quantization for {model_id} from quant: {quant_progress}")
+            quant_progress = self.model_catalog.get_quant_progress(model_id)
+            if quant_progress:
+                print(f"Resuming quantization for {model_id} from quant: {quant_progress}")
 
             success = True
             try:
@@ -748,14 +743,11 @@ class ModelConverter:
             # Only clear the lock and progress if conversion finished or max attempts reached
             import sys
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            interrupted = exc_type is not None and issubclass(exc_type, KeyboardInterrupt)
-            if hasattr(self.model_catalog, "unmark_converting"):
-                if (model_data.get("attempts", 0) >= self.MAX_ATTEMPTS or success) and not interrupted:
-                    self.model_catalog.unmark_converting(model_id, keep_progress=False)
-                else:
-                    # If interrupted or failed, keep progress so UI can show/resume
-                    self.model_catalog.unmark_converting(model_id, keep_progress=True)
-                    print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Keeping quant progress for resume.")
+            if (success):
+                self.model_catalog.unmark_converting(model_id, keep_progress=False)
+            else:
+                self.model_catalog.unmark_converting(model_id, keep_progress=True)
+                print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Keeping quant progress for resume.")
 
     def run_conversion_cycle(self):
         """
