@@ -1,5 +1,4 @@
 
-
 ---
 
 ## GGUFModelBuilder
@@ -74,8 +73,6 @@ flowchart TD
     F --> G["Update Redis Catalog"]
 ```
 
----
-
 # Technologies Used
 
 * **Python** – core language
@@ -106,12 +103,15 @@ flowchart TD
 
 ## 🌐 Community
 
-[![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/rne7YaK3)
+[![Discord](https://img.shields.io/badge/Discord-Join_Server-5865F2?logo=discord)](https://discord.gg/rne7YaK3)
+
 
 ## 🤝 Sponsors
 
 <a href="https://readyforquantum.com" target="_blank">
   <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="200">
 </a>
+
+
 
 
