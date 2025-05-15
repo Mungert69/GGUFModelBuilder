@@ -500,6 +500,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     has_iq1_iq2_files = False
 
     # Process each quantization config, resuming if needed
+    print(f"[DEBUG] quantize_model: model_id={company_name}/{base_name}, quant_names={quant_names}, start_idx={start_idx}")
     for idx, (suffix, quant_type, tensor_type, embed_type, use_imatrix, use_pure) in enumerate(filtered_configs):
         if idx < start_idx:
             print(f"Skipping quant {suffix} (already completed or before resume point)")
@@ -520,6 +521,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
         )
 
         if not success:
+            print(f"[DEBUG] Quantization failed for {suffix}")
             continue
 
         print(f"Successfully created {output_file} in {output_dir}")
