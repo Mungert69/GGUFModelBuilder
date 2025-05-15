@@ -12,11 +12,12 @@
                     <th>Model ID</th>
                     <th>Details</th>
                     <th>Status</th>
+                    <th>Current Quant</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for model_id, model in converting_models %}
+                {% for model_id, model, quant in converting_models %}
                 <tr {% if not model %}class="table-warning"{% endif %}>
                     <td>
                         <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
@@ -35,6 +36,13 @@
                             <span class="badge bg-warning text-dark">Orphan</span>
                         {% else %}
                             <span class="badge bg-success">In Catalog</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if quant %}
+                            <span class="badge bg-info text-dark">{{ quant }}</span>
+                        {% else %}
+                            <span class="text-muted">-</span>
                         {% endif %}
                     </td>
                     <td>

@@ -465,11 +465,14 @@ def converting():
             flash(f"Removed '{model_id}' from converting list.", "success")
             return redirect(url_for('converting'))
 
-    # Show model details for each converting model
+    # Show model details for each converting model, including quant progress
     model_details = []
     for model_id in converting_models:
         model = catalog.get_model(model_id)
-        model_details.append((model_id, model))
+        quant = None
+        if hasattr(catalog, "get_quant_progress"):
+            quant = catalog.get_quant_progress(model_id)
+        model_details.append((model_id, model, quant))
 
     return render_template('converting.html', converting_models=model_details)
 
