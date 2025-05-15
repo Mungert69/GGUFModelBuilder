@@ -103,8 +103,7 @@ flowchart TD
 
 ## 🌐 Community
 
-[![Discord](https://img.shields.io/discord/your-server-id?label=Discord)](https://discord.gg/rne7YaK3)
-
+[![Discord](https://img.shields.io/discord/1372347929779769464?label=Discord)](https://discord.gg/rne7YaK3)
 ## 🤝 Sponsors
 
 <a href="https://readyforquantum.com" target="_blank">
