@@ -635,7 +635,6 @@ class ModelConverter:
         if self.model_catalog.is_converting(model_id):
             if self.model_catalog.is_failed(model_id):
                 print(f"Resuming failed conversion for {model_id}.")
-                self.model_catalog.unmark_failed(model_id)
             else:
                 print(f"Model {model_id} is already being converted by another process. Skipping.")
                 return
@@ -709,6 +708,7 @@ class ModelConverter:
                 success = False
 
             if success:
+                self.model_catalog.unmark_failed(model_id)
                 # Pass quant_progress to make_files.py if present
                 make_files_args = [model_id, "--is_moe"] if is_moe else [model_id]
                 if quant_progress:

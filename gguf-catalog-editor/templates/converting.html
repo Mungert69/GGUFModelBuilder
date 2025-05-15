@@ -2,7 +2,7 @@
 
 {% block content %}
 <h2>Currently Converting Models</h2>
-{% if not converting_models %}
+{% if not running_models %}
     <div class="alert alert-info">No models are currently being converted.</div>
 {% else %}
     <div class="table-responsive">
@@ -17,7 +17,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for model_id, model, quant, is_failed in converting_models %}
+                {% for model_id, model, quant in running_models %}
                 <tr {% if not model %}class="table-warning"{% endif %}>
                     <td>
                         <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
@@ -34,8 +34,6 @@
                     <td>
                         {% if not model %}
                             <span class="badge bg-warning text-dark">Orphan</span>
-                        {% elif is_failed %}
-                            <span class="badge bg-danger">Failed/Can Resume</span>
                         {% else %}
                             <span class="badge bg-success">In Progress</span>
                         {% endif %}
@@ -66,7 +64,7 @@
     </div>
 {% endif %}
 
-{% if resumable_models %}
+{% if failed_table_models %}
     <h2 class="mt-4">Failed/Can Resume Models</h2>
     <div class="table-responsive">
         <table class="table table-bordered">
@@ -80,7 +78,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for model_id, model, quant in resumable_models %}
+                {% for model_id, model, quant in failed_table_models %}
                 <tr {% if not model %}class="table-warning"{% endif %}>
                     <td>
                         <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
