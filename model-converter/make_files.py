@@ -489,8 +489,9 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     quant_names = [cfg[0] for cfg in filtered_configs]
     start_idx = 0
     if resume_quant and resume_quant in quant_names:
-        start_idx = quant_names.index(resume_quant)
-        print(f"Resuming quantization from {resume_quant} (index {start_idx})")
+        start_idx = quant_names.index(resume_quant) + 1
+        if start_idx >= len(quant_names):
+            print(f"All quantizations completed for this model. Will upload imatrix and update README if needed.")
     elif resume_quant:
         print(f"Warning: resume_quant '{resume_quant}' not found in quant list. Will start from beginning.")
 
