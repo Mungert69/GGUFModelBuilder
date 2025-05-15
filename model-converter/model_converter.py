@@ -688,7 +688,7 @@ class ModelConverter:
         if quant_progress:
             print(f"Resuming quantization for {model_id} from quant: {quant_progress}")
 
-        success = False
+        success = True
         try:
             print(f"Converting {model_id}...")
             # Download and convert to BF16
@@ -758,7 +758,7 @@ class ModelConverter:
         finally:
             
             if success:
-                self.model_catalog.unmark_converting(model_id)
+                self.model_catalog.mark_failed(model_id)
             else:
                 # Mark as failed/resumable, but DO NOT remove from converting set
                 self.model_catalog.mark_failed(model_id)
