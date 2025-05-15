@@ -630,6 +630,7 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
+        success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
         if self.model_catalog.is_converting(model_id):
             print(f"Model {model_id} is already being converted by another process. Skipping.")
