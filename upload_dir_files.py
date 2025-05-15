@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
-from make_files import (
+from ./model-converter/make_files import (
     upload_large_file,
     QUANT_CONFIGS,
     api_token,
