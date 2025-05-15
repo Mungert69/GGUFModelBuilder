@@ -551,6 +551,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
 
         # Update quant progress in Redis after each successful quant
         catalog.set_quant_progress(f"{company_name}/{base_name}", suffix)
+        print(f"[DEBUG] Set quant progress: model_id={company_name}/{base_name}, quant={suffix}")
 
     # Upload imatrix file if repository was created
     if os.path.exists(imatrix_file) and repo_created:
