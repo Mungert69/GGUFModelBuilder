@@ -148,6 +148,10 @@ class RedisModelCatalog:
         print(f"Operation {'succeeded' if success else 'failed'}\n")
         return success
 
+    def delete_model(self, model_id: str) -> bool:
+        """Delete a model from the catalog."""
+        return self._safe_operation(lambda: self.r.hdel(self.catalog_key, model_id)) == 1
+
     def increment_counter(self, model_id: str, field: str) -> bool:
         """Atomically increment a counter field."""
         return self._safe_operation(

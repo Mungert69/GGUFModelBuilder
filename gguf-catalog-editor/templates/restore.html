@@ -1,0 +1,21 @@
+<<<<<<< SEARCH
+// (file does not exist)
+=======
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Restore Catalog</h2>
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="restoreFile" class="form-label">Backup JSON File</label>
+                <input class="form-control" type="file" id="restoreFile" name="file" accept=".json" required>
+                <div class="form-text">Upload a JSON file exported from the backup/export function.</div>
+            </div>
+            <button type="submit" class="btn btn-danger">Restore</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+>>>>>>> REPLACE
