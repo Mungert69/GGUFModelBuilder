@@ -723,11 +723,6 @@ class ModelConverter:
                     print("Script upload-files.py failed.")
                     success = False
 
-        except Exception as e:
-            model_data["error_log"].append(str(e))
-            print(f"Conversion failed for {model_id}: {e}")
-            success = False
-
             # Update converted status and success date if successful
             if success:
                 print(f"Successfully converted {model_id}.")
@@ -754,10 +749,14 @@ class ModelConverter:
             if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
                 print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
                 self.cleanup_hf_cache(model_id)
+
+        except Exception as e:
+            model_data["error_log"].append(str(e))
+            print(f"Conversion failed for {model_id}: {e}")
+            success = False
+
         finally:
-            # Only clear the lock and progress if conversion finished or max attempts reached
-            import sys
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            
             if success:
                 self.model_catalog.unmark_converting(model_id, keep_progress=False)
             else:
