@@ -758,7 +758,7 @@ class ModelConverter:
         finally:
             
             if success:
-                self.model_catalog.unmark_converting(model_id, keep_progress=False)
+                self.model_catalog.unmark_converting(model_id)
             else:
                 # Mark as failed/resumable, but DO NOT remove from converting set
                 self.model_catalog.mark_failed(model_id)
