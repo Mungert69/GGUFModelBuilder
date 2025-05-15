@@ -451,18 +451,27 @@ def converting():
         return redirect(url_for('settings'))
 
     converting_models = catalog.get_converting_models()
+    # Ensure all model IDs are strings (in case Redis returns bytes)
+    converting_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in converting_models]
+    quant_progress_dict = catalog.r.hgetall(catalog.converting_progress_key)
+    # Also ensure quant_progress_dict keys/values are strings
+    quant_progress_dict = {
+        (k.decode() if isinstance(k, bytes) else k): (v.decode() if isinstance(v, bytes) else v)
+        for k, v in quant_progress_dict.items()
+    }
+    resumable_models = []
+    for model_id, quant in quant_progress_dict.items():
+        if model_id not in converting_models:
+            model = catalog.get_model(model_id)
+            resumable_models.append((model_id, model, quant))
 
-    # Handle removal of stuck models or resume
+    # Handle removal of stuck models
     if request.method == 'POST':
         model_id = request.form.get('model_id')
         action = request.form.get('action')
         if model_id and hasattr(catalog, "unmark_converting"):
-            if action == "resume":
-                catalog.unmark_converting(model_id, keep_progress=True)
-                flash(f"Unlocked '{model_id}' for resume (progress kept).", "success")
-            else:
-                catalog.unmark_converting(model_id)
-                flash(f"Removed '{model_id}' from converting list.", "success")
+            catalog.unmark_converting(model_id)
+            flash(f"Removed '{model_id}' from converting/resumable list.", "success")
             return redirect(url_for('converting'))
 
     # Show model details for each converting model, including quant progress
@@ -472,7 +481,11 @@ def converting():
         quant = catalog.get_quant_progress(model_id)
         model_details.append((model_id, model, quant))
 
-    return render_template('converting.html', converting_models=model_details)
+    return render_template(
+        'converting.html',
+        converting_models=model_details,
+        resumable_models=resumable_models
+    )
 
 @app.route('/restore', methods=['GET', 'POST'])
 def restore():
