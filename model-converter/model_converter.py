@@ -748,7 +748,7 @@ class ModelConverter:
             # Only clear the lock and progress if conversion finished or max attempts reached
             import sys
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            if success or (model_data and model_data.get("attempts", 0) >= self.MAX_ATTEMPTS):
+            if success:
                 self.model_catalog.unmark_converting(model_id, keep_progress=False)
             else:
                 # Mark as failed/resumable, but DO NOT remove from converting set
