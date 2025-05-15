@@ -19,7 +19,8 @@ common_requirements = [
     "dateparser",
     "hashlib",
     "inflect",
-    "ftfy"
+    "ftfy",
+    "sentencepiece"
 ]
 
 # Function to run shell commands
@@ -45,12 +46,12 @@ def install_system_dependencies():
     os_type = platform.system()
     if os_type == "Linux":
         print("Detected Linux. Installing espeak and other dependencies...")
-        run_command("sudo apt-get update && sudo apt-get install -y espeak libsndfile1")
+        run_command("sudo apt-get update && sudo apt-get install -y espeak libsndfile1 ffmpeg")
     elif os_type == "Darwin":
-        print("Detected macOS. Please install espeak manually using Homebrew.")
-        print("Run: brew install espeak")
+        print("Detected macOS. Please install espeak and libsndfiles1 manually using Homebrew.")
+        print("Run: brew install espeak libsndfiles1 ffmpeg")
     elif os_type == "Windows":
-        print("Detected Windows. Ensure espeak is installed manually if required.")
+        print("Detected Windows. Ensure espeak and libsndfiles1 are installed manually if required.")
     else:
         print(f"Unsupported OS: {os_type}. Skipping system dependencies installation.")
 

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Model Catalog</h2>
+
+{% if not models %}
+<div class="alert alert-warning">
+    No models found or Redis not configured. Check your <a href="/settings">settings</a>.
+</div>
+{% else %}
+<div class="list-group mt-3">
+    {% for model_id, data in models %}
+    <a href="/edit/{{ model_id }}" class="list-group-item list-group-item-action">
+        {{ model_id }}
+        <span class="badge bg-{{ 'success' if data.converted else 'warning' }} float-end">
+            {{ 'Converted' if data.converted else 'Pending' }}
+        </span>
+    </a>
+    {% endfor %}
+</div>
+
+<nav aria-label="Page navigation">
+  <ul class="pagination mt-4">
+    {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', page=page-1) }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Previous</span>
+      </li>
+    {% endif %}
+
+    {% for p in range(1, total_pages + 1) %}
+      {% if p == page %}
+        <li class="page-item active">
+          <span class="page-link">{{ p }}</span>
+        </li>
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {% if page < total_pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', page=page+1) }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Next</span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+<!-- Buttons moved to navbar in base.html -->
+{% endblock %}
