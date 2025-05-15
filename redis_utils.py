@@ -31,8 +31,34 @@ class RedisModelCatalog:
             socket_keepalive=True
         )
         self.catalog_key = "model:catalog"
+        self.converting_key = "model:converting"
+        self.converting_progress_key = "model:converting:progress"
         self.max_retries = 3
+    def is_converting(self, model_id: str) -> bool:
+        """Check if a model is currently being converted."""
+        return self.r.sismember(self.converting_key, model_id)
 
+    def mark_converting(self, model_id: str) -> bool:
+        """Mark a model as being converted. Returns True if marked, False if already present."""
+        return self.r.sadd(self.converting_key, model_id) == 1
+
+    def unmark_converting(self, model_id: str):
+        """Remove a model from the converting set and clear progress."""
+        self.r.srem(self.converting_key, model_id)
+        self.r.hdel(self.converting_progress_key, model_id)
+
+
+    def get_converting_models(self):
+        """Return a list of currently converting models."""
+        return list(self.r.smembers(self.converting_key))
+    
+    def set_quant_progress(self, model_id: str, quant_name: str):
+        """Set the current quantization step for a model."""
+        self.r.hset(self.converting_progress_key, model_id, quant_name)
+
+    def get_quant_progress(self, model_id: str) -> str:
+        """Get the current quantization step for a model."""
+        return self.r.hget(self.converting_progress_key, model_id)
     def _safe_operation(self, operation, *args, **kwargs):
         """Helper for retrying failed operations."""
         for attempt in range(self.max_retries):
@@ -316,6 +342,10 @@ if __name__ == "__main__":
     import_parser.add_argument("--model_ids", required=True, help="Comma-separated list of model IDs")
     import_parser.add_argument("--defaults", help="JSON string of default values", default=None)
 
+    # Add mark_converting command
+    mark_parser = subparsers.add_parser("mark_converting", help="Add a model ID to the converting set")
+    mark_parser.add_argument("--model_id", required=True)
+
     args = parser.parse_args()
     catalog = init_redis_catalog(args.host, args.port, args.password, args.user, args.ssl)
 
@@ -357,5 +387,8 @@ if __name__ == "__main__":
         defaults = json.loads(args.defaults) if args.defaults else None
         result = catalog.import_models_from_list(model_ids, defaults)
         print(json.dumps(result, indent=2))
+    elif args.command == "mark_converting":
+        result = catalog.mark_converting(args.model_id)
+        print("Added to converting set" if result else "Already in converting set")
     else:
         print("Unknown command")
