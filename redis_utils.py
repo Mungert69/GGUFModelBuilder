@@ -43,7 +43,8 @@ class RedisModelCatalog:
         return self.r.sadd(self.converting_key, model_id) == 1
 
     def mark_failed(self, model_id: str):
-        """Mark a model as failed/interrupted (resumable)."""
+        """Mark a model as failed/interrupted (resumable). Always keep in converting set."""
+        self.r.sadd(self.converting_key, model_id)
         self.r.sadd("model:converting:failed", model_id)
 
     def unmark_failed(self, model_id: str):
