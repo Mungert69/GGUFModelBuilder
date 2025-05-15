@@ -444,6 +444,35 @@ def export():
         flash("Export failed!", "danger")
         return redirect(url_for('index'))
 
+@app.route('/converting', methods=['GET', 'POST'])
+def converting():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+
+    converting_models = []
+    if hasattr(catalog, "get_converting_models"):
+        converting_models = catalog.get_converting_models()
+    else:
+        flash("This Redis catalog does not support converting model tracking.", "danger")
+        converting_models = []
+
+    # Handle removal of stuck models
+    if request.method == 'POST':
+        model_id = request.form.get('model_id')
+        if model_id and hasattr(catalog, "unmark_converting"):
+            catalog.unmark_converting(model_id)
+            flash(f"Removed '{model_id}' from converting list.", "success")
+            return redirect(url_for('converting'))
+
+    # Show model details for each converting model
+    model_details = []
+    for model_id in converting_models:
+        model = catalog.get_model(model_id)
+        model_details.append((model_id, model))
+
+    return render_template('converting.html', converting_models=model_details)
+
 @app.route('/restore', methods=['GET', 'POST'])
 def restore():
     catalog = get_catalog()
