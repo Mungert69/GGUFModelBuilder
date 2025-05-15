@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 from huggingface_hub import HfApi, login
 from dotenv import load_dotenv
-from ./model-converter/make_files import (
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "model-converter")))
+from make_files import (
     upload_large_file,
     QUANT_CONFIGS,
     api_token,
     base_dir
 )
-import os
 import argparse
 import shutil
 
