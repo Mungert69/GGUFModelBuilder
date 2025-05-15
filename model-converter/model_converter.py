@@ -646,6 +646,10 @@ class ModelConverter:
             if not model_data:
                 print(f"Model {model_id} not found in catalog")
                 return
+            # Prevent conversion if max attempts reached
+            if int(model_data.get("attempts", 0)) >= self.MAX_ATTEMPTS:
+                print(f"Model {model_id} has reached the maximum number of attempts ({self.MAX_ATTEMPTS}). Skipping.")
+                return
             required_gb = self.calculate_required_space(model_id)
             if not required_gb:
                 print(f"❌ Cannot determine space requirements for {model_id}")
@@ -741,9 +745,17 @@ class ModelConverter:
                 print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
                 self.cleanup_hf_cache(model_id)
         finally:
-            # Always clear the lock and progress, even on error
+            # Only clear the lock and progress if conversion finished or max attempts reached
+            import sys
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            interrupted = exc_type is not None and issubclass(exc_type, KeyboardInterrupt)
             if hasattr(self.model_catalog, "unmark_converting"):
-                self.model_catalog.unmark_converting(model_id)
+                if (model_data.get("attempts", 0) >= self.MAX_ATTEMPTS or success) and not interrupted:
+                    self.model_catalog.unmark_converting(model_id, keep_progress=False)
+                else:
+                    # If interrupted or failed, keep progress so UI can show/resume
+                    self.model_catalog.unmark_converting(model_id, keep_progress=True)
+                    print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Keeping quant progress for resume.")
 
     def run_conversion_cycle(self):
         """
