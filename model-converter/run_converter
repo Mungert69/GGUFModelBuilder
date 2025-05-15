@@ -1,0 +1,3 @@
+source venv/bin/activate
+nohup python3 model_converter.py --daemon  &
+
