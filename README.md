@@ -1,5 +1,4 @@
 
-
 ---
 
 ## GGUFModelBuilder
@@ -74,8 +73,6 @@ flowchart TD
     F --> G["Update Redis Catalog"]
 ```
 
----
-
 # Technologies Used
 
 * **Python** – core language
@@ -113,5 +110,7 @@ flowchart TD
 <a href="https://readyforquantum.com" target="_blank">
   <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="200">
 </a>
+
+
 
 
