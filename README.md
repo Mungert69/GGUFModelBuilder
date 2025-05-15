@@ -1,11 +1,8 @@
 
-Here's your description rewritten in **nicely styled Markdown**, with a **fixed Mermaid diagram** that is **GitHub-compatible**:
 
 ---
 
-# High-Level Overview
-
-## Purpose
+## GGUFModelBuilder
 
 This codebase provides a **machine learning model conversion and management pipeline** designed to:
 
