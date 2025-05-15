@@ -633,8 +633,12 @@ class ModelConverter:
         success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
         if self.model_catalog.is_converting(model_id):
-            print(f"Model {model_id} is already being converted by another process. Skipping.")
-            return
+            if self.model_catalog.is_failed(model_id):
+                print(f"Resuming failed conversion for {model_id}.")
+                self.model_catalog.unmark_failed(model_id)
+            else:
+                print(f"Model {model_id} is already being converted by another process. Skipping.")
+                return
         if not self.model_catalog.mark_converting(model_id):
             print(f"Another process started converting {model_id} just now. Skipping.")
             return
@@ -744,11 +748,12 @@ class ModelConverter:
             # Only clear the lock and progress if conversion finished or max attempts reached
             import sys
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            if (success):
+            if success:
                 self.model_catalog.unmark_converting(model_id, keep_progress=False)
             else:
-                self.model_catalog.unmark_converting(model_id, keep_progress=True)
-                print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Keeping quant progress for resume.")
+                # Mark as failed/resumable, but keep in converting set
+                self.model_catalog.mark_failed(model_id)
+                print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Marked as failed/resumable.")
 
     def run_conversion_cycle(self):
         """
