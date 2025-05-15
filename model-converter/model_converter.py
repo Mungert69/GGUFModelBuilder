@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 print("sys.path:", sys.path)
 print("Parent dir contents:", os.listdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
-
+import argparse
 import json
 import time
 import requests
@@ -763,7 +763,7 @@ class ModelConverter:
                 print("Warning: Failed to update or rebuild llama.cpp")
 
 if __name__ == "__main__":
-    import argparse
+
 
     parser = argparse.ArgumentParser(description="Model Converter Service")
     group = parser.add_mutually_exclusive_group(required=True)
