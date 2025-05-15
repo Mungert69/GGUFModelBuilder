@@ -459,11 +459,14 @@ def converting():
         (k.decode() if isinstance(k, bytes) else k): (v.decode() if isinstance(v, bytes) else v)
         for k, v in quant_progress_dict.items()
     }
+    # Get failed/resumable models
+    failed_models = catalog.r.smembers("model:converting:failed")
+    failed_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in failed_models]
     resumable_models = []
-    for model_id, quant in quant_progress_dict.items():
-        if model_id not in converting_models:
-            model = catalog.get_model(model_id)
-            resumable_models.append((model_id, model, quant))
+    for model_id in failed_models:
+        quant = quant_progress_dict.get(model_id)
+        model = catalog.get_model(model_id)
+        resumable_models.append((model_id, model, quant))
 
     # Handle removal of stuck models
     if request.method == 'POST':

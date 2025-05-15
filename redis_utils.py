@@ -42,9 +42,22 @@ class RedisModelCatalog:
         """Mark a model as being converted. Returns True if marked, False if already present."""
         return self.r.sadd(self.converting_key, model_id) == 1
 
+    def mark_failed(self, model_id: str):
+        """Mark a model as failed/interrupted (resumable)."""
+        self.r.sadd("model:converting:failed", model_id)
+
+    def unmark_failed(self, model_id: str):
+        """Remove a model from the failed set."""
+        self.r.srem("model:converting:failed", model_id)
+
+    def is_failed(self, model_id: str) -> bool:
+        """Check if a model is in the failed set."""
+        return self.r.sismember("model:converting:failed", model_id)
+
     def unmark_converting(self, model_id: str, keep_progress: bool = False):
         """Remove a model from the converting set. Optionally keep quant progress."""
         self.r.srem(self.converting_key, model_id)
+        self.unmark_failed(model_id)
         if not keep_progress:
             self.r.hdel(self.converting_progress_key, model_id)
 
