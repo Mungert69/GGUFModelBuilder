@@ -688,7 +688,7 @@ class ModelConverter:
         if quant_progress:
             print(f"Resuming quantization for {model_id} from quant: {quant_progress}")
 
-        success = True
+        success = False
         try:
             print(f"Converting {model_id}...")
             # Download and convert to BF16
