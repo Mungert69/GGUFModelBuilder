@@ -463,14 +463,15 @@ def converting():
     failed_models = catalog.r.smembers("model:converting:failed")
     failed_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in failed_models]
 
-    # Only show models in converting that are NOT failed
-    active_converting_models = [mid for mid in converting_models if mid not in failed_models]
-    # Show models that are both in converting and failed as resumable
+    # Show all models in converting, regardless of failed status
+    model_details = []
     resumable_models = []
-    for model_id in failed_models:
-        if model_id in converting_models:
-            quant = quant_progress_dict.get(model_id)
-            model = catalog.get_model(model_id)
+    for model_id in converting_models:
+        model = catalog.get_model(model_id)
+        quant = catalog.get_quant_progress(model_id)
+        is_failed = model_id in failed_models
+        model_details.append((model_id, model, quant, is_failed))
+        if is_failed:
             resumable_models.append((model_id, model, quant))
 
     # Handle removal of stuck models
@@ -481,13 +482,6 @@ def converting():
             catalog.unmark_converting(model_id)
             flash(f"Removed '{model_id}' from converting/resumable list.", "success")
             return redirect(url_for('converting'))
-
-    # Show model details for each converting model, including quant progress
-    model_details = []
-    for model_id in active_converting_models:
-        model = catalog.get_model(model_id)
-        quant = catalog.get_quant_progress(model_id)
-        model_details.append((model_id, model, quant))
 
     return render_template(
         'converting.html',
