@@ -450,12 +450,7 @@ def converting():
     if not catalog:
         return redirect(url_for('settings'))
 
-    converting_models = []
-    if hasattr(catalog, "get_converting_models"):
-        converting_models = catalog.get_converting_models()
-    else:
-        flash("This Redis catalog does not support converting model tracking.", "danger")
-        converting_models = []
+    converting_models = catalog.get_converting_models()
 
     # Handle removal of stuck models or resume
     if request.method == 'POST':
@@ -474,9 +469,7 @@ def converting():
     model_details = []
     for model_id in converting_models:
         model = catalog.get_model(model_id)
-        quant = None
-        if hasattr(catalog, "get_quant_progress"):
-            quant = catalog.get_quant_progress(model_id)
+        quant = catalog.get_quant_progress(model_id)
         model_details.append((model_id, model, quant))
 
     return render_template('converting.html', converting_models=model_details)
