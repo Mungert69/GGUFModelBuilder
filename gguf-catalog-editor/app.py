@@ -132,8 +132,21 @@ def search():
     if not catalog:
         return redirect(url_for('settings'))
 
-    search_term = ''
-    search_type = 'i'  # Default to ID search
+    # Accept search_term and search_type from both GET and POST
+    if request.method == 'POST':
+        search_term = request.form.get('search_term', '').strip()
+        search_type = request.form.get('search_type', 'i')
+        # Redirect to GET with all parameters and page=1
+        return redirect(url_for(
+            'search',
+            search_term=search_term,
+            search_type=search_type,
+            page=1
+        ))
+    else:
+        search_term = request.args.get('search_term', '').strip()
+        search_type = request.args.get('search_type', 'i')
+
     selected_field = None
     results = []
 
@@ -144,49 +157,105 @@ def search():
         first_model = next(iter(all_models.values()))
         fields = list(first_model.keys())
 
-    if request.method == 'POST':
-        search_type = request.form.get('search_type', 'i')
-        search_term = request.form.get('search_term', '').strip().lower()
+    # Sorting parameters
+    order_by = request.args.get('order_by', None)
+    order_dir = request.args.get('order_dir', 'asc')
+    if order_dir not in ['asc', 'desc']:
+        order_dir = 'asc'
 
-        # Handle field number selection
-        if search_type.isdigit():
-            field_idx = int(search_type) - 1
-            if 0 <= field_idx < len(fields):
-                selected_field = fields[field_idx]
-                search_type = 'field'
+    # Handle field number selection
+    if search_type.isdigit():
+        field_idx = int(search_type) - 1
+        if 0 <= field_idx < len(fields):
+            selected_field = fields[field_idx]
+            search_type = 'field'
 
-        for model_id, data in all_models.items():
-            matched = False
-            match_info = []
+    # Always run search on GET or POST, and only filter if search_term is not blank
+    for model_id, data in all_models.items():
+        matched = False
+        match_info = []
 
-            # ID search
-            if search_type == 'i':
-                if not search_term or search_term in model_id.lower():
+        # ID search
+        if search_type == 'i':
+            if not search_term:
+                matched = True
+            else:
+                print(f"ID search: search_term={search_term!r}, model_id={model_id!r}, match={search_term.lower() in str(model_id).lower()}", flush=True)
+                if search_term.lower() in str(model_id).lower():
                     matched = True
 
-            # All fields search
-            elif search_type == 'a':
+        # All fields search
+        elif search_type == 'a':
+            if not search_term:
+                matched = True
+            else:
+                st = search_term.lower()
+                # Check model_id as well as all fields!
+                if st in str(model_id).lower():
+                    matched = True
+                    match_info.append("id")
+                # Check ALL fields, not just the first match
                 for field, value in data.items():
-                    if _value_matches_search(value, search_term):
+                    if _value_matches_search(value, st):
                         matched = True
                         match_info.append(field)
-                        break
 
-            # Specific field search
-            elif search_type == 'field' and selected_field:
-                value = data.get(selected_field)
-                if _value_matches_search(value, search_term):
-                    matched = True
-                    match_info.append(selected_field)
+        # Specific field search
+        elif search_type == 'field' and selected_field:
+            value = data.get(selected_field)
+            if _value_matches_search(value, search_term):
+                matched = True
+                match_info.append(selected_field)
 
-            if matched:
-                results.append((model_id, data, match_info))
+        if matched:
+            results.append((model_id, data, match_info))
 
     # Always define pagination variables, even if no results or GET request
     page = request.args.get('page', 1, type=int)
     per_page = 10
     total = len(results)
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+
+    # Robust sorting logic: always sort as tuple (type, value) to avoid TypeError
+    def get_sort_key(item):
+        model_id, data, _ = item
+        if order_by == 'id':
+            # Always return a tuple of the same types: (priority, string, string)
+            return (0, str(model_id).lower(), "")
+        elif order_by in data:
+            value = data[order_by]
+            from dateutil.parser import parse as date_parse
+            import datetime
+
+            # Treat blank, None, or missing as "bad" and sort them last
+            if value is None or (isinstance(value, str) and value.strip() == ""):
+                return (5, "", "")
+
+            # Try date
+            if isinstance(value, str):
+                try:
+                    dt = date_parse(value)
+                    return (1, dt.isoformat(), str(value))
+                except Exception:
+                    pass
+            # Try float
+            try:
+                return (2, float(value), str(value))
+            except Exception:
+                pass
+            # Try int
+            try:
+                return (2, int(value), str(value))
+            except Exception:
+                pass
+            # Fallback to string, always use a string (never None)
+            return (3, str(value).lower(), str(value))
+        else:
+            return (6, "", "")
+
+    if order_by:
+        results.sort(key=get_sort_key, reverse=(order_dir == 'desc'))
+
     start = (page - 1) * per_page
     end = start + per_page
     paginated_results = results[start:end]
@@ -197,22 +266,43 @@ def search():
         search_term=search_term,
         search_type=search_type,
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        order_by=order_by,
+        order_dir=order_dir
     )
 
+import re
+
 def _value_matches_search(value, search_term):
-    """Check if a field value matches the search term"""
+    """Check if a field value matches the search term using regex (case-insensitive) and print debug info."""
     if not search_term:
+        print(f"_value_matches_search: empty search_term, always True", flush=True)
         return True
-    
+
+    pattern = re.compile(re.escape(search_term), re.IGNORECASE)
+    print(f"_value_matches_search: search_term={search_term!r}, value={value!r}, type={type(value)}", flush=True)
+
     if isinstance(value, bool):
-        return search_term in ['true', 'yes', '1'] if value else search_term in ['false', 'no', '0']
+        target = 'true' if value else 'false'
+        result = bool(pattern.search(target))
+        print(f"  [bool] pattern={pattern.pattern!r}, target={target!r}, result={result}", flush=True)
+        return result
     elif isinstance(value, (list, dict)):
         try:
-            return search_term in json.dumps(value).lower()
-        except:
-            return search_term in str(value).lower()
-    return search_term in str(value).lower()
+            target = json.dumps(value)
+            result = bool(pattern.search(target))
+            print(f"  [list/dict] pattern={pattern.pattern!r}, target={target!r}, result={result}", flush=True)
+            return result
+        except Exception as e:
+            target = str(value)
+            result = bool(pattern.search(target))
+            print(f"  [list/dict fallback] pattern={pattern.pattern!r}, target={target!r}, result={result}, error={e}", flush=True)
+            return result
+    target = str(value)
+    result = bool(pattern.search(target))
+    print(f"  [str] pattern={pattern.pattern!r}, target={target!r}, result={result}", flush=True)
+    return result
+
 
 def _convert_to_search_string(value):
     """Convert any field value to searchable string"""
@@ -353,6 +443,35 @@ def export():
     else:
         flash("Export failed!", "danger")
         return redirect(url_for('index'))
+
+@app.route('/converting', methods=['GET', 'POST'])
+def converting():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+
+    converting_models = []
+    if hasattr(catalog, "get_converting_models"):
+        converting_models = catalog.get_converting_models()
+    else:
+        flash("This Redis catalog does not support converting model tracking.", "danger")
+        converting_models = []
+
+    # Handle removal of stuck models
+    if request.method == 'POST':
+        model_id = request.form.get('model_id')
+        if model_id and hasattr(catalog, "unmark_converting"):
+            catalog.unmark_converting(model_id)
+            flash(f"Removed '{model_id}' from converting list.", "success")
+            return redirect(url_for('converting'))
+
+    # Show model details for each converting model
+    model_details = []
+    for model_id in converting_models:
+        model = catalog.get_model(model_id)
+        model_details.append((model_id, model))
+
+    return render_template('converting.html', converting_models=model_details)
 
 @app.route('/restore', methods=['GET', 'POST'])
 def restore():

@@ -448,8 +448,8 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         pass
     return False
 
-def quantize_model(input_model, company_name, base_name, allow_requantize=False, is_moe=False):
-    """Quantize the model and upload files following HF standards."""
+def quantize_model(input_model, company_name, base_name, allow_requantize=False, is_moe=False, resume_quant=None):
+    """Quantize the model and upload files following HF standards, with progress tracking."""
     # Setup paths and directories
     input_dir = os.path.dirname(input_model)
     output_dir = input_dir
@@ -460,20 +460,46 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     # Validate BF16 model exists
     if not os.path.exists(bf16_model_file):
         raise FileNotFoundError(f"BF16 model not found: {bf16_model_file}")
-    
+
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Get filtered quantization configs
     filtered_configs = filter_quant_configs(base_name, QUANT_CONFIGS)
     print(f"🏗 Selected {len(filtered_configs)} quantizations for {base_name}")
-    
+
+    # Progress tracking: determine where to resume
+    quant_names = [cfg[0] for cfg in filtered_configs]
+    start_idx = 0
+    if resume_quant and resume_quant in quant_names:
+        start_idx = quant_names.index(resume_quant)
+        print(f"Resuming quantization from {resume_quant} (index {start_idx})")
+    elif resume_quant:
+        print(f"Warning: resume_quant '{resume_quant}' not found in quant list. Will start from beginning.")
+
     # Initialize repo tracking
     repo_created = False
     # Track if we've created any IQ1/IQ2 files
     has_iq1_iq2_files = False
 
-    # Process each quantization config
-    for suffix, quant_type, tensor_type, embed_type, use_imatrix, use_pure in filtered_configs:
+    # Redis progress tracking
+    from redis_utils import init_redis_catalog
+    REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
+    REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
+    REDIS_USER = os.getenv("REDIS_USER", "admin")
+    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+    catalog = init_redis_catalog(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        password=REDIS_PASSWORD,
+        user=REDIS_USER,
+        ssl=True
+    )
+
+    # Process each quantization config, resuming if needed
+    for idx, (suffix, quant_type, tensor_type, embed_type, use_imatrix, use_pure) in enumerate(filtered_configs):
+        if idx < start_idx:
+            print(f"Skipping quant {suffix} (already completed or before resume point)")
+            continue
         output_file = f"{base_name}-{suffix}.gguf"
         output_path = os.path.join(output_dir, output_file)    
         print(f"\n🏗 Processing {output_file}...")
@@ -488,16 +514,16 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
             allow_requantize=allow_requantize,
             is_moe=is_moe 
         )
-        
+
         if not success:
             continue
 
         print(f"Successfully created {output_file} in {output_dir}")
-        
+
         # Check if this is an IQ1/IQ2 file
         if not has_iq1_iq2_files and any(quant_type.startswith(prefix) for prefix in ['IQ1', 'IQ2']):
             has_iq1_iq2_files = True
-        
+
         # Create repo on first successful quantization
         if not repo_created:
             if create_repo_if_not_exists(repo_id, api_token):
@@ -505,7 +531,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
             else:
                 print("Failed to create repository. Aborting further uploads.")
                 break
-        
+
         # Handle file upload with standardized large file support
         if repo_created:
             # Pass the suffix (name) as the folder name
@@ -518,7 +544,10 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
                     print(f"Warning: Could not delete {output_file}: {e}")
             else:
                 print(f"Failed to upload {output_file}. Keeping local file.")
-    
+
+        # Update quant progress in Redis after each successful quant
+        catalog.set_quant_progress(f"{company_name}/{base_name}", suffix)
+
     # Upload imatrix file if repository was created
     if os.path.exists(imatrix_file) and repo_created:
         # Use "imatrix" as the folder name
@@ -531,7 +560,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
                 print(f"Warning: Could not delete {imatrix_file}: {e}")
         else:
             print(f"Failed to upload {os.path.basename(imatrix_file)}. Keeping local file.")
-    
+
     # Update README after all files are processed
     try:
         print("\n📝 Updating README.md...")
@@ -546,7 +575,8 @@ def main():
     parser.add_argument("model_id", help="Full Hugging Face model ID (e.g., 'company/model')")
     parser.add_argument("--allow-requantize", action="store_true", help="Allow requantization of already quantized models")
     parser.add_argument("--is_moe", action="store_true", help="The model is a MOE model")
-    
+    parser.add_argument("--resume_quant", type=str, default=None, help="Resume quantization from this quant name (inclusive)")
+
     args = parser.parse_args()
 
     if "/" not in args.model_id:
@@ -555,8 +585,15 @@ def main():
 
     company_name, model_name = args.model_id.split("/", 1)
     model_dir = os.path.join(base_dir, model_name)
-    allow_requantize=args.allow_requantize
-    quantize_model(os.path.join(model_dir, f"{model_name}-bf16.gguf"), company_name, model_name, args.allow_requantize, args.is_moe )
+    allow_requantize = args.allow_requantize
+    quantize_model(
+        os.path.join(model_dir, f"{model_name}-bf16.gguf"),
+        company_name,
+        model_name,
+        allow_requantize,
+        args.is_moe,
+        args.resume_quant
+    )
 
 if __name__ == "__main__":
     main()

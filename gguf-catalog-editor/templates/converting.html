@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Currently Converting Models</h2>
+{% if not converting_models %}
+    <div class="alert alert-info">No models are currently being converted.</div>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Model ID</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model_id, model in converting_models %}
+                <tr {% if not model %}class="table-warning"{% endif %}>
+                    <td>
+                        <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
+                    </td>
+                    <td>
+                        {% if model %}
+                            Attempts: {{ model.attempts }}<br>
+                            Converted: {{ model.converted }}<br>
+                            Last Attempt: {{ model.last_attempt }}
+                        {% else %}
+                            <span class="text-muted">No details found</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not model %}
+                            <span class="badge bg-warning text-dark">Orphan</span>
+                        {% else %}
+                            <span class="badge bg-success">In Catalog</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="model_id" value="{{ model_id }}">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Remove {{ model_id }} from converting list?');">
+                                Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-2">
+            <span class="badge bg-warning text-dark">Orphan</span> = Model ID not found in catalog (safe to remove)
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -630,91 +630,120 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
-        model_data = self.model_catalog.get_model(model_id)
-        if not model_data:
-            print(f"Model {model_id} not found in catalog")
-            return
-        required_gb = self.calculate_required_space(model_id)
-        if not required_gb:
-            print(f"❌ Cannot determine space requirements for {model_id}")
-            return
-        
-        # Check space with model-specific requirements
-        if not self.can_fit_model(model_id):
-            print(f"🚨 Insufficient space for {model_id} (needs {required_gb:.1f}GB)")
-            
-            # Try targeted cleanup first
-            self.cleanup_completed_models()
-            if not self.can_fit_model(model_id):
-                # Emergency measures if still not enough space
-                print("⚡ Attempting targeted large file cleanup...")
-                self.remove_largest_cache_items()
-                if not self.can_fit_model(model_id):
-                    print("❌ Critical: Still insufficient space after cleanup")
-                    return
-        
-        model_data["attempts"] = int(model_data.get("attempts", 0)) + 1
-        model_data["last_attempt"] = datetime.now().isoformat()
-
-        # First update the attempt count and last attempt time
-        self.model_catalog.update_model_field(
-            model_id,
-            "attempts",
-            model_data["attempts"]
-        )
-        self.model_catalog.update_model_field(
-            model_id,
-            "last_attempt",
-            model_data["last_attempt"]
-        )
-
-        success = True
-        try:
-            print(f"Converting {model_id}...")
-            scripts = [
-                ("download_convert.py", [model_id]),
-                ("make_files.py", [model_id, "--is_moe"] if is_moe else [model_id]),
-                ("upload-files.py", [model_id.split('/')[-1]])
-            ]
-
-            for script_name, script_args in scripts:
-                print(f"Running {script_name}...")
-                if not self.run_script(script_name, script_args):
-                    print(f"Script {script_name} failed.")
-                    success = False
-                    break
-
-        except Exception as e:
-            model_data["error_log"].append(str(e))
-            print(f"Conversion failed for {model_id}: {e}")
-            success = False
-
-        # Update converted status and success date if successful
-        if success:
-            print(f"Successfully converted {model_id}.")
-            self.model_catalog.update_model_field(
-                model_id,
-                "converted",
-                True
-            )
-            self.model_catalog.update_model_field(
-                model_id,
-                "success_date",
-                datetime.now().isoformat()
-            )
-            # Clear error log on success
-            self.model_catalog.update_model_field(
-                model_id,
-                "error_log",
-                []
-            )
+        # Lock check: prevent duplicate conversions
+        if hasattr(self.model_catalog, "is_converting") and hasattr(self.model_catalog, "mark_converting") and hasattr(self.model_catalog, "unmark_converting"):
+            if self.model_catalog.is_converting(model_id):
+                print(f"Model {model_id} is already being converted by another process. Skipping.")
+                return
+            if not self.model_catalog.mark_converting(model_id):
+                print(f"Another process started converting {model_id} just now. Skipping.")
+                return
         else:
-            print(f"Conversion failed for {model_id}.")
+            print("Warning: RedisModelCatalog does not support lock methods. Proceeding without lock.")
 
-        # Clean up cache if we've reached max attempts or succeeded
-        if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
-            print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
-            self.cleanup_hf_cache(model_id)
+        try:
+            model_data = self.model_catalog.get_model(model_id)
+            if not model_data:
+                print(f"Model {model_id} not found in catalog")
+                return
+            required_gb = self.calculate_required_space(model_id)
+            if not required_gb:
+                print(f"❌ Cannot determine space requirements for {model_id}")
+                return
+
+            # Check space with model-specific requirements
+            if not self.can_fit_model(model_id):
+                print(f"🚨 Insufficient space for {model_id} (needs {required_gb:.1f}GB)")
+
+                # Try targeted cleanup first
+                self.cleanup_completed_models()
+                if not self.can_fit_model(model_id):
+                    # Emergency measures if still not enough space
+                    print("⚡ Attempting targeted large file cleanup...")
+                    self.remove_largest_cache_items()
+                    if not self.can_fit_model(model_id):
+                        print("❌ Critical: Still insufficient space after cleanup")
+                        return
+
+            model_data["attempts"] = int(model_data.get("attempts", 0)) + 1
+            model_data["last_attempt"] = datetime.now().isoformat()
+
+            # First update the attempt count and last attempt time
+            self.model_catalog.update_model_field(
+                model_id,
+                "attempts",
+                model_data["attempts"]
+            )
+            self.model_catalog.update_model_field(
+                model_id,
+                "last_attempt",
+                model_data["last_attempt"]
+            )
+
+            # --- Quant progress tracking ---
+            quant_progress = None
+            if hasattr(self.model_catalog, "get_quant_progress"):
+                quant_progress = self.model_catalog.get_quant_progress(model_id)
+                if quant_progress:
+                    print(f"Resuming quantization for {model_id} from quant: {quant_progress}")
+
+            success = True
+            try:
+                print(f"Converting {model_id}...")
+                # Download and convert to BF16
+                if not self.run_script("download_convert.py", [model_id]):
+                    print("Script download_convert.py failed.")
+                    success = False
+
+                if success:
+                    # Pass quant_progress to make_files.py if present
+                    make_files_args = [model_id, "--is_moe"] if is_moe else [model_id]
+                    if quant_progress:
+                        make_files_args += ["--resume_quant", quant_progress]
+                    if not self.run_script("make_files.py", make_files_args):
+                        print("Script make_files.py failed.")
+                        success = False
+
+                if success:
+                    if not self.run_script("upload-files.py", [model_id.split('/')[-1]]):
+                        print("Script upload-files.py failed.")
+                        success = False
+
+            except Exception as e:
+                model_data["error_log"].append(str(e))
+                print(f"Conversion failed for {model_id}: {e}")
+                success = False
+
+            # Update converted status and success date if successful
+            if success:
+                print(f"Successfully converted {model_id}.")
+                self.model_catalog.update_model_field(
+                    model_id,
+                    "converted",
+                    True
+                )
+                self.model_catalog.update_model_field(
+                    model_id,
+                    "success_date",
+                    datetime.now().isoformat()
+                )
+                # Clear error log on success
+                self.model_catalog.update_model_field(
+                    model_id,
+                    "error_log",
+                    []
+                )
+            else:
+                print(f"Conversion failed for {model_id}.")
+
+            # Clean up cache if we've reached max attempts or succeeded
+            if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
+                print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
+                self.cleanup_hf_cache(model_id)
+        finally:
+            # Always clear the lock and progress, even on error
+            if hasattr(self.model_catalog, "unmark_converting"):
+                self.model_catalog.unmark_converting(model_id)
 
     def run_conversion_cycle(self):
         """
