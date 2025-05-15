@@ -32,6 +32,7 @@ class RedisModelCatalog:
         )
         self.catalog_key = "model:catalog"
         self.converting_key = "model:converting"
+        self.converting_progress_key = "model:converting:progress"
         self.max_retries = 3
     def is_converting(self, model_id: str) -> bool:
         """Check if a model is currently being converted."""
@@ -42,13 +43,22 @@ class RedisModelCatalog:
         return self.r.sadd(self.converting_key, model_id) == 1
 
     def unmark_converting(self, model_id: str):
-        """Remove a model from the converting set."""
+        """Remove a model from the converting set and clear progress."""
         self.r.srem(self.converting_key, model_id)
+        self.r.hdel(self.converting_progress_key, model_id)
+
 
     def get_converting_models(self):
         """Return a list of currently converting models."""
         return list(self.r.smembers(self.converting_key))
+    
+    def set_quant_progress(self, model_id: str, quant_name: str):
+        """Set the current quantization step for a model."""
+        self.r.hset(self.converting_progress_key, model_id, quant_name)
 
+    def get_quant_progress(self, model_id: str) -> str:
+        """Get the current quantization step for a model."""
+        return self.r.hget(self.converting_progress_key, model_id)
     def _safe_operation(self, operation, *args, **kwargs):
         """Helper for retrying failed operations."""
         for attempt in range(self.max_retries):
