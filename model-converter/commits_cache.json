@@ -1,5 +1,87 @@
 [
   {
+    "sha": "aa48e373f256df9608395ee6881e7010840d6202",
+    "node_id": "C_kwDOJH_K4NoAKGFhNDhlMzczZjI1NmRmOTYwODM5NWVlNjg4MWU3MDEwODQwZDYyMDI",
+    "commit": {
+      "author": {
+        "name": "Olivier Chafik",
+        "email": "ochafik@users.noreply.github.com",
+        "date": "2025-05-15T01:39:51Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2025-05-15T01:39:51Z"
+      },
+      "message": "`server`: inject date_string in llama 3.x template + fix date for firefunction v2 (#12802)\n\n* Inject date_string in llama 3.x + fix for functionary v2\n\nhttps://github.com/ggml-org/llama.cpp/issues/12729\n\n* move/fix detection of functionary v3.1 before llama 3.x, fix & test their non-tool mode\n\nCo-authored-by: Sigbj\u00f8rn Skj\u00e6ret <sigbjorn.skjaeret@scala.com>\n\n* generate more tokens in test_completion_with_required_tool_tiny_fast to avoid truncation\n\n---------\n\nCo-authored-by: ochafik <ochafik@google.com>\nCo-authored-by: Sigbj\u00f8rn Skj\u00e6ret <sigbjorn.skjaeret@scala.com>",
+      "tree": {
+        "sha": "4c8dd9203aa6a8f5d9d2c711d3d0bc5049455fce",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/4c8dd9203aa6a8f5d9d2c711d3d0bc5049455fce"
+      },
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/aa48e373f256df9608395ee6881e7010840d6202",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJoJUXnCRC1aQ7uu5UhlAAAw+EQAJ22bPjQbuIHjcXg8TfZkOJE\nLkd/dFf+BHIxVLPiL6NAeHwBV1cQA4W0srd4wgIUhfTeHOWqSbMh/rIjhuWZmqPn\n2ni/J/inPuR+Ag7n/q9Pc5OydAZDNJwpetxePVNthn08piJ1NrKp2tlXyF8sqAep\nQvGHsqnwsHzMzWnafeXw19ZzM6e/GYEwoJpVS+47WAlgpwJyQx8ftpGmBVnJXKs+\n/ooiQU4bP4gXZSxKkvJAp+uLHzCu2M9AA9U68iQjfAxsfevzpaB1rwVv+nqC0E2w\n61r0sx2/QVi9OJkOtx0RcFVFuUvwBhpX6vfzC1voSSirUETM5XSS2jzD8qAGO467\n26Huyp8jRmw063BEEn2fAakrul74Iyhvyu2fqK+8CqbGsveSsrVAhLIgzWhnB4Ar\nWeioSoujuobhG9nvt3vrcA2qPApJ3oKCwwNVx+FFWbnPfB0RZ5pXQFfksPgYO/rc\nhLOepx4ILbiJeYKXAQJmfd7juLgWq/iEwAMPZRT2tzceDIacdiM7wnoaFd/LUnUV\nxqZBrJA5fSf70ABgjf3e607/xZsjukE0VbPwGyQed1a6b6Xk7PJ5cfINE4dVeTy5\ndz6f7vDoJZVEjKesIzMfE9drurXUjbKSauKDhPMWvMjxf/24/OTG0AjMw0FBprYr\nEgFOsiad/9RHl0Uua502\n=bQZL\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 4c8dd9203aa6a8f5d9d2c711d3d0bc5049455fce\nparent e3a9421b78da5c810d812e6348a405f5acc39f34\nauthor Olivier Chafik <ochafik@users.noreply.github.com> 1747273191 +0100\ncommitter GitHub <noreply@github.com> 1747273191 +0100\n\n`server`: inject date_string in llama 3.x template + fix date for firefunction v2 (#12802)\n\n* Inject date_string in llama 3.x + fix for functionary v2\n\nhttps://github.com/ggml-org/llama.cpp/issues/12729\n\n* move/fix detection of functionary v3.1 before llama 3.x, fix & test their non-tool mode\n\nCo-authored-by: Sigbj\u00f8rn Skj\u00e6ret <sigbjorn.skjaeret@scala.com>\n\n* generate more tokens in test_completion_with_required_tool_tiny_fast to avoid truncation\n\n---------\n\nCo-authored-by: ochafik <ochafik@google.com>\nCo-authored-by: Sigbj\u00f8rn Skj\u00e6ret <sigbjorn.skjaeret@scala.com>",
+        "verified_at": "2025-05-15T01:39:52Z"
+      }
+    },
+    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/aa48e373f256df9608395ee6881e7010840d6202",
+    "html_url": "https://github.com/ggml-org/llama.cpp/commit/aa48e373f256df9608395ee6881e7010840d6202",
+    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/aa48e373f256df9608395ee6881e7010840d6202/comments",
+    "author": {
+      "login": "ochafik",
+      "id": 273860,
+      "node_id": "MDQ6VXNlcjI3Mzg2MA==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/273860?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/ochafik",
+      "html_url": "https://github.com/ochafik",
+      "followers_url": "https://api.github.com/users/ochafik/followers",
+      "following_url": "https://api.github.com/users/ochafik/following{/other_user}",
+      "gists_url": "https://api.github.com/users/ochafik/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/ochafik/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/ochafik/subscriptions",
+      "organizations_url": "https://api.github.com/users/ochafik/orgs",
+      "repos_url": "https://api.github.com/users/ochafik/repos",
+      "events_url": "https://api.github.com/users/ochafik/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/ochafik/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "web-flow",
+      "id": 19864447,
+      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/web-flow",
+      "html_url": "https://github.com/web-flow",
+      "followers_url": "https://api.github.com/users/web-flow/followers",
+      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+      "organizations_url": "https://api.github.com/users/web-flow/orgs",
+      "repos_url": "https://api.github.com/users/web-flow/repos",
+      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/web-flow/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "e3a9421b78da5c810d812e6348a405f5acc39f34",
+        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/e3a9421b78da5c810d812e6348a405f5acc39f34",
+        "html_url": "https://github.com/ggml-org/llama.cpp/commit/e3a9421b78da5c810d812e6348a405f5acc39f34"
+      }
+    ]
+  },
+  {
     "sha": "e3a9421b78da5c810d812e6348a405f5acc39f34",
     "node_id": "C_kwDOJH_K4NoAKGUzYTk0MjFiNzhkYTVjODEwZDgxMmU2MzQ4YTQwNWY1YWNjMzlmMzQ",
     "commit": {
@@ -4014,88 +4096,6 @@
         "sha": "15e6125a397f6086c1dfdf7584acdb7c730313dc",
         "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/15e6125a397f6086c1dfdf7584acdb7c730313dc",
         "html_url": "https://github.com/ggml-org/llama.cpp/commit/15e6125a397f6086c1dfdf7584acdb7c730313dc"
-      }
-    ]
-  },
-  {
-    "sha": "15e6125a397f6086c1dfdf7584acdb7c730313dc",
-    "node_id": "C_kwDOJH_K4NoAKDE1ZTYxMjVhMzk3ZjYwODZjMWRmZGY3NTg0YWNkYjdjNzMwMzEzZGM",
-    "commit": {
-      "author": {
-        "name": "Xuan-Son Nguyen",
-        "email": "son@huggingface.co",
-        "date": "2025-05-10T17:57:54Z"
-      },
-      "committer": {
-        "name": "GitHub",
-        "email": "noreply@github.com",
-        "date": "2025-05-10T17:57:54Z"
-      },
-      "message": "mtmd : add hard limit on image resolution for qwen2vl / qwen2.5vl (#13434)\n\n* mtmd : add hard limit on image resolution for qwen2vl / qwen2.5vl\n\n* fix typo",
-      "tree": {
-        "sha": "d843847e6b15ac23441aab7a3e82c9eae3525b6a",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/trees/d843847e6b15ac23441aab7a3e82c9eae3525b6a"
-      },
-      "url": "https://api.github.com/repos/ggml-org/llama.cpp/git/commits/15e6125a397f6086c1dfdf7584acdb7c730313dc",
-      "comment_count": 2,
-      "verification": {
-        "verified": true,
-        "reason": "valid",
-        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJoH5OiCRC1aQ7uu5UhlAAABCcQALBbPk6fY6mFqK/vNAhNRmWN\nE39NY3NM5tTkDLQg+TznMbsRJDDF2XPt89UNwYYP0y3+7dOG9vD9KUWsjtd5H0is\nJhJTnuMtHQaEg9NMBMblusjdEJcpsTbjIqt0Rfx+p0QOoGo0yWPdeheoIkRw6oac\nfi4yS7u7wX/kYoRTDzP/27SQvnEVhqueMNHwbeFUvzOQuN9jxdmSIHzNSoeQCQvR\nTL6FzXdB5uLzLH1pGtnsoP1vB0/1zDkrhqO6A5ryHEp3X0zHMAV3cyI68ZRONtlq\nXHRG8N4anQhJAseCyt/7e5FM287O9eFTJ4W4PGGrpjk7LBBkmjtfjXqZbqKEXfuR\nzCnaWdBRjcYp9XOcVUUnZLFx9nCFBXr+UKne2O2Xb9j47Zzwbvvb3+64jx8DUDTY\n8D0xzDxvNJnmLW52cDpY9V5yp/Mm+G08M4AzSHfQc72CO/Cx4TeWPQDs5gXUQJWX\nC3eWR6wmAMCtLk/0cR8Kszn5l/4IeR9kGzHtoKqMB7yAQfJzey5M9Do1EFuDUtQ7\nXZE027c3AWW3bDqdrcQPLi14CMeVw64SQ4ub+XAnz/1+JLUHVGynOswahE5e21BK\n7eq0fUONfDVL1stKyfknYHZLknV0raTvLFnQDHMC7gdbOAUqPUQySs+8tSE1fEf7\naWGHj27lmh7whV9V66d7\n=L1k9\n-----END PGP SIGNATURE-----\n",
-        "payload": "tree d843847e6b15ac23441aab7a3e82c9eae3525b6a\nparent 3b24d26c22b9d92b5aa39930988700c84e524cf4\nauthor Xuan-Son Nguyen <son@huggingface.co> 1746899874 +0200\ncommitter GitHub <noreply@github.com> 1746899874 +0200\n\nmtmd : add hard limit on image resolution for qwen2vl / qwen2.5vl (#13434)\n\n* mtmd : add hard limit on image resolution for qwen2vl / qwen2.5vl\n\n* fix typo",
-        "verified_at": "2025-05-10T17:57:58Z"
-      }
-    },
-    "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/15e6125a397f6086c1dfdf7584acdb7c730313dc",
-    "html_url": "https://github.com/ggml-org/llama.cpp/commit/15e6125a397f6086c1dfdf7584acdb7c730313dc",
-    "comments_url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/15e6125a397f6086c1dfdf7584acdb7c730313dc/comments",
-    "author": {
-      "login": "ngxson",
-      "id": 7702203,
-      "node_id": "MDQ6VXNlcjc3MDIyMDM=",
-      "avatar_url": "https://avatars.githubusercontent.com/u/7702203?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/ngxson",
-      "html_url": "https://github.com/ngxson",
-      "followers_url": "https://api.github.com/users/ngxson/followers",
-      "following_url": "https://api.github.com/users/ngxson/following{/other_user}",
-      "gists_url": "https://api.github.com/users/ngxson/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/ngxson/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/ngxson/subscriptions",
-      "organizations_url": "https://api.github.com/users/ngxson/orgs",
-      "repos_url": "https://api.github.com/users/ngxson/repos",
-      "events_url": "https://api.github.com/users/ngxson/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/ngxson/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "web-flow",
-      "id": 19864447,
-      "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
-      "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/web-flow",
-      "html_url": "https://github.com/web-flow",
-      "followers_url": "https://api.github.com/users/web-flow/followers",
-      "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
-      "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
-      "organizations_url": "https://api.github.com/users/web-flow/orgs",
-      "repos_url": "https://api.github.com/users/web-flow/repos",
-      "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/web-flow/received_events",
-      "type": "User",
-      "user_view_type": "public",
-      "site_admin": false
-    },
-    "parents": [
-      {
-        "sha": "3b24d26c22b9d92b5aa39930988700c84e524cf4",
-        "url": "https://api.github.com/repos/ggml-org/llama.cpp/commits/3b24d26c22b9d92b5aa39930988700c84e524cf4",
-        "html_url": "https://github.com/ggml-org/llama.cpp/commit/3b24d26c22b9d92b5aa39930988700c84e524cf4"
       }
     ]
   }
