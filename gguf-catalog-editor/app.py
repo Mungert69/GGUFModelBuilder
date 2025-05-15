@@ -463,16 +463,22 @@ def converting():
     failed_models = catalog.r.smembers("model:converting:failed")
     failed_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in failed_models]
 
-    # Show all models in converting, regardless of failed status
-    model_details = []
-    resumable_models = []
+    # Table 1: Running (converting but NOT failed)
+    running_models = []
+    # Table 2: Failed (in failed set)
+    failed_table_models = []
+
     for model_id in converting_models:
+        if model_id in failed_models:
+            continue  # Will be shown in failed table
         model = catalog.get_model(model_id)
         quant = catalog.get_quant_progress(model_id)
-        is_failed = model_id in failed_models
-        model_details.append((model_id, model, quant, is_failed))
-        if is_failed:
-            resumable_models.append((model_id, model, quant))
+        running_models.append((model_id, model, quant))
+
+    for model_id in failed_models:
+        model = catalog.get_model(model_id)
+        quant = catalog.get_quant_progress(model_id)
+        failed_table_models.append((model_id, model, quant))
 
     # Handle removal of stuck models
     if request.method == 'POST':
@@ -485,8 +491,8 @@ def converting():
 
     return render_template(
         'converting.html',
-        converting_models=model_details,
-        resumable_models=resumable_models
+        running_models=running_models,
+        failed_table_models=failed_table_models
     )
 
 @app.route('/restore', methods=['GET', 'POST'])
