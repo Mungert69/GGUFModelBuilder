@@ -713,6 +713,7 @@ class ModelConverter:
                 make_files_args = [model_id, "--is_moe"] if is_moe else [model_id]
                 if quant_progress:
                     make_files_args += ["--resume_quant", quant_progress]
+                print(f"[DEBUG] Calling make_files.py with args: {make_files_args}")
                 if not self.run_script("make_files.py", make_files_args):
                     print("Script make_files.py failed.")
                     success = False
