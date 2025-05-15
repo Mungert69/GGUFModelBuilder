@@ -38,37 +38,63 @@
         </form>
     </div>
 </div>
-
 {% if results %}
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <span>Results ({{ results|length }})</span>
         <small>Showing {{ results|length }} models</small>
     </div>
-    <div class="list-group list-group-flush">
-        {% for model_id, data, matches in results %}
-        <a href="{{ url_for('edit_model', model_id=model_id) }}" class="list-group-item list-group-item-action">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ model_id }}</h5>
-                <div>
-                    <span class="badge bg-{{ 'success' if data.converted else 'warning' }}">
-                        {{ 'Converted' if data.converted else 'Pending' }}
-                    </span>
-                </div>
-            </div>
-            
-            {% if matches %}
-            <div class="mt-2">
-                <small class="text-muted">Matched in:</small>
-                {% for field in matches %}
-                <span class="badge bg-light text-dark me-1">
-                    {{ field }}: {{ data[field]|string|truncate(30) }}
-                </span>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="{{ url_for('search', order_by='id', order_dir='desc' if order_by == 'id' and order_dir == 'asc' else 'asc', page=page, search_term=search_term, search_type=search_type) }}">
+                            ID
+                            {% if order_by == 'id' %}
+                                {% if order_dir == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    {% for field in fields %}
+                    <th>
+                        <a href="{{ url_for('search', order_by=field, order_dir='desc' if order_by == field and order_dir == 'asc' else 'asc', page=page, search_term=search_term, search_type=search_type) }}">
+                            {{ field }}
+                            {% if order_by == field %}
+                                {% if order_dir == 'asc' %}▲{% else %}▼{% endif %}
+                            {% endif %}
+                        </a>
+                    </th>
+                    {% endfor %}
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model_id, data, matches in results %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
+                        {% if matches and 'id' in matches %}
+                        <span class="badge bg-info ms-1">Matched</span>
+                        {% endif %}
+                    </td>
+                    {% for field in fields %}
+                    <td>
+                        {{ data[field]|string|truncate(30) }}
+                        {% if matches and field in matches %}
+                        <span class="badge bg-info ms-1">Matched</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    <td>
+                        <span class="badge bg-{{ 'success' if data.converted else 'warning' }}">
+                            {{ 'Converted' if data.converted else 'Pending' }}
+                        </span>
+                    </td>
+                </tr>
                 {% endfor %}
-            </div>
-            {% endif %}
-        </a>
-        {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -78,7 +104,7 @@
     {% if page > 1 %}
       <li class="page-item">
         <a class="page-link"
-           href="{{ url_for('search', page=page-1, search_term=search_term, search_type=search_type) }}">Previous</a>
+           href="{{ url_for('search', page=page-1, search_term=search_term, search_type=search_type, order_by=order_by, order_dir=order_dir) }}">Previous</a>
       </li>
     {% else %}
       <li class="page-item disabled">
@@ -94,7 +120,7 @@
       {% else %}
         <li class="page-item">
           <a class="page-link"
-             href="{{ url_for('search', page=p, search_term=search_term, search_type=search_type) }}">{{ p }}</a>
+             href="{{ url_for('search', page=p, search_term=search_term, search_type=search_type, order_by=order_by, order_dir=order_dir) }}">{{ p }}</a>
         </li>
       {% endif %}
     {% endfor %}
@@ -102,7 +128,7 @@
     {% if page < total_pages %}
       <li class="page-item">
         <a class="page-link"
-           href="{{ url_for('search', page=page+1, search_term=search_term, search_type=search_type) }}">Next</a>
+           href="{{ url_for('search', page=page+1, search_term=search_term, search_type=search_type, order_by=order_by, order_dir=order_dir) }}">Next</a>
       </li>
     {% else %}
       <li class="page-item disabled">
