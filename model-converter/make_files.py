@@ -58,6 +58,19 @@ from pathlib import Path
 import multiprocessing
 import shlex
 
+    # Redis progress tracking
+from redis_utils import init_redis_catalog
+REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
+REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
+REDIS_USER = os.getenv("REDIS_USER", "admin")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+catalog = init_redis_catalog(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    user=REDIS_USER,
+    ssl=True
+)
 def get_half_threads():
     total_threads = multiprocessing.cpu_count()
     
@@ -485,20 +498,6 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     repo_created = False
     # Track if we've created any IQ1/IQ2 files
     has_iq1_iq2_files = False
-
-    # Redis progress tracking
-    from redis_utils import init_redis_catalog
-    REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
-    REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
-    REDIS_USER = os.getenv("REDIS_USER", "admin")
-    REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
-    catalog = init_redis_catalog(
-        host=REDIS_HOST,
-        port=REDIS_PORT,
-        password=REDIS_PASSWORD,
-        user=REDIS_USER,
-        ssl=True
-    )
 
     # Process each quantization config, resuming if needed
     for idx, (suffix, quant_type, tensor_type, embed_type, use_imatrix, use_pure) in enumerate(filtered_configs):

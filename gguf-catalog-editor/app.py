@@ -457,12 +457,17 @@ def converting():
         flash("This Redis catalog does not support converting model tracking.", "danger")
         converting_models = []
 
-    # Handle removal of stuck models
+    # Handle removal of stuck models or resume
     if request.method == 'POST':
         model_id = request.form.get('model_id')
+        action = request.form.get('action')
         if model_id and hasattr(catalog, "unmark_converting"):
-            catalog.unmark_converting(model_id)
-            flash(f"Removed '{model_id}' from converting list.", "success")
+            if action == "resume":
+                catalog.unmark_converting(model_id, keep_progress=True)
+                flash(f"Unlocked '{model_id}' for resume (progress kept).", "success")
+            else:
+                catalog.unmark_converting(model_id)
+                flash(f"Removed '{model_id}' from converting list.", "success")
             return redirect(url_for('converting'))
 
     # Show model details for each converting model, including quant progress

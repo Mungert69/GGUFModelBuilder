@@ -48,9 +48,13 @@
                     <td>
                         <form method="POST" style="display:inline;">
                             <input type="hidden" name="model_id" value="{{ model_id }}">
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Remove {{ model_id }} from converting list?');">
+                            <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Remove {{ model_id }} from converting list? This will also clear quant progress.');">
                                 Remove
+                            </button>
+                            <button type="submit" name="action" value="resume" class="btn btn-warning btn-sm"
+                                onclick="return confirm('Unlock {{ model_id }} for resume? This will keep quant progress and allow conversion to resume from last quant.');">
+                                Resume
                             </button>
                         </form>
                     </td>
