@@ -763,5 +763,24 @@ class ModelConverter:
                 print("Warning: Failed to update or rebuild llama.cpp")
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Model Converter Service")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--daemon", action="store_true", help="Run as continuous service")
+    group.add_argument("--single", metavar="MODEL_NAME", help="Process a specific model (format: company/model_name)")
+    args = parser.parse_args()
+
     converter = ModelConverter()
-    converter.start_daemon()
+
+    if args.daemon:
+        converter.start_daemon()
+    elif args.single:
+        model_id = args.single
+        entry = converter.model_catalog.get_model(model_id)
+        if entry and "is_moe" in entry:
+            is_moe = entry["is_moe"]
+        else:
+            # Fallback: check config for MoE if not found in catalog
+            is_moe = converter.check_moe_from_config(model_id)
+        converter.convert_model(model_id, is_moe)
