@@ -747,12 +747,7 @@ class ModelConverter:
                     []
                 )
             else:
-                print(f"Conversion failed for {model_id}.")
-
-            # Clean up cache if we've reached max attempts or succeeded
-            if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
-                print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
-                self.cleanup_hf_cache(model_id)
+                print(f"Conversion failed for {model_id}.")  
             self.model_catalog.unmark_converting(model_id)
 
         except Exception as e:
@@ -761,6 +756,9 @@ class ModelConverter:
             success = False
 
         finally:
+            if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
+                print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
+                self.cleanup_hf_cache(model_id)
             if not success :
                 self.model_catalog.mark_failed(model_id)
                 print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Marked as failed/resumable.")
