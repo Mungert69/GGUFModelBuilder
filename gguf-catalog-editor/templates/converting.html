@@ -74,11 +74,12 @@
                     <th>Details</th>
                     <th>Status</th>
                     <th>Last Quant Progress</th>
+                    <th>Host</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for model_id, model, quant in failed_table_models %}
+                {% for model_id, model, quant, host in failed_table_models %}
                 <tr {% if not model %}class="table-warning"{% endif %}>
                     <td>
                         <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
@@ -103,11 +104,28 @@
                         {% endif %}
                     </td>
                     <td>
+                        <span class="badge bg-secondary">{{ host }}</span>
+                    </td>
+                    <td>
                         <form method="POST" style="display:inline;">
                             <input type="hidden" name="model_id" value="{{ model_id }}">
+                            <input type="hidden" name="from_host" value="{{ host }}">
                             <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm"
                                 onclick="return confirm('Remove {{ model_id }} from resumable list? This will also clear quant progress.');">
                                 Remove
+                            </button>
+                        </form>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="model_id" value="{{ model_id }}">
+                            <input type="hidden" name="from_host" value="{{ host }}">
+                            <select name="to_host" class="form-select form-select-sm d-inline w-auto">
+                                {% for h in all_failed_hosts %}
+                                    <option value="{{ h }}" {% if h == host %}selected{% endif %}>{{ h }}</option>
+                                {% endfor %}
+                                <option value="{{ hostname }}">[This Host: {{ hostname }}]</option>
+                            </select>
+                            <button type="submit" name="action" value="move_host" class="btn btn-secondary btn-sm">
+                                Change Host
                             </button>
                         </form>
                     </td>

@@ -4,6 +4,7 @@ import time
 from datetime import datetime
 from typing import Dict, Optional, Any
 import redis
+import socket
 from redis.exceptions import WatchError, RedisError
 
 class RedisModelCatalog:
@@ -48,19 +49,46 @@ class RedisModelCatalog:
         print(f"[RedisModelCatalog] mark_converting: Marked '{model_id}' as converting (added={result})")
         return result
 
-    def mark_failed(self, model_id: str):
-        """Mark a model as failed/interrupted (resumable)."""
-        print(f"[RedisModelCatalog] mark_failed: Marked '{model_id}' as failed/resumable")
-        self.r.sadd("model:converting:failed", model_id)
+    def mark_failed(self, model_id: str, hostname: str = None):
+        """Mark a model as failed/interrupted (resumable), tagged by hostname."""
+        import socket
+        if hostname is None:
+            hostname = socket.gethostname()
+        print(f"[RedisModelCatalog] mark_failed: Marked '{model_id}' as failed/resumable on host '{hostname}'")
+        self.r.sadd(f"model:converting:failed:{hostname}", model_id)
 
-    def unmark_failed(self, model_id: str):
-        """Remove a model from the failed set."""
-        print(f"[RedisModelCatalog] unmark_failed: Removing '{model_id}' from failed set")
-        self.r.srem("model:converting:failed", model_id)
+    def unmark_failed(self, model_id: str, hostname: str = None):
+        """
+        Remove a model from the failed set for a given hostname.
+        If the set becomes empty, delete the key.
+        """
+        key = "model:converting:failed"
+        if hostname:
+            key = f"{key}:{hostname}"
+        print(f"[RedisModelCatalog] unmark_failed: Removing '{model_id}' from failed set {key}")
+        self.r.srem(key, model_id)
+        if self.r.scard(key) == 0:
+            self.r.delete(key)
 
-    def is_failed(self, model_id: str) -> bool:
-        """Check if a model is in the failed set."""
-        return self.r.sismember("model:converting:failed", model_id)
+    def is_failed(self, model_id: str, hostname: str = None) -> bool:
+        """Check if a model is in the failed set for a given hostname."""
+        import socket
+        if hostname is None:
+            hostname = socket.gethostname()
+        return self.r.sismember(f"model:converting:failed:{hostname}", model_id)
+
+    def get_all_failed_models(self):
+        """Return a dict of {hostname: [model_ids]} for all failed sets."""
+        failed = {}
+        for key in self.r.scan_iter("model:converting:failed:*"):
+            hostname = key.split(":")[-1]
+            failed[hostname] = list(self.r.smembers(key))
+        return failed
+
+    def move_failed_model(self, model_id: str, from_host: str, to_host: str):
+        """Move a failed model from one host's set to another."""
+        self.r.srem(f"model:converting:failed:{from_host}", model_id)
+        self.r.sadd(f"model:converting:failed:{to_host}", model_id)
 
 
 
