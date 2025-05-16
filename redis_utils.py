@@ -33,10 +33,13 @@ class RedisModelCatalog:
         self.catalog_key = "model:catalog"
         self.converting_key = "model:converting"
         self.converting_progress_key = "model:converting:progress"
+        self.converting_failed_key = "model:converting:failed"
         self.max_retries = 3
+
     def is_converting(self, model_id: str) -> bool:
         """Check if a model is currently being converted."""
         return self.r.sismember(self.converting_key, model_id)
+
     def unmark_converting(self, model_id: str):
         """Remove a model from the converting set. Optionally keep quant progress."""
         print(f"[RedisModelCatalog] unmark_converting: Removing '{model_id}' from converting set")
@@ -51,16 +54,16 @@ class RedisModelCatalog:
     def mark_failed(self, model_id: str):
         """Mark a model as failed/interrupted (resumable)."""
         print(f"[RedisModelCatalog] mark_failed: Marked '{model_id}' as failed/resumable")
-        self.r.sadd("model:converting:failed", model_id)
+        self.r.sadd(self.converting_failed_key, model_id)
 
     def unmark_failed(self, model_id: str):
         """Remove a model from the failed set."""
         print(f"[RedisModelCatalog] unmark_failed: Removing '{model_id}' from failed set")
-        self.r.srem("model:converting:failed", model_id)
+        self.r.srem(self.converting_failed_key, model_id)
 
     def is_failed(self, model_id: str) -> bool:
         """Check if a model is in the failed set."""
-        return self.r.sismember("model:converting:failed", model_id)
+        return self.r.sismember(self.converting_failed_key, model_id)
 
 
 
