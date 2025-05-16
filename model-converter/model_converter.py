@@ -630,17 +630,11 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
-        import socket
-        hostname = socket.gethostname()
         success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
         if self.model_catalog.is_converting(model_id):
-            # Only resume failed conversion if this host owns the failed key
-            if self.model_catalog.is_failed(model_id, hostname):
-                print(f"Resuming failed conversion for {model_id} on host {hostname}.")
-            elif self.model_catalog.is_failed(model_id):
-                print(f"Model {model_id} failed on another host. Skipping on {hostname}.")
-                return
+            if self.model_catalog.is_failed(model_id):
+                print(f"Resuming failed conversion for {model_id}.")
             else:
                 print(f"Model {model_id} is already being converted by another process. Skipping.")
                 return
@@ -831,6 +825,12 @@ if __name__ == "__main__":
     elif args.single:
         model_id = args.single
         entry = converter.model_catalog.get_model(model_id)
+        if entry and "is_moe" in entry:
+            is_moe = entry["is_moe"]
+        else:
+            # Fallback: check config for MoE if not found in catalog
+            is_moe = converter.check_moe_from_config(model_id)
+        converter.convert_model(model_id, is_moe)
         if entry and "is_moe" in entry:
             is_moe = entry["is_moe"]
         else:
