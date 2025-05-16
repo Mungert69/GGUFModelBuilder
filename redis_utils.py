@@ -41,36 +41,11 @@ class RedisModelCatalog:
         return self.r.sismember(self.converting_key, model_id)
 
     def unmark_converting(self, model_id: str):
-        """Remove a model from the converting set. Optionally keep quant progress."""
+        """Remove a model from the converting set."""
         print(f"[RedisModelCatalog] unmark_converting: Removing '{model_id}' from converting set")
-
-        # Handle failed set
-        failed_type = self.r.type(self.converting_failed_key)
-        if failed_type == b'set':
-            self.r.srem(self.converting_failed_key, model_id)
-        elif failed_type != b'none':
-            print(f"Warning: '{self.converting_failed_key}' is not a set (type={failed_type}). Deleting key to recover.")
-            self.r.delete(self.converting_failed_key)
-
-        # Handle progress hash
-        progress_type = self.r.type(self.converting_progress_key)
-        if progress_type == b'hash':
-            self.r.hdel(self.converting_progress_key, model_id)
-        elif progress_type == b'set':
-            # If it was accidentally a set, try srem
-            print(f"Warning: '{self.converting_progress_key}' is a set, not a hash. Deleting key to recover.")
-            self.r.delete(self.converting_progress_key)
-        elif progress_type != b'none':
-            print(f"Warning: '{self.converting_progress_key}' is not a hash (type={progress_type}). Deleting key to recover.")
-            self.r.delete(self.converting_progress_key)
-
-        # Handle converting set
-        converting_type = self.r.type(self.converting_key)
-        if converting_type == b'set':
-            self.r.srem(self.converting_key, model_id)
-        elif converting_type != b'none':
-            print(f"Warning: '{self.converting_key}' is not a set (type={converting_type}). Deleting key to recover.")
-            self.r.delete(self.converting_key)
+        self.r.srem(self.converting_failed_key, model_id)
+        self.r.hdel(self.converting_progress_key, model_id)
+        self.r.srem(self.converting_key, model_id)
 
     def mark_converting(self, model_id: str) -> bool:
         """Mark a model as being converted. Returns True if marked, False if already present."""
