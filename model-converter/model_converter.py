@@ -690,14 +690,19 @@ class ModelConverter:
         success = True
         try:
             print(f"Converting {model_id}...")
-            # Download and convert to BF16
-            if not self.run_script("download_convert.py", [model_id]):
-                print("Script download_convert.py failed.")
-                success = False
-
-            # Only mark as converting if BF16 was created or already exists
+            # Check for existing BF16 file before running download_convert.py
             company_name, base_name = model_id.split("/", 1)
             bf16_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-bf16.gguf")
+            if os.path.exists(bf16_path):
+                print(f"BF16 file already exists at {bf16_path}, skipping download/convert step.")
+                success = True
+            else:
+                # Download and convert to BF16
+                if not self.run_script("download_convert.py", [model_id]):
+                    print("Script download_convert.py failed.")
+                    success = False
+
+            # Only mark as converting if BF16 was created or already exists
             if success and os.path.exists(bf16_path):
                 if not self.model_catalog.is_converting(model_id):
                     if not self.model_catalog.mark_converting(model_id):
