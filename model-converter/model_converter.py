@@ -630,11 +630,17 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
+        import socket
+        hostname = socket.gethostname()
         success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
         if self.model_catalog.is_converting(model_id):
-            if self.model_catalog.is_failed(model_id):
-                print(f"Resuming failed conversion for {model_id}.")
+            # Only resume failed conversion if this host owns the failed key
+            if self.model_catalog.is_failed(model_id, hostname):
+                print(f"Resuming failed conversion for {model_id} on host {hostname}.")
+            elif self.model_catalog.is_failed(model_id):
+                print(f"Model {model_id} failed on another host. Skipping on {hostname}.")
+                return
             else:
                 print(f"Model {model_id} is already being converted by another process. Skipping.")
                 return
