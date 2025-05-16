@@ -43,6 +43,8 @@ class RedisModelCatalog:
     def unmark_converting(self, model_id: str):
         """Remove a model from the converting set. Optionally keep quant progress."""
         print(f"[RedisModelCatalog] unmark_converting: Removing '{model_id}' from converting set")
+        self.r.srem(self.converting_failed_key, model_id)
+        self.r.srem(self.converting_progress_key, model_id)
         self.r.srem(self.converting_key, model_id)
 
     def mark_converting(self, model_id: str) -> bool:
