@@ -180,7 +180,6 @@ def search():
             if not search_term:
                 matched = True
             else:
-                print(f"ID search: search_term={search_term!r}, model_id={model_id!r}, match={search_term.lower() in str(model_id).lower()}", flush=True)
                 if search_term.lower() in str(model_id).lower():
                     matched = True
 
