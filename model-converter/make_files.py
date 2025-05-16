@@ -45,7 +45,7 @@ print("Parent dir contents:", os.listdir(os.path.abspath(os.path.join(os.path.di
 import json
 import re
 import math
-
+import traceback
 import subprocess
 import argparse
 import urllib.request
@@ -423,7 +423,9 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         command.extend(shlex.split(tensor_args)) 
         command.extend([model_path, temp_output, quant_type])
         command.append( str(get_half_threads()))
-        print(f"Running command {command}")        
+        print(f"Running command {command}")
+        catalog.set_quant_progress(f"{company_name}/{base_name}", "imatrix")
+
         result = subprocess.run(command, capture_output=True, text=True)
         if result.stdout:
             print("Output:", result.stdout)
@@ -488,7 +490,10 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     # Progress tracking: determine where to resume
     quant_names = [cfg[0] for cfg in filtered_configs]
     start_idx = 0
-    if resume_quant and resume_quant in quant_names:
+    # Ignore "imatrix" as a valid resume_quant
+    if resume_quant == "imatrix":
+        print("Resume quant is 'imatrix', which is not a quantization config. Starting from the beginning.")
+    elif resume_quant and resume_quant in quant_names:
         start_idx = quant_names.index(resume_quant) + 1
         if start_idx >= len(quant_names):
             print(f"All quantizations completed for this model. Will upload imatrix and update README if needed.")
@@ -506,55 +511,60 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
         if idx < start_idx:
             print(f"Skipping quant {suffix} (already completed or before resume point)")
             continue
-        output_file = f"{base_name}-{suffix}.gguf"
-        output_path = os.path.join(output_dir, output_file)    
-        print(f"\n🏗 Processing {output_file}...")
-        success = quantize_with_fallback(
-            bf16_model_file,
-            output_path,
-            quant_type,
-            tensor_type=tensor_type,
-            embed_type=embed_type,
-            use_imatrix=imatrix_file if use_imatrix else None,
-            use_pure=use_pure,
-            allow_requantize=allow_requantize,
-            is_moe=is_moe 
-        )
+        try:
+            output_file = f"{base_name}-{suffix}.gguf"
+            output_path = os.path.join(output_dir, output_file)    
+            print(f"\n🏗 Processing {output_file}...")
+            success = quantize_with_fallback(
+                bf16_model_file,
+                output_path,
+                quant_type,
+                tensor_type=tensor_type,
+                embed_type=embed_type,
+                use_imatrix=imatrix_file if use_imatrix else None,
+                use_pure=use_pure,
+                allow_requantize=allow_requantize,
+                is_moe=is_moe 
+            )
 
-        if not success:
-            print(f"[DEBUG] Quantization failed for {suffix}")
+            if not success:
+                print(f"[DEBUG] Quantization failed for {suffix}")
+                continue
+
+            print(f"Successfully created {output_file} in {output_dir}")
+
+            # Check if this is an IQ1/IQ2 file
+            if not has_iq1_iq2_files and any(quant_type.startswith(prefix) for prefix in ['IQ1', 'IQ2']):
+                has_iq1_iq2_files = True
+
+            # Create repo on first successful quantization
+            if not repo_created:
+                if create_repo_if_not_exists(repo_id, api_token):
+                    repo_created = True
+                else:
+                    print("Failed to create repository. Aborting further uploads.")
+                    break
+
+            # Handle file upload with standardized large file support
+            if repo_created:
+                # Pass the suffix (name) as the folder name
+                if upload_large_file(output_path, repo_id, suffix):
+                    print(f"Uploaded {output_file} successfully.")
+                    try:
+                        os.remove(output_path)
+                        print(f"Deleted {output_file} to free space.")
+                    except Exception as e:
+                        print(f"Warning: Could not delete {output_file}: {e}")
+                else:
+                    print(f"Failed to upload {output_file}. Keeping local file.")
+
+            # Update quant progress in Redis after each successful quant
+            catalog.set_quant_progress(f"{company_name}/{base_name}", suffix)
+            print(f"[DEBUG] Set quant progress: model_id={company_name}/{base_name}, quant={suffix}")
+        except Exception as e:
+            print(f"❌ Exception during quantization for {suffix}: {e}")
+            traceback.print_exc()
             continue
-
-        print(f"Successfully created {output_file} in {output_dir}")
-
-        # Check if this is an IQ1/IQ2 file
-        if not has_iq1_iq2_files and any(quant_type.startswith(prefix) for prefix in ['IQ1', 'IQ2']):
-            has_iq1_iq2_files = True
-
-        # Create repo on first successful quantization
-        if not repo_created:
-            if create_repo_if_not_exists(repo_id, api_token):
-                repo_created = True
-            else:
-                print("Failed to create repository. Aborting further uploads.")
-                break
-
-        # Handle file upload with standardized large file support
-        if repo_created:
-            # Pass the suffix (name) as the folder name
-            if upload_large_file(output_path, repo_id, suffix):
-                print(f"Uploaded {output_file} successfully.")
-                try:
-                    os.remove(output_path)
-                    print(f"Deleted {output_file} to free space.")
-                except Exception as e:
-                    print(f"Warning: Could not delete {output_file}: {e}")
-            else:
-                print(f"Failed to upload {output_file}. Keeping local file.")
-
-        # Update quant progress in Redis after each successful quant
-        catalog.set_quant_progress(f"{company_name}/{base_name}", suffix)
-        print(f"[DEBUG] Set quant progress: model_id={company_name}/{base_name}, quant={suffix}")
 
     # Upload imatrix file if repository was created
     if os.path.exists(imatrix_file) and repo_created:
