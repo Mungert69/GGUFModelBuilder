@@ -505,6 +505,21 @@ def converting():
         failed_table_models=failed_table_models
     )
 
+@app.route('/edit_quant_progress/<path:model_id>', methods=['POST'])
+def edit_quant_progress(model_id):
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+    quant = request.form.get('quant', '').strip()
+    if quant:
+        catalog.set_quant_progress(model_id, quant)
+        flash(f"Updated quant progress for {model_id} to '{quant}'", "success")
+    else:
+        # If blank, clear progress
+        catalog.set_quant_progress(model_id, "")
+        flash(f"Cleared quant progress for {model_id}", "info")
+    return redirect(url_for('converting'))
+
 @app.route('/restore', methods=['GET', 'POST'])
 def restore():
     catalog = get_catalog()
