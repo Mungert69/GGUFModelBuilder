@@ -443,6 +443,17 @@ def export():
         flash("Export failed!", "danger")
         return redirect(url_for('index'))
 
+@app.route('/mark_failed/<path:model_id>', methods=['POST'])
+def mark_failed(model_id):
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+    catalog.mark_failed(model_id)
+    # Do NOT remove from converting, do NOT clear progress!
+    from flask import flash
+    flash(f"Marked '{model_id}' as failed/resumable. You can now resume it.", "success")
+    return redirect(url_for('converting'))
+
 @app.route('/converting', methods=['GET', 'POST'])
 def converting():
     catalog = get_catalog()
