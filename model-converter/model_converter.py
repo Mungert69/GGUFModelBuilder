@@ -786,6 +786,10 @@ class ModelConverter:
                     print(f"Skipping {model_id} - from excluded company")
                     continue
                 parameters = entry.get("parameters", -1)
+                try:
+                    parameters = float(parameters)
+                except (ValueError, TypeError):
+                    parameters = -1
 
                 if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
                     print(f"Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
@@ -833,12 +837,6 @@ if __name__ == "__main__":
     elif args.single:
         model_id = args.single
         entry = converter.model_catalog.get_model(model_id)
-        if entry and "is_moe" in entry:
-            is_moe = entry["is_moe"]
-        else:
-            # Fallback: check config for MoE if not found in catalog
-            is_moe = converter.check_moe_from_config(model_id)
-        converter.convert_model(model_id, is_moe)
         if entry and "is_moe" in entry:
             is_moe = entry["is_moe"]
         else:
