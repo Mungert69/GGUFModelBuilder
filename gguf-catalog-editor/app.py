@@ -164,11 +164,11 @@ def search():
         order_dir = 'asc'
 
     # Handle field number selection
+    selected_field = None
     if search_type.isdigit():
         field_idx = int(search_type) - 1
         if 0 <= field_idx < len(fields):
             selected_field = fields[field_idx]
-            search_type = 'field'
 
     # Always run search on GET or POST, and only filter if search_term is not blank
     for model_id, data in all_models.items():
@@ -200,7 +200,7 @@ def search():
                         match_info.append(field)
 
         # Specific field search
-        elif search_type == 'field' and selected_field:
+        elif search_type.isdigit() and selected_field:
             value = data.get(selected_field)
             if _value_matches_search(value, search_term):
                 matched = True
