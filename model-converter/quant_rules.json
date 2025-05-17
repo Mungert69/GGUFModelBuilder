@@ -165,12 +165,6 @@
         },
         {
             "override_types": ["BF16","F16"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output"],
-            "order_low": 1,
-            "order_high": 9
-        },
-        {
-            "override_types": ["BF16","F16"],
             "layer_name": ["*attn_v","*ffn_down","*attn_output"]
         },
         {
