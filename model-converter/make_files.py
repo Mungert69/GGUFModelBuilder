@@ -396,8 +396,7 @@ def needs_compatibility_check(quant_type, tensor_type, embed_type):
             embed_type in ["Q5_K", "Q6_K"])
 
 def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None, embed_type=None, 
-                        use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False, precision_override=None,
-                        company_name=None, base_name=None):
+                        use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False, precision_override=None):
     """Perform quantization with automatic fallback for Q5_K/Q6_K tensor/embed types"""
     temp_output = f"{output_path}.tmp"
     tensor_args = process_quantization(
@@ -426,8 +425,6 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         command.extend([model_path, temp_output, quant_type])
         command.append( str(get_half_threads()))
         print(f"Running command {command}")
-        if company_name is not None and base_name is not None:
-            catalog.set_quant_progress(f"{company_name}/{base_name}", "imatrix")
 
         result = subprocess.run(command, capture_output=True, text=True)
         if result.stdout:
@@ -477,6 +474,9 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     input_dir = os.path.dirname(input_model)
     output_dir = input_dir
     bf16_model_file = os.path.join(input_dir, f"{base_name}-bf16.gguf")
+    if company_name is not None and base_name is not None:
+        catalog.set_quant_progress(f"{company_name}/{base_name}", "imatrix")
+
     imatrix_file = download_imatrix(input_dir, company_name, base_name)
     repo_id = f"Mungert/{base_name}-GGUF"
 
@@ -535,9 +535,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
                 use_pure=use_pure,
                 allow_requantize=allow_requantize,
                 is_moe=is_moe,
-                precision_override=precision_override,
-                company_name=company_name,
-                base_name=base_name
+                precision_override=precision_override
             )
 
             if not success:
