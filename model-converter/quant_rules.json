@@ -8,7 +8,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"],
             "bump": 2,
             "bump_experts": 2
         },
@@ -36,7 +36,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_v"],
+            "layer_name": ["*attn_v","*attn_qkv"],
             "bump": 2,
             "bump_experts": 3,
             "bump_order_low": 2,
@@ -92,7 +92,7 @@
         },
         {
             "base_type": ["Q2_K_S","Q2_K","Q2_K_S","Q3_K","Q3_K_S","Q3_K_M","IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"],
             "bump": 0,
             "bump_experts": 1,
             "bump_order_low": 1,
@@ -128,7 +128,7 @@
         },
         {
             "base_type": ["Q4_K_S","Q4_K","Q4_K_S","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -165,7 +165,7 @@
         },
         {
             "override_types": ["BF16","F16"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output"]
+            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"]
         },
         {
             "override_types": ["BF16","F16"],
