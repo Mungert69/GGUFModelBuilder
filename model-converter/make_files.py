@@ -396,14 +396,15 @@ def needs_compatibility_check(quant_type, tensor_type, embed_type):
             embed_type in ["Q5_K", "Q6_K"])
 
 def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None, embed_type=None, 
-                        use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False):
+                        use_imatrix=None, use_pure=False, allow_requantize=False, is_moe=False, precision_override=None):
     """Perform quantization with automatic fallback for Q5_K/Q6_K tensor/embed types"""
     temp_output = f"{output_path}.tmp"
     tensor_args = process_quantization(
         gguf_file=model_path,
         quant_rules_file=quant_rules_path,
         target_type=quant_type,
-        is_moe=is_moe
+        is_moe=is_moe,
+        precision_override=precision_override
     )
     print(f"is_moe is {is_moe} using tensor args : {tensor_args}")
 
@@ -515,6 +516,13 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
             output_file = f"{base_name}-{suffix}.gguf"
             output_path = os.path.join(output_dir, output_file)    
             print(f"\n🏗 Processing {output_file}...")
+            # Determine precision override for process_quantization
+            precision_override = None
+            if "bf16" in suffix.lower():
+                precision_override = "BF16"
+            elif "f16" in suffix.lower():
+                precision_override = "F16"
+
             success = quantize_with_fallback(
                 bf16_model_file,
                 output_path,
@@ -524,7 +532,8 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
                 use_imatrix=imatrix_file if use_imatrix else None,
                 use_pure=use_pure,
                 allow_requantize=allow_requantize,
-                is_moe=is_moe 
+                is_moe=is_moe,
+                precision_override=precision_override
             )
 
             if not success:

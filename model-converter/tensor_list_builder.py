@@ -189,7 +189,48 @@ def determine_quant_tier(base_quant: str,
     
     return quant_levels[new_idx], full_reason, True
 
-def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False):
+def apply_precision_override_rule(
+    tensor_name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
+    is_moe=None, layer_order=None
+):
+    """
+    Checks for override_types rules and applies the precision override if the tensor matches.
+    Returns (suggested_quant, reason, bump_applied).
+    """
+    if not precision_override:
+        return suggested_quant, reason, bump_applied
+
+    for rule in quant_rules:
+        override_types = rule.get("override_types", [])
+        if precision_override not in override_types:
+            continue
+
+        # Check layer_name match (with wildcard support)
+        layer_patterns = rule.get("layer_name", [])
+        if isinstance(layer_patterns, str):
+            layer_patterns = [layer_patterns]
+        if not any(is_layer_match(tensor_name, pattern) for pattern in layer_patterns):
+            continue
+
+        # Check experts field if present
+        if "experts" in rule:
+            if is_moe is None or bool(is_moe) != bool(rule["experts"]):
+                continue
+
+        # Check order_low/order_high if present
+        if layer_order is not None and "order_low" in rule and "order_high" in rule:
+            if not (rule["order_low"] <= layer_order <= rule["order_high"]):
+                continue
+
+        # All checks passed, apply override
+        return (
+            precision_override,
+            f"Override: {precision_override} for {tensor_name} by rule",
+            True,
+        )
+    return suggested_quant, reason, bump_applied
+
+def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False, precision_override: str = None):
     """
     Process quantization for a model based on JSON rules
     
@@ -228,6 +269,13 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
             layer_order=normalized_layer_order,
             quant_rules=quant_rules
         )
+        # Apply override_types rules if precision_override is set
+        suggested_quant, reason, bump_applied = apply_precision_override_rule(
+            name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
+            is_moe=is_moe, layer_order=layer_order
+        )
+
+
         
         # Only add suggestion if it's different from current
         if bump_applied and suggested_quant != current_quant:
