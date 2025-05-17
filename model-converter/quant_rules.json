@@ -155,6 +155,37 @@
             "bump_order_high": 9,
             "bump_order_val": 1,
             "bump_order_experts_val": 1
+        },
+        {
+            "override_types": ["BF16","F16"],
+            "layer_name": ["*attn_k","*attn_q"],
+            "experts" : true,
+            "order_low": 1,
+            "order_high": 9
+        },
+        {
+            "override_types": ["BF16","F16"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_output"],
+            "order_low": 1,
+            "order_high": 9
+        },
+        {
+            "override_types": ["BF16","F16"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_output"]
+        },
+        {
+            "override_types": ["BF16","F16"],
+            "layer_name": ["*ffn_down_exps","*ffn_gate_exps","*ffn_up_exps"],
+            "experts" : true,
+            "order_low": 1,
+            "order_high": 9
+        },
+        {
+            "override_types": ["BF16","F16"],
+            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
+            "experts" : true,
+            "order_low": 1,
+            "order_high": 9
         }
     ]
 }
