@@ -53,6 +53,12 @@
                                 Remove
                             </button>
                         </form>
+                        <form method="POST" action="{{ url_for('mark_failed', model_id=model_id) }}" style="display:inline; margin-left: 5px;">
+                            <button type="submit" class="btn btn-warning btn-sm"
+                                onclick="return confirm('Mark {{ model_id }} as failed/resumable? This will allow resuming from current progress.');">
+                                Mark as Failed/Resumable
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
