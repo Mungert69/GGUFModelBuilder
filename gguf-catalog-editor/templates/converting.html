@@ -39,11 +39,10 @@
                         {% endif %}
                     </td>
                     <td>
-                        {% if quant %}
-                            <span class="badge bg-info text-dark">{{ quant }}</span>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
+                        <form method="POST" action="{{ url_for('edit_quant_progress', model_id=model_id) }}" style="display:inline;">
+                            <input type="text" name="quant" value="{{ quant or '' }}" style="width: 80px;" />
+                            <button type="submit" class="btn btn-sm btn-primary" title="Update Progress">Save</button>
+                        </form>
                     </td>
                     <td>
                         <form method="POST" style="display:inline;">
