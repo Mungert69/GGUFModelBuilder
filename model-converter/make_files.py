@@ -609,12 +609,8 @@ def main():
     if args.threads is not None:
         threads = args.threads
     else:
-        # Set global threads using threads
-        total_threads = multiprocessing.cpu_count()
-        if total_threads < 4:
-            threads = total_threads
-        else:
-            threads = max(4, total_threads // 2)
+        threads = multiprocessing.cpu_count()
+
 
     if "/" not in args.model_id:
         print("Error: Model ID must be in the format 'company_name/model_name'.")
