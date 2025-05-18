@@ -806,11 +806,14 @@ class ModelConverter:
                 except (ValueError, TypeError):
                     parameters = -1
 
-                if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
-                    print(f"[run_conversion_cycle] Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
+                converted = entry.get("converted", False)
+                attempts = int(entry.get("attempts", 0))
+                has_config = entry.get("has_config", False)
+                if converted or attempts >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
+                    print(f"[run_conversion_cycle] Skipping {model_id} - converted={converted}, attempts={attempts}, parameters={parameters}")
                     continue
 
-                if not entry["has_config"]:
+                if not has_config:
                     print(f"[run_conversion_cycle] Skipping {model_id} - config.json not found")
                     continue
                 is_moe = entry.get("is_moe", False) 
