@@ -631,7 +631,7 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
-
+        print(f"Begin convert_model for {model_id}.")
         success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
         if self.model_catalog.is_converting(model_id):
@@ -769,15 +769,24 @@ class ModelConverter:
         """
         Process all unconverted models in batch, updating the catalog and converting models as needed.
         """
+        print("=== [run_conversion_cycle] Fetching trending models from Hugging Face API ===")
         models = self.get_trending_models()
+        print(f"=== [run_conversion_cycle] {len(models)} trending models fetched ===")
+
+        print("=== [run_conversion_cycle] Updating catalog with new models ===")
         self.update_catalog(models)
+        print("=== [run_conversion_cycle] Catalog update complete ===")
+
+        print("=== [run_conversion_cycle] Loading current catalog from Redis ===")
         current_catalog = self.load_catalog()  # <-- Reload after update
+        print(f"=== [run_conversion_cycle] Catalog loaded: {len(current_catalog)} models ===")
 
         try:
-            for model_id, entry in current_catalog.items():
+            for idx, (model_id, entry) in enumerate(current_catalog.items()):
+                print(f"\n--- [run_conversion_cycle] [{idx+1}/{len(current_catalog)}] Processing model: {model_id} ---")
                 is_moe = entry.get("is_moe", False)
                 if self.is_excluded_company(model_id):
-                    print(f"Skipping {model_id} - from excluded company")
+                    print(f"[run_conversion_cycle] Skipping {model_id} - from excluded company")
                     continue
                 parameters = entry.get("parameters", -1)
                 try:
@@ -786,20 +795,22 @@ class ModelConverter:
                     parameters = -1
 
                 if entry["converted"] or entry["attempts"] >= self.MAX_ATTEMPTS or parameters > self.MAX_PARAMETERS or parameters == -1:
-                    print(f"Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
+                    print(f"[run_conversion_cycle] Skipping {model_id} - converted={entry['converted']}, attempts={entry['attempts']}, parameters={parameters}")
                     continue
 
                 if not entry["has_config"]:
-                    print(f"Skipping {model_id} - config.json not found")
+                    print(f"[run_conversion_cycle] Skipping {model_id} - config.json not found")
                     continue
                 is_moe = entry.get("is_moe", False) 
                 try:
+                    print(f"[run_conversion_cycle] Starting conversion for {model_id} (is_moe={is_moe})")
                     self.convert_model(model_id, is_moe)
+                    print(f"[run_conversion_cycle] Finished conversion for {model_id}")
                 except Exception as e:
-                    print(f"⚠ Error converting {model_id}: {e}")
+                    print(f"⚠ [run_conversion_cycle] Error converting {model_id}: {e}")
 
         except Exception as e:
-            print(f"Error during conversion cycle: {e}")
+            print(f"[run_conversion_cycle] Error during conversion cycle: {e}")
 
     def start_daemon(self):
         """
