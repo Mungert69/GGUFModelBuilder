@@ -775,9 +775,9 @@ class ModelConverter:
         """
         Process all unconverted models in batch, updating the catalog and converting models as needed.
         """
-        current_catalog = self.load_catalog()
         models = self.get_trending_models()
         self.update_catalog(models)
+        current_catalog = self.load_catalog()  # <-- Reload after update
 
         try:
             for model_id, entry in current_catalog.items():
