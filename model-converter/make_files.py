@@ -71,12 +71,8 @@ catalog = init_redis_catalog(
     user=REDIS_USER,
     ssl=True
 )
-def get_half_threads():
-    total_threads = multiprocessing.cpu_count()
-    
-    if total_threads < 4:
-        return total_threads
-    return max(4, total_threads // 2)
+
+threads = multiprocessing.cpu_count()
 
 base_dir = os.path.expanduser("~/code/models")
 run_dir = os.path.abspath("./")
@@ -360,7 +356,7 @@ def download_imatrix(input_dir, company_name, model_name):
                 "-m", bf16_model_path,
                 "-f", imatrix_train_set,
                 "-o", imatrix_file,
-                "--threads", str(get_half_threads())
+                "--threads", str(threads)
             ]
             print("Running:", " ".join(command))
             result = subprocess.run(command, capture_output=True, text=True)
@@ -423,7 +419,7 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
             command.extend(["--token-embedding-type", e_type])
         command.extend(shlex.split(tensor_args)) 
         command.extend([model_path, temp_output, quant_type])
-        command.append( str(get_half_threads()))
+        command.append(str(threads))
         print(f"Running command {command}")
 
         result = subprocess.run(command, capture_output=True, text=True)
@@ -600,13 +596,25 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
         print(f"⚠ Failed to update README: {e}")
 
 def main():
+    global threads
     parser = argparse.ArgumentParser(description="Automate GGUF model quantization")
     parser.add_argument("model_id", help="Full Hugging Face model ID (e.g., 'company/model')")
     parser.add_argument("--allow-requantize", action="store_true", help="Allow requantization of already quantized models")
     parser.add_argument("--is_moe", action="store_true", help="The model is a MOE model")
     parser.add_argument("--resume_quant", type=str, default=None, help="Resume quantization from this quant name (inclusive)")
+    parser.add_argument("--threads", type=int, default=None, help="Number of threads to use (default: half of CPU cores)")
 
     args = parser.parse_args()
+
+    if args.threads is not None:
+        threads = args.threads
+    else:
+        # Set global threads using threads
+        total_threads = multiprocessing.cpu_count()
+        if total_threads < 4:
+            threads = total_threads
+        else:
+            threads = max(4, total_threads // 2)
 
     if "/" not in args.model_id:
         print("Error: Model ID must be in the format 'company_name/model_name'.")
