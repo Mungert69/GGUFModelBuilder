@@ -631,12 +631,6 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
         """
-        def handle_exit(signum, frame):
-            print(f"\n[Signal {signum}] Conversion interrupted for {model_id}. Marking as failed/resumable.")
-            self.model_catalog.mark_failed(model_id)
-            sys.exit(1)  
-        signal.signal(signal.SIGINT, handle_exit)
-        signal.signal(signal.SIGTERM, handle_exit)
 
         success = False  # Ensure success is always defined
         # Lock check: prevent duplicate conversions
