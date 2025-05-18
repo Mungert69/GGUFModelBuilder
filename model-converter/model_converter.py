@@ -105,6 +105,10 @@ class ModelConverter:
             return 0
         
         params = model_data.get("parameters", 0)
+        try:
+            params = float(params)
+        except (ValueError, TypeError):
+            params = 0
         if params <= 0:
             return 0
         
@@ -782,8 +786,16 @@ class ModelConverter:
         print(f"=== [run_conversion_cycle] Catalog loaded: {len(current_catalog)} models ===")
 
         try:
-            for idx, (model_id, entry) in enumerate(current_catalog.items()):
-                print(f"\n--- [run_conversion_cycle] [{idx+1}/{len(current_catalog)}] Processing model: {model_id} ---")
+            # Sort models by number of attempts (ascending), then by added date (oldest first)
+            sorted_models = sorted(
+                current_catalog.items(),
+                key=lambda item: (
+                    int(item[1].get("attempts", 0)),
+                    item[1].get("added", "")
+                )
+            )
+            for idx, (model_id, entry) in enumerate(sorted_models):
+                print(f"\n--- [run_conversion_cycle] [{idx+1}/{len(sorted_models)}] Processing model: {model_id} ---")
                 is_moe = entry.get("is_moe", False)
                 if self.is_excluded_company(model_id):
                     print(f"[run_conversion_cycle] Skipping {model_id} - from excluded company")
