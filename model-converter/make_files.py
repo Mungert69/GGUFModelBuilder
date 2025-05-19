@@ -451,7 +451,6 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
     adjusted_embed = embed_type if embed_type not in ["Q5_K", "Q6_K"] else "Q5_1"
     
     result = run_quantization(adjusted_tensor, adjusted_embed)
-    sys.exit()
     if result.returncode == 0:
         os.rename(temp_output, output_path)
         return True
