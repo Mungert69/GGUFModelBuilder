@@ -422,11 +422,17 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         command.append(str(threads))
         print(f"Running command {command}")
 
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=False)
         if result.stdout:
-            print("Output:", result.stdout)
+            try:
+                print("Output:", result.stdout.decode("utf-8"))
+            except UnicodeDecodeError:
+                print("Output (non-UTF8):", result.stdout.decode("utf-8", errors="replace"))
         if result.stderr:
-            print("Errors:", result.stderr)
+            try:
+                print("Errors:", result.stderr.decode("utf-8"))
+            except UnicodeDecodeError:
+                print("Errors (non-UTF8):", result.stderr.decode("utf-8", errors="replace"))
         return result
 
     # First try with original types
