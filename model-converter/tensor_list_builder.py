@@ -278,7 +278,7 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
 
         
         # Only add suggestion if it's different from current
-        if bump_applied and suggested_quant != current_quant:
+        if bump_applied:
             quant_suggestions.append((name, suggested_quant, reason))
     # Sort by layer number before printing
     def layer_sort_key(item):
@@ -288,14 +288,14 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
 
     # Print results
     print("\n=== Quantization Suggestions ===")
-    for name, quant, reason in quant_suggestions:
-        print(f"Tensor: {name}")
-        print(f"  Current: {current_quants[name]}")
-        print(f"  Suggested: {quant}")
-        print(f"  Reason: {reason}\n")
+    #for name, quant, reason in quant_suggestions:
+    #    print(f"Tensor: {name}")
+    #    print(f"  Current: {current_quants[name]}")
+    #    print(f"  Suggested: {quant}")
+    #    print(f"  Reason: {reason}\n")
     
     # Generate tensor-type arguments
-    print("=== Suggested --tensor-type arguments (copy-ready) ===")
+    #print("=== Suggested --tensor-type arguments (copy-ready) ===")
     tensor_args = " ".join([f"--tensor-type {name}={quant}" for name, quant, _ in quant_suggestions])
     return tensor_args
 
