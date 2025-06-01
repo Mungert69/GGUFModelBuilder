@@ -390,7 +390,7 @@ class ModelConverter:
             print(f"Error checking config.json for {model_id}: {e}")
             return False
 
-    def get_trending_models(self, limit=100):
+    def get_trending_models(self, limit=50):
         """
         Fetch trending models from the Hugging Face API.
 
