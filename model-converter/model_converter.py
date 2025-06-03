@@ -837,8 +837,8 @@ class ModelConverter:
             print("Cycle complete. Sleeping for 15 minutes...")
             time.sleep(900)
 
-            print("Updating and rebuilding llama.cpp...")
-            if not build_and_copy():
+            print("Updating and rebuilding llama.cpp...without patching")
+            if not build_and_copy(False):
                 print("Warning: Failed to update or rebuild llama.cpp")
 
 if __name__ == "__main__":
