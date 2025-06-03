@@ -786,14 +786,32 @@ class ModelConverter:
         print(f"=== [run_conversion_cycle] Catalog loaded: {len(current_catalog)} models ===")
 
         try:
-            # Sort models by number of attempts (ascending), then by added date (oldest first)
-            sorted_models = sorted(
-                current_catalog.items(),
+            # First separate out converting models
+            converting_models = []
+            other_models = []
+            
+            for model_id, entry in current_catalog.items():
+                if self.model_catalog.is_converting(model_id):
+                    converting_models.append((model_id, entry))
+                else:
+                    other_models.append((model_id, entry))
+
+            # Sort converting models by last_attempt (oldest first)
+            converting_models.sort(key=lambda x: x[1].get("last_attempt", ""))
+
+            # Sort other models using existing logic (negative priorities preserved)
+            other_models_sorted = sorted(
+                other_models,
                 key=lambda item: (
-                    int(item[1].get("attempts", 0)),
-                    item[1].get("added", "")
+                    int(item[1].get("attempts", 0)) == 0,  # False (0) comes before True (1)
+                    int(item[1].get("attempts", 0)),        # Then by number of attempts
+                    item[1].get("added", "")               # Then by added date
                 )
             )
+
+            # Combine lists (converting first, then others)
+            sorted_models = converting_models + other_models_sorted
+
             for idx, (model_id, entry) in enumerate(sorted_models):
                 print(f"\n--- [run_conversion_cycle] [{idx+1}/{len(sorted_models)}] Processing model: {model_id} ---")
                 is_moe = entry.get("is_moe", False)
