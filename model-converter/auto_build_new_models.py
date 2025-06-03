@@ -111,7 +111,7 @@ GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/commits"
 LAST_COMMIT_FILE = "last_commit.txt"
 COMMITS_CACHE_FILE = "commits_cache.json"
 HEADERS = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
-MAX_TOKENS = 4096
+MAX_TOKENS = 8192
 
 # Local model paths
 LOCAL_MODEL_PATH = os.path.expanduser("~/code/models/Qwen3-4B-abliterated-q4_k_m.gguf")
