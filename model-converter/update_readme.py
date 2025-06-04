@@ -29,36 +29,8 @@ Exits with code 0 on success, raises exceptions on failure.
 
 import os
 import subprocess
-def update_readme(model_dir, base_name, add_iquant_txt=False):
-    readme_file = os.path.join(model_dir, "README.md")
-    
-    # Check if README.md exists
-    if not os.path.exists(readme_file):
-        raise FileNotFoundError(f"README.md not found in {model_dir}")
 
-    # Get Git commit info from llama.cpp repo
-    llama_cpp_path = os.path.expanduser("~/code/models/llama.cpp")
-    full_hash, short_hash = get_git_commit_info(llama_cpp_path)
-    
-    git_info = ""
-    if short_hash:
-        git_info = f"""
-## <span style="color: #7F7FFF;">Model Generation Details</span>
-
-This model was generated using [llama.cpp](https://github.com/ggerganov/llama.cpp) at commit [`{short_hash}`](https://github.com/ggerganov/llama.cpp/commit/{full_hash}).
-
-"""
-    # Read the existing content of the README.md
-    with open(readme_file, "r") as file:
-        readme_content = file.read()
-    
-    # Find where the metadata section ends (find the second occurrence of '---')
-    meta_end = readme_content.find("---", readme_content.find("---") + 3) + 3  # Locate second '---'
-    
-    # The new content to be added after the metadata section
-    iquant_section = ""
-    if add_iquant_txt:
-        iquant_section = """
+iquant_section_content = """
 ## <span style="color: #7FFF7F;">Ultra-Low-Bit Quantization with IQ-DynamicGate (1-2 bit)</span>
 
 Our latest quantization method introduces **precision-adaptive quantization** for ultra-low-bit models (1-2 bit), with benchmark-proven improvements on **Llama-3-8B**. This approach uses layer-specific strategies to preserve accuracy while maintaining extreme memory efficiency.
@@ -114,14 +86,7 @@ All tests conducted on **Llama-3-8B-Instruct** using:
 
 """
 
-    new_section = f"""
-
-# <span style="color: #7FFF7F;">{base_name} GGUF Models</span>
-
-{git_info}
-
-{iquant_section}
-
+explain_section = """
 ## **Choosing the Right Model Format**  
 
 Selecting the correct model format depends on your **hardware capabilities** and **memory constraints**.  
@@ -209,57 +174,8 @@ These models are optimized for **extreme memory efficiency**, making them ideal 
 | **Q4_0**     | Low        | Low           | ARM or low-memory devices | llama.cpp can optimize for ARM devices |  
 
 ---
-
-## **Included Files & Details**  
-
-### `{base_name}-bf16.gguf`  
-- Model weights preserved in **BF16**.  
-- Use this if you want to **requantize** the model into a different format.  
-- Best if your device supports **BF16 acceleration**.  
-
-### `{base_name}-f16.gguf`  
-- Model weights stored in **F16**.  
-- Use if your device supports **FP16**, especially if BF16 is not available.  
-
-### `{base_name}-bf16-q8_0.gguf`  
-- **Output & embeddings** remain in **BF16**.  
-- All other layers quantized to **Q8_0**.  
-- Use if your device supports **BF16** and you want a quantized version.  
-
-### `{base_name}-f16-q8_0.gguf`  
-- **Output & embeddings** remain in **F16**.  
-- All other layers quantized to **Q8_0**.    
-
-### `{base_name}-q4_k.gguf`  
-- **Output & embeddings** quantized to **Q8_0**.  
-- All other layers quantized to **Q4_K**.  
-- Good for **CPU inference** with limited memory.  
-
-### `{base_name}-q4_k_s.gguf`  
-- Smallest **Q4_K** variant, using less memory at the cost of accuracy.  
-- Best for **very low-memory setups**.  
-
-### `{base_name}-q6_k.gguf`  
-- **Output & embeddings** quantized to **Q8_0**.  
-- All other layers quantized to **Q6_K** .  
-
-### `{base_name}-q8_0.gguf`  
-- Fully **Q8** quantized model for better accuracy.  
-- Requires **more memory** but offers higher precision.  
-
-### `{base_name}-iq3_xs.gguf`  
-- **IQ3_XS** quantization, optimized for **extreme memory efficiency**.  
-- Best for **ultra-low-memory devices**.  
-
-### `{base_name}-iq3_m.gguf`  
-- **IQ3_M** quantization, offering a **medium block size** for better accuracy.  
-- Suitable for **low-memory devices**.  
-
-### `{base_name}-q4_0.gguf`  
-- Pure **Q4_0** quantization, optimized for **ARM devices**.  
-- Best for **low-memory environments**.
-- Prefer IQ4_NL for better accuracy.
-
+"""
+like_section = """
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
 ❤ **Please click "Like" if you find this useful!**  
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
@@ -302,6 +218,51 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
 """
+def update_readme(model_dir, base_name, add_iquant_txt=False):
+    readme_file = os.path.join(model_dir, "README.md")
+    
+    # Check if README.md exists
+    if not os.path.exists(readme_file):
+        raise FileNotFoundError(f"README.md not found in {model_dir}")
+
+    # Get Git commit info from llama.cpp repo
+    llama_cpp_path = os.path.expanduser("~/code/models/llama.cpp")
+    full_hash, short_hash = get_git_commit_info(llama_cpp_path)
+    
+    git_info = ""
+    if short_hash:
+        git_info = f"""
+## <span style="color: #7F7FFF;">Model Generation Details</span>
+
+This model was generated using [llama.cpp](https://github.com/ggerganov/llama.cpp) at commit [`{short_hash}`](https://github.com/ggerganov/llama.cpp/commit/{full_hash}).
+
+"""
+    # Read the existing content of the README.md
+    with open(readme_file, "r") as file:
+        readme_content = file.read()
+    
+    # Find where the metadata section ends (find the second occurrence of '---')
+    meta_end = readme_content.find("---", readme_content.find("---") + 3) + 3  # Locate second '---'
+    
+    # The new content to be added after the metadata section
+    iquant_section = ""
+    if add_iquant_txt:
+        iquant_section = iquant_section_content
+ 
+    new_section = f"""
+
+# <span style="color: #7FFF7F;">{base_name} GGUF Models</span>
+
+{git_info}
+
+{iquant_section}
+
+{explain_section}
+
+{like_section}
+
+"""
+
 
     # Update the README.md content
     updated_content = readme_content[:meta_end] + new_section + readme_content[meta_end:]
