@@ -1,5 +1,5 @@
 diff --git a/src/llama-quant.cpp b/src/llama-quant.cpp
-index 820d5128..25652311 100644
+index 159b1307..f26e95a2 100644
 --- a/src/llama-quant.cpp
 +++ b/src/llama-quant.cpp
 @@ -126,7 +126,7 @@ static void llama_tensor_dequantize_impl(
@@ -11,7 +11,7 @@ index 820d5128..25652311 100644
      const std::string name = ggml_get_name(tensor);
  
      // TODO: avoid hardcoded tensor names - use the TN_* constants
-@@ -373,6 +373,18 @@ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_t
+@@ -373,6 +373,19 @@ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_t
      //else {
      //    if (ftype == LLAMA_FTYPE_MOSTLY_Q5_K_S) new_type = GGML_TYPE_Q4_K;
      //}
@@ -26,11 +26,12 @@ index 820d5128..25652311 100644
 +                break;
 +            }
 +        }
-+    } 
++    }
++
      bool convert_incompatible_tensor = false;
      {
          const int64_t nx = tensor->ne[0];
-@@ -792,20 +804,7 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
+@@ -792,23 +805,8 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
  
              // get more optimal quantization type based on the tensor shape, layer, etc.
              if (!params->pure && ggml_is_quantized(default_type)) {
@@ -38,18 +39,20 @@ index 820d5128..25652311 100644
 -                // unless the user specifies a type
 -                if (params->tensor_types) {
 -                    const std::vector<tensor_quantization> & tensor_types = *static_cast<const std::vector<tensor_quantization> *>(params->tensor_types);
+-                    const std::string tensor_name(tensor->name);
 -                    for (const auto & [tname, qtype] : tensor_types) {
--                        if (std::regex pattern(tname); std::regex_search(tensor->name, pattern)) {
--                            if (qtype != new_type) {
--                                LLAMA_LOG_DEBUG("(overriding %s -> %s), ", ggml_type_name(new_type), ggml_type_name(qtype));
+-                        if (std::regex pattern(tname); std::regex_search(tensor_name, pattern)) {
+-                            if  (qtype != new_type) {
+-                                LLAMA_LOG_DEBUG("(overriding %s) ", ggml_type_name(new_type));
+-                                new_type = qtype;
+-                                break; // if two or more types are specified for the tensor, first match wins
 -                            }
--                            new_type = qtype;
--                            break;
 -                        }
 -                    }
 -                }
 +                new_type = llama_tensor_get_type(qs, new_type, tensor, ftype, params->tensor_types ? static_cast<const std::vector<tensor_quantization>*>(params->tensor_types) : nullptr);
              }
+-
              if (params->token_embedding_type < GGML_TYPE_COUNT && strcmp(tensor->name, "token_embd.weight") == 0) {
                  new_type = params->token_embedding_type;
-
+             }
