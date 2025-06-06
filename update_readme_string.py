@@ -24,8 +24,8 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = "(https://readyforquantum.com/dashboard/?assistant=open)"
-new_text = "(https://readyforquantum.com/dashboard/?assistant=open&utm_source=github&utm_medium=referral&utm_campaign=huggingface_repo_readme)"
+old_text = "utm_source=github"
+new_text = "utm_source=huggingface"
 
 def update_readme(repo_id, require_confirmation=True):
     try:
