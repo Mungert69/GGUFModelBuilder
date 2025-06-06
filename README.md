@@ -108,7 +108,7 @@ flowchart TD
 
 ## 🤝 Sponsors
 
-<a href="https://readyforquantum.com/?utm_source=github&utm_medium=referral&utm_campaign=freenetworkmonitor_readme" target="_blank">
+<a href="https://readyforquantum.com/?utm_source=github&utm_medium=referral&utm_campaign=ggufmodelbuilder_readme" target="_blank">
   <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="150">
 </a>
 
