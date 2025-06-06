@@ -103,7 +103,7 @@ flowchart TD
 
 ## 🌐 Community
 
-[![Discord](https://img.shields.io/badge/Discord-Join_Server-5865F2?logo=discord)](https://discord.gg/rne7YaK3)
+[![Discord](https://img.shields.io/badge/Discord-Join_Server-5865F2?logo=discord)](https://discord.gg/pG4gEE4QXz)
 
 
 ## 🤝 Sponsors
