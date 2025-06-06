@@ -179,7 +179,7 @@ like_section = """
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
 ❤ **Please click "Like" if you find this useful!**  
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
-👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open&utm_source=github&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open)  
 
 💬 **How to test**:  
  Choose an **AI assistant type**:  
@@ -206,7 +206,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 - **Real-time network diagnostics and monitoring**
 - **Security Audits**
 - **Penetration testing** (Nmap/Metasploit)  
-- 🔑 Get more tokens by logging in or [downloading our Free Network Monitor Agent with integrated AI Assistant](https://readyforquantum.com/download/?utm_source=github&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+- 🔑 Get more tokens by logging in or [downloading our Free Network Monitor Agent with integrated AI Assistant](https://readyforquantum.com/download)  
 
 🔵 **HugLLM** – Latest Open-source models:  
 - 🌐 Runs on Hugging Face Inference API  
