@@ -197,7 +197,7 @@ def analyze_commit(commit):
     logging.info(f"Relevant files found: {len(file_changes)}")
     for i, change in enumerate(file_changes[:3]):  # Show first 3 relevant files
         logging.info(f"  {i+1}. {change['filename']}")
-        logging.info(f"     Changes preview: {change['patch_preview'][:100]}...")
+        logging.info(f"     Changes preview: {change['patch_preview'][:1000]}...")
 
     prompt_messages = build_commit_analysis_prompt(message, file_changes)
     
