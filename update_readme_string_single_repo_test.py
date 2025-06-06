@@ -24,10 +24,10 @@ except Exception as e:
 api = HfApi()
 
 # Updated to match the exact formatting with bold markers
-old_text = "freenetworkmonitor.click"
+old_text = "(https://readyforquantum.com/download)"
 
 # New text with same formatting
-new_text = "readyforquantum.com"
+new_text = "(https://readyforquantum.com/download/?utm_source=github&utm_medium=referral&utm_campaign=huggingface_repo_readme)"
 
 def update_readme(repo_id):
     print(f"\nProcessing repository: {repo_id}")
