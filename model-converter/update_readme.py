@@ -37,9 +37,9 @@ Tesintg a new quantization method using rules to bump important layers above wha
 
 I have found that the standard IMatrix does not perform very well at low bit quantiztion and for MOE models. So I am using llama.cpp --tensor-type to bump up selected layers. See [Layer bumping with llama.cpp](https://github.com/Mungert69/GGUFModelBuilder/blob/main/model-converter/tensor_list_builder.py)
 
-This does create larger model files but the increases precision for a given model size.
+This does create larger model files but increases precision for a given model size.
 
-### **Please provide feedback on how you find this method compares performs**
+### **Please provide feedback on how you find this method performs**
 
 """
 
@@ -146,14 +146,14 @@ These models are optimized for **very high memory efficiency**, making them idea
 | Model Format             | Precision        | Memory Usage     | Device Requirements             | Best Use Case                                                |  
 |--------------------------|------------------|------------------|----------------------------------|--------------------------------------------------------------|  
 | **BF16**                 | Very High        | High             | BF16-supported GPU/CPU           | High-speed inference with reduced memory                    |  
-| **F16**                  | High             | High             | FP16-supported GPU/CPU           | GPU inference when BF16 isn’t available                     |  
+| **F16**                  | High             | High             | FP16-supported GPU/CPU           | Inference when BF16 isn’t available                     |  
 | **Q4_K**                 | Medium-Low       | Low              | CPU or Low-VRAM devices          | Memory-constrained inference                                |  
 | **Q6_K**                 | Medium           | Moderate         | CPU with more memory             | Better accuracy with quantization                           |  
 | **Q8_0**                 | High             | Moderate         | GPU/CPU with moderate VRAM       | Highest accuracy among quantized models                     |  
 | **IQ3_XS**               | Low              | Very Low         | Ultra-low-memory devices         | Max memory efficiency, low accuracy                         |  
 | **IQ3_S**                | Low              | Very Low         | Low-memory devices               | Slightly more usable than IQ3_XS                            |  
 | **IQ3_M**                | Low-Medium       | Low              | Low-memory devices               | Better accuracy than IQ3_S                                  |  
-| **Q4_0**                 | Low              | Low              | ARM-based/embedded devices       | Optimized for ARM inference                                 |  
+| **Q4_0**                 | Low              | Low              | ARM-based/embedded devices       | Llama.cpp automatically optimizes for ARM inference                                 |  
 | **Ultra Low-Bit (IQ1/2_*)** | Very Low      | Extremely Low     | Tiny edge/embedded devices        | Fit models in extremely tight memory; low accuracy           |  
 | **Hybrid (e.g., `bf16_q8_0`)** | Medium–High | Medium           | Mixed-precision capable hardware | Balanced performance and memory, near-FP accuracy in critical layers |
 
