@@ -24,8 +24,8 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = "utm_source=github"
-new_text = "utm_source=huggingface"
+old_text = "text to replace"
+new_text = """ replace with """
 
 def update_readme(repo_id, require_confirmation=True):
     try:
