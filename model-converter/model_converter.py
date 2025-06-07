@@ -173,7 +173,19 @@ class ModelConverter:
             print(f"⚠️ Low disk space: {usage['free_gb']:.2f}GB free in {usage['path']}")
             return False
         return True
-    
+    def cleanup_completed_models(self):
+        """
+        Remove Hugging Face cache for all models that have been successfully converted.
+        """
+        print("🧹 Cleaning up cache for completed models...")
+        catalog = self.load_catalog()
+        cleaned = 0
+        for model_id, entry in catalog.items():
+            if entry.get("converted", False):
+                print(f" - Cleaning cache for {model_id}")
+                self.cleanup_hf_cache(model_id)
+                cleaned += 1
+        print(f"✅ Cleaned cache for {cleaned} completed models.")   
     def get_largest_cache_items(self, path, limit=5):
         """
         Return the largest items in a directory.
