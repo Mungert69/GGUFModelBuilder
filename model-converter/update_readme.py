@@ -164,7 +164,7 @@ like_section = """
 
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
 
-👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+👉 [Free Network Monitor](https://readyforquantum.com/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
 
 
 The full Open Source Code for the Free Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Free Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
