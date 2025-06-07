@@ -28,7 +28,9 @@ def recalculate_all_model_sizes():
             # Try file size estimation
             total_size = converter.get_file_sizes(model_id)
             if total_size > 0:
-                parameters = converter.estimate_parameters(total_size)
+                # Use FP16/BF16 estimate (file size / 2)
+                parameters = total_size / 2
+                print(f"Estimated parameters (BF16/FP16): {parameters}")
             else:
                 parameters = -1
 
