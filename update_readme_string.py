@@ -24,10 +24,11 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = "text to replace"
-new_text = """ replace with """
+old_text = """Note: tokens are limited since OpenAI models are pricey, but you can Login or Download the Free Network Monitor agent to get more tokens, Alternatively use the TestLLM ."""
+new_text = """"""
+exclude_text = ""
 
-def update_readme(repo_id, require_confirmation=True):
+def update_readme(repo_id, require_confirmation=True, exclude_text=None):
     try:
         # Get the README content
         readme_path = api.hf_hub_download(
@@ -36,11 +37,16 @@ def update_readme(repo_id, require_confirmation=True):
             token=api_token,
             repo_type="model"
         )
-        
+
         # Read the content
         with open(readme_path, 'r', encoding='utf-8') as file:
             content = file.read()
-        
+
+        # Skip update if exclude_text is present
+        if exclude_text and exclude_text in content:
+            print(f"⏩ Exclude text found in {repo_id} - skipping")
+            return False, 0
+
         if old_text in content:
             if require_confirmation:
                 print(f"\nFirst model found: {repo_id}")
@@ -48,15 +54,15 @@ def update_readme(repo_id, require_confirmation=True):
                 print(old_text)
                 print("\nWill replace with:")
                 print(new_text)
-                
+
                 confirm = input("\nProceed with this change and update ALL similar models? (y/n): ").lower()
                 if confirm != 'y':
                     print("Update cancelled by user")
                     return False, 0
-            
+
             # Replace the text
             new_content = content.replace(old_text, new_text)
-            
+
             # Upload the updated README
             api.upload_file(
                 path_or_fileobj=new_content.encode('utf-8'),
@@ -66,32 +72,34 @@ def update_readme(repo_id, require_confirmation=True):
             )
             return True, 1
         return False, 0
-            
+
     except Exception as e:
         print(f"❌ Error processing {repo_id}: {str(e)}")
         return False, 0
-
+    
 def main():
     # List all model repositories (converting generator to list)
     repos = list(api.list_models(author="Mungert"))
     print(f"Found {len(repos)} repositories to check")
-    
+
+    # Set the text you want to exclude here
+
     # First pass - find first matching model and get confirmation
     confirmed = False
     total_updated = 0
-    
+
     for repo in repos:
-        success, count = update_readme(repo.id, require_confirmation=not confirmed)
+        success, count = update_readme(repo.id, require_confirmation=not confirmed, exclude_text=exclude_text)
         total_updated += count
-        
+
         if success and not confirmed:
             confirmed = True
             print("\nConfirmation received. Updating remaining models automatically...")
             continue
-        
+
         if confirmed and not success:
             print(f"⏩ No match in {repo.id} - skipping")
-    
+
     print(f"\nUpdate complete! Successfully updated {total_updated} repositories.")
 
 if __name__ == "__main__":
