@@ -323,7 +323,7 @@ class ModelConverter:
         """
         try:
             print(f"\n[DEBUG] Starting file size check for: {model_id}")
-            
+
             try:
                 repo_info = self.api.repo_info(model_id, repo_type="model")
                 print(f"[DEBUG] Repository found: {repo_info.id}")
@@ -332,43 +332,35 @@ class ModelConverter:
                 print(f"[ERROR] Details: {str(repo_err)}")
                 return 0
 
+            # Only check the correct path for models
+            path = f"{model_id}"
+            total_size = 0
+            found_files = False
+
             try:
-                paths_to_check = [
-                    f"models/{model_id}",
-                    f"datasets/{model_id}",
-                    f"{model_id}",
-                ]
-
-                total_size = 0
-                found_files = False
-
-                for path in paths_to_check:
-                    print(f"[DEBUG] Checking path: {path}")
-                    try:
-                        files = self.fs.ls(path, detail=True)
-                        print(f"[DEBUG] Found {len(files)} files in {path}:")
-                        for f in files:
-                            print(f" - {f['name']} ({f['size']} bytes)")
-                        
-                        safetensors_files = [f for f in files if f['name'].endswith('.safetensors')]
-                        if safetensors_files:
-                            found_files = True
-                            total_size += sum(f['size'] for f in safetensors_files)
-                    except Exception as ls_err:
-                        print(f"[DEBUG] Failed to list files in {path}: {str(ls_err)}")
-                        return 0
-
-                if not found_files:
-                    print(f"[WARNING] No .safetensors files found for {model_id}")
-                    return 0
-
-                print(f"[DEBUG] Total .safetensors size: {total_size} bytes")
-                return total_size
-
-            except Exception as fs_err:
-                print(f"[ERROR] Failed to list or sum file sizes: {str(fs_err)}")
+                files = self.fs.ls(path, detail=True)
+                print(f"[DEBUG] Found {len(files)} files in {path}:")
+                for f in files:
+                    size = f.get('size', None)
+                    print(f" - {f['name']} ({size} bytes)")
+                safetensors_files = [f for f in files if f['name'].endswith('.safetensors') and 'size' in f]
+                if safetensors_files:
+                    found_files = True
+                    total_size += sum(f['size'] for f in safetensors_files)
+            except Exception as ls_err:
+                print(f"[DEBUG] Failed to list files in {path}: {str(ls_err)}")
                 return 0
 
+            if not found_files:
+                print(f"[WARNING] No .safetensors files found for {model_id}")
+                return 0
+
+            print(f"[DEBUG] Total .safetensors size: {total_size} bytes")
+            return total_size
+
+        except Exception as e:
+            print(f"[ERROR] File size check failed for {model_id}: {str(e)}")
+            return 0
         except Exception as e:
             print(f"[ERROR] File size check failed for {model_id}: {str(e)}")
             return 0
