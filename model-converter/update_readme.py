@@ -162,7 +162,7 @@ These models are optimized for **very high memory efficiency**, making them idea
 like_section = """
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
 
-Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
+Help me test my **AI-Powered Free Network Monitor Assistant** with **quantum-ready security checks**:  
 
 👉 [Free Network Monitor](https://readyforquantum.com/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
 
