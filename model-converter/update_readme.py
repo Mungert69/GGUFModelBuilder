@@ -164,7 +164,8 @@ like_section = """
 
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
 
-👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open)  
+👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+
 
 The full Open Source Code for the Free Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Free Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
 
@@ -198,7 +199,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 🔵 **HugLLM** – Latest Open-source models:  
 - 🌐 Runs on Hugging Face Inference API. Performs pretty well using the lastest models hosted on Novita.
 
-### 💡 **Example commands to you could test**:  
+### 💡 **Example commands you could test**:  
 1. `"Give me info on my websites SSL certificate"`  
 2. `"Check if my server is using quantum safe encyption for communication"`  
 3. `"Run a comprehensive security audit on my server"`
