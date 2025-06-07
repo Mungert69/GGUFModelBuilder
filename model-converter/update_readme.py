@@ -205,7 +205,11 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 3. `"Run a comprehensive security audit on my server"`
 4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
+### Final word
+I fund the servers to create the models files, run the Free Network Monitor Service and Pay for Inference from Novita and OpenAI all from my own pocket. Please support my work and consider [buying me a coffee](https://www.buymeacoffee.com/mahadeva) .
+This will help me pay for the services and increase the token limits for everyone.
 
+Thank you :)
 """
 def update_readme(model_dir, base_name, add_iquant_txt=False):
     readme_file = os.path.join(model_dir, "README.md")
