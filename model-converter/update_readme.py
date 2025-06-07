@@ -205,6 +205,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 3. `"Run a comprehensive security audit on my server"`
 4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
+
 """
 def update_readme(model_dir, base_name, add_iquant_txt=False):
     readme_file = os.path.join(model_dir, "README.md")
@@ -247,13 +248,12 @@ This model was generated using [llama.cpp](https://github.com/ggerganov/llama.cp
 
 {explain_section}
 
-{like_section}
 
 """
 
 
     # Update the README.md content
-    updated_content = readme_content[:meta_end] + new_section + readme_content[meta_end:]
+    updated_content = readme_content[:meta_end] + new_section + readme_content[meta_end: + like_section]
     
     # Write the updated content back to the README.md
     with open(readme_file, "w") as file:
