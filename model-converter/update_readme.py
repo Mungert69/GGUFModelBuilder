@@ -31,58 +31,15 @@ import os
 import subprocess
 
 iquant_section_content = """
-## <span style="color: #7FFF7F;">Ultra-Low-Bit Quantization with IQ-DynamicGate (1-2 bit)</span>
+## <span style="color: #7FFF7F;"> Quantization beyond the IMatrix</span>
 
-Our latest quantization method introduces **precision-adaptive quantization** for ultra-low-bit models (1-2 bit), with benchmark-proven improvements on **Llama-3-8B**. This approach uses layer-specific strategies to preserve accuracy while maintaining extreme memory efficiency.
+Tesintg a new quantization method using rules to bump important layers above what the standard imatrix would use.
 
-### **Benchmark Context**
-All tests conducted on **Llama-3-8B-Instruct** using:
-- Standard perplexity evaluation pipeline
-- 2048-token context window
-- Same prompt set across all quantizations
+I have found that the standard IMatrix does not perform very well at low bit quantiztion and for MOE models. So I am using llama.cpp --tensor-type to bump up selected layers. See [Layer bumping with llama.cpp](https://github.com/Mungert69/GGUFModelBuilder/blob/main/model-converter/tensor_list_builder.py)
 
-### **Method**
-- **Dynamic Precision Allocation**:  
-  - First/Last 25% of layers → IQ4_XS (selected layers)  
-  - Middle 50% → IQ2_XXS/IQ3_S (increase efficiency)  
-- **Critical Component Protection**:  
-  - Embeddings/output layers use Q5_K  
-  - Reduces error propagation by 38% vs standard 1-2bit  
+This does create larger model files but the increases precision for a given model size.
 
-### **Quantization Performance Comparison (Llama-3-8B)**
-
-| Quantization | Standard PPL | DynamicGate PPL | Δ PPL   | Std Size | DG Size | Δ Size | Std Speed | DG Speed |
-|--------------|--------------|------------------|---------|----------|---------|--------|-----------|----------|
-| IQ2_XXS      | 11.30        | 9.84             | -12.9%  | 2.5G     | 2.6G    | +0.1G  | 234s      | 246s     |
-| IQ2_XS       | 11.72        | 11.63            | -0.8%   | 2.7G     | 2.8G    | +0.1G  | 242s      | 246s     |
-| IQ2_S        | 14.31        | 9.02             | -36.9%  | 2.7G     | 2.9G    | +0.2G  | 238s      | 244s     |
-| IQ1_M        | 27.46        | 15.41            | -43.9%  | 2.2G     | 2.5G    | +0.3G  | 206s      | 212s     |
-| IQ1_S        | 53.07        | 32.00            | -39.7%  | 2.1G     | 2.4G    | +0.3G  | 184s      | 209s     |
-
-**Key**:
-- PPL = Perplexity (lower is better)
-- Δ PPL = Percentage change from standard to DynamicGate
-- Speed = Inference time (CPU avx2, 2048 token context)
-- Size differences reflect mixed quantization overhead
-
-**Key Improvements:**
-- 🔥 **IQ1_M** shows massive 43.9% perplexity reduction (27.46 → 15.41)
-- 🚀 **IQ2_S** cuts perplexity by 36.9% while adding only 0.2GB
-- ⚡ **IQ1_S** maintains 39.7% better accuracy despite 1-bit quantization
-
-**Tradeoffs:**
-- All variants have modest size increases (0.1-0.3GB)
-- Inference speeds remain comparable (<5% difference)
-
-
-### **When to Use These Models**
-📌 **Fitting models into GPU VRAM**
-
-✔ **Memory-constrained deployments**
-
-✔ **Cpu and Edge Devices** where 1-2bit errors can be tolerated 
- 
-✔ **Research** into ultra-low-bit quantization
+### **Please provide feedback on how you find this method compares performs**
 
 """
 
@@ -124,6 +81,23 @@ Selecting the correct model format depends on your **hardware capabilities** and
 
 ---
 
+### **Hybrid Precision Models (e.g., `bf16_q8_0`, `f16_q4_K`) – Best of Both Worlds**  
+These formats selectively **quantize non-essential layers** while keeping **key layers in full precision** (e.g., attention and output layers).
+
+- Named like `bf16_q8_0` (meaning **full-precision BF16 core layers + quantized Q8_0 other layers**).  
+- Strike a **balance between memory efficiency and accuracy**, improving over fully quantized models without requiring the full memory of BF16/F16.  
+
+📌 **Use Hybrid Models if:**  
+✔ You need **better accuracy than quant-only models** but can’t afford full BF16/F16 everywhere.  
+✔ Your device supports **mixed-precision inference**.  
+✔ You want to **optimize trade-offs** for production-grade models on constrained hardware.  
+
+📌 **Avoid Hybrid Models if:**  
+❌ Your target device doesn’t support **mixed or full-precision acceleration**.  
+❌ You are operating under **ultra-strict memory limits** (in which case use fully quantized formats).  
+
+---
+
 ### **Quantized Models (Q4_K, Q6_K, Q8, etc.) – For CPU & Low-VRAM Inference**  
 Quantization reduces model size and memory usage while maintaining as much accuracy as possible.  
 - **Lower-bit models (Q4_K)** → **Best for minimal memory usage**, may have lower precision.  
@@ -141,9 +115,9 @@ Quantization reduces model size and memory usage while maintaining as much accur
 ---
 
 ### **Very Low-Bit Quantization (IQ3_XS, IQ3_S, IQ3_M, Q4_K, Q4_0)**  
-These models are optimized for **extreme memory efficiency**, making them ideal for **low-power devices** or **large-scale deployments** where memory is a critical constraint.  
+These models are optimized for **very high memory efficiency**, making them ideal for **low-power devices** or **large-scale deployments** where memory is a critical constraint.  
 
-- **IQ3_XS**: Ultra-low-bit quantization (3-bit) with **extreme memory efficiency**.  
+- **IQ3_XS**: Ultra-low-bit quantization (3-bit) with **very high memory efficiency**.  
   - **Use case**: Best for **ultra-low-memory devices** where even Q4_K is too large.  
   - **Trade-off**: Lower accuracy compared to higher-bit quantizations.  
 
@@ -159,57 +133,70 @@ These models are optimized for **extreme memory efficiency**, making them ideal 
 - **Q4_0**: Pure 4-bit quantization, optimized for **ARM devices**.  
   - **Use case**: Best for **ARM-based devices** or **low-memory environments**.  
 
+### **Ultra Low-Bit Quantization (IQ1_S IQ1_M IQ2_S IQ2_M IQ2_XS IQ2_XSS)** 
+- *Ultra-low-bit quantization (1 2-bit) with **extreme memory efficiency**.  
+  - **Use case**: Best for  cases were you have to fit the model into very constrained memory
+  - **Trade-off**: Very Low Accuracy. May not function as expected. Please test fully before using.
+
 ---
 
 ### **Summary Table: Model Format Selection**  
 
-| Model Format  | Precision  | Memory Usage  | Device Requirements  | Best Use Case  |  
-|--------------|------------|---------------|----------------------|---------------|  
-| **BF16**     | Highest    | High          | BF16-supported GPU/CPUs  | High-speed inference with reduced memory |  
-| **F16**      | High       | High          | FP16-supported devices | GPU inference when BF16 isn't available |  
-| **Q4_K**     | Medium Low | Low           | CPU or Low-VRAM devices | Best for memory-constrained environments |  
-| **Q6_K**     | Medium     | Moderate      | CPU with more memory | Better accuracy while still being quantized |  
-| **Q8_0**     | High       | Moderate      | CPU or GPU with enough VRAM | Best accuracy among quantized models |  
-| **IQ3_XS**   | Very Low   | Very Low      | Ultra-low-memory devices | Extreme memory efficiency and low accuracy |  
-| **Q4_0**     | Low        | Low           | ARM or low-memory devices | llama.cpp can optimize for ARM devices |  
+
+| Model Format             | Precision        | Memory Usage     | Device Requirements             | Best Use Case                                                |  
+|--------------------------|------------------|------------------|----------------------------------|--------------------------------------------------------------|  
+| **BF16**                 | Very High        | High             | BF16-supported GPU/CPU           | High-speed inference with reduced memory                    |  
+| **F16**                  | High             | High             | FP16-supported GPU/CPU           | GPU inference when BF16 isn’t available                     |  
+| **Q4_K**                 | Medium-Low       | Low              | CPU or Low-VRAM devices          | Memory-constrained inference                                |  
+| **Q6_K**                 | Medium           | Moderate         | CPU with more memory             | Better accuracy with quantization                           |  
+| **Q8_0**                 | High             | Moderate         | GPU/CPU with moderate VRAM       | Highest accuracy among quantized models                     |  
+| **IQ3_XS**               | Low              | Very Low         | Ultra-low-memory devices         | Max memory efficiency, low accuracy                         |  
+| **IQ3_S**                | Low              | Very Low         | Low-memory devices               | Slightly more usable than IQ3_XS                            |  
+| **IQ3_M**                | Low-Medium       | Low              | Low-memory devices               | Better accuracy than IQ3_S                                  |  
+| **Q4_0**                 | Low              | Low              | ARM-based/embedded devices       | Optimized for ARM inference                                 |  
+| **Ultra Low-Bit (IQ1/2_*)** | Very Low      | Extremely Low     | Tiny edge/embedded devices        | Fit models in extremely tight memory; low accuracy           |  
+| **Hybrid (e.g., `bf16_q8_0`)** | Medium–High | Medium           | Mixed-precision capable hardware | Balanced performance and memory, near-FP accuracy in critical layers |
 
 ---
 """
 like_section = """
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
-❤ **Please click "Like" if you find this useful!**  
+
 Help me test my **AI-Powered Network Monitor Assistant** with **quantum-ready security checks**:  
+
 👉 [Free Network Monitor](https://readyforquantum.com/dashboard/?assistant=open)  
+
+The full Open Source Code for the Free Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Free Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
 
 💬 **How to test**:  
  Choose an **AI assistant type**:  
-   - `TurboLLM` (GPT-4o-mini)  
-   - `HugLLM` (Hugginface Open-source)  
+   - `TurboLLM` (GPT-4.1-mini)  
+   - `HugLLM` (Hugginface Open-source models)  
    - `TestLLM` (Experimental CPU-only)  
 
 ### **What I’m Testing**  
 I’m pushing the limits of **small open-source models for AI network monitoring**, specifically:  
 - **Function calling** against live network services  
 - **How small can a model go** while still handling:  
-  - Automated **Nmap scans**  
+  - Automated **Nmap security scans**  
   - **Quantum-readiness checks**  
   - **Network Monitoring tasks**  
 
-🟡 **TestLLM** – Current experimental model (llama.cpp on 2 CPU threads):  
+🟡 **TestLLM** – Current experimental model (llama.cpp on 2 CPU threads on huggingface docker space):  
 - ✅ **Zero-configuration setup**  
-- ⏳ 30s load time (slow inference but **no API costs**)  
+- ⏳ 30s load time (slow inference but **no API costs**) . No token limited as the cost is low.
 - 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
 
 ### **Other Assistants**  
-🟢 **TurboLLM** – Uses **gpt-4o-mini** for: 
+🟢 **TurboLLM** – Uses **gpt-4.1-mini** :
+- **It performs very well but unfortunatly OpenAI charges per token. For this reason tokens usage is limited. 
 - **Create custom cmd processors to run .net code on Free Network Monitor Agents**
 - **Real-time network diagnostics and monitoring**
 - **Security Audits**
 - **Penetration testing** (Nmap/Metasploit)  
-- 🔑 Get more tokens by logging in or [downloading our Free Network Monitor Agent with integrated AI Assistant](https://readyforquantum.com/download)  
 
 🔵 **HugLLM** – Latest Open-source models:  
-- 🌐 Runs on Hugging Face Inference API  
+- 🌐 Runs on Hugging Face Inference API. Performs pretty well using the lastest models hosted on Novita.
 
 ### 💡 **Example commands to you could test**:  
 1. `"Give me info on my websites SSL certificate"`  
