@@ -7,7 +7,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'mode
 from model_converter import ModelConverter
 from make_files import get_model_size
 
-def recalculate_all_model_sizes():
+import argparse
+
+def recalculate_all_model_sizes(force=False):
     converter = ModelConverter()
     catalog = converter.load_catalog()
     updated = 0
@@ -15,9 +17,8 @@ def recalculate_all_model_sizes():
     for model_id, entry in catalog.items():
         print(f"\n[Recalculate] Processing {model_id}...")
 
-        # Try config first
         parameters = entry.get('parameters', None)
-        if parameters is not None and parameters != -1 and parameters != 0:
+        if not force and parameters is not None and parameters != -1 and parameters != 0:
             print(f" - Existing parameters: {parameters} (skipping recalculation)")
             continue
 
@@ -41,5 +42,8 @@ def recalculate_all_model_sizes():
     print(f"\n[Recalculate] Updated parameters for {updated} models.")
 
 if __name__ == "__main__":
-    recalculate_all_model_sizes()
+    parser = argparse.ArgumentParser(description="Recalculate model sizes in the catalog.")
+    parser.add_argument("--force", action="store_true", help="Force recalculation even if parameters exist")
+    args = parser.parse_args()
+    recalculate_all_model_sizes(force=args.force)
 
