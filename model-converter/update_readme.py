@@ -261,7 +261,7 @@ This model was generated using [llama.cpp](https://github.com/ggerganov/llama.cp
 
 
     # Update the README.md content
-    updated_content = readme_content[:meta_end] + new_section + readme_content[meta_end: + like_section]
+    updated_content = readme_content[:meta_end] + new_section + readme_content[meta_end:] + like_section
     
     # Write the updated content back to the README.md
     with open(readme_file, "w") as file:
