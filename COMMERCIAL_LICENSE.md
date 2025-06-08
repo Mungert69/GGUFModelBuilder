@@ -20,7 +20,7 @@ If these conditions are incompatible with your business or deployment model, you
 
 To request a commercial license or discuss pricing and terms, please contact:
 
-📧 **support@mreadyforquantum.com**
+📧 **support@readyforquantum.com**
 
 Please include:
 - Your name and company
