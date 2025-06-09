@@ -702,7 +702,6 @@ class ModelConverter:
         try:
             print(f"Converting {model_id}...")
             self.model_catalog.mark_converting(model_id)
-            self.model_catalog.set_quant_progress(model_id,"download")
             # Check for existing BF16 file before running download_convert.py
             company_name, base_name = model_id.split("/", 1)
             bf16_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-bf16.gguf")
