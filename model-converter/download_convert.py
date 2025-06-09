@@ -148,6 +148,32 @@ if not bf16_model_path:
         print(result.stderr)
         exit(1)  # Explicitly indicate failure
 
+def convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model_name):
+    """
+    Attempt to convert to mmproj for each quant type.
+    Failures are caught and reported, but do not stop the script.
+    """
+    mmproj_quant_types = ["f32", "f16", "bf16", "q8_0"]
+    for quant_type in mmproj_quant_types:
+        mmproj_output_file = os.path.join(output_dir, f"{model_name}-{quant_type}.mmproj")
+        convert_command = [
+            "python3", convert_script_path,
+            model_snapshot_dir,
+            "--outfile", mmproj_output_file,
+            "--model-name", model_name,
+            "--mmproj",
+            "--outtype", quant_type
+        ]
+        print(f"\nAttempting mmproj conversion: {' '.join(convert_command)}")
+        try:
+            result = subprocess.run(convert_command, capture_output=True, text=True)
+            if result.returncode == 0:
+                print(f"Successfully created mmproj file: {mmproj_output_file}")
+            else:
+                print(f"mmproj conversion failed for {quant_type}: {result.stderr}")
+        except Exception as e:
+            print(f"Exception during mmproj conversion for {quant_type}: {e}")
+
 # Add metadata using the imported function
 try:
     print("\nAdding metadata to the BF16 GGUF file...")
@@ -155,6 +181,9 @@ try:
 except Exception as e:
     print(f"Failed to add metadata: {e}")
     exit(1)  # Explicitly indicate failure
+
+# Try mmproj conversions (failures do not stop script)
+convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model_name)
 
 # Delete the cache directory to save disk space after conversion
 if model_snapshot_dir and os.path.exists(model_snapshot_dir):
