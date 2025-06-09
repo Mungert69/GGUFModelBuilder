@@ -656,7 +656,8 @@ class ModelConverter:
             return
         # Prevent conversion if max attempts reached
         if int(model_data.get("attempts", 0)) >= self.MAX_ATTEMPTS:
-            print(f"Model {model_id} has reached the maximum number of attempts ({self.MAX_ATTEMPTS}). Skipping.")
+            self.model_catalog.unmark_converting(model_id)
+            print(f"Model {model_id} has reached the maximum number of attempts ({self.MAX_ATTEMPTS}). Skipping and marking as not coverting.")
             return
         required_gb = self.calculate_required_space(model_id)
         if not required_gb:
@@ -700,6 +701,8 @@ class ModelConverter:
         success = True
         try:
             print(f"Converting {model_id}...")
+            self.model_catalog.mark_converting(model_id)
+            self.model_catalog.set_quant_progress("download")
             # Check for existing BF16 file before running download_convert.py
             company_name, base_name = model_id.split("/", 1)
             bf16_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-bf16.gguf")
@@ -714,13 +717,11 @@ class ModelConverter:
 
             # Only mark as converting if BF16 was created or already exists
             if success and os.path.exists(bf16_path):
-                if not self.model_catalog.is_converting(model_id):
-                    if not self.model_catalog.mark_converting(model_id):
-                        print(f"Another process started converting {model_id} just now. Skipping.")
-                        return
+               print(f"BF16 file created will now start quantiztion...")
             else:
-                print(f"BF16 file not found for {model_id}, not marking as converting.")
+                print(f"BF16 file not found for {model_id}, marking not converting.")
                 success = False
+                self.model_catalog.unmark_converting(model_id)
 
             if success:
                 self.model_catalog.unmark_failed(model_id)
