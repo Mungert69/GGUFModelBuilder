@@ -866,7 +866,7 @@ class ModelConverter:
         while True:
             print("Starting conversion cycle...")
             self.run_conversion_cycle()
-            print("Cycle complete. Sleeping for 15 minutes...")
+            print("Cycle complete. Sleeping for 1 hour...")
             time.sleep(3600)
 
             print("Updating and rebuilding llama.cpp...without patching")
