@@ -175,24 +175,33 @@ def convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model
             print(f"Exception during mmproj conversion for {quant_type}: {e}")
 
 # Add metadata using the imported function
+metadata_failed = False
 try:
     print("\nAdding metadata to the BF16 GGUF file...")
     add_metadata(bf16_output_file)  # Convert string to Path object
 except Exception as e:
     print(f"Failed to add metadata: {e}")
-    exit(1)  # Explicitly indicate failure
+    metadata_failed = True
 
 # Try mmproj conversions (failures do not stop script)
-convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model_name)
+try:
+    convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model_name)
+except Exception as e:
+    print(f"Unexpected error during mmproj conversions: {e}")
 
 # Delete the cache directory to save disk space after conversion
-if model_snapshot_dir and os.path.exists(model_snapshot_dir):
-    try:
+try:
+    if model_snapshot_dir and os.path.exists(model_snapshot_dir):
         print(f"Cleaning up cache directory: {model_snapshot_dir}")
         shutil.rmtree(model_snapshot_dir)  # Delete the entire directory and its contents
         print(f"Cache directory {model_snapshot_dir} deleted successfully.")
-    except Exception as e:
-        print(f"Error while deleting the cache directory: {e}")
+except Exception as e:
+    print(f"Error while deleting the cache directory: {e}")
 
-# Exit with success
+if metadata_failed:
+    print("Script completed with errors during metadata addition.")
+else:
+    print("Script completed successfully.")
+
+# Exit with success (always 0, unless you want to propagate metadata failure)
 exit(0)
