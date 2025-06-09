@@ -714,13 +714,13 @@ class ModelConverter:
                     print("Script download_convert.py failed.")
                     success = False
 
-            # Only mark as converting if BF16 was created or already exists
+            # Check if BF16 was created or already exists
             if success and os.path.exists(bf16_path):
                print(f"BF16 file created will now start quantiztion...")
             else:
                 print(f"BF16 file not found for {model_id}, marking not converting.")
                 success = False
-                self.model_catalog.unmark_converting(model_id)
+            # Always unmark converting at the end unless quant_progress is set (see finally)
 
             if success:
                 self.model_catalog.unmark_failed(model_id)
@@ -758,7 +758,7 @@ class ModelConverter:
                 )
             else:
                 print(f"Conversion failed for {model_id}.")  
-            self.model_catalog.unmark_converting(model_id)
+            # Do not unmark_converting here; always do it in finally block below
 
         except Exception as e:
             model_data["error_log"].append(str(e))
@@ -772,6 +772,12 @@ class ModelConverter:
             if not success :
                 self.model_catalog.mark_failed(model_id)
                 print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Marked as failed/resumable.")
+            # Always unmark converting at the end unless quant_progress is set
+            quant_progress = self.model_catalog.get_quant_progress(model_id)
+            if not quant_progress:
+                self.model_catalog.unmark_converting(model_id)
+            else:
+                print(f"[DEBUG] Not unmarking converting for {model_id} because quant_progress is set: {quant_progress}")
 
     def run_conversion_cycle(self):
         """
