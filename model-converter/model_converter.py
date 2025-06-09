@@ -795,25 +795,36 @@ class ModelConverter:
         current_catalog = self.load_catalog()  # <-- Reload after update
         print(f"=== [run_conversion_cycle] Catalog loaded: {len(current_catalog)} models ===")
 
-        try:
-            # Helper to parse last_attempt or fallback to added date
-            def attempt_or_added_key(entry):
-                val = entry[1].get("last_attempt")
-                if val and val.strip():
-                    try:
-                        return datetime.fromisoformat(val)
-                    except Exception:
-                        pass
-                # Fallback to added date
-                added_val = entry[1].get("added", "")
+        # Helper to parse last_attempt or fallback to added date
+        def get_last_attempt_or_added(entry):
+            val = entry.get("last_attempt")
+            if val and val.strip():
                 try:
-                    return datetime.fromisoformat(added_val)
+                    return datetime.fromisoformat(val)
                 except Exception:
-                    return datetime.min
+                    pass
+            # Fallback to added date
+            added_val = entry.get("added", "")
+            try:
+                return datetime.fromisoformat(added_val)
+            except Exception:
+                return datetime.min
 
+        # Reset attempts for models whose last_attempt/added is more than 1 week ago
+        now = datetime.now()
+        one_week = 7 * 24 * 60 * 60  # seconds in a week
+        for model_id, entry in current_catalog.items():
+            last_time = get_last_attempt_or_added(entry)
+            if last_time and (now - last_time).total_seconds() > one_week:
+                if int(entry.get("attempts", 0)) >= self.MAX_ATTEMPTS:
+                    print(f"[run_conversion_cycle] Resetting attempts for {model_id} (last tried/added over 1 week ago)")
+                    self.model_catalog.update_model_field(model_id, "attempts", 0)
+
+        try:
+            # Use the helper for sorting as well
             # Create a list of all models and sort by last_attempt (or added), oldest first
             all_models = list(current_catalog.items())
-            sorted_models = sorted(all_models, key=attempt_or_added_key)
+            sorted_models = sorted(all_models, key=lambda entry: get_last_attempt_or_added(entry[1]))
 
             for idx, (model_id, entry) in enumerate(sorted_models):
                 print(f"\n--- [run_conversion_cycle] [{idx+1}/{len(sorted_models)}] Processing model: {model_id} ---")
