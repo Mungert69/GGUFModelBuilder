@@ -173,19 +173,6 @@ class ModelConverter:
             print(f"⚠️ Low disk space: {usage['free_gb']:.2f}GB free in {usage['path']}")
             return False
         return True
-    def cleanup_completed_models(self):
-        """
-        Remove Hugging Face cache for all models that have been successfully converted.
-        """
-        print("🧹 Cleaning up cache for completed models...")
-        catalog = self.load_catalog()
-        cleaned = 0
-        for model_id, entry in catalog.items():
-            if entry.get("converted", False):
-                print(f" - Cleaning cache for {model_id}")
-                self.cleanup_hf_cache(model_id)
-                cleaned += 1
-        print(f"✅ Cleaned cache for {cleaned} completed models.")   
     def get_largest_cache_items(self, path, limit=5):
         """
         Return the largest items in a directory.
@@ -668,7 +655,7 @@ class ModelConverter:
             print(f"🚨 Insufficient space for {model_id} (needs {required_gb:.1f}GB)")
 
             # Try targeted cleanup first
-            self.cleanup_completed_models()
+            self.cleanup_hf_cache()
             if not self.can_fit_model(model_id):
                 # Emergency measures if still not enough space
                 print("⚡ Attempting targeted large file cleanup...")
@@ -719,7 +706,7 @@ class ModelConverter:
             else:
                 print(f"BF16 file not found for {model_id}, cleaning up cache and model dir, and marking not converting.")
                 # Immediately clean up cache for this model to free space
-                self.cleanup_hf_cache(model_id)
+                self.cleanup_hf_cache()
                 # Also clean up the model directory
                 company_name, base_name = model_id.split("/", 1)
                 model_dir = os.path.join(os.path.expanduser("~/code/models"), base_name)
@@ -778,7 +765,7 @@ class ModelConverter:
         finally:
             if model_data["attempts"] >= self.MAX_ATTEMPTS or success:
                 print(f"Max attempts reached or conversion succeeded for {model_id}, cleaning cache...")
-                self.cleanup_hf_cache(model_id)
+                self.cleanup_hf_cache()
             if not success :
                 self.model_catalog.mark_failed(model_id)
                 print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Marked as failed/resumable.")
