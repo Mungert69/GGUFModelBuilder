@@ -67,7 +67,7 @@ class ModelConverter:
         self.hf_token = os.getenv("HF_API_TOKEN")
         self.MAX_PARAMETERS = 33e9  # max < 33 billion parameters
         self.MAX_ATTEMPTS = 3        
-        self.HF_CACHE_DIR = os.path.expanduser("~/.cache/huggingface/hub")
+        self.HF_CACHE_DIR = os.path.expanduser("~/.cache/huggingface")
         self.SAFETY_FACTOR = 1.1  # 10% extra space buffer
         self.BYTES_PER_PARAM = 2  # BF16 uses 2 bytes per parameter
 
