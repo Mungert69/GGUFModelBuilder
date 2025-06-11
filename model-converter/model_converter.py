@@ -718,7 +718,9 @@ class ModelConverter:
             if success and os.path.exists(bf16_path):
                print(f"BF16 file created will now start quantiztion...")
             else:
-                print(f"BF16 file not found for {model_id}, marking not converting.")
+                print(f"BF16 file not found for {model_id}, cleaning up cache and marking not converting.")
+                # Immediately clean up cache for this model to free space
+                self.cleanup_hf_cache(model_id)
                 success = False
             # Always unmark converting at the end unless quant_progress is set (see finally)
 
