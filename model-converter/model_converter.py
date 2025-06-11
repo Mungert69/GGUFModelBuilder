@@ -615,9 +615,8 @@ class ModelConverter:
             cache_path = self.HF_CACHE_DIR
             print(f"🧹 Cleaning entire HF cache at {cache_path}")
             try:
-                shutil.rmtree(cache_path)
-                os.makedirs(cache_path, exist_ok=True)
-                print("✅ Entire HF cache cleared")
+                shutil.rmtree(cache_path, ignore_errors=True)
+                print("✅ Entire HF cache deleted (ignore_errors=True)")
             except Exception as e:
                 print(f"❌ Failed to clear HF cache: {e}")
         else:
