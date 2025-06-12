@@ -704,18 +704,8 @@ class ModelConverter:
             if success and os.path.exists(bf16_path):
                print(f"BF16 file created will now start quantiztion...")
             else:
-                print(f"BF16 file not found for {model_id}, cleaning up cache and model dir, and marking not converting.")
-                # Immediately clean up cache for this model to free space
-                self.cleanup_hf_cache()
-                # Also clean up the model directory
-                company_name, base_name = model_id.split("/", 1)
-                model_dir = os.path.join(os.path.expanduser("~/code/models"), base_name)
-                if os.path.exists(model_dir):
-                    try:
-                        shutil.rmtree(model_dir)
-                        print(f"✅ Deleted model directory for {model_id}: {model_dir}")
-                    except Exception as e:
-                        print(f"❌ Failed to delete model directory for {model_id}: {e}")
+                print(f"BF16 file not found for {model_id}, will mark as failed and clean up cache/model dir only after max attempts.")
+                # Do NOT clean up cache/model dir here; defer to finally block after max attempts
                 success = False
             # Always unmark converting at the end unless quant_progress is set (see finally)
 
