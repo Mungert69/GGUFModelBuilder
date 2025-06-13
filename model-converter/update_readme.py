@@ -49,7 +49,12 @@ This does create larger model files but increases precision for a given model si
 explain_section = """
 ---
 
-## [Choosing the Right Model Format](https://readyforquantum.com/huggingface_gguf_selection_guide.html)
+<a href="https://readyforquantum.com/huggingface_gguf_selection_guide.html" style="color: #7FFF7F;">
+  Click here to get info on choosing the right GGUF model format
+</a>
+
+---
+
 """
 like_section = """
 
