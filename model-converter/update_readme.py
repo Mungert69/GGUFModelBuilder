@@ -34,15 +34,16 @@ iquant_section_content = """
 
 ---
 
-## <span style="color: #7FFF7F;"> Quantization beyond the IMatrix</span>
+## <span style="color: #7FFF7F;">Quantization Beyond the IMatrix</span>
 
-Tesintg a new quantization method using rules to bump important layers above what the standard imatrix would use.
+I've been experimenting with a new quantization approach that selectively elevates the precision of key layers beyond what the default IMatrix configuration provides.
 
-I have found that the standard IMatrix does not perform very well at low bit quantiztion and for MOE models. So I am using llama.cpp --tensor-type to bump up selected layers. See [Layer bumping with llama.cpp](https://github.com/Mungert69/GGUFModelBuilder/blob/main/model-converter/tensor_list_builder.py)
+In my testing, standard IMatrix quantization underperforms at lower bit depths, especially with Mixture of Experts (MoE) models. To address this, I'm using the `--tensor-type` option in `llama.cpp` to manually "bump" important layers to higher precision. You can see the implementation here:  
+👉 [Layer bumping with llama.cpp](https://github.com/Mungert69/GGUFModelBuilder/blob/main/model-converter/tensor_list_builder.py)
 
-This does create larger model files but increases precision for a given model size.
+While this does increase model file size, it significantly improves precision for a given quantization level.
 
-### **Please provide feedback on how you find this method performs**
+### **I'd love your feedback—have you tried this? How does it perform for you?**
 
 """
 
