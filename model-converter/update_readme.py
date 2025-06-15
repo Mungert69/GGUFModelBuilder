@@ -65,12 +65,12 @@ like_section = """
 
 # <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
 
-Help me test my **AI-Powered Free Network Monitor Assistant** with **quantum-ready security checks**:  
+Help me test my **AI-Powered Quantum Network Monitor Assistant** with **quantum-ready security checks**:  
 
-👉 [Free Network Monitor](https://readyforquantum.com/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+👉 [Quantum Network Monitor](https://readyforquantum.com/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
 
 
-The full Open Source Code for the Free Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Free Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
+The full Open Source Code for the Quantum Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Quantum Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
 
 💬 **How to test**:  
  Choose an **AI assistant type**:  
@@ -94,7 +94,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 ### **Other Assistants**  
 🟢 **TurboLLM** – Uses **gpt-4.1-mini** :
 - **It performs very well but unfortunatly OpenAI charges per token. For this reason tokens usage is limited. 
-- **Create custom cmd processors to run .net code on Free Network Monitor Agents**
+- **Create custom cmd processors to run .net code on Quantum Network Monitor Agents**
 - **Real-time network diagnostics and monitoring**
 - **Security Audits**
 - **Penetration testing** (Nmap/Metasploit)  
@@ -106,11 +106,11 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 1. `"Give me info on my websites SSL certificate"`  
 2. `"Check if my server is using quantum safe encyption for communication"`  
 3. `"Run a comprehensive security audit on my server"`
-4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
+4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Quantum Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
 ### Final Word
 
-I fund the servers used to create these model files, run the Free Network Monitor service, and pay for inference from Novita and OpenAI—all out of my own pocket. All the code behind the model creation and the Free Network Monitor project is [open source](https://github.com/Mungert69). Feel free to use whatever you find helpful.
+I fund the servers used to create these model files, run the Quantum Network Monitor service, and pay for inference from Novita and OpenAI—all out of my own pocket. All the code behind the model creation and the Quantum Network Monitor project is [open source](https://github.com/Mungert69). Feel free to use whatever you find helpful.
 
 If you appreciate the work, please consider [buying me a coffee](https://www.buymeacoffee.com/mahadeva) ☕. Your support helps cover service costs and allows me to raise token limits for everyone.
 
