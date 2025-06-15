@@ -760,11 +760,11 @@ class ModelConverter:
                 self.model_catalog.mark_failed(model_id)
                 print(f"[DEBUG] Conversion interrupted or failed for {model_id}. Marked as failed/resumable.")
             # Always unmark converting at the end unless quant_progress is set
-            quant_progress = self.model_catalog.get_quant_progress(model_id)
-            if not quant_progress:
-                self.model_catalog.unmark_converting(model_id)
-            else:
-                print(f"[DEBUG] Not unmarking converting for {model_id} because quant_progress is set: {quant_progress}")
+                quant_progress = self.model_catalog.get_quant_progress(model_id)
+                if not quant_progress:
+                    self.model_catalog.unmark_converting(model_id)
+                else:
+                    print(f"[DEBUG] Not unmarking converting for {model_id} because quant_progress is set: {quant_progress}")
 
     def run_conversion_cycle(self):
         """
