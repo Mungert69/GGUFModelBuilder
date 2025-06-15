@@ -24,7 +24,7 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = """Note: tokens are limited since OpenAI models are pricey, but you can Login or Download the Free Network Monitor agent to get more tokens, Alternatively use the TestLLM ."""
+old_text = """Note: tokens are limited since OpenAI models are pricey, but you can Login or Download the Quantum Network Monitor agent to get more tokens, Alternatively use the TestLLM ."""
 new_text = """"""
 exclude_text = ""
 
