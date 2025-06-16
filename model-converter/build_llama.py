@@ -38,7 +38,7 @@ def apply_patch():
         try:
             print("Attempting system patch from src directory...")
             run_command(["patch", "-p1", "-i", patch_file])
-            run_command(["patch", "-p1", "-i", patch_file2])
+            #run_command(["patch", "-p1", "-i", patch_file2])
             return True
         except RuntimeError as e:
             print(f"System patch failed: {e}")
@@ -46,7 +46,7 @@ def apply_patch():
             try:
                 print("Attempting git apply from src directory...")
                 run_command(["git", "apply", "--ignore-space-change", patch_file])
-                run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
+                #run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
                 return True
             except RuntimeError as e:
                 print(f"Git apply failed: {e}")
@@ -54,7 +54,7 @@ def apply_patch():
                 try:
                     print("Attempting 3-way merge...")
                     run_command(["git", "apply", "-3", "--ignore-space-change", patch_file])
-                    run_command(["git", "apply", "-3", "--ignore-space-change", patch_file2])
+                    #run_command(["git", "apply", "-3", "--ignore-space-change", patch_file2])
                     return True
                 except RuntimeError as e:
                     print(f"3-way merge failed: {e}")
