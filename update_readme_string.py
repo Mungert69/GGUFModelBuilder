@@ -24,8 +24,8 @@ except Exception as e:
 api = HfApi()
 
 # Text patterns
-old_text = """Note: tokens are limited since OpenAI models are pricey, but you can Login or Download the Quantum Network Monitor agent to get more tokens, Alternatively use the TestLLM ."""
-new_text = """"""
+old_text = """Note you need to install a Quantum Network Monitor Agent"""
+new_text = """Note you need to install a [Quantum Network Monitor Agent](https://readyforquantum.com/Download/?utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)"""
 exclude_text = ""
 
 def update_readme(repo_id, require_confirmation=True, exclude_text=None):

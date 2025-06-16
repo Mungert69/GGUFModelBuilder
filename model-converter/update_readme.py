@@ -106,7 +106,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 1. `"Give me info on my websites SSL certificate"`  
 2. `"Check if my server is using quantum safe encyption for communication"`  
 3. `"Run a comprehensive security audit on my server"`
-4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Quantum Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
+4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a [Quantum Network Monitor Agent](https://readyforquantum.com/Download/?utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme) to run the .net code from. This is a very flexible and powerful feature. Use with caution!
 
 ### Final Word
 
