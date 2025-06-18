@@ -173,6 +173,32 @@ class ModelConverter:
             print(f"⚠️ Low disk space: {usage['free_gb']:.2f}GB free in {usage['path']}")
             return False
         return True
+    def remove_largest_cache_items(self, limit=3):
+        """
+        Remove the largest items from the Hugging Face cache to free up disk space.
+
+        Args:
+            limit (int): Number of largest items to remove.
+        """
+        cache_path = self.HF_CACHE_DIR
+        print(f"🔍 Scanning for largest cache items in {cache_path}...")
+        largest_items = self.get_largest_cache_items(cache_path, limit=limit)
+        if not largest_items:
+            print("No cache items found to remove.")
+            return
+
+        for item_name, size_gb in largest_items:
+            item_path = os.path.join(cache_path, item_name)
+            print(f"🗑️ Removing cache item: {item_name} ({size_gb:.2f} GB)")
+            try:
+                if os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                elif os.path.isfile(item_path):
+                    os.remove(item_path)
+                print(f"✅ Removed {item_path}")
+            except Exception as e:
+                print(f"❌ Failed to remove {item_path}: {e}")
+
     def get_largest_cache_items(self, path, limit=5):
         """
         Return the largest items in a directory.
