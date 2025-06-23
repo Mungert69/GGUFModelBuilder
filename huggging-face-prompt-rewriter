@@ -1,0 +1,77 @@
+You are a technical copywriter for developer-focused open-source tools.
+
+Your task is to **rewrite the content below** while following these strict rules:
+
+1. **All links and URLs must remain exactly as they are.**
+2. **Markdown structure, emojis, and headings should mostly stay intact** — but you may:
+   - Vary heading levels (e.g., ### → ####) if you think it's clearer.
+   - Reorder sections if the flow improves.
+   - Rewrite CTAs, sentences, and structure to make the message sound new and organic.
+3. You may adjust tone (casual, professional, technical), formatting, and phrasing.
+4. Keep the meaning of each section intact — this is a Hugging Face repo footer that promotes testing, source code, AI assistants, and donation/job support.
+
+**IMPORTANT**:  
+- Do **not repeat the original**.  
+- Your **output must include only the rewritten markdown**, nothing else.  
+- Delimiters `<!--Original Begin-->` and `<!--Original End-->` show what needs rewriting.  
+
+Theme: *quantum-ready edge AI for open-source network monitoring*
+
+---
+
+<!--Original Begin-->
+# <span id="testllm" style="color: #7F7FFF;">🚀 If you find these models useful</span>
+
+Help me test my **AI-Powered Free Network Monitor Assistant** with **quantum-ready security checks**:  
+
+👉 [Free Network Monitor](https://readyforquantum.com/?assistant=open&utm_source=huggingface&utm_medium=referral&utm_campaign=huggingface_repo_readme)  
+
+
+The full Open Source Code for the Free Network Monitor Service available at my github repos ( repos with NetworkMonitor in the name) : [Source Code Free Network Monitor](https://github.com/Mungert69). You will also find the code I use to quantize the models if you want to do it yourself [GGUFModelBuilder](https://github.com/Mungert69/GGUFModelBuilder)
+
+💬 **How to test**:  
+ Choose an **AI assistant type**:  
+   - `TurboLLM` (GPT-4.1-mini)  
+   - `HugLLM` (Hugginface Open-source models)  
+   - `TestLLM` (Experimental CPU-only)  
+
+### **What I’m Testing**  
+I’m pushing the limits of **small open-source models for AI network monitoring**, specifically:  
+- **Function calling** against live network services  
+- **How small can a model go** while still handling:  
+  - Automated **Nmap security scans**  
+  - **Quantum-readiness checks**  
+  - **Network Monitoring tasks**  
+
+🟡 **TestLLM** – Current experimental model (llama.cpp on 2 CPU threads on huggingface docker space):  
+- ✅ **Zero-configuration setup**  
+- ⏳ 30s load time (slow inference but **no API costs**) . No token limited as the cost is low.
+- 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
+
+### **Other Assistants**  
+🟢 **TurboLLM** – Uses **gpt-4.1-mini** :
+- **It performs very well but unfortunatly OpenAI charges per token. For this reason tokens usage is limited. 
+- **Create custom cmd processors to run .net code on Free Network Monitor Agents**
+- **Real-time network diagnostics and monitoring**
+- **Security Audits**
+- **Penetration testing** (Nmap/Metasploit)  
+
+🔵 **HugLLM** – Latest Open-source models:  
+- 🌐 Runs on Hugging Face Inference API. Performs pretty well using the lastest models hosted on Novita.
+
+### 💡 **Example commands you could test**:  
+1. `"Give me info on my websites SSL certificate"`  
+2. `"Check if my server is using quantum safe encyption for communication"`  
+3. `"Run a comprehensive security audit on my server"`
+4. '"Create a cmd processor to .. (what ever you want)" Note you need to install a Free Network Monitor Agent to run the .net code from. This is a very flexible and powerful feature. Use with caution!
+
+### Final Word
+
+I fund the servers used to create these model files, run the Free Network Monitor service, and pay for inference from Novita and OpenAI—all out of my own pocket. All the code behind the model creation and the Free Network Monitor project is [open source](https://github.com/Mungert69). Feel free to use whatever you find helpful.
+
+If you appreciate the work, please consider [buying me a coffee](https://www.buymeacoffee.com/mahadeva) ☕. Your support helps cover service costs and allows me to raise token limits for everyone.
+
+I'm also open to job opportunities or sponsorship.
+
+Thank you! 😊
+<!--Original End-->
