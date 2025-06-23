@@ -352,7 +352,7 @@ def add_model():
             'converted': False,
             'added': datetime.now().isoformat(),
             'parameters': 0,
-            'has_config': False,
+            'has_config': True,
             'attempts': 0,
             'error_log': [],
             'quantizations': [],
