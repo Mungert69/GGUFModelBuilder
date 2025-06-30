@@ -1,1 +1,0 @@
-./redis-web-editor/app.py
