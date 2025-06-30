@@ -60,9 +60,11 @@ def add_enterprise_models_to_redis(enterprise_names):
                     print(f"Warning: {model_id} parameters could not be determined, setting to -1")
                     parameters = -1
 
-                is_moe = converter.check_moe_from_config(model_id)
+                # Use ModelConverter's robust MoE detection (tries config and README)
+                is_moe = converter.is_moe_model(model_id)
+                from datetime import datetime
                 new_entry = {
-                    "added": None,
+                    "added": datetime.now().isoformat(),
                     "parameters": parameters,
                     "has_config": has_config,
                     "converted": False,
