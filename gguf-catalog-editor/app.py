@@ -582,16 +582,24 @@ def batch_edit_quant_progress():
     if not catalog:
         return redirect(url_for('settings'))
     selected_models = request.form.getlist('selected_models')
-    quant = request.form.get('quant', '').strip()
+    batch_action = request.form.get('batch_action')
     if not selected_models:
-        flash("No models selected for batch update.", "warning")
+        flash("No models selected for batch action.", "warning")
         return redirect(url_for('converting'))
-    # Batch update quant progress using a Redis pipeline for performance
-    with catalog.r.pipeline() as pipe:
+
+    if batch_action == "remove":
+        # Remove selected models from converting/resumable list and clear quant progress
         for model_id in selected_models:
-            pipe.hset(catalog.converting_progress_key, model_id, quant)
-        pipe.execute()
-    flash(f"Updated quant progress for {len(selected_models)} models to '{quant}'", "success")
+            if hasattr(catalog, "unmark_converting"):
+                catalog.unmark_converting(model_id)
+        flash(f"Removed {len(selected_models)} models from converting/resumable list.", "success")
+    elif batch_action == "mark_failed":
+        # Mark selected models as failed/resumable
+        for model_id in selected_models:
+            catalog.mark_failed(model_id)
+        flash(f"Marked {len(selected_models)} models as failed/resumable.", "success")
+    else:
+        flash("Invalid batch action.", "danger")
     return redirect(url_for('converting'))
 
 @app.route('/restore', methods=['GET', 'POST'])

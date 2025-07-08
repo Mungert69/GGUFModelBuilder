@@ -67,8 +67,14 @@
             </tbody>
         </table>
         <div class="mb-2">
-            <input type="text" name="quant" placeholder="Set quant progress for selected" style="width: 200px;" />
-            <button type="submit" class="btn btn-primary btn-sm">Batch Update Quant Progress</button>
+            <button type="submit" name="batch_action" value="remove" class="btn btn-danger btn-sm"
+                onclick="return confirm('Remove selected models from converting list? This will also clear quant progress.');">
+                Batch Remove
+            </button>
+            <button type="submit" name="batch_action" value="mark_failed" class="btn btn-warning btn-sm"
+                onclick="return confirm('Mark selected models as failed/resumable? This will allow resuming from current progress.');">
+                Batch Mark as Failed/Resumable
+            </button>
         </div>
     </form>
     <div class="mt-2">
