@@ -6,69 +6,83 @@
 <div class="alert alert-info">No models are currently being converted.</div>
 {% else %}
 <div class="table-responsive">
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Model ID</th>
-                <th>Details</th>
-                <th>Status</th>
-                <th>Current Quant</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for model_id, model, quant in running_models %}
-            <tr {% if not model %}class="table-warning" {% endif %}>
-                <td>
-                    <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
-                </td>
-                <td>
-                    {% if model %}
-                    Attempts: {{ model.attempts }}<br>
-                    Converted: {{ model.converted }}<br>
-                    Last Attempt: {{ model.last_attempt }}
-                    {% else %}
-                    <span class="text-muted">No details found</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not model %}
-                    <span class="badge bg-warning text-dark">Orphan</span>
-                    {% else %}
-                    <span class="badge bg-success">In Progress</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <form method="POST" action="{{ url_for('edit_quant_progress', model_id=model_id) }}"
-                        style="display:inline;">
-                        <input type="text" name="quant" value="{{ quant or '' }}" style="width: 80px;" />
-                        <button type="submit" class="btn btn-sm btn-primary" title="Update Progress">Save</button>
-                    </form>
-                </td>
-                <td>
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="model_id" value="{{ model_id }}">
-                        <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm"
-                            onclick="return confirm('Remove {{ model_id }} from converting list? This will also clear quant progress.');">
-                            Remove
-                        </button>
-                    </form>
-                    <form method="POST" action="{{ url_for('mark_failed', model_id=model_id) }}"
-                        style="display:inline; margin-left: 5px;">
-                        <button type="submit" class="btn btn-warning btn-sm"
-                            onclick="return confirm('Mark {{ model_id }} as failed/resumable? This will allow resuming from current progress.');">
-                            Mark as Failed/Resumable
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <form method="POST" action="{{ url_for('batch_edit_quant_progress') }}">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all" onclick="toggleAll(this)"></th>
+                    <th>Model ID</th>
+                    <th>Details</th>
+                    <th>Status</th>
+                    <th>Current Quant</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model_id, model, quant in running_models %}
+                <tr {% if not model %}class="table-warning" {% endif %}>
+                    <td>
+                        <input type="checkbox" name="selected_models" value="{{ model_id }}">
+                    </td>
+                    <td>
+                        <a href="{{ url_for('edit_model', model_id=model_id) }}">{{ model_id }}</a>
+                    </td>
+                    <td>
+                        {% if model %}
+                        Attempts: {{ model.attempts }}<br>
+                        Converted: {{ model.converted }}<br>
+                        Last Attempt: {{ model.last_attempt }}
+                        {% else %}
+                        <span class="text-muted">No details found</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not model %}
+                        <span class="badge bg-warning text-dark">Orphan</span>
+                        {% else %}
+                        <span class="badge bg-success">In Progress</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ quant or '' }}
+                    </td>
+                    <td>
+                        <form method="POST" style="display:inline;">
+                            <input type="hidden" name="model_id" value="{{ model_id }}">
+                            <button type="submit" name="action" value="remove" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Remove {{ model_id }} from converting list? This will also clear quant progress.');">
+                                Remove
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('mark_failed', model_id=model_id) }}"
+                            style="display:inline; margin-left: 5px;">
+                            <button type="submit" class="btn btn-warning btn-sm"
+                                onclick="return confirm('Mark {{ model_id }} as failed/resumable? This will allow resuming from current progress.');">
+                                Mark as Failed/Resumable
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="mb-2">
+            <input type="text" name="quant" placeholder="Set quant progress for selected" style="width: 200px;" />
+            <button type="submit" class="btn btn-primary btn-sm">Batch Update Quant Progress</button>
+        </div>
+    </form>
     <div class="mt-2">
         <span class="badge bg-warning text-dark">Orphan</span> = Model ID not found in catalog (safe to remove)
     </div>
 </div>
+<script>
+function toggleAll(source) {
+    checkboxes = document.getElementsByName('selected_models');
+    for(var i=0, n=checkboxes.length;i<n;i++) {
+        checkboxes[i].checked = source.checked;
+    }
+}
+</script>
 {% endif %}
 
 {% if failed_table_models %}
