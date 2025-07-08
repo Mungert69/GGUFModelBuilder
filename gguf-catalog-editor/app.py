@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 print("sys.path:", sys.path)
 print("Parent dir contents:", os.listdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
@@ -107,17 +108,27 @@ def index():
     if not catalog: 
         return redirect(url_for('settings'))
 
-    # Pagination logic
+    # Pagination logic using Redis HSCAN for efficiency
     page = request.args.get('page', 1, type=int)
     per_page = 10
 
-    all_models = list(catalog.load_catalog().items())
-    total = len(all_models)
-    total_pages = (total + per_page - 1) // per_page
-
+    # Use HSCAN to fetch only the models for the current page
     start = (page - 1) * per_page
     end = start + per_page
-    models = all_models[start:end]
+
+    # Get all model IDs (fast, as it's just keys)
+    all_model_ids = list(catalog.r.hkeys(catalog.catalog_key))
+    total = len(all_model_ids)
+    total_pages = (total + per_page - 1) // per_page
+
+    # Get only the model IDs for the current page
+    page_model_ids = all_model_ids[start:end]
+    # Fetch only these models from Redis
+    if page_model_ids:
+        page_models = catalog.r.hmget(catalog.catalog_key, page_model_ids)
+        models = list(zip(page_model_ids, [json.loads(m) if m else {} for m in page_models]))
+    else:
+        models = []
 
     return render_template(
         'index.html',
@@ -147,15 +158,15 @@ def search():
         search_term = request.args.get('search_term', '').strip()
         search_type = request.args.get('search_type', 'i')
 
-    selected_field = None
-    results = []
-
-    # Get field list from first model
-    all_models = catalog.load_catalog() or {}
+    # Get all model IDs (fast, as it's just keys)
+    all_model_ids = list(catalog.r.hkeys(catalog.catalog_key))
     fields = []
-    if all_models:
-        first_model = next(iter(all_models.values()))
-        fields = list(first_model.keys())
+    if all_model_ids:
+        # Fetch the first model to get field names
+        first_model_json = catalog.r.hget(catalog.catalog_key, all_model_ids[0])
+        if first_model_json:
+            first_model = json.loads(first_model_json)
+            fields = list(first_model.keys())
 
     # Sorting parameters
     order_by = request.args.get('order_by', None)
@@ -165,99 +176,107 @@ def search():
 
     # Handle field number selection
     selected_field = None
-    if search_type.isdigit():
+    if search_type.isdigit() and fields:
         field_idx = int(search_type) - 1
         if 0 <= field_idx < len(fields):
             selected_field = fields[field_idx]
 
-    # Always run search on GET or POST, and only filter if search_term is not blank
-    for model_id, data in all_models.items():
+    # Filter model IDs based on search
+    matched_ids = []
+    match_infos = {}
+    st = search_term.lower()
+    for model_id in all_model_ids:
         matched = False
         match_info = []
-
         # ID search
         if search_type == 'i':
-            if not search_term:
+            if not search_term or st in str(model_id).lower():
                 matched = True
-            else:
-                if search_term.lower() in str(model_id).lower():
-                    matched = True
-
         # All fields search
         elif search_type == 'a':
             if not search_term:
                 matched = True
             else:
-                st = search_term.lower()
-                # Check model_id as well as all fields!
                 if st in str(model_id).lower():
                     matched = True
                     match_info.append("id")
-                # Check ALL fields, not just the first match
-                for field, value in data.items():
-                    if _value_matches_search(value, st):
-                        matched = True
-                        match_info.append(field)
-
+                # Fetch model JSON only if needed
+                model_json = catalog.r.hget(catalog.catalog_key, model_id)
+                if model_json:
+                    data = json.loads(model_json)
+                    for field, value in data.items():
+                        if _value_matches_search(value, st):
+                            matched = True
+                            match_info.append(field)
         # Specific field search
         elif search_type.isdigit() and selected_field:
-            value = data.get(selected_field)
-            if _value_matches_search(value, search_term):
-                matched = True
-                match_info.append(selected_field)
-
+            # Fetch only the field value
+            model_json = catalog.r.hget(catalog.catalog_key, model_id)
+            if model_json:
+                data = json.loads(model_json)
+                value = data.get(selected_field)
+                if _value_matches_search(value, search_term):
+                    matched = True
+                    match_info.append(selected_field)
         if matched:
-            results.append((model_id, data, match_info))
+            matched_ids.append(model_id)
+            match_infos[model_id] = match_info
 
     # Always define pagination variables, even if no results or GET request
     page = request.args.get('page', 1, type=int)
     per_page = 10
-    total = len(results)
+    total = len(matched_ids)
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+
+    # Pagination
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_model_ids = matched_ids[start:end]
+
+    # Fetch only the models for the current page
+    if page_model_ids:
+        page_models = catalog.r.hmget(catalog.catalog_key, page_model_ids)
+        paginated_results = []
+        for model_id, model_json in zip(page_model_ids, page_models):
+            if model_json:
+                data = json.loads(model_json)
+                paginated_results.append((model_id, data, match_infos.get(model_id, [])))
+    else:
+        paginated_results = []
 
     # Robust sorting logic: always sort as tuple (type, value) to avoid TypeError
     def get_sort_key(item):
         model_id, data, _ = item
         if order_by == 'id':
-            # Always return a tuple of the same types: (priority, string, string)
             return (0, str(model_id).lower(), "")
         elif order_by in data:
             value = data[order_by]
             from dateutil.parser import parse as date_parse
             import datetime
 
-            # Treat blank, None, or missing as "bad" and sort them last
             if value is None or (isinstance(value, str) and value.strip() == ""):
                 return (5, "", "")
 
-            # Try date
             if isinstance(value, str):
                 try:
                     dt = date_parse(value)
                     return (1, dt.isoformat(), str(value))
                 except Exception:
                     pass
-            # Try float
             try:
                 return (2, float(value), str(value))
             except Exception:
                 pass
-            # Try int
             try:
                 return (2, int(value), str(value))
             except Exception:
                 pass
-            # Fallback to string, always use a string (never None)
             return (3, str(value).lower(), str(value))
         else:
             return (6, "", "")
 
     if order_by:
-        results.sort(key=get_sort_key, reverse=(order_dir == 'desc'))
-
-    start = (page - 1) * per_page
-    end = start + per_page
-    paginated_results = results[start:end]
+        paginated_results.sort(key=get_sort_key, reverse=(order_dir == 'desc'))
 
     return render_template('search.html',
         results=paginated_results,
@@ -269,8 +288,6 @@ def search():
         order_by=order_by,
         order_dir=order_dir
     )
-
-import re
 
 def _value_matches_search(value, search_term):
     """Check if a field value matches the search term using regex (case-insensitive) and print debug info."""
@@ -318,21 +335,57 @@ def edit_model(model_id):
     catalog = get_catalog()
     if not catalog: 
         return redirect(url_for('settings'))
-    
+
     # Now model_id will preserve the full path including slashes
     model_data = catalog.get_model(model_id)
     if not model_data:
         flash(f"Model '{model_id}' not found!", "danger")
         return redirect(url_for('index'))
-    
+
     if request.method == 'POST':
+        # Only update fields that have changed, and update in a single Redis call
+        updated_model = model_data.copy()
+        changed = False
         for field in model_data.keys():
             new_value = request.form.get(field)
-            if new_value is not None:
-                catalog.update_model_field(model_id, field, new_value)
-        flash("Model updated successfully!", "success")
+            old_value = updated_model.get(field, "")
+            # Convert booleans and numbers to string for comparison with form data
+            if isinstance(old_value, bool):
+                old_value_str = str(old_value).lower()
+            elif old_value is None:
+                old_value_str = ""
+            else:
+                old_value_str = str(old_value)
+            if new_value is not None and old_value_str != new_value:
+                # Try to preserve type: convert to bool/int/float if possible
+                if isinstance(old_value, bool):
+                    updated_model[field] = new_value.lower() == "true"
+                elif isinstance(old_value, int):
+                    try:
+                        updated_model[field] = int(new_value)
+                    except Exception:
+                        updated_model[field] = new_value
+                elif isinstance(old_value, float):
+                    try:
+                        updated_model[field] = float(new_value)
+                    except Exception:
+                        updated_model[field] = new_value
+                elif isinstance(old_value, list) or isinstance(old_value, dict):
+                    try:
+                        updated_model[field] = json.loads(new_value)
+                    except Exception:
+                        updated_model[field] = new_value
+                else:
+                    updated_model[field] = new_value
+                changed = True
+        if changed:
+            # Save the updated model in one Redis call
+            catalog.r.hset(catalog.catalog_key, model_id, json.dumps(updated_model))
+            flash("Model updated successfully!", "success")
+        else:
+            flash("No changes detected.", "info")
         return redirect(url_for('edit_model', model_id=model_id))
-    
+
     return render_template('edit_model.html', model_id=model_id, model=model_data)
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -363,7 +416,8 @@ def add_model():
             if key != 'model_id':
                 model_data[key] = request.form[key]
 
-        if catalog.get_model(model_id):
+        # Use Redis hexists for fast existence check
+        if catalog.r.hexists(catalog.catalog_key, model_id):
             flash("Model ID already exists!", "danger")
             return render_template('add_model.html')
 
@@ -413,16 +467,7 @@ def delete_model(model_id):
     if not catalog: 
         return redirect(url_for('settings'))
 
-    print(f"Attempting to delete model: {model_id}")
-    before = catalog.get_model(model_id)
-    print(f"Model before delete: {before}")
-
     result = catalog.delete_model(model_id)
-    print(f"Delete result: {result}")
-
-    after = catalog.get_model(model_id)
-    print(f"Model after delete: {after}")
-
     if result:
         flash("Model deleted successfully!", "success")
     else:
@@ -434,6 +479,11 @@ def export():
     catalog = get_catalog()
     if not catalog:
         return redirect(url_for('settings'))
+
+    # Warn if catalog is very large
+    total_models = catalog.r.hlen(catalog.catalog_key)
+    if total_models > 1000:
+        flash(f"Warning: Catalog is large ({total_models} models). Export may take a while.", "warning")
 
     file_path = f"export_{datetime.now().isoformat()}.json"
     if catalog.backup_to_file(file_path):
@@ -461,33 +511,39 @@ def converting():
         return redirect(url_for('settings'))
 
     converting_models = catalog.get_converting_models()
-    # Ensure all model IDs are strings (in case Redis returns bytes)
     converting_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in converting_models]
     quant_progress_dict = catalog.r.hgetall(catalog.converting_progress_key)
-    # Also ensure quant_progress_dict keys/values are strings
     quant_progress_dict = {
         (k.decode() if isinstance(k, bytes) else k): (v.decode() if isinstance(v, bytes) else v)
         for k, v in quant_progress_dict.items()
     }
-    # Get failed/resumable models
     failed_models = catalog.r.smembers("model:converting:failed")
     failed_models = [mid.decode() if isinstance(mid, bytes) else mid for mid in failed_models]
 
-    # Table 1: Running (converting but NOT failed)
+    # Batch fetch all needed models in one Redis call
+    all_needed_ids = list(set(converting_models + failed_models))
+    if all_needed_ids:
+        all_models_json = catalog.r.hmget(catalog.catalog_key, all_needed_ids)
+        all_models = {
+            model_id: json.loads(model_json) if model_json else None
+            for model_id, model_json in zip(all_needed_ids, all_models_json)
+        }
+    else:
+        all_models = {}
+
     running_models = []
-    # Table 2: Failed (in failed set)
     failed_table_models = []
 
     for model_id in converting_models:
         if model_id in failed_models:
-            continue  # Will be shown in failed table
-        model = catalog.get_model(model_id)
-        quant = catalog.get_quant_progress(model_id)
+            continue
+        model = all_models.get(model_id)
+        quant = quant_progress_dict.get(model_id)
         running_models.append((model_id, model, quant))
 
     for model_id in failed_models:
-        model = catalog.get_model(model_id)
-        quant = catalog.get_quant_progress(model_id)
+        model = all_models.get(model_id)
+        quant = quant_progress_dict.get(model_id)
         failed_table_models.append((model_id, model, quant))
 
     # Handle removal of stuck models
@@ -520,6 +576,24 @@ def edit_quant_progress(model_id):
         flash(f"Cleared quant progress for {model_id}", "info")
     return redirect(url_for('converting'))
 
+@app.route('/batch_edit_quant_progress', methods=['POST'])
+def batch_edit_quant_progress():
+    catalog = get_catalog()
+    if not catalog:
+        return redirect(url_for('settings'))
+    selected_models = request.form.getlist('selected_models')
+    quant = request.form.get('quant', '').strip()
+    if not selected_models:
+        flash("No models selected for batch update.", "warning")
+        return redirect(url_for('converting'))
+    # Batch update quant progress using a Redis pipeline for performance
+    with catalog.r.pipeline() as pipe:
+        for model_id in selected_models:
+            pipe.hset(catalog.converting_progress_key, model_id, quant)
+        pipe.execute()
+    flash(f"Updated quant progress for {len(selected_models)} models to '{quant}'", "success")
+    return redirect(url_for('converting'))
+
 @app.route('/restore', methods=['GET', 'POST'])
 def restore():
     catalog = get_catalog()
@@ -532,6 +606,12 @@ def restore():
             try:
                 # Save uploaded file temporarily
                 file_path = f"/tmp/restore_{datetime.now().isoformat()}.json"
+                # Check file size before saving
+                file.seek(0, os.SEEK_END)
+                size_mb = file.tell() / (1024 * 1024)
+                file.seek(0)
+                if size_mb > 50:
+                    flash(f"Warning: Restore file is large ({size_mb:.1f} MB). Restore may take a while.", "warning")
                 file.save(file_path)
                 if catalog.initialize_from_file(file_path):
                     flash("Catalog restored successfully!", "success")
