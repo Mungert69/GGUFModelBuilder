@@ -23,9 +23,11 @@ except Exception as e:
 # Initialize API
 api = HfApi()
 
-# Ask user for collection name and model name prefix
+# Ask user for collection slug, display name, and model name prefix
+import re
 account_name = input("Enter your HuggingFace username (case-sensitive, e.g. 'Mungert'): ").strip()
-collection_name = input("Enter the collection name (will be created if it doesn't exist): ").strip()
+collection_slug = input("Enter the collection slug (no spaces, lowercase, e.g. 'granite-models'): ").strip()
+collection_display_name = input("Enter the collection display name (can have spaces, e.g. 'Granite Models'): ").strip()
 model_name_prefix = input("Enter the model name prefix (e.g. 'granite'): ").strip()
 
 # 1. List all your models whose model name starts with the prefix (case-insensitive)
@@ -48,20 +50,25 @@ for m in matching_models:
 
 # 2. Check if the collection exists
 collections = list(api.list_collections())
-collection_id = f"{account_name}/{collection_name}"
+collection_id = f"{account_name}/{collection_slug}"
 collection = next((c for c in collections if c.id == collection_id), None)
 
 # 3. Create the collection if it doesn't exist
 if not collection:
-    print(f"Collection '{collection_name}' does not exist. Creating it...")
-    api.create_collection(
-        name=collection_name,
-        description=f"Collection of models starting with {model_name_prefix}",
-        private=False,
-    )
-    print(f"Collection '{collection_name}' created.")
+    print(f"Collection '{collection_slug}' does not exist. Creating it...")
+    try:
+        api.create_collection(
+            name=collection_slug,
+            title=collection_display_name,
+            description=f"Collection of models starting with {model_name_prefix}",
+            private=False,
+        )
+        print(f"Collection '{collection_display_name}' (slug: '{collection_slug}') created.")
+    except Exception as e:
+        print(f"Failed to create collection: {e}")
+        exit()
 else:
-    print(f"Collection '{collection_name}' already exists.")
+    print(f"Collection '{collection_display_name}' (slug: '{collection_slug}') already exists.")
 
 # 4. Add all matching models to the collection
 import time
