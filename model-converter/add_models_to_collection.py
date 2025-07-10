@@ -29,7 +29,10 @@ collection_name = input("Enter the collection name (will be created if it doesn'
 model_name_prefix = input("Enter the model name prefix (e.g. 'granite'): ").strip()
 
 # 1. List all your models whose model name starts with the prefix (case-insensitive)
+print(f"Fetching models for user '{account_name}' from Hugging Face Hub...")
 all_models = list(api.list_models(author=account_name))
+print(f"Fetched {len(all_models)} models. Filtering by prefix...")
+
 matching_models = [
     m.id for m in all_models
     if m.id.split("/", 1)[1].lower().startswith(model_name_prefix.lower())
@@ -61,14 +64,18 @@ else:
     print(f"Collection '{collection_name}' already exists.")
 
 # 4. Add all matching models to the collection
-for model_id in matching_models:
+import time
+
+for idx, model_id in enumerate(matching_models, 1):
+    print(f"Adding model {idx}/{len(matching_models)}: {model_id} ...", end="")
     try:
         api.add_to_collection(
             collection_id=collection_id,
             model_id=model_id,
         )
-        print(f"Added {model_id} to collection '{collection_name}'")
+        print(" done.")
     except Exception as e:
-        print(f"Failed to add {model_id}: {e}")
+        print(f" failed: {e}")
+    time.sleep(0.5)  # Add a short delay to avoid rate limits
 
-print("Done.")
+print("All models processed. Done.")
