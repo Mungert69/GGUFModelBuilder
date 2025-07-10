@@ -1,88 +1,87 @@
-from huggingface_hub import HfApi, login
+#!/usr/bin/env python3
+"""
+Add all your Hugging Face models that satisfy a name match to a collection.
+
+Usage examples
+--------------
+# Case-insensitive 'startswith' (default):
+python add_models_to_collection.py
+
+# Case-sensitive 'contains' anywhere in name:
+python add_models_to_collection.py --matchany
+"""
+from huggingface_hub import (
+    HfApi, login, list_models, list_collections,
+    create_collection, add_collection_item,
+)
 from dotenv import load_dotenv
-import os
+import huggingface_hub as hfhub
+import argparse, os, sys, time
 
-# Load the .env file
+# ───────────────────────── 0 · CLI flags ────────────────────────────────
+cli = argparse.ArgumentParser(description="Populate a HF collection with models.")
+cli.add_argument("--matchany", action="store_true",
+                 help="Match PREFIX anywhere in model name (case-sensitive). "
+                      "Default: match only at the start (case-insensitive).")
+args = cli.parse_args()
+
+# ───────────────────────── 1 · Authenticate ─────────────────────────────
 load_dotenv()
-
-# Read the API token from the .env file
-api_token = os.getenv("HF_API_TOKEN")
-
-if not api_token:
-    print("Error: Hugging Face API token not found in .env file.")
-    exit()
-
-# Authenticate with the Hugging Face Hub
-try:
-    login(token=api_token)
-    print("Authentication successful.")
-except Exception as e:
-    print(f"Authentication failed: {e}")
-    exit()
-
-# Initialize API
+token = os.getenv("HF_API_TOKEN")
+if not token:
+    sys.exit("❌  HF_API_TOKEN not set (env or .env)")
+login(token=token)                          # stores token
 api = HfApi()
+print(f"📦 huggingface_hub {hfhub.__version__}")
 
-# Ask user for collection slug, display name, and model name prefix
-import re
-account_name = input("Enter your HuggingFace username (case-sensitive, e.g. 'Mungert'): ").strip()
-collection_slug = input("Enter the collection slug (no spaces, lowercase, e.g. 'granite-models'): ").strip()
-collection_display_name = input("Enter the collection display name (can have spaces, e.g. 'Granite Models'): ").strip()
-model_name_prefix = input("Enter the model name prefix (e.g. 'granite'): ").strip()
+# ───────────────────────── 2 · Prompt user ──────────────────────────────
+user   = input("Your HF username (case-sensitive): ").strip()
+title  = input("Collection display title: ").strip()
+prefix = input("Model name prefix to include: ").strip()
 
-# 1. List all your models whose model name starts with the prefix (case-insensitive)
-print(f"Fetching models for user '{account_name}' from Hugging Face Hub...")
-all_models = list(api.list_models(author=account_name))
-print(f"Fetched {len(all_models)} models. Filtering by prefix...")
-
-matching_models = [
-    m.id for m in all_models
-    if m.id.split("/", 1)[1].lower().startswith(model_name_prefix.lower())
-]
-
-if not matching_models:
-    print(f"No models found in account '{account_name}' with model name starting with '{model_name_prefix}'")
-    exit()
-
-print(f"Found {len(matching_models)} models in '{account_name}/' with model name starting with '{model_name_prefix}':")
-for m in matching_models:
-    print(f" - {m}")
-
-# 2. Check if the collection exists
-collections = list(api.list_collections())
-collection_id = f"{account_name}/{collection_slug}"
-collection = next((c for c in collections if c.id == collection_id), None)
-
-# 3. Create the collection if it doesn't exist
-if not collection:
-    print(f"Collection '{collection_slug}' does not exist. Creating it...")
-    try:
-        api.create_collection(
-            name=collection_slug,
-            title=collection_display_name,
-            description=f"Collection of models starting with {model_name_prefix}",
-            private=False,
-        )
-        print(f"Collection '{collection_display_name}' (slug: '{collection_slug}') created.")
-    except Exception as e:
-        print(f"Failed to create collection: {e}")
-        exit()
+# ───────────────────────── 3 · Ensure collection ────────────────────────
+coll = next((c for c in list_collections(owner=user) if c.title == title), None)
+if coll is None:
+    print("🆕  Creating collection …")
+    coll = create_collection(
+        title=title,
+        description=f"Models that match '{prefix}' "
+                    f"{'anywhere' if args.matchany else 'at start'}",
+        private=False,
+        exists_ok=True
+    )
+    print(f"✅  Created: {coll.slug}")
 else:
-    print(f"Collection '{collection_display_name}' (slug: '{collection_slug}') already exists.")
+    print(f"✅  Using existing collection: {coll.slug}")
 
-# 4. Add all matching models to the collection
-import time
+# ───────────────────────── 4 · Gather models ────────────────────────────
+def model_matches(model_id: str) -> bool:
+    # remove "user/" prefix for matching
+    short = model_id.split("/", 1)[1]
+    if args.matchany:
+        return prefix in short               # case-sensitive substring
+    return short.lower().startswith(prefix.lower())
 
-for idx, model_id in enumerate(matching_models, 1):
-    print(f"Adding model {idx}/{len(matching_models)}: {model_id} ...", end="")
+models = [m.id for m in list_models(author=user) if model_matches(m.id)]
+if not models:
+    sys.exit("❌  No models matched the given criteria.")
+
+print(f"🔍  {len(models)} model(s) match:")
+for m in models: print(" •", m)
+
+# ───────────────────────── 5 · Add items ────────────────────────────────
+for i, mid in enumerate(models, 1):
+    print(f"[{i}/{len(models)}] adding {mid.ljust(50)}", end="")
     try:
-        api.add_to_collection(
-            collection_id=collection_id,
-            model_id=model_id,
+        add_collection_item(
+            collection_slug=coll.slug,
+            item_id=mid,
+            item_type="model",
+            exists_ok=True
         )
-        print(" done.")
+        print(" ✓")
     except Exception as e:
-        print(f" failed: {e}")
-    time.sleep(0.5)  # Add a short delay to avoid rate limits
+        print(" ✗", e)
+    time.sleep(0.4)
 
-print("All models processed. Done.")
+print("\n🎉  Completed. View at:", coll.url)
