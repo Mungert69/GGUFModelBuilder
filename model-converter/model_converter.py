@@ -880,14 +880,16 @@ class ModelConverter:
 
 if __name__ == "__main__":
 
-
     parser = argparse.ArgumentParser(description="Model Converter Service")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--daemon", action="store_true", help="Run as continuous service")
     group.add_argument("--single", metavar="MODEL_NAME", help="Process a specific model (format: company/model_name)")
+    parser.add_argument("--max_parameters", type=float, default=None, help="Maximum number of parameters to process (default: 33e9)")
     args = parser.parse_args()
 
     converter = ModelConverter()
+    if args.max_parameters is not None:
+        converter.MAX_PARAMETERS = args.max_parameters
 
     if args.daemon:
         converter.start_daemon()
