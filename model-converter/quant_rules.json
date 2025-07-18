@@ -15,14 +15,14 @@
         {
             "base_type": ["IQ1_S","IQ1_M"],
             "layer_name": ["*ffn_down_exps"],
-            "bump": 0,
-            "bump_experts": 2
+            "bump": 2,
+            "bump_experts": 4
         },
         {
             "base_type": ["IQ1_S","IQ1_M"],
             "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
-            "bump": 0,
-            "bump_experts": 0
+            "bump": 1,
+            "bump_experts": 2
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
@@ -61,7 +61,7 @@
             "bump_experts": 0,
             "bump_order_low": 0,
             "bump_order_high": 10,
-            "bump_order_val": 0,
+            "bump_order_val": 1,
             "bump_order_experts_val": 2
         },
         {
@@ -71,8 +71,8 @@
             "bump_experts": 0,
             "bump_order_low": 2,
             "bump_order_high": 8,
-            "bump_order_val": 0,
-            "bump_order_experts_val": 6
+            "bump_order_val": 2,
+            "bump_order_experts_val": 4
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
@@ -81,8 +81,8 @@
             "bump_experts": 0,
             "bump_order_low": 2,
             "bump_order_high": 8,
-            "bump_order_val": 0,
-            "bump_order_experts_val": 6
+            "bump_order_val": 2,
+            "bump_order_experts_val": 4
         },
         {
             "base_type": ["Q2_K_S","Q2_K","Q2_K_S","Q3_K","Q3_K_S","Q3_K_M","IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
