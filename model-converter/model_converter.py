@@ -643,13 +643,14 @@ class ModelConverter:
                 except Exception as e:
                     print(f"❌ Failed to clear cache for {model_id}: {e}")
 
-    def convert_model(self, model_id, is_moe):
+    def convert_model(self, model_id, is_moe, daemon_mode=False):
         """
         Run the conversion pipeline for a given model using the run_script function.
 
         Args:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
+            daemon_mode (bool): If True, exit the process if disk space is insufficient after cleanup.
         """
         print(f"Begin convert_model for {model_id}.")
         success = False  # Ensure success is always defined
@@ -688,6 +689,9 @@ class ModelConverter:
                 self.remove_largest_cache_items()
                 if not self.can_fit_model(model_id):
                     print("❌ Critical: Still insufficient space after cleanup")
+                    if daemon_mode:
+                        print("❌ Stopping daemon due to persistent insufficient disk space.")
+                        sys.exit(1)
                     return
 
         model_data["attempts"] = int(model_data.get("attempts", 0)) + 1
@@ -792,9 +796,11 @@ class ModelConverter:
                 else:
                     print(f"[DEBUG] Not unmarking converting for {model_id} because quant_progress is set: {quant_progress}")
 
-    def run_conversion_cycle(self):
+    def run_conversion_cycle(self, daemon_mode=False):
         """
         Process all unconverted models in batch, updating the catalog and converting models as needed.
+        Args:
+            daemon_mode (bool): If True, pass to convert_model to allow daemon exit on disk space error.
         """
         print("=== [run_conversion_cycle] Fetching trending models from Hugging Face API ===")
         models = self.get_trending_models()
@@ -856,7 +862,7 @@ class ModelConverter:
                 is_moe = entry.get("is_moe", False) 
                 try:
                     print(f"[run_conversion_cycle] Starting conversion for {model_id} (is_moe={is_moe})")
-                    self.convert_model(model_id, is_moe)
+                    self.convert_model(model_id, is_moe, daemon_mode=daemon_mode)
                     print(f"[run_conversion_cycle] Finished conversion for {model_id}")
                 except Exception as e:
                     print(f"⚠ [run_conversion_cycle] Error converting {model_id}: {e}")
@@ -870,7 +876,7 @@ class ModelConverter:
         """
         while True:
             print("Starting conversion cycle...")
-            self.run_conversion_cycle()
+            self.run_conversion_cycle(daemon_mode=True)
             print("Cycle complete. Sleeping for 1 hour...")
             time.sleep(3600)
 
