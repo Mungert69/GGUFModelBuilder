@@ -133,4 +133,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Change this to True if you want the patch to be applied
-    sys.exit(0 if build_and_copy(apply_patch_flag=True) else 1)
+    sys.exit(0 if build_and_copy(apply_patch_flag=False) else 1)
