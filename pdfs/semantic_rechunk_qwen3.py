@@ -5,64 +5,62 @@ import os
 import time
 import random
 import pathlib
-import shutil  
+import shutil
+import glob
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
+from transformers import AutoTokenizer
 
 # -------- Settings --------
 MODEL_NAME = "qwen/qwen3-4b-fp8"
 MAX_TOKENS = 12000  # For remote model, as per API
 WINDOW_SIZE = 20
-TIME_DELAY=10
+TIME_DELAY = 10
 OUTPUT_FILE = "semantic_blocks.json"
 NOVITA_API_URL = "https://api.novita.ai/v3/openai"
 
 MAX_RETRIES = 3           # how many times to try
 BASE_DELAY  = 8           # s – exponential back‑off base
 
-def safe_chat_completion(client, prompt_text:str, **kwargs):
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-4B")
+
+
+
+def split_text_to_max_tokens(text, max_tokens):
+    tokens = tokenizer.encode(text)
+    if len(tokens) <= max_tokens:
+        return [text]
+    # Split into multiple pieces
+    splits = []
+    for i in range(0, len(tokens), max_tokens):
+        chunk_tokens = tokens[i:i+max_tokens]
+        chunk_text = tokenizer.decode(chunk_tokens)
+        splits.append(chunk_text)
+    return splitsError("LLM API kept returning 0 choices (debug written to llm_debug/)")
+
+def build_adaptive_window(
+    chunks, pointer, adaptive_window_size, tokenizer, build_boundary_prompt, max_context, reserved_output_tokens
+):
     """
-    Wrapper that retries on empty‑choice responses / network hiccups.
-    If all retries fail it writes the prompt + raw response to disk.
+    Dynamically build a window of chunks that fits within the LLM context window.
+    Returns (window_chunks, total_tokens, cur_window_size)
     """
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            resp = client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user",   "content": prompt_text}
-                ],
-                **kwargs
-            )
-
-            # ---------- happy path ----------
-            if resp.choices:
-                return resp
-
-            # ---------- empty‑choices ----------
-            print(f"[WARN] Empty 'choices' (attempt {attempt}/{MAX_RETRIES})")
-
-        except Exception as e:
-            print(f"[WARN] API exception {e!r} (attempt {attempt}/{MAX_RETRIES})")
-
-        # back‑off before next try
-        sleep_time = BASE_DELAY * (2 ** (attempt - 1)) + random.uniform(0, 2)
-        time.sleep(sleep_time)
-
-    # ============== all retries failed  ==============
-    dump_dir = pathlib.Path("llm_debug")
-    dump_dir.mkdir(exist_ok=True)
-
-    with (dump_dir / "failed_prompt.txt").open("w", encoding="utf-8") as f:
-        f.write(prompt_text)
-
-    # resp might be undefined if all attempts threw exceptions
-    raw = resp.to_dict() if "resp" in locals() else {"error": "no response object"}
-    with (dump_dir / "failed_response.json").open("w", encoding="utf-8") as f:
-        json.dump(raw, f, indent=2)
-
-    raise RuntimeError("LLM API kept returning 0 choices (debug written to llm_debug/)")
+    window_chunks = []
+    total_tokens = 0
+    for i in range(adaptive_window_size):
+        if pointer + i >= len(chunks):
+            break
+        candidate_chunk = chunks[pointer + i]
+        temp_chunks = window_chunks + [candidate_chunk]
+        prompt = build_boundary_prompt(temp_chunks)
+        prompt_tokens = len(tokenizer.encode(prompt))
+        if prompt_tokens > max_context - reserved_output_tokens:
+            break
+        window_chunks.append(candidate_chunk)
+        total_tokens = prompt_tokens
+    cur_window_size = len(window_chunks)
+    return window_chunks, total_tokens, cur_window_size
 
 def load_chunks(json_file):
     with open(json_file, "r", encoding="utf-8") as f:
@@ -190,7 +188,7 @@ def get_semantic_block_end(window_chunks, client, model, max_tokens):
         chat_completion_res = safe_chat_completion(
             client=client,
             prompt_text=prompt,
-            model=model, 
+            model=model,
             stream=False,
             max_tokens=max_tokens,
             temperature=0.3,
@@ -225,6 +223,140 @@ def print_window(pointer, window_chunks):
         ellipsis = '...' if len(chunk) > 100 else ''
         print(f"  [{pointer + i + 1}] {chunk_preview}{ellipsis}")
 
+def summarize_text(text, client, model):
+    """
+    Generate a question and summary for a given text block using the LLM.
+    Returns (question, summary).
+    """
+    print(f"[DEBUG] Generating question for block text (length={len(text)}):")
+    print(f"[DEBUG] Text preview: {text[:120].replace(chr(10), ' ')}{'...' if len(text) > 120 else ''}")
+    question_prompt = (
+        "Read the following text and write a single, clear question that could be answered by understanding this section. "
+        "The question should help a reader focus on the key topic or concept discussed. "
+        "Do not include any <think> tags or internal reasoning. /no_think\n\n"
+        f"{text}\n"
+    )
+    try:
+        question_resp = safe_chat_completion(
+            client=client,
+            prompt_text=question_prompt,
+            model=model,
+            stream=False,
+            max_tokens=256,
+            temperature=0.3,
+            top_p=1,
+            presence_penalty=0,
+            frequency_penalty=0,
+            response_format={"type": "text"},
+            extra_body={"top_k": 50, "repetition_penalty": 1, "min_p": 0}
+        )
+        question = (question_resp.choices[0].message.content or "").strip()
+        question = re.sub(r"<think>.*?</think>\s*", "", question, flags=re.DOTALL | re.IGNORECASE)
+        print(f"[DEBUG] Question result: {question[:120]}{'...' if len(question) > 120 else ''}")
+    except Exception as e:
+        print(f"[WARN] Could not generate question: {e!r}")
+        question = ""
+    time.sleep(TIME_DELAY)
+
+    print(f"[DEBUG] Generating summary for block text (length={len(text)}):")
+    summary_prompt = (
+        "Summarize the following text in 2-3 sentences, focusing on the main ideas. "
+        "Keep it brief and concise. Do not include any <think> tags or internal reasoning. /no_think\n\n"
+        f"{text}\n"
+    )
+    try:
+        summary_resp = safe_chat_completion(
+            client=client,
+            prompt_text=summary_prompt,
+            model=model,
+            stream=False,
+            max_tokens=256,
+            temperature=0.3,
+            top_p=1,
+            presence_penalty=0,
+            frequency_penalty=0,
+            response_format={"type": "text"},
+            extra_body={"top_k": 50, "repetition_penalty": 1, "min_p": 0}
+        )
+        summary = (summary_resp.choices[0].message.content or "").strip()
+        summary = re.sub(r"<think>.*?</think>\s*", "", summary, flags=re.DOTALL | re.IGNORECASE)
+        print(f"[DEBUG] Summary result: {summary[:120]}{'...' if len(summary) > 120 else ''}")
+    except Exception as e:
+        print(f"[WARN] Could not generate summary: {e!r}")
+        summary = ""
+    time.sleep(TIME_DELAY)
+    return question, summary
+
+def write_second_json_file(input_json, output_json):
+    """
+    Reads the semantic_blocks output file and writes a new JSON file
+    with {"input": question, "summary": summary, "output": text} for each block.
+    """
+    new_dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
+    new_base, new_ext = os.path.splitext(output_json)
+    new_base = new_base.replace(' ', '_')
+    new_filename = f"{new_base}_out_{new_dt_str}{new_ext}"
+
+    with open(output_json, "r", encoding="utf-8") as f:
+        blocks = json.load(f)
+
+    new_array = [
+        {
+            "input": block.get("question", ""),
+            "summary": block.get("summary", ""),
+            "output": block.get("text", "")
+        }
+        for block in blocks
+    ]
+
+    with open(new_filename, "w", encoding="utf-8") as f:
+        json.dump(new_array, f, ensure_ascii=False, indent=2)
+
+    print(f"[INFO] Created new file: {new_filename}")
+
+def safe_chat_completion(client, prompt_text: str, **kwargs):
+    """
+    Wrapper that retries on empty‑choice responses / network hiccups.
+    If all retries fail it writes the prompt + raw response to disk.
+    """
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user",   "content": prompt_text}
+                ],
+                **kwargs
+            )
+
+            # ---------- happy path ----------
+            if resp.choices:
+                return resp
+
+            # ---------- empty‑choices ----------
+            print(f"[WARN] Empty 'choices' (attempt {attempt}/{MAX_RETRIES})")
+
+        except Exception as e:
+            print(f"[WARN] API exception {e!r} (attempt {attempt}/{MAX_RETRIES})")
+
+        # back‑off before next try
+        sleep_time = BASE_DELAY * (2 ** (attempt - 1)) + random.uniform(0, 2)
+        time.sleep(sleep_time)
+
+    # ============== all retries failed  ==============
+    dump_dir = pathlib.Path("llm_debug")
+    dump_dir.mkdir(exist_ok=True)
+
+    with (dump_dir / "failed_prompt.txt").open("w", encoding="utf-8") as f:
+        f.write(prompt_text)
+
+    # resp might be undefined if all attempts threw exceptions
+    raw = resp.to_dict() if "resp" in locals() else {"error": "no response object"}
+    with (dump_dir / "failed_response.json").open("w", encoding="utf-8") as f:
+        json.dump(raw, f, indent=2)
+
+    raise RuntimeError("LLM API kept returning 0 choices (debug written to llm_debug/)")
+
 def main():
     # -------- CLI parsing -------------------------------------------------
     import glob
@@ -252,14 +384,118 @@ def main():
         sys.exit(1)
 
     def process_one_file(input_json, output_json, resume):
-        # ... (all the main logic from the current main() goes here, up to the end)
-        # (You may want to refactor the main logic into this function for clarity)
-        # At the end, print the output file name
+        # -------- API client --------------------------------------------------
+        load_dotenv()
+        api_key = os.getenv("LlmHFKey")
+        if not api_key:
+            print("[FATAL ERROR] Missing API key (LlmHFKey) in .env file")
+            sys.exit(1)
+        client = OpenAI(base_url=NOVITA_API_URL, api_key=api_key)
+
+        # -------- Load chunks --------------------------------------------------
+        print(f"[INFO] Reading input chunks from {input_json} …")
+        all_chunks = load_chunks(input_json)
+
+        # --------- Check for oversized chunks and fallback to llm_rechunk if needed ---------
+        oversized = False
+        for idx, chunk in enumerate(all_chunks):
+            token_count = len(tokenizer.encode(chunk))
+            if token_count > MAX_TOKENS:
+                print(f"[FATAL] Chunk {idx+1} is too large for LLM ({token_count} tokens > {MAX_TOKENS}). Falling back to llm_rechunk.py.")
+                oversized = True
+                break
+
+        if oversized:
+            import subprocess
+            # Compose output file name
+            dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
+            input_base, _ = os.path.splitext(os.path.basename(input_json))
+            output_json = f"{input_base.replace(' ', '_')}_{dt_str}.json"
+            print(f"[INFO] Calling llm_rechunk.py on {input_json} ...")
+            subprocess.run(
+                [sys.executable, os.path.join(os.path.dirname(__file__), "llm_rechunk.py"), input_json, output_json],
+                check=True
+            )
+            print(f"[INFO] llm_rechunk.py completed. Output: {output_json}")
+            return
+
+        # -------- Resume or start fresh ---------------------------------------
+        if resume:
+            semantic_blocks, pointer = resume_previous(output_json)
+            if semantic_blocks:
+                print(f"[INFO] Resuming from chunk {pointer} (next is {pointer + 1})")
+            else:
+                print("[INFO] No previous progress found – starting fresh.")
+                semantic_blocks, pointer = [], 0
+        else:
+            if os.path.exists(output_json):
+                shutil.copy2(output_json, output_json + ".bak")
+                print(f"[INFO] Existing output file backed up to {output_json}.bak")
+            semantic_blocks, pointer = [], 0
+            # create/overwrite with empty list so downstream writes always succeed
+            with open(output_json, "w", encoding="utf-8") as f:
+                f.write("[]")
+
+        # -------- Main loop ---------------------------------------------------
+        while pointer < len(all_chunks):
+            cur_window_size = min(WINDOW_SIZE, len(all_chunks) - pointer)
+            window_chunks   = all_chunks[pointer : pointer + cur_window_size]
+
+            # ---- DEBUG PRINTS ----
+            print("\n=== BLOCK DEBUG ===")
+            print(f"Pointer before: {pointer}")
+            print(f"Window size   : {cur_window_size}")
+            print(f"Window chunks : {list(range(pointer + 1, pointer + cur_window_size + 1))}")
+            for idx, chunk in enumerate(window_chunks):
+                preview = chunk[:60].replace('\n', ' ')
+                print(f"  [{pointer + idx + 1}] {preview}{'…' if len(chunk) > 60 else ''}")
+            # ---- END DEBUG PRINTS ----
+
+            end_idx, debug_msg = get_semantic_block_end(
+                window_chunks, client, MODEL_NAME, MAX_TOKENS
+            )
+
+            if end_idx is None:
+                print("\n" + "=" * 60 + "\nFATAL segmentation error\n" + "=" * 60)
+                print(debug_msg)
+                with open(output_json, "w", encoding="utf-8") as f:
+                    json.dump(semantic_blocks, f, ensure_ascii=False, indent=2)
+                sys.exit(1)
+
+            if end_idx < 1 or end_idx > len(window_chunks):
+                print(f"[ERROR] LLM returned invalid index: {end_idx}. Aborting.")
+                break
+
+            corrected_end = end_idx - 1 if end_idx > 1 else 1
+            block_text    = "\n".join(window_chunks[:corrected_end])
+
+            print(f"[DEBUG] LLM response: {end_idx}")
+            print(f"[DEBUG] Block: start={pointer + 1}, end={pointer + corrected_end}")
+            print("[DEBUG] Chunks added to output:")
+            for i in range(corrected_end):
+                preview = window_chunks[i][:60].replace('\n', ' ')
+                ellipsis = '…' if len(window_chunks[i]) > 60 else ''
+                print(f"  [{pointer + i + 1}] {preview}{ellipsis}")
+
+            question, summary = summarize_text(block_text, client, MODEL_NAME)
+            semantic_blocks.append(
+                {"start": pointer + 1, "end": pointer + corrected_end, "text": block_text, "question": question, "summary": summary}
+            )
+
+            with open(output_json, "w", encoding="utf-8") as f:
+                json.dump(semantic_blocks, f, ensure_ascii=False, indent=2)
+
+            pointer += corrected_end  # advance to next unprocessed chunk
+
+        print("[INFO] Done.")
+
+        # --------- Write a second JSON file from the first (for reusability) ---------
+        write_second_json_file(input_json, output_json)
         print(f"[INFO] Created new file: {output_json}")
 
-    if mode == "all":
+
+    if "--all" in sys.argv:
         # Find all .json files in the current directory that do NOT have a date suffix
-        import re
         all_jsons = glob.glob("*.json")
         date_pat = re.compile(r"_\d{14}(\.json)?$")
         to_process = [f for f in all_jsons if not date_pat.search(f)]
@@ -271,193 +507,36 @@ def main():
             dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
             output_json = f"{input_base.replace(' ', '_')}_{dt_str}.json"
             print(f"[INFO] Processing {input_json} ...")
-            process_one_file(input_json, output_json, resume)
+            try:
+                process_one_file(input_json, output_json, "--resume" in sys.argv)
+            except Exception as e:
+                print(f"[ERROR] Failed to process {input_json}: {e!r}")
+                import traceback
+                traceback.print_exc()
+                continue
         print("[INFO] Batch processing complete.")
         sys.exit(0)
     else:
-        input_json  = args[0]
-        # Always add a datetime-based suffix to the output file name
+        args = [a for a in sys.argv[1:] if not a.startswith("--")]
+        if len(args) < 1:
+            print(
+                f"Usage: {sys.argv[0]} input_chunks.json [output_file.json] [--resume] [--single|--all]\n"
+                "  --resume   Continue from an existing semantic_blocks.json if present;\n"
+                "             without it, any existing output file is backed up (.bak) and overwritten.\n"
+                "  --single   (default) Process a single file (input_chunks.json)\n"
+                "  --all      Process all .json files in the current directory that do not have a date suffix"
+            )
+            sys.exit(1)
+        input_json = args[0]
         dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
         if len(args) > 1:
             base_output = args[1]
             base, ext = os.path.splitext(base_output)
             output_json = f"{base.replace(' ', '_')}_{dt_str}{ext}"
         else:
-            # Use input file name as base if no output file is given
             input_base, _ = os.path.splitext(os.path.basename(input_json))
             output_json = f"{input_base.replace(' ', '_')}_{dt_str}.json"
-        process_one_file(input_json, output_json, resume)
-        sys.exit(0)
-
-    # -------- API client --------------------------------------------------
-    load_dotenv()
-    api_key = os.getenv("LlmHFKey")
-    if not api_key:
-        print("[FATAL ERROR] Missing API key (LlmHFKey) in .env file")
-        sys.exit(1)
-    client = OpenAI(base_url=NOVITA_API_URL, api_key=api_key)
-
-    # -------- Load chunks --------------------------------------------------
-    print(f"[INFO] Reading input chunks from {input_json} …")
-    all_chunks = load_chunks(input_json)
-
-    # -------- Resume or start fresh ---------------------------------------
-    if resume:
-        semantic_blocks, pointer = resume_previous(output_json)
-        if semantic_blocks:
-            print(f"[INFO] Resuming from chunk {pointer} (next is {pointer + 1})")
-        else:
-            print("[INFO] No previous progress found – starting fresh.")
-            semantic_blocks, pointer = [], 0
-    else:
-        if os.path.exists(output_json):
-            shutil.copy2(output_json, output_json + ".bak")
-            print(f"[INFO] Existing output file backed up to {output_json}.bak")
-        semantic_blocks, pointer = [], 0
-        # create/overwrite with empty list so downstream writes always succeed
-        with open(output_json, "w", encoding="utf-8") as f:
-            f.write("[]")
-
-    # -------- Main loop ---------------------------------------------------
-    while pointer < len(all_chunks):
-        cur_window_size = min(WINDOW_SIZE, len(all_chunks) - pointer)
-        window_chunks   = all_chunks[pointer : pointer + cur_window_size]
-
-        # ---- DEBUG PRINTS ----
-        print("\n=== BLOCK DEBUG ===")
-        print(f"Pointer before: {pointer}")
-        print(f"Window size   : {cur_window_size}")
-        print(f"Window chunks : {list(range(pointer + 1, pointer + cur_window_size + 1))}")
-        for idx, chunk in enumerate(window_chunks):
-            preview = chunk[:60].replace('\n', ' ')
-            print(f"  [{pointer + idx + 1}] {preview}{'…' if len(chunk) > 60 else ''}")
-        # ---- END DEBUG PRINTS ----
-
-        end_idx, debug_msg = get_semantic_block_end(
-            window_chunks, client, MODEL_NAME, MAX_TOKENS
-        )
-
-        if end_idx is None:
-            print("\n" + "=" * 60 + "\nFATAL segmentation error\n" + "=" * 60)
-            print(debug_msg)
-            with open(output_json, "w", encoding="utf-8") as f:
-                json.dump(semantic_blocks, f, ensure_ascii=False, indent=2)
-            sys.exit(1)
-
-        if end_idx < 1 or end_idx > len(window_chunks):
-            print(f"[ERROR] LLM returned invalid index: {end_idx}. Aborting.")
-            break
-
-        corrected_end = end_idx - 1 if end_idx > 1 else 1
-        block_text    = "\n".join(window_chunks[:corrected_end])
-
-        print(f"[DEBUG] LLM response: {end_idx}")
-        print(f"[DEBUG] Block: start={pointer + 1}, end={pointer + corrected_end}")
-        print("[DEBUG] Chunks added to output:")
-        for i in range(corrected_end):
-            preview = window_chunks[i][:60].replace('\n', ' ')
-            ellipsis = '…' if len(window_chunks[i]) > 60 else ''
-            print(f"  [{pointer + i + 1}] {preview}{ellipsis}")
-
-        def summarize_text(text, client, model):
-            import re
-            print(f"[DEBUG] Generating question for block text (length={len(text)}):")
-            print(f"[DEBUG] Text preview: {text[:120].replace(chr(10), ' ')}{'...' if len(text) > 120 else ''}")
-            question_prompt = (
-                "Read the following text and write a single, clear question that could be answered by understanding this section. "
-                "The question should help a reader focus on the key topic or concept discussed. "
-                "Do not include any <think> tags or internal reasoning. /no_think\n\n"
-                f"{text}\n"
-            )
-            try:
-                question_resp = safe_chat_completion(
-                    client=client,
-                    prompt_text=question_prompt,
-                    model=model,
-                    stream=False,
-                    max_tokens=256,
-                    temperature=0.3,
-                    top_p=1,
-                    presence_penalty=0,
-                    frequency_penalty=0,
-                    response_format={"type": "text"},
-                    extra_body={"top_k": 50, "repetition_penalty": 1, "min_p": 0}
-                )
-                question = (question_resp.choices[0].message.content or "").strip()
-                question = re.sub(r"<think>.*?</think>\s*", "", question, flags=re.DOTALL | re.IGNORECASE)
-                print(f"[DEBUG] Question result: {question[:120]}{'...' if len(question) > 120 else ''}")
-            except Exception as e:
-                print(f"[WARN] Could not generate question: {e!r}")
-                question = ""
-            time.sleep(TIME_DELAY)
-
-            print(f"[DEBUG] Generating summary for block text (length={len(text)}):")
-            summary_prompt = (
-                "Summarize the following text in 2-3 sentences, focusing on the main ideas. "
-                "Keep it brief and concise. Do not include any <think> tags or internal reasoning. /no_think\n\n"
-                f"{text}\n"
-            )
-            try:
-                summary_resp = safe_chat_completion(
-                    client=client,
-                    prompt_text=summary_prompt,
-                    model=model,
-                    stream=False,
-                    max_tokens=256,
-                    temperature=0.3,
-                    top_p=1,
-                    presence_penalty=0,
-                    frequency_penalty=0,
-                    response_format={"type": "text"},
-                    extra_body={"top_k": 50, "repetition_penalty": 1, "min_p": 0}
-                )
-                summary = (summary_resp.choices[0].message.content or "").strip()
-                summary = re.sub(r"<think>.*?</think>\s*", "", summary, flags=re.DOTALL | re.IGNORECASE)
-                print(f"[DEBUG] Summary result: {summary[:120]}{'...' if len(summary) > 120 else ''}")
-            except Exception as e:
-                print(f"[WARN] Could not generate summary: {e!r}")
-                summary = ""
-            time.sleep(TIME_DELAY)
-            return question, summary
-
-        print(f"[DEBUG] Calling summarize_text for block {pointer + 1}–{pointer + corrected_end}")
-        question, summary = summarize_text(block_text, client, MODEL_NAME)
-        semantic_blocks.append(
-            {"start": pointer + 1, "end": pointer + corrected_end, "text": block_text, "question": question, "summary": summary}
-        )
-
-        with open(output_json, "w", encoding="utf-8") as f:
-            json.dump(semantic_blocks, f, ensure_ascii=False, indent=2)
-
-        pointer += corrected_end  # advance to next unprocessed chunk
-
-    print("[INFO] Done.")
-
-    # Always add a datetime-based suffix to the new file name as well
-    new_dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
-    new_base, new_ext = os.path.splitext(output_json)
-    new_base = new_base.replace(' ', '_')
-    new_filename = f"{new_base}_out_{new_dt_str}{new_ext}"
-
-    # Read the output JSON
-    with open(output_json, "r", encoding="utf-8") as f:
-        blocks = json.load(f)
-
-    # Build the new array, filling "input" with the question and "summary" with the summary
-    new_array = [
-        {
-            "input": block.get("question", ""),
-            "summary": block.get("summary", ""),
-            "output": block.get("text", "")
-        }
-        for block in blocks
-    ]
-
-    # Write the new file
-    with open(new_filename, "w", encoding="utf-8") as f:
-        json.dump(new_array, f, ensure_ascii=False, indent=2)
-
-    print(f"[INFO] Created new file: {new_filename}")
+        process_one_file(input_json, output_json, "--resume" in sys.argv)
 
 if __name__ == "__main__":
     main()
