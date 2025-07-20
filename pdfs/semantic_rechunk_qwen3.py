@@ -14,11 +14,14 @@ from transformers import AutoTokenizer
 
 # -------- Settings --------
 MODEL_NAME = "qwen/qwen3-4b-fp8"
-MAX_TOKENS = 12000  # For remote model, as per API
+MAX_TOKENS = 6000  # For remote model, as per API
 WINDOW_SIZE = 20
 TIME_DELAY = 10
 OUTPUT_FILE = "semantic_blocks.json"
 NOVITA_API_URL = "https://api.novita.ai/v3/openai"
+
+# LLM context window size (tokens)
+MAX_CONTEXT = 40960  # Set this to your model's context window
 
 MAX_RETRIES = 3           # how many times to try
 BASE_DELAY  = 8           # s – exponential back‑off base
@@ -37,7 +40,7 @@ def split_text_to_max_tokens(text, max_tokens):
         chunk_tokens = tokens[i:i+max_tokens]
         chunk_text = tokenizer.decode(chunk_tokens)
         splits.append(chunk_text)
-    return splitsError("LLM API kept returning 0 choices (debug written to llm_debug/)")
+    return splits
 
 def build_adaptive_window(
     chunks, pointer, adaptive_window_size, tokenizer, build_boundary_prompt, max_context, reserved_output_tokens
@@ -400,8 +403,9 @@ def main():
         oversized = False
         for idx, chunk in enumerate(all_chunks):
             token_count = len(tokenizer.encode(chunk))
-            if token_count > MAX_TOKENS:
-                print(f"[FATAL] Chunk {idx+1} is too large for LLM ({token_count} tokens > {MAX_TOKENS}). Falling back to llm_rechunk.py.")
+            # MAX_CONTEXT is the LLM's hard limit, MAX_TOKENS is only for output
+            if token_count > (MAX_CONTEXT - MAX_TOKENS):
+                print(f"[FATAL] Chunk {idx+1} is too large for LLM context window ({token_count} tokens > {MAX_CONTEXT - MAX_TOKENS}). Falling back to llm_rechunk.py.")
                 oversized = True
                 break
 
@@ -437,22 +441,52 @@ def main():
                 f.write("[]")
 
         # -------- Main loop ---------------------------------------------------
+        SAFETY_BUFFER = 100  # tokens
+        reserved_output_tokens = MAX_TOKENS + SAFETY_BUFFER
+        adaptive_window_size = WINDOW_SIZE
+
         while pointer < len(all_chunks):
-            cur_window_size = min(WINDOW_SIZE, len(all_chunks) - pointer)
-            window_chunks   = all_chunks[pointer : pointer + cur_window_size]
+            # Dynamically build a window that fits in the context window
+            window_chunks, total_tokens, cur_window_size = build_adaptive_window(
+                all_chunks, pointer, adaptive_window_size, tokenizer, build_boundary_prompt, MAX_CONTEXT, reserved_output_tokens
+            )
+
+            # ---- Adaptive window size logic ----
+            fill_ratio = total_tokens / MAX_CONTEXT if MAX_CONTEXT else 0
+            if fill_ratio < 0.5 and adaptive_window_size < 50:
+                adaptive_window_size += 2
+                print(f"[ADAPT] Prompt fill ratio low ({fill_ratio:.2f}), increasing window size to {adaptive_window_size}")
+            elif fill_ratio > 0.9 and adaptive_window_size > 2:
+                adaptive_window_size = max(2, adaptive_window_size - 2)
+                print(f"[ADAPT] Prompt fill ratio high ({fill_ratio:.2f}), decreasing window size to {adaptive_window_size}")
+            else:
+                print(f"[ADAPT] Prompt fill ratio ok ({fill_ratio:.2f}), keeping window size at {adaptive_window_size}")
 
             # ---- DEBUG PRINTS ----
             print("\n=== BLOCK DEBUG ===")
             print(f"Pointer before: {pointer}")
             print(f"Window size   : {cur_window_size}")
             print(f"Window chunks : {list(range(pointer + 1, pointer + cur_window_size + 1))}")
+            print(f"Prompt tokens : {total_tokens}")
             for idx, chunk in enumerate(window_chunks):
                 preview = chunk[:60].replace('\n', ' ')
                 print(f"  [{pointer + idx + 1}] {preview}{'…' if len(chunk) > 60 else ''}")
             # ---- END DEBUG PRINTS ----
 
+            if not window_chunks:
+                print(f"[FATAL] Could not fit any chunks in context window at pointer {pointer}. Skipping file.")
+                return
+
+            # Now, calculate the actual max tokens for output (in case prompt is close to the limit)
+            available_output_tokens = MAX_CONTEXT - total_tokens
+            # MAX_TOKENS is only for output, never for prompt
+            actual_max_tokens = min(MAX_TOKENS, available_output_tokens)
+            if actual_max_tokens < 128:
+                print(f"[FATAL] Not enough room for output tokens (only {actual_max_tokens} left). Skipping file.")
+                return
+
             end_idx, debug_msg = get_semantic_block_end(
-                window_chunks, client, MODEL_NAME, MAX_TOKENS
+                window_chunks, client, MODEL_NAME, actual_max_tokens
             )
 
             if end_idx is None:
@@ -460,7 +494,8 @@ def main():
                 print(debug_msg)
                 with open(output_json, "w", encoding="utf-8") as f:
                     json.dump(semantic_blocks, f, ensure_ascii=False, indent=2)
-                sys.exit(1)
+                print(f"[ERROR] Skipping file {input_json} due to fatal segmentation error.")
+                return
 
             if end_idx < 1 or end_idx > len(window_chunks):
                 print(f"[ERROR] LLM returned invalid index: {end_idx}. Aborting.")
@@ -499,10 +534,42 @@ def main():
         all_jsons = glob.glob("*.json")
         date_pat = re.compile(r"_\d{14}(\.json)?$")
         to_process = [f for f in all_jsons if not date_pat.search(f)]
-        if not to_process:
-            print("[INFO] No .json files found to process.")
+        # Only process files that do NOT have a corresponding _out_ file (completed job)
+        filtered_to_process = []
+        for f in to_process:
+            input_base, _ = os.path.splitext(os.path.basename(f))
+            # Look for any file with _out_ and the input_base in the name
+            out_pattern = f"{input_base}_out_*.json"
+            out_files = glob.glob(out_pattern)
+            if out_files:
+                # Check if the _out_ file is actually complete
+                out_file = out_files[0]
+                try:
+                    with open(f, "r", encoding="utf-8") as fin:
+                        input_data = json.load(fin)
+                    with open(out_file, "r", encoding="utf-8") as fout:
+                        out_data = json.load(fout)
+                    if len(out_data) == len(input_data):
+                        print(f"[INFO] Skipping {f} (already has complete _out_ file: {out_file})")
+                        continue
+                    else:
+                        print(f"[WARN] _out_ file {out_file} is incomplete ({len(out_data)}/{len(input_data)} records). Will retry.")
+                        # Empty the _out_ file so we can retry
+                        with open(out_file, "w", encoding="utf-8") as fout:
+                            json.dump([], fout)
+                except Exception as e:
+                    print(f"[WARN] Could not check completeness of {out_file}: {e!r}. Will retry.")
+                    # Empty the _out_ file so we can retry
+                    try:
+                        with open(out_file, "w", encoding="utf-8") as fout:
+                            json.dump([], fout)
+                    except Exception as e2:
+                        print(f"[ERROR] Could not empty {out_file}: {e2!r}")
+            filtered_to_process.append(f)
+        if not filtered_to_process:
+            print("[INFO] No .json files found to process (all jobs completed).")
             sys.exit(0)
-        for input_json in to_process:
+        for input_json in filtered_to_process:
             input_base, _ = os.path.splitext(os.path.basename(input_json))
             dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
             output_json = f"{input_base.replace(' ', '_')}_{dt_str}.json"
