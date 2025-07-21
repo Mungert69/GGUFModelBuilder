@@ -290,6 +290,14 @@ def summarize_text(text, client, model):
     time.sleep(TIME_DELAY)
     return question, summary
 
+import re
+
+def sanitize_filename(name):
+    # Replace spaces with underscores, remove special characters except dash, underscore, and dot
+    name = name.replace(" ", "_")
+    name = re.sub(r"[^\w\-.]", "", name)
+    return name
+
 def write_second_json_file(input_json, output_json):
     """
     Reads the semantic_blocks output file and writes a new JSON file
@@ -297,7 +305,8 @@ def write_second_json_file(input_json, output_json):
     """
     new_dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
     new_base, new_ext = os.path.splitext(output_json)
-    new_base = new_base.replace(' ', '_')
+    # Sanitize the base name for the output file
+    new_base = sanitize_filename(new_base)
     new_filename = f"{new_base}_out_{new_dt_str}{new_ext}"
 
     with open(output_json, "r", encoding="utf-8") as f:
