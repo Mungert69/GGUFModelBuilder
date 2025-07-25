@@ -35,38 +35,16 @@ def apply_patch():
     original_dir = os.getcwd()
     try:
         os.chdir(src_dir)
+
         try:
-            print("Attempting system patch from src directory...")
-            run_command(["patch", "-p1", "-i", patch_file])
-            #run_command(["patch", "-p1", "-i", patch_file2])
+            print("Attempting git apply from src directory...")
+            run_command(["git", "apply", "--ignore-space-change", patch_file])
+            #run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
+            print("Applied patches")
             return True
         except RuntimeError as e:
-            print(f"System patch failed: {e}")
-
-            try:
-                print("Attempting git apply from src directory...")
-                run_command(["git", "apply", "--ignore-space-change", patch_file])
-                #run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
-                return True
-            except RuntimeError as e:
-                print(f"Git apply failed: {e}")
-
-                try:
-                    print("Attempting 3-way merge...")
-                    run_command(["git", "apply", "-3", "--ignore-space-change", patch_file])
-                    #run_command(["git", "apply", "-3", "--ignore-space-change", patch_file2])
-                    return True
-                except RuntimeError as e:
-                    print(f"3-way merge failed: {e}")
-
-                    if subprocess.run(["grep", "-q", "if (qs.i_ffn_down < qs.n_ffn_down/8", "llama-quant.cpp"]).returncode == 0:
-                        print("\nPOSSIBLE SOLUTION:")
-                        print("Target code exists but patch won't apply cleanly.")
-                        print("Try regenerating the patch with:")
-                        print(f"cd {llama_cpp_dir} && git diff -U10 -- src/llama-quant.cpp > {patch_file}")
-                    else:
-                        print("\nCRITICAL: Target code has changed upstream.")
-                    return False
+            print(f"Git apply failed: {e}")
+            return False
     finally:
         os.chdir(original_dir)
 
