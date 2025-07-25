@@ -41,7 +41,7 @@ class ModelConverter:
         """
         # Minimum disk space required for conversion (in GB)
         self.MIN_DISK_SPACE_GB = 10
-
+        self.GET_TOP_N_MODELS=100
         # Initialize Redis connection
         REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
         REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
@@ -407,7 +407,7 @@ class ModelConverter:
             print(f"Error checking config.json for {model_id}: {e}")
             return False
 
-    def get_trending_models(self, limit=50):
+    def get_trending_models(self, limit=GET_TOP_N_MODLES):
         """
         Fetch trending models from the Hugging Face API.
 
