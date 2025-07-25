@@ -407,7 +407,7 @@ class ModelConverter:
             print(f"Error checking config.json for {model_id}: {e}")
             return False
 
-    def get_trending_models(self, limit=GET_TOP_N_MODLES):
+    def get_trending_models(self, limit):
         """
         Fetch trending models from the Hugging Face API.
 
@@ -803,7 +803,8 @@ class ModelConverter:
             daemon_mode (bool): If True, pass to convert_model to allow daemon exit on disk space error.
         """
         print("=== [run_conversion_cycle] Fetching trending models from Hugging Face API ===")
-        models = self.get_trending_models()
+        get_n_models=self.GET_TOP_N_MODELS
+        models = self.get_trending_models(get_n_models)
         print(f"=== [run_conversion_cycle] {len(models)} trending models fetched ===")
 
         print("=== [run_conversion_cycle] Updating catalog with new models ===")
