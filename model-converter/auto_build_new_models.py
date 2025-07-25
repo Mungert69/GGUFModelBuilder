@@ -114,7 +114,7 @@ HEADERS = {"Authorization": f"Bearer {GITHUB_TOKEN}"}
 MAX_TOKENS = 8192
 
 # Local model paths
-LOCAL_MODEL_PATH = os.path.expanduser("~/code/models/Qwen3-4B-abliterated-q4_k_m.gguf")
+LOCAL_MODEL_PATH = os.path.expanduser("~/code/models/Qwen3-8B-q6_k_l.gguf")
 GRAMMAR_FILE_PATH = os.path.expanduser("~/code/models/llama.cpp/grammars/json.gbnf")
 
 # Load the JSON grammar
