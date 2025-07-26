@@ -6,7 +6,7 @@ Automates the quantization, chunking, and uploading of GGUF models to Hugging Fa
 Main Features:
 - Loads quantization configurations from JSON.
 - Authenticates with Hugging Face Hub.
-- Downloads or generates .imatrix files for quantization.
+- Downloads or generates imatrix files for quantization.
 - Applies quantization with fallback logic for compatibility.
 - Splits large files into Hugging Face standard chunks.
 - Uploads files and chunks to Hugging Face, creating repos as needed.
@@ -16,7 +16,7 @@ Key Functions:
 - quantize_model: Orchestrates quantization and upload for a model.
 - split_file_standard: Splits large GGUF files into standard-named chunks.
 - upload_large_file: Handles chunked upload for large files.
-- download_imatrix: Downloads or generates .imatrix files for quantization.
+- download_imatrix: Downloads or generates imatrix files for quantization.
 - filter_quant_configs: Filters quantization configs based on model size.
 - update_readme: Updates README.md with quantization and model info.
 
@@ -302,7 +302,7 @@ def filter_quant_configs(base_name, configs):
     return filtered
 
 def build_imatrix_urls(company_name, model_name):
-    """Build possible URLs for the .imatrix file using the company name and model name."""
+    """Build possible URLs for the imatrix file using the company name and model name."""
     company_name_parts = company_name.split("-")
     first_part_company_name_cap = company_name_parts[0].capitalize()
     model_name_parts = model_name.split("-")
@@ -313,22 +313,22 @@ def build_imatrix_urls(company_name, model_name):
     model_name_1 = f"{first_part_company_name_cap}-{model_name_corrected}"
     model_name_2 = f"{company_name}_{model_name}"
     return [
-        f"{IMATRIX_BASE_URL}{model_name}-GGUF/resolve/main/{model_name}.imatrix",
-        f"{IMATRIX_BASE_URL}{model_name_1}-GGUF/resolve/main/{model_name_1}.imatrix",
-        f"{IMATRIX_BASE_URL}{model_name_2}-GGUF/resolve/main/{model_name_2}.imatrix"
+        f"{IMATRIX_BASE_URL}{model_name}-GGUF/resolve/main/{model_name}-imatrix.gguf",
+        f"{IMATRIX_BASE_URL}{model_name_1}-GGUF/resolve/main/{model_name_1}-imatrix.gguf",
+        f"{IMATRIX_BASE_URL}{model_name_2}-GGUF/resolve/main/{model_name_2}-imatrix.gguf"
     ]
 
 def download_imatrix(input_dir, company_name, model_name):
-    """Download or generate the .imatrix file and upload it to Hugging Face Hub."""
+    """Download or generate the imatrix file and upload it to Hugging Face Hub."""
     parent_dir = os.path.abspath(os.path.join(input_dir, os.pardir))  # This properly gets parent
     imatrix_dir = os.path.join(parent_dir, "imatrix-files")
-    imatrix_file_copy = os.path.join(imatrix_dir, f"{model_name}.imatrix")
-    imatrix_file = os.path.join(input_dir, f"{model_name}.imatrix")
+    imatrix_file_copy = os.path.join(imatrix_dir, f"{model_name}-imatrix.gguf")
+    imatrix_file = os.path.join(input_dir, f"{model_name}-imatrix.gguf")
     
     if os.path.exists(imatrix_file_copy):
-        print(f"Found existing .imatrix file in 'imatrix-files' directory: {imatrix_file_copy}")
+        print(f"Found existing imatrix file in 'imatrix-files' directory: {imatrix_file_copy}")
         shutil.copy(imatrix_file_copy, imatrix_file)
-        print(f"Copied .imatrix file to model's folder: {imatrix_file}")
+        print(f"Copied imatrix file to model's folder: {imatrix_file}")
         return imatrix_file
     
     if not os.path.exists(imatrix_file):
@@ -339,7 +339,7 @@ def download_imatrix(input_dir, company_name, model_name):
             try:
                 print(f"Trying: {url}")
                 urllib.request.urlretrieve(url, imatrix_file)
-                print(f"Successfully downloaded .imatrix from {url}")
+                print(f"Successfully downloaded imatrix from {url}")
                 downloaded = True
                 break
             except Exception as e:
