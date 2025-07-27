@@ -563,6 +563,8 @@ class ModelConverter:
                     total_size = self.get_file_sizes(model_id)
                     if total_size > 0:
                         parameters = self.estimate_parameters(total_size)
+                        # Store the estimated parameters in Redis immediately
+                        self.model_catalog.update_model_field(model_id, "parameters", parameters)
 
                 if parameters is None or parameters == 0:
                     print(f"Warning: {model_id} parameters could not be determined, setting to -1")
