@@ -1,0 +1,1403 @@
+{
+  "Qwen/Qwen3-1.7B": {
+    "converted": true
+  },
+  "google/gemma-3-4b-it-qat-q4_0-gguf": {
+    "converted": true
+  },
+  "nvidia/OpenMath-Nemotron-7B": {
+    "converted": true
+  },
+  "5CD-AI/Vintern-1B-v3_5": {
+    "converted": true
+  },
+  "nanonets/Nanonets-OCR-s": {
+    "added": "2025-07-17T18:29:27.784915",
+    "parameters": 1877334486.0,
+    "has_config": true,
+    "converted": true,
+    "attempts": 2,
+    "last_attempt": "2025-07-20T23:32:56.445530",
+    "success_date": "2025-07-21T03:42:04.764298",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "scb10x/typhoon-ocr-7b": {
+    "converted": true
+  },
+  "open-r1/OlympicCoder-7B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-0.5B-Instruct": {
+    "converted": true
+  },
+  "Menlo/Lucy-128k": {
+    "added": "2025-07-19T19:23:30.061592",
+    "parameters": 860296402.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "TheDrummer/Snowpiercer-15B-v1": {
+    "converted": true
+  },
+  "google/gemma-3-12b-it-qat-q4_0-gguf": {
+    "converted": true
+  },
+  "alibaba-pai/DistilQwen2.5-DS3-0324-7B": {
+    "converted": true
+  },
+  "mlabonne/Qwen3-4B-abliterated": {
+    "converted": true
+  },
+  "OpenGVLab/InternVL3-1B": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolLM3-3B": {
+    "added": "2025-07-17T18:29:20.040647",
+    "parameters": 3000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-17T18:29:32.786871",
+    "success_date": "2025-07-17T18:44:45.833282",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Hcompany/Holo1-7B": {
+    "converted": true
+  },
+  "Qwen/Qwen3-8B": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Embedding-8B": {
+    "converted": true
+  },
+  "unsloth/Devstral-Small-2507-GGUF": {
+    "added": "2025-07-17T18:29:31.091023",
+    "parameters": -1,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Qwen/Qwen3-32B": {
+    "converted": true
+  },
+  "microsoft/phi-4": {
+    "converted": true
+  },
+  "XiaomiMiMo/MiMo-VL-7B-RL": {
+    "converted": true
+  },
+  "RekaAI/reka-flash-3.1": {
+    "added": "2025-07-17T18:29:24.859739",
+    "parameters": 10452752740.0,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T15:34:30.600772",
+    "success_date": "2025-07-19T09:35:21.489057",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Qwen/Qwen3-4B": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Embedding-4B": {
+    "converted": true
+  },
+  "openai-community/gpt2": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_3.9B_Unpacked": {
+    "converted": true
+  },
+  "nvidia/Llama-3.1-Nemotron-Nano-4B-v1.1": {
+    "converted": true
+  },
+  "TEN-framework/TEN_Turn_Detection": {
+    "converted": true
+  },
+  "meta-llama/Meta-Llama-3-8B-Instruct": {
+    "converted": true
+  },
+  "bartowski/Qwen2.5-14B-Instruct-1M-GGUF": {
+    "converted": true
+  },
+  "LGAI-EXAONE/EXAONE-Deep-2.4B": {
+    "converted": true
+  },
+  "microsoft/Phi-4-mini-flash-reasoning": {
+    "added": "2025-07-17T18:29:22.111616",
+    "parameters": 1926664214.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T07:07:40.895596",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "allenai/olmOCR-7B-0225-preview": {
+    "converted": true
+  },
+  "ggml-org/SmolVLM-500M-Instruct-GGUF": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.2-1B": {
+    "converted": true
+  },
+  "shuttleai/shuttle-3.5": {
+    "converted": true
+  },
+  "watt-ai/watt-tool-70B": {
+    "converted": true
+  },
+  "chenjoya/LiveCC-7B-Instruct": {
+    "converted": true
+  },
+  "kakaocorp/kanana-1.5-8b-instruct-2505": {
+    "converted": true
+  },
+  "unsloth/Kimi-K2-Instruct-GGUF": {
+    "added": "2025-07-17T18:29:21.623592",
+    "parameters": -1,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": true
+  },
+  "openbmb/MiniCPM4-0.5B": {
+    "converted": true
+  },
+  "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B": {
+    "converted": true
+  },
+  "sychonix/sychonix": {
+    "converted": true
+  },
+  "DMindAI/DMind-1": {
+    "converted": true
+  },
+  "LGAI-EXAONE/EXAONE-4.0-32B": {
+    "added": "2025-07-17T18:29:20.842532",
+    "parameters": 32000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-20T03:29:48.054421",
+    "success_date": "2025-07-21T00:59:17.925998",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "unsloth/GLM-Z1-9B-0414-GGUF": {
+    "converted": true
+  },
+  "google/medgemma-4b-it": {
+    "added": "2025-07-17T18:29:22.559662",
+    "parameters": 4000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-17T19:06:30.270768",
+    "success_date": "2025-07-17T19:26:25.669875",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Tongyi-Zhiwen/QwenLong-L1-32B": {
+    "converted": true
+  },
+  "mlabonne/Qwen3-8B-abliterated": {
+    "converted": true
+  },
+  "fancyfeast/llama-joycaption-beta-one-hf-llava": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-14B-Instruct": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.2-3B-Instruct": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.1-8B": {
+    "converted": true
+  },
+  "meta-llama/Llama-Guard-3-8B": {
+    "converted": true
+  },
+  "andrewzh/Absolute_Zero_Reasoner-Coder-3b": {
+    "converted": true
+  },
+  "fla-hub/rwkv7-1.5B-world": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolLM2-135M-Instruct": {
+    "converted": true
+  },
+  "google/gemma-3n-E4B-it": {
+    "added": "2025-07-17T18:29:25.251538",
+    "parameters": 4000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T07:14:09.165655",
+    "success_date": "2025-07-21T12:22:26.181906",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B": {
+    "converted": true
+  },
+  "nvidia/parakeet-tdt-0.6b-v2": {
+    "added": "2025-07-17T18:29:31.271846",
+    "parameters": 600000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:42:46.181011",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Intelligent-Internet/II-Medical-8B": {
+    "converted": true
+  },
+  "microsoft/Phi-4-mini-reasoning": {
+    "converted": true
+  },
+  "SicariusSicariiStuff/X-Ray_Alpha": {
+    "converted": true
+  },
+  "hexgrad/Kokoro-82M": {
+    "added": "2025-07-17T18:29:25.599448",
+    "parameters": 82000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T12:22:28.409965",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Llama-8B": {
+    "converted": true
+  },
+  "mistralai/Mistral-7B-Instruct-v0.1": {
+    "converted": true
+  },
+  "SWE-bench/SWE-agent-LM-32B": {
+    "converted": true
+  },
+  "nvidia/Llama-3.1-Nemotron-Nano-8B-v1": {
+    "converted": true
+  },
+  "katanemo/Arch-Agent-7B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-72B-Instruct": {
+    "converted": true
+  },
+  "MrDragonFox/mOrpheus_3B-1Base_early_preview-v1-8600": {
+    "converted": true
+  },
+  "nvidia/Eagle2-2B": {
+    "converted": true
+  },
+  "osmosis-ai/osmosis-mcp-4b": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-2b-instruct": {
+    "converted": true
+  },
+  "allenai/OLMo-2-0425-1B": {
+    "converted": true
+  },
+  "PocketDoc/Dans-PersonalityEngine-V1.3.0-24b": {
+    "converted": true
+  },
+  "microsoft/Magma-8B": {
+    "converted": true
+  },
+  "PLM-Team/PLM-1.8B-Instruct": {
+    "converted": true
+  },
+  "andrewzh/Absolute_Zero_Reasoner-Coder-7b": {
+    "converted": true
+  },
+  "Gryphe/Pantheon-Proto-RP-1.8-30B-A3B": {
+    "converted": true
+  },
+  "arcee-ai/GLM-4-32B-Base-32K": {
+    "converted": true
+  },
+  "microsoft/Phi-4-reasoning": {
+    "converted": true
+  },
+  "Skywork/Skywork-VL-Reward-7B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-1b-a400m-instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.2-2b-instruct": {
+    "converted": true
+  },
+  "google/gemma-3-27b-it": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_1.5B_Unpacked": {
+    "converted": true
+  },
+  "nvidia/AceReason-Nemotron-14B": {
+    "converted": true
+  },
+  "Qwen/Qwen3-0.6B": {
+    "converted": true
+  },
+  "OpenGVLab/InternVL3-8B": {
+    "converted": true
+  },
+  "ibm-granite/granite-8b-code-base-4k": {
+    "converted": true
+  },
+  "KurmaAI/AQUA-7B": {
+    "converted": true
+  },
+  "dreamgen/lucid-v1-nemo": {
+    "converted": true
+  },
+  "naver-hyperclovax/HyperCLOVAX-SEED-Text-Instruct-0.5B": {
+    "converted": true
+  },
+  "2p8xx/Foundation-Sec-8B-Instruct": {
+    "converted": true
+  },
+  "mradermacher/Josiefied-Qwen3-8B-abliterated-v1-GGUF": {
+    "converted": true
+  },
+  "mistralai/Mistral-7B-Instruct-v0.3": {
+    "added": "2025-07-17T18:29:32.776769",
+    "parameters": 7000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-20T11:51:32.193692",
+    "success_date": "2025-07-20T17:57:25.907260",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "cognition-ai/Kevin-32B": {
+    "converted": true
+  },
+  "THU-KEG/LongWriter-Zero-32B": {
+    "converted": true
+  },
+  "microsoft/NextCoder-14B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-VL-3B-Instruct": {
+    "converted": true
+  },
+  "LGAI-EXAONE/EXAONE-4.0-1.2B": {
+    "added": "2025-07-17T18:29:25.042147",
+    "parameters": 1200000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 2,
+    "last_attempt": "2025-07-20T18:19:29.538473",
+    "success_date": "2025-07-20T19:05:45.703016",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/Llama3-ChatQA-2-8B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-1.5B-Instruct": {
+    "converted": true
+  },
+  "microsoft/NextCoder-7B": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Reranker-0.6B": {
+    "converted": true
+  },
+  "mradermacher/SkyCaptioner-V1-GGUF": {
+    "converted": true
+  },
+  "nvidia/AceMath-1.5B-Instruct": {
+    "converted": true
+  },
+  "Zyphra/ZR1-1.5B": {
+    "converted": true
+  },
+  "microsoft/phi-2": {
+    "converted": true
+  },
+  "osmosis-ai/Osmosis-Structure-0.6B": {
+    "converted": true
+  },
+  "nvidia/Nemotron-Mini-4B-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-guardian-3.0-2b": {
+    "converted": true
+  },
+  "Qwen/QwQ-32B": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_560M_Unpacked": {
+    "converted": true
+  },
+  "katanemo/Arch-Router-1.5B": {
+    "converted": true
+  },
+  "mlabonne/Qwen3-0.6B-abliterated-GGUF": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.1-70B-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-guardian-3.0-8b": {
+    "converted": true
+  },
+  "deepcogito/cogito-v1-preview-llama-8B": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.3-70B-Instruct": {
+    "converted": true
+  },
+  "nvidia/OpenCodeReasoning-Nemotron-32B": {
+    "converted": true
+  },
+  "ds4sd/SmolDocling-256M-preview": {
+    "converted": true
+  },
+  "open-thoughts/OpenThinker3-7B": {
+    "converted": true
+  },
+  "Menlo/Jan-nano": {
+    "converted": true
+  },
+  "THUDM/SWE-Dev-32B": {
+    "converted": true
+  },
+  "dphn/Dolphin-Mistral-24B-Venice-Edition": {
+    "added": "2025-07-17T18:29:30.710122",
+    "parameters": 24000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-21T00:59:24.824885",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "Qwen/Qwen3-30B-A3B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-VL-72B-Instruct": {
+    "converted": true
+  },
+  "BAAI/RoboBrain2.0-7B": {
+    "converted": true
+  },
+  "THUDM/SWE-Dev-7B": {
+    "converted": true
+  },
+  "FractalAIResearch/Fathom-R1-14B": {
+    "converted": true
+  },
+  "fdtn-ai/Foundation-Sec-8B": {
+    "converted": true
+  },
+  "google/medgemma-27b-it": {
+    "added": "2025-07-17T18:29:22.385792",
+    "parameters": 27000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-21T00:59:20.099669",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "mistralai/Mistral-7B-Instruct-v0.2": {
+    "converted": true
+  },
+  "nvidia/OpenMath-Nemotron-14B": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolLM2-1.7B-Instruct": {
+    "converted": true
+  },
+  "mistralai/Magistral-Small-2506": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.1-8B-Instruct": {
+    "added": "2025-07-17T18:29:26.198432",
+    "parameters": 8000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:41:24.026719",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Reranker-8B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-3B-Instruct-GGUF": {
+    "converted": true
+  },
+  "nvidia/AceMath-RL-Nemotron-7B": {
+    "converted": true
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Llama-70B": {
+    "converted": true
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B": {
+    "converted": true
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B": {
+    "converted": true
+  },
+  "nvidia/OpenCodeReasoning-Nemotron-7B": {
+    "converted": true
+  },
+  "THUDM/GLM-Z1-Rumination-32B-0414": {
+    "converted": true
+  },
+  "google/gemma-3-4b-it": {
+    "converted": true
+  },
+  "nvidia/Llama-3.1-Minitron-4B-Depth-Base": {
+    "converted": true
+  },
+  "ibm-granite/granite-8b-code-instruct-4k": {
+    "converted": true
+  },
+  "RWKV/RWKV7-Goose-World3-2.9B-HF": {
+    "converted": true
+  },
+  "microsoft/Phi-3-mini-4k-instruct": {
+    "converted": true
+  },
+  "apple/DiffuCoder-7B-Instruct": {
+    "converted": true
+  },
+  "baidu/ERNIE-4.5-0.3B-PT": {
+    "converted": true
+  },
+  "ServiceNow-AI/Apriel-Nemotron-15b-Thinker": {
+    "converted": true
+  },
+  "ByteDance-Seed/UI-TARS-1.5-7B": {
+    "converted": true
+  },
+  "mlabonne/Qwen3-1.7B-abliterated": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-VL-7B-Instruct": {
+    "converted": true
+  },
+  "Salesforce/Llama-xLAM-2-8b-fc-r": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.Edu.seed2": {
+    "converted": true
+  },
+  "mistralai/Voxtral-Small-24B-2507": {
+    "added": "2025-07-19T19:23:21.980923",
+    "parameters": 24000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "reducto/RolmOCR": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-8b-lora-intrinsics-v0.1": {
+    "converted": true
+  },
+  "nvidia/AceInstruct-1.5B": {
+    "converted": true
+  },
+  "all-hands/openhands-lm-32b-v0.1": {
+    "converted": true
+  },
+  "nvidia/OpenMath-Nemotron-32B": {
+    "converted": true
+  },
+  "ByteDance-Seed/Seed-Coder-8B-Reasoning": {
+    "converted": true
+  },
+  "canopylabs/orpheus-3b-0.1-ft": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-2b-instruct": {
+    "converted": true
+  },
+  "nvidia/audio-flamingo-3": {
+    "added": "2025-07-17T18:29:29.295450",
+    "parameters": -1,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "SpectraSuite/TriLM_390M_Unpacked": {
+    "converted": true
+  },
+  "nvidia/Llama-3.1-Minitron-4B-Width-Base": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-Omni-3B": {
+    "converted": true
+  },
+  "MrDragonFox/mOrpheus_3B-1Base_early_preview": {
+    "converted": true
+  },
+  "meta-llama/Llama-3.2-1B-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-8b-instruct": {
+    "converted": true
+  },
+  "google/gemma-3-1b-it": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-1b-a400m-base": {
+    "converted": true
+  },
+  "Salesforce/xLAM-2-3b-fc-r": {
+    "converted": true
+  },
+  "LiquidAI/LFM2-1.2B": {
+    "added": "2025-07-17T18:29:21.022373",
+    "parameters": 1200000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T06:51:05.792232",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/OpenMath-CodeLlama-7b-Python-hf": {
+    "converted": true
+  },
+  "skt/A.X-4.0-Light": {
+    "converted": true
+  },
+  "ibm-granite/granite-3b-code-instruct-2k": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-1b-a400m-base": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_GneissWeb.seed3": {
+    "converted": true
+  },
+  "mistralai/Mistral-Small-3.2-24B-Instruct-2506": {
+    "added": "2025-07-18T02:19:12.594937",
+    "parameters": 24000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "ibm-granite/granite-3.1-3b-a800m-instruct": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Reranker-4B": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolLM3-3B-Base": {
+    "converted": true
+  },
+  "XiaomiMiMo/MiMo-VL-7B-SFT": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_GneissWeb.seed1": {
+    "converted": true
+  },
+  "nvidia/AceMath-7B-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_GneissWeb.seed2": {
+    "converted": true
+  },
+  "ibm-granite/granite-3b-code-base-2k": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.2-8b-instruct-preview": {
+    "converted": true
+  },
+  "DMindAI/DMind-1-mini": {
+    "converted": true
+  },
+  "ByteDance-Seed/Seed-X-Instruct-7B": {
+    "added": "2025-07-19T19:23:27.658886",
+    "parameters": 7000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "google/gemma-3-12b-it": {
+    "converted": true
+  },
+  "THU-KEG/Mistral-Crab-DPO": {
+    "converted": true
+  },
+  "nvidia/Nemotron-Research-Reasoning-Qwen-1.5B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-3b-a800m-base": {
+    "converted": true
+  },
+  "deepcogito/cogito-v1-preview-llama-3B": {
+    "converted": true
+  },
+  "nvidia/Eagle2-1B": {
+    "converted": true
+  },
+  "unsloth/ERNIE-4.5-21B-A3B-PT-GGUF": {
+    "converted": true
+  },
+  "SmerkyG/rwkv7-0.4B-world": {
+    "converted": true
+  },
+  "maya-research/Veena": {
+    "converted": true
+  },
+  "nvidia/Eagle2-9B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-3b-a800m-base": {
+    "converted": true
+  },
+  "skt/A.X-3.1-Light": {
+    "added": "2025-07-17T18:29:32.624534",
+    "parameters": 3632408850.0,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-20T01:48:08.749366",
+    "success_date": "2025-07-20T11:51:32.142224",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "open-r1/OlympicCoder-32B": {
+    "converted": true
+  },
+  "meta-llama/Llama-2-7b-chat-hf": {
+    "converted": true
+  },
+  "google/medgemma-4b-pt": {
+    "converted": true
+  },
+  "apple/DiffuCoder-7B-cpGRPO": {
+    "added": "2025-07-17T18:29:31.697051",
+    "parameters": 7000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-19T19:33:07.522041",
+    "success_date": "2025-07-20T01:48:07.570045",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "google/gemma-3n-E2B-it": {
+    "converted": true
+  },
+  "moonshotai/Kimi-VL-A3B-Thinking-2506": {
+    "added": "2025-07-17T18:29:25.922636",
+    "parameters": 3000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T12:23:16.161214",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": true
+  },
+  "Alibaba-NLP/WebSailor-3B": {
+    "added": "2025-07-17T18:29:26.830394",
+    "parameters": 3000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 2,
+    "last_attempt": "2025-07-20T19:29:06.738591",
+    "success_date": "2025-07-20T23:21:34.147538",
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "baidu/ERNIE-4.5-21B-A3B-PT": {
+    "converted": true,
+    "added": "2025-07-18T13:56:25.478420",
+    "parameters": 21000000000,
+    "has_config": true,
+    "attempts": 2,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": true,
+    "last_attempt": "2025-07-18T23:31:34.621342",
+    "success_date": "2025-07-19T12:05:39.970952"
+  },
+  "andrewzh/Absolute_Zero_Reasoner-Coder-14b": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-8b-instruct": {
+    "converted": true
+  },
+  "mistralai/Devstral-Small-2505": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-2b-base": {
+    "converted": true
+  },
+  "microsoft/Phi-4-reasoning-plus": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-Omni-7B": {
+    "converted": true
+  },
+  "agentica-org/DeepCoder-1.5B-Preview": {
+    "converted": true
+  },
+  "agentica-org/DeepCoder-14B-Preview": {
+    "converted": true
+  },
+  "Menlo/Jan-nano-128k": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.Edu.seed3": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_99M_Unpacked": {
+    "converted": true
+  },
+  "nvidia/Cosmos-Reason1-7B": {
+    "converted": true
+  },
+  "LGAI-EXAONE/EXAONE-Deep-7.8B": {
+    "converted": true
+  },
+  "lingshu-medical-mllm/Lingshu-32B": {
+    "converted": true
+  },
+  "alibaba-pai/DistilQwen2.5-DS3-0324-14B": {
+    "converted": true
+  },
+  "fla-hub/rwkv7-2.9B-world": {
+    "converted": true
+  },
+  "allenai/OLMo-2-0325-32B-Instruct": {
+    "converted": true
+  },
+  "Qwen/Qwen3-Embedding-0.6B": {
+    "added": "2025-07-17T18:29:29.859396",
+    "parameters": 600000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:42:29.847858",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/canary-qwen-2.5b": {
+    "added": "2025-07-17T18:29:28.555514",
+    "parameters": 2500000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:20:12.815201",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "LiquidAI/LFM2-350M": {
+    "added": "2025-07-17T18:29:28.283844",
+    "parameters": 350000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:19:38.728821",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "CEIA-UFG/Gemma-3-Gaia-PT-BR-4b-it": {
+    "converted": true
+  },
+  "nvidia/AceInstruct-7B": {
+    "converted": true
+  },
+  "nvidia/AceReason-Nemotron-7B": {
+    "converted": true
+  },
+  "openbmb/MiniCPM4-8B": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolLM2-360M-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-8b-base": {
+    "converted": true
+  },
+  "katanemo/Arch-Agent-32B": {
+    "converted": true
+  },
+  "Skywork/Skywork-SWE-32B": {
+    "converted": true
+  },
+  "THUDM/GLM-Z1-32B-0414": {
+    "converted": true
+  },
+  "OuteAI/OuteTTS-1.0-0.6B": {
+    "converted": true
+  },
+  "Salesforce/xLAM-2-32b-fc-r": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-7B-Instruct": {
+    "converted": true
+  },
+  "PKU-DS-LAB/FairyR1-32B": {
+    "converted": true
+  },
+  "NousResearch/DeepHermes-3-Llama-3-8B-Preview": {
+    "converted": true
+  },
+  "twinkle-ai/Llama-3.2-3B-F1-Reasoning-Instruct": {
+    "converted": true
+  },
+  "MetaStoneTec/MetaStone-L1-7B": {
+    "converted": true
+  },
+  "meetkai/functionary-v4r-small-preview": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-2b-base": {
+    "converted": true
+  },
+  "THUDM/GLM-4-32B-0414": {
+    "converted": true
+  },
+  "ibm-granite/granite-7b-instruct": {
+    "converted": true
+  },
+  "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B": {
+    "converted": true
+  },
+  "google/gemma-3-27b-it-qat-q4_0-gguf": {
+    "converted": true
+  },
+  "all-hands/openhands-lm-7b-v0.1": {
+    "converted": true
+  },
+  "Qwen/Qwen3-14B": {
+    "converted": true
+  },
+  "nvidia/OpenCodeReasoning-Nemotron-14B": {
+    "converted": true
+  },
+  "nvidia/OpenMath-CodeLlama-13b-Python-hf": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.seed1": {
+    "converted": true
+  },
+  "t-tech/T-pro-it-2.0-eagle": {
+    "added": "2025-07-18T06:19:38.590822",
+    "parameters": 254285058.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "ArliAI/QwQ-32B-ArliAI-RpR-v4": {
+    "converted": true
+  },
+  "LatitudeGames/Harbinger-24B": {
+    "converted": true
+  },
+  "Hcompany/Holo1-3B": {
+    "converted": true
+  },
+  "K-intelligence/Midm-2.0-Base-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.3-8b-instruct": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_1.1B_Unpacked": {
+    "converted": true
+  },
+  "deepcogito/cogito-v1-preview-llama-70B": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_190M_Unpacked": {
+    "converted": true
+  },
+  "nvidia/Minitron-4B-Base": {
+    "converted": true
+  },
+  "sentence-transformers/all-MiniLM-L6-v2": {
+    "added": "2025-07-17T18:29:30.351602",
+    "parameters": 22717094.0,
+    "has_config": true,
+    "converted": true,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:42:34.890182",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "google/medgemma-27b-text-it": {
+    "converted": true
+  },
+  "mlabonne/Qwen3-14B-abliterated": {
+    "converted": true
+  },
+  "facebook/KernelLLM": {
+    "converted": true
+  },
+  "Intelligent-Internet/II-Medical-8B-1706": {
+    "converted": true
+  },
+  "mistralai/Devstral-Small-2507": {
+    "added": "2025-07-17T18:29:20.589622",
+    "parameters": 23572423724.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-20T02:24:12.363070",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "THUDM/GLM-4.1V-9B-Thinking": {
+    "added": "2025-07-17T18:29:21.200909",
+    "parameters": 9000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T06:53:09.163811",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "SpectraSuite/TriLM_830M_Unpacked": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.Edu.seed1": {
+    "converted": true
+  },
+  "openai/whisper-large-v3": {
+    "added": "2025-07-17T18:29:27.278430",
+    "parameters": 2315310762.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 3,
+    "last_attempt": "2025-07-21T12:46:21.988724",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/Llama3-ChatQA-1.5-8B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.1-8b-base": {
+    "converted": true
+  },
+  "meta-llama/Meta-Llama-3-8B": {
+    "converted": true
+  },
+  "nvidia/AceReason-Nemotron-1.1-7B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-1b-a400m-instruct": {
+    "converted": true
+  },
+  "nvidia/OpenMath-Mistral-7B-v0.1-hf": {
+    "converted": true
+  },
+  "ibm-granite/granite-8b-code-base-128k": {
+    "converted": true
+  },
+  "watt-ai/watt-tool-8B": {
+    "converted": true
+  },
+  "nomic-ai/nomic-embed-code": {
+    "converted": true
+  },
+  "LGAI-EXAONE/EXAONE-Deep-32B": {
+    "converted": true
+  },
+  "ByteDance-Seed/Seed-X-PPO-7B": {
+    "added": "2025-07-19T19:23:28.213494",
+    "parameters": 7000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "ibm-granite/granite-20b-code-base-8k": {
+    "converted": true
+  },
+  "mistralai/Mistral-Small-3.1-24B-Instruct-2503": {
+    "converted": true
+  },
+  "refactai/Refact-1_6B-fim": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolVLM-256M-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-20b-code-base-r1.1": {
+    "converted": true
+  },
+  "Tesslate/UIGEN-T2-7B": {
+    "converted": true
+  },
+  "nvidia/Llama-3_3-Nemotron-Super-49B-v1": {
+    "converted": true
+  },
+  "google/medsiglip-448": {
+    "added": "2025-07-17T18:29:32.118614",
+    "parameters": 878327496.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 2,
+    "last_attempt": "2025-07-21T06:50:59.665172",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "arcee-ai/Homunculus": {
+    "converted": true
+  },
+  "fla-hub/rwkv7-191M-world": {
+    "converted": true
+  },
+  "MrDragonFox/mOrpheus_3B-1Base_early_preview-v1-25000": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.seed2": {
+    "converted": true
+  },
+  "nvidia/Nemotron-4-Mini-Hindi-4B-Instruct": {
+    "converted": true
+  },
+  "preemware/Prox-MistralHermes-7B": {
+    "converted": true
+  },
+  "SpectraSuite/TriLM_2.4B_Unpacked": {
+    "converted": true
+  },
+  "ibm-granite/granite-20b-functioncalling": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-3b-a800m-instruct": {
+    "converted": true
+  },
+  "DavidAU/Qwen3-30B-A1.5B-High-Speed": {
+    "converted": true
+  },
+  "sarvamai/sarvam-translate": {
+    "converted": true
+  },
+  "POLARIS-Project/Polaris-7B-Preview": {
+    "converted": true
+  },
+  "t-tech/T-pro-it-2.0": {
+    "added": "2025-07-18T05:19:32.396434",
+    "parameters": 16379709980.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "ibm-granite/granite-3.3-2b-base": {
+    "converted": true
+  },
+  "kalomaze/Qwen3-16B-A3B": {
+    "converted": true
+  },
+  "HuggingFaceTB/SmolVLM-Instruct": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-VL-32B-Instruct": {
+    "converted": true
+  },
+  "ibm-granite/granite-7b-base": {
+    "converted": true
+  },
+  "POLARIS-Project/Polaris-4B-Preview": {
+    "converted": true
+  },
+  "nvidia/OpenMath-Nemotron-1.5B": {
+    "converted": true
+  },
+  "mixedbread-ai/mxbai-rerank-large-v2": {
+    "converted": true
+  },
+  "jinaai/jina-embeddings-v4": {
+    "added": "2025-07-17T18:29:29.659935",
+    "parameters": 1877465658.0,
+    "has_config": true,
+    "converted": false,
+    "attempts": 1,
+    "last_attempt": "2025-07-18T06:23:34.920408",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "nvidia/OpenMath-Nemotron-14B-Kaggle": {
+    "converted": true
+  },
+  "alibaba-pai/DistilQwen2.5-DS3-0324-32B": {
+    "converted": true
+  },
+  "nvidia/OpenMath2-Llama3.1-8B": {
+    "converted": true
+  },
+  "Qwen/Qwen2.5-7B-Instruct-1M": {
+    "converted": true
+  },
+  "ibm-granite/granite-20b-code-instruct-8k": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.3-8b-base": {
+    "converted": true
+  },
+  "a-m-team/AM-Thinking-v1": {
+    "converted": true
+  },
+  "katanemo/Arch-Agent-3B": {
+    "converted": true
+  },
+  "DavidAU/Qwen3-30B-A6B-16-Extreme": {
+    "converted": true
+  },
+  "microsoft/Phi-4-mini-instruct": {
+    "converted": true
+  },
+  "nvidia/Nemotron-4-Mini-Hindi-4B-Base": {
+    "converted": true
+  },
+  "katanemo/Arch-Agent-1.5B": {
+    "converted": true
+  },
+  "ibm-granite/granite-3.0-8b-lora-intrinsics-v0.1": {
+    "converted": true
+  },
+  "ibm-granite/GneissWeb.7B_ablation_model_on_350B_FineWeb.seed3": {
+    "converted": true
+  },
+  "ChatDOC/OCRFlux-3B": {
+    "added": "2025-07-17T18:29:27.954525",
+    "parameters": 3000000000,
+    "has_config": true,
+    "converted": true,
+    "attempts": 2,
+    "last_attempt": "2025-07-21T03:42:04.864910",
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "mistralai/Voxtral-Mini-3B-2507": {
+    "added": "2025-07-19T19:23:21.801768",
+    "parameters": 3000000000,
+    "has_config": true,
+    "converted": false,
+    "attempts": 0,
+    "last_attempt": null,
+    "success_date": null,
+    "error_log": [],
+    "quantizations": [],
+    "is_moe": false
+  },
+  "sarvamai/sarvam-m": {
+    "converted": true
+  }
+}

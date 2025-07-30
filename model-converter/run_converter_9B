@@ -1,2 +1,2 @@
-source venv/bin/activate
+source ../venv/bin/activate
 nohup python3 model_converter.py --daemon --max_parameters 10000000000  &
