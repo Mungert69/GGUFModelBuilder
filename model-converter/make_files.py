@@ -376,11 +376,11 @@ def download_imatrix(input_dir, company_name, model_name):
     return imatrix_file
 
 def create_repo_if_not_exists(repo_id, api_token):
-    """Check if the repository exists, and create it if it doesn't."""
+    """Check if the repository exists, and create it if it doesn't (as private)."""
     api = HfApi()
     try:
-        api.create_repo(repo_id, exist_ok=True, token=api_token)
-        print(f"Repository {repo_id} is ready.")
+        api.create_repo(repo_id, exist_ok=True, private=True, token=api_token)
+        print(f"Repository {repo_id} is ready (private).")
         return True
     except Exception as e:
         print(f"Error creating repository: {e}")
@@ -595,8 +595,15 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     try:
         print("\n📝 Updating README.md...")
         update_readme(input_dir, base_name, add_iquant_txt=has_iq1_iq2_files)
-        readme_path=os.path.join(output_dir,"README.md")
-        upload_large_file(readme_path,repo_id,"readme")
+        readme_path = os.path.join(output_dir, "README.md")
+        upload_large_file(readme_path, repo_id, "readme")
+        # If everything succeeded, set repo to public
+        try:
+            print(f"Setting repository {repo_id} to public...")
+            api.update_repo_visibility(repo_id=repo_id, private=False, token=api_token)
+            print(f"Repository {repo_id} is now public.")
+        except Exception as e:
+            print(f"⚠ Failed to set repository public: {e}")
     except Exception as e:
         print(f"⚠ Failed to update README: {e}")
 
