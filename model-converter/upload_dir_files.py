@@ -25,6 +25,9 @@ def get_quant_name(filename):
     return None
 
 def main():
+    # Load username from file
+    with open(os.path.join(os.path.dirname(__file__), "username"), "r") as f:
+        HF_USERNAME = f.read().strip()
     # Authentication (same as before)
     load_dotenv()
     try:
@@ -42,9 +45,11 @@ def main():
 
     # Repo creation
     api = HfApi()
+    # Replace Mungert with HF_USERNAME in repo_id if present
+    repo_id = args.repo_id.replace("Mungert", HF_USERNAME)
     try:
-        api.create_repo(args.repo_id, exist_ok=True, token=api_token)
-        print(f"Repository {args.repo_id} is ready.")
+        api.create_repo(repo_id, exist_ok=True, token=api_token)
+        print(f"Repository {repo_id} is ready.")
     except Exception as e:
         print(f"Error creating repository: {e}")
         exit()
@@ -57,7 +62,7 @@ def main():
             api.upload_file(
                 path_or_fileobj=readme_path,
                 path_in_repo="README.md",
-                repo_id=args.repo_id,
+                repo_id=repo_id,
                 token=api_token,
             )
             print("Uploaded README.md successfully.")
@@ -76,7 +81,7 @@ def main():
         print(f"\n⬆ Uploading {filename}...")
         
         try:
-            if upload_large_file(file_path, args.repo_id, quant_name):
+            if upload_large_file(file_path, repo_id, quant_name):
                 try:
                     os.remove(file_path)
                     print(f"Deleted {filename} after successful upload")

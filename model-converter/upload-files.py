@@ -82,8 +82,11 @@ def main():
     parser.add_argument("model_name", help="Base model name (e.g. watt-tool-70b)")
     args = parser.parse_args()
 
+    # Load username from file
+    with open(os.path.join(os.path.dirname(__file__), "username"), "r") as f:
+        HF_USERNAME = f.read().strip()
     model_base = args.model_name
-    repo_id = f"Mungert/{model_base}-GGUF"
+    repo_id = f"{HF_USERNAME}/{model_base}-GGUF"
     upload_dir = os.path.join(base_dir, model_base)
     hf_cache_dir = os.path.expanduser("~/.cache/huggingface/hub/")
 
