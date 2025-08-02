@@ -78,8 +78,11 @@ def update_readme(repo_id, require_confirmation=True, exclude_text=None):
         return False, 0
     
 def main():
+    # Load username from file
+    with open(os.path.join(os.path.dirname(__file__), "model-converter/username"), "r") as f:
+        HF_USERNAME = f.read().strip()
     # List all model repositories (converting generator to list)
-    repos = list(api.list_models(author="Mungert"))
+    repos = list(api.list_models(author=HF_USERNAME))
     print(f"Found {len(repos)} repositories to check")
 
     # Set the text you want to exclude here

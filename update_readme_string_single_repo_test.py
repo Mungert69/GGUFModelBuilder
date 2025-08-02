@@ -93,13 +93,14 @@ def update_readme(repo_id):
         return False
 
 def main():
+  # Load username from file
+    with open(os.path.join(os.path.dirname(__file__), "model-converter/username"), "r") as f:
+        HF_USERNAME = f.read().strip()
     # Test with one specific repository
-    test_repo = "Mungert/EXAONE-Deep-7.8B-GGUF"
-    
+    test_repo = f"{HF_USERNAME}/EXAONE-Deep-7.8B-GGUF"
+
     print(f"TEST MODE: Only processing {test_repo}")
     update_readme(test_repo)
-    
-    print("\nTest complete. Check the repository on huggingface.co to verify the changes.")
 
 if __name__ == "__main__":
     main()

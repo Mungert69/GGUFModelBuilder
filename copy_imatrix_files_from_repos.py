@@ -9,7 +9,9 @@ HF_TOKEN = os.getenv("HF_API_TOKEN")
 
 # Configuration
 TARGET_DIR = "/home/mahadeva/code/models/imatrix-files"
-REPO_OWNER = "Mungert"  # Your username/organization
+# Load username from file
+with open(os.path.join(os.path.dirname(__file__), "model-converter/username"), "r") as f:
+    REPO_OWNER = f.read().strip()
 FILE_EXTENSION = ".imatrix"
 
 def ensure_target_dir():

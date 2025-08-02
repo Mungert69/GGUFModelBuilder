@@ -177,9 +177,13 @@ def load_overrides_from_file(file_path: Path) -> dict[str, MetadataDetails]:
     return overrides
 
 def set_custom_metadata() -> dict[str, MetadataDetails]:
+    # Load username from file
+    username_path = os.path.join(os.path.dirname(__file__), "username")
+    with open(username_path, "r") as f:
+        HF_USERNAME = f.read().strip()
     return {
-        "general.quantized_by": MetadataDetails(gguf.GGUFValueType.STRING, "Mungert"),
-        "general.repo_url": MetadataDetails(gguf.GGUFValueType.STRING, "https://huggingface.co/mungert"),
+        "general.quantized_by": MetadataDetails(gguf.GGUFValueType.STRING, HF_USERNAME),
+        "general.repo_url": MetadataDetails(gguf.GGUFValueType.STRING, f"https://huggingface.co/{HF_USERNAME.lower()}"),
         "general.sponsor_url": MetadataDetails(gguf.GGUFValueType.STRING, "https://readyforquantum.com")
     }
 

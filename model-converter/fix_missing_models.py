@@ -146,7 +146,8 @@ def write_models_to_redis(model_ids):
 
 if __name__ == "__main__":
     # Set your author here
-    author = "Mungert"
+    with open(os.path.join(os.path.dirname(__file__), "username"), "r") as f:
+        author = f.read().strip()
     mapping = map_author_models_to_originals(author)
     print("Author model -> Original model mapping:")
     for k, v in mapping.items():

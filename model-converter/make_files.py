@@ -38,6 +38,9 @@ Author: Mungert
 
 import sys
 import os
+# Load username from file
+with open(os.path.join(os.path.dirname(__file__), "username"), "r") as f:
+    HF_USERNAME = f.read().strip()
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 print("sys.path:", sys.path)
 print("Parent dir contents:", os.listdir(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
@@ -479,7 +482,7 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
         catalog.set_quant_progress(f"{company_name}/{base_name}", "imatrix")
 
     imatrix_file = download_imatrix(input_dir, company_name, base_name)
-    repo_id = f"Mungert/{base_name}-GGUF"
+    repo_id = f"{HF_USERNAME}/{base_name}-GGUF"
 
     # Validate BF16 model exists
     if not os.path.exists(bf16_model_file):
