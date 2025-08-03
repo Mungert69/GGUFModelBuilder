@@ -177,11 +177,14 @@ def load_overrides_from_file(file_path: Path) -> dict[str, MetadataDetails]:
     return overrides
 
 def set_custom_metadata() -> dict[str, MetadataDetails]:
-    # Load username from file in the same directory as the script, regardless of where the script is run from
-    script_dir = os.path.abspath(os.path.dirname(__file__))
-    username_path = os.path.join(script_dir, "username")
+    # Load username from file in the current working directory (where the script is run from)
+    username_path = os.path.join(os.getcwd(), "username")
+    if not os.path.isfile(username_path):
+        raise FileNotFoundError(f"Username file not found at {username_path}. Directory contents: {os.listdir(os.getcwd())}")
     with open(username_path, "r") as f:
         HF_USERNAME = f.read().strip()
+    if not HF_USERNAME:
+        raise ValueError(f"Username file at {username_path} is empty.")
     return {
         "general.quantized_by": MetadataDetails(gguf.GGUFValueType.STRING, HF_USERNAME),
         "general.repo_url": MetadataDetails(gguf.GGUFValueType.STRING, f"https://huggingface.co/{HF_USERNAME.lower()}"),
