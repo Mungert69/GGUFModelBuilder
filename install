@@ -3,3 +3,4 @@ python3 -m venv venv
 source venv/bin/activate
 pip install  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet python-dotenv
 python3 install_dependencies.py 
+pip install -U "gguf @ git+https://github.com/ggerganov/llama.cpp#subdirectory=gguf-py"
