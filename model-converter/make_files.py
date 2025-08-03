@@ -382,7 +382,7 @@ def create_repo_if_not_exists(repo_id, api_token):
     """Check if the repository exists, and create it if it doesn't (as private)."""
     api = HfApi()
     try:
-        api.create_repo(repo_id, exist_ok=True, private=True, token=api_token)
+        api.create_repo(repo_id, exist_ok=True, private=False, token=api_token)
         print(f"Repository {repo_id} is ready (private).")
         return True
     except Exception as e:
