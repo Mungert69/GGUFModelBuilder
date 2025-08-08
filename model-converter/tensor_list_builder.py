@@ -254,7 +254,10 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
     for name, current_quant in current_quants.items():
         # Skip changing quant type for mxfp4
         if "mxfp4" in str(current_quant).lower():
+            print(f"[DEBUG] Preserving mxfp4 quantization for tensor: {name} (current_quant={current_quant})")
+            # quant_suggestions.append((name, current_quant, "Preserve mxfp4 quantization"))
             continue
+
         # Extract layer order
         layer_order = extract_layer_order(name)
         
