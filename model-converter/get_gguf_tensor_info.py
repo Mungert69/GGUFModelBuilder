@@ -19,7 +19,13 @@ def main():
         with open(args.output, "w") as f:
             for tensor in reader.tensors:
                 clean_name = clean_tensor_name(tensor.name)
-                f.write(f"{clean_name}={tensor.tensor_type.name}\n")
+                raw_value = tensor.tensor_type
+                try:
+                    quant_type = tensor.tensor_type.name
+                except Exception:
+                    quant_type = "UNKNOWN"
+                print(f"{clean_name}: quant_type={quant_type}, raw_value={raw_value}")
+                f.write(f"{clean_name}={quant_type} ({raw_value})\n")
         print(f"Quantization data written to: {args.output}")
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
