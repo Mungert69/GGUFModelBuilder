@@ -645,7 +645,7 @@ class ModelConverter:
                 except Exception as e:
                     print(f"❌ Failed to clear cache for {model_id}: {e}")
 
-    def convert_model(self, model_id, is_moe, daemon_mode=False):
+    def convert_model(self, model_id, is_moe, daemon_mode=False, nocheck=False, mxfp4=False):
         """
         Run the conversion pipeline for a given model using the run_script function.
 
@@ -653,34 +653,41 @@ class ModelConverter:
             model_id (str): The Hugging Face model ID.
             is_moe (bool): Whether the model is a Mixture of Experts (MoE).
             daemon_mode (bool): If True, exit the process if disk space is insufficient after cleanup.
+            nocheck (bool): If True, bypass running/max attempts/disk space checks.
+            mxfp4 (bool): If True, convert to MXFP4 GGUF instead of BF16.
         """
-        print(f"Begin convert_model for {model_id}.")
+        print(f"Begin convert_model for {model_id}. nocheck={nocheck}, mxfp4={mxfp4}")
         success = False  # Ensure success is always defined
-        # Lock check: prevent duplicate conversions
-        if self.model_catalog.is_converting(model_id):
-            if self.model_catalog.is_failed(model_id):
-                print(f"Resuming failed conversion for {model_id}.")
-            else:
-                print(f"Model {model_id} is already being converted by another process. Skipping.")
-                return
+
+        # Lock check: prevent duplicate conversions, unless nocheck is set
+        if not nocheck:
+            if self.model_catalog.is_converting(model_id):
+                if self.model_catalog.is_failed(model_id):
+                    print(f"Resuming failed conversion for {model_id}.")
+                else:
+                    print(f"Model {model_id} is already being converted by another process. Skipping.")
+                    return
 
         # Pre-checks before marking as converting
         model_data = self.model_catalog.get_model(model_id)
         if not model_data:
             print(f"Model {model_id} not found in catalog")
             return
-        # Prevent conversion if max attempts reached
-        if int(model_data.get("attempts", 0)) >= self.MAX_ATTEMPTS:
+
+        # Prevent conversion if max attempts reached, unless nocheck is set
+        if not nocheck and int(model_data.get("attempts", 0)) >= self.MAX_ATTEMPTS:
             self.model_catalog.unmark_converting(model_id)
-            print(f"Model {model_id} has reached the maximum number of attempts ({self.MAX_ATTEMPTS}). Skipping and marking as not coverting.")
+            print(f"Model {model_id} has reached the maximum number of attempts ({self.MAX_ATTEMPTS}). Skipping and marking as not converting.")
             return
+
         required_gb = self.calculate_required_space(model_id)
         if not required_gb:
             print(f"❌ Cannot determine space requirements for {model_id}")
-            return
+            if not nocheck:
+                return
 
-        # Check space with model-specific requirements
-        if not self.can_fit_model(model_id):
+        # Check space with model-specific requirements, unless nocheck is set
+        if not nocheck and not self.can_fit_model(model_id):
             print(f"🚨 Insufficient space for {model_id} (needs {required_gb:.1f}GB)")
 
             # Try targeted cleanup first
@@ -720,23 +727,29 @@ class ModelConverter:
         try:
             print(f"Converting {model_id}...")
             self.model_catalog.mark_converting(model_id)
-            # Check for existing BF16 file before running download_convert.py
+            # Check for existing output file before running download_convert.py
             company_name, base_name = model_id.split("/", 1)
-            bf16_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-bf16.gguf")
-            if os.path.exists(bf16_path):
-                print(f"BF16 file already exists at {bf16_path}, skipping download/convert step.")
+            if mxfp4:
+                output_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-mxfp4.gguf")
+            else:
+                output_path = os.path.join(os.path.expanduser("~/code/models"), base_name, f"{base_name}-bf16.gguf")
+            if os.path.exists(output_path):
+                print(f"Output file already exists at {output_path}, skipping download/convert step.")
                 success = True
             else:
-                # Download and convert to BF16
-                if not self.run_script("download_convert.py", [model_id]):
+                # Download and convert to BF16 or MXFP4
+                convert_args = [model_id]
+                if mxfp4:
+                    convert_args.append("--mxfp4")
+                if not self.run_script("download_convert.py", convert_args):
                     print("Script download_convert.py failed.")
                     success = False
 
-            # Check if BF16 was created or already exists
-            if success and os.path.exists(bf16_path):
-               print(f"BF16 file created will now start quantiztion...")
+            # Check if output file was created or already exists
+            if success and os.path.exists(output_path):
+               print(f"{output_path} file created will now start quantiztion...")
             else:
-                print(f"BF16 file not found for {model_id}, will mark as failed and clean up cache/model dir only after max attempts.")
+                print(f"{output_path} file not found for {model_id}, will mark as failed and clean up cache/model dir only after max attempts.")
                 # Do NOT clean up cache/model dir here; defer to finally block after max attempts
                 success = False
             # Always unmark converting at the end unless quant_progress is set (see finally)
@@ -894,6 +907,8 @@ if __name__ == "__main__":
     group.add_argument("--daemon", action="store_true", help="Run as continuous service")
     group.add_argument("--single", metavar="MODEL_NAME", help="Process a specific model (format: company/model_name)")
     parser.add_argument("--max_parameters", type=float, default=None, help="Maximum number of parameters to process (default: 33e9)")
+    parser.add_argument("--nocheck", action="store_true", help="Bypass model running/max attempts/disk space checks")
+    parser.add_argument("--mxfp4", action="store_true", help="Convert to MXFP4 GGUF instead of BF16")
     args = parser.parse_args()
 
     converter = ModelConverter()
@@ -910,4 +925,4 @@ if __name__ == "__main__":
         else:
             # Fallback: check config for MoE if not found in catalog
             is_moe = converter.check_moe_from_config(model_id)
-        converter.convert_model(model_id, is_moe)
+        converter.convert_model(model_id, is_moe, nocheck=args.nocheck, mxfp4=args.mxfp4)

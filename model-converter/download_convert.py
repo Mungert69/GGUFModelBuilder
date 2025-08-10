@@ -57,22 +57,29 @@ except Exception as e:
     exit(1)  # Explicitly indicate failure
 
 # Parse arguments
-parser = argparse.ArgumentParser(description="Download HF model and convert to BF16 GGUF")
+parser = argparse.ArgumentParser(description="Download HF model and convert to GGUF format")
 parser.add_argument("repo_id", help="Hugging Face repository ID (e.g., google/gemma-3-1b-it)")
+parser.add_argument("--mxfp4", action="store_true", help="Convert to MXFP4 GGUF instead of BF16")
+parser.add_argument("--no-cleanup", action="store_true", help="Do not clean up cache directory after conversion")
 args = parser.parse_args()
 
 repo_id = args.repo_id
 llama_dir = os.path.expanduser("~/code/models/llama.cpp")
 
-# Define the final BF16 file path
+# Define the final output file path
 company_name, model_name = repo_id.split("/", 1)
-output_dir = os.path.join(base_dir,model_name)
+output_dir = os.path.join(base_dir, model_name)
 os.makedirs(output_dir, exist_ok=True)
-bf16_output_file = os.path.join(output_dir, f"{model_name}-bf16.gguf")
+if args.mxfp4:
+    output_file = os.path.join(output_dir, f"{model_name}-mxfp4.gguf")
+    outtype = "mxfp4"
+else:
+    output_file = os.path.join(output_dir, f"{model_name}-bf16.gguf")
+    outtype = "bf16"
 
-# Check if the final BF16 file already exists
-if os.path.exists(bf16_output_file):
-    print(f"BF16 file already exists at {bf16_output_file}. Exiting.")
+# Check if the final output file already exists
+if os.path.exists(output_file):
+    print(f"Output file already exists at {output_file}. Exiting.")
     exit(0)  # Success, no need to proceed further
 
 # List all files in the repository
@@ -117,36 +124,37 @@ for file_name in files:
             exit(1)  # Explicitly indicate failure
 
 # Identify main model file
-bf16_model_path = None
+existing_model_path = None
 for file_path in downloaded_files:
-    if file_path.endswith(".gguf") and "bf16" in file_path:
-        bf16_model_path = f"{output_dir}/{file_path}"
+    if file_path.endswith(".gguf") and outtype in file_path:
+        existing_model_path = f"{output_dir}/{file_path}"
         break
 
-if not bf16_model_path:
-    print("No BF16-compatible model file found, converting...")
+if not existing_model_path:
+    print(f"No {outtype.upper()}-compatible model file found, converting...")
     model_snapshot_dir = os.path.dirname(downloaded_files[0])
-    
+
     # Update the path to the convert_hf_to_gguf.py script
     convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
-    
+
     convert_command = [
         "python3", convert_script_path,
         model_snapshot_dir,
-        "--outfile", bf16_output_file,
+        "--outfile", output_file,
         "--model-name", model_name,
-        "--outtype", "bf16"
+        "--outtype", outtype
     ]
-    
+
     print("\nRunning conversion:", " ".join(convert_command))
     result = subprocess.run(convert_command, capture_output=True, text=True)
-    
+
     if result.returncode == 0:
-        print(f"Successfully created BF16 GGUF: {bf16_output_file}")
+        print(f"Successfully created {outtype.upper()} GGUF: {output_file}")
     else:
         print("Error during conversion:")
         print(result.stderr)
         exit(1)  # Explicitly indicate failure
+
 
 def convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model_name):
     """
@@ -177,8 +185,8 @@ def convert_to_mmproj(convert_script_path, model_snapshot_dir, output_dir, model
 # Add metadata using the imported function
 metadata_failed = False
 try:
-    print("\nAdding metadata to the BF16 GGUF file...")
-    add_metadata(bf16_output_file)  # Convert string to Path object
+    print(f"\nAdding metadata to the {outtype.upper()} GGUF file...")
+    add_metadata(output_file)  # Convert string to Path object
 except Exception as e:
     print(f"Failed to add metadata: {e}")
     metadata_failed = True
@@ -189,14 +197,17 @@ try:
 except Exception as e:
     print(f"Unexpected error during mmproj conversions: {e}")
 
-# Delete the cache directory to save disk space after conversion
-try:
-    if model_snapshot_dir and os.path.exists(model_snapshot_dir):
-        print(f"Cleaning up cache directory: {model_snapshot_dir}")
-        shutil.rmtree(model_snapshot_dir)  # Delete the entire directory and its contents
-        print(f"Cache directory {model_snapshot_dir} deleted successfully.")
-except Exception as e:
-    print(f"Error while deleting the cache directory: {e}")
+# Delete the cache directory to save disk space after conversion (unless --no-cleanup is set)
+if not args.no_cleanup:
+    try:
+        if model_snapshot_dir and os.path.exists(model_snapshot_dir):
+            print(f"Cleaning up cache directory: {model_snapshot_dir}")
+            shutil.rmtree(model_snapshot_dir)  # Delete the entire directory and its contents
+            print(f"Cache directory {model_snapshot_dir} deleted successfully.")
+    except Exception as e:
+        print(f"Error while deleting the cache directory: {e}")
+else:
+    print("Skipping cache directory cleanup due to --no-cleanup flag.")
 
 if metadata_failed:
     print("Script completed with errors during metadata addition.")
