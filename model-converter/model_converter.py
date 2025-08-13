@@ -41,7 +41,7 @@ class ModelConverter:
         """
         # Minimum disk space required for conversion (in GB)
         self.MIN_DISK_SPACE_GB = 10
-        self.GET_TOP_N_MODELS=100
+        self.GET_TOP_N_MODELS=50
         # Initialize Redis connection
         REDIS_HOST = os.getenv("REDIS_HOST", "redis.readyforquantum.com")
         REDIS_PORT = int(os.getenv("REDIS_PORT", "46379"))
