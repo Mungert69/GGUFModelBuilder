@@ -1,6 +1,36 @@
-sudo apt install python3.11-venv
+#!/bin/bash
+
+# Exit immediately if any command fails
+set -e
+
+# Check if python3-venv is installed
+if ! python3 -c "import venv" &> /dev/null; then
+    echo "[INFO] python3-venv is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y python3-venv
+else
+    echo "[INFO] python3-venv is already installed."
+fi
+
+# Step 1: Create a virtual environment using system default python3
+echo "[1/5] Creating virtual environment..."
 python3 -m venv venv
+
+# Step 2: Activate the virtual environment
+echo "[2/5] Activating virtual environment..."
 source venv/bin/activate
-pip install  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet python-dotenv
-python3 install_dependencies.py 
-pip install -U "gguf @ git+https://github.com/ggerganov/llama.cpp#subdirectory=gguf-py"
+
+# Step 3: Upgrade pip
+echo "[3/5] Upgrading pip..."
+pip install --upgrade pip
+
+# Step 4: Install required Python packages
+echo "[4/5] Installing dependencies..."
+pip install python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet
+
+# Step 5: Run your install_dependencies.py script
+echo "[5/5] Running install_dependencies.py..."
+python install_dependencies.py
+
+echo "✅ Setup complete."
+
