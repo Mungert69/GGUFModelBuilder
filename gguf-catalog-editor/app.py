@@ -438,9 +438,19 @@ def import_models():
         if file.filename.endswith('.json'):
             try:
                 data = json.load(file)
-                models = data.get('models', [])
-                result = catalog.import_models_from_list(models)
-                flash(f"Imported {result['added']} new models, updated {result['updated']}", "success")
+                # Accept both {"models": [...]} and {id: {...}, ...} formats
+                if isinstance(data, dict) and "models" in data and isinstance(data["models"], list):
+                    models = data["models"]
+                elif isinstance(data, dict):
+                    # If dict of model_id: {metadata}, use keys as model IDs
+                    models = list(data.keys())
+                else:
+                    models = []
+                if not models:
+                    flash("No models found in the file!", "warning")
+                else:
+                    result = catalog.import_models_from_list(models)
+                    flash(f"Imported {result['added']} new models, updated {result['updated']}", "success")
             except Exception as e:
                 flash(f"Error processing file: {e}", "danger")
         else:
