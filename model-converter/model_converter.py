@@ -90,6 +90,24 @@ class ModelConverter:
             "agentica-org"
         ]
     
+    def parse_params_from_name(self, model_id):
+        """
+        Try to extract parameter count from model name, e.g. "Hunyuan-1.8B-Instruct" -> 1_800_000_000
+        Returns int or None.
+        """
+        import re
+        # Look for patterns like 1.8B, 7B, 13B, 70M, etc.
+        base = model_id.split("/")[-1]
+        match = re.search(r'(\d+(?:\.\d+)?)([BM])', base, re.IGNORECASE)
+        if match:
+            num = float(match.group(1))
+            mult = match.group(2).upper()
+            if mult == "B":
+                return int(num * 1e9)
+            elif mult == "M":
+                return int(num * 1e6)
+        return None
+
     def calculate_required_space(self, model_id):
         """
         Calculate required disk space in GB for conversion of a given model.
@@ -103,20 +121,26 @@ class ModelConverter:
         model_data = self.model_catalog.get_model(model_id)
         if not model_data:
             return 0
-        
+
         params = model_data.get("parameters", 0)
         try:
             params = float(params)
         except (ValueError, TypeError):
             params = 0
         if params <= 0:
+            # Try to parse from model name
+            params = self.parse_params_from_name(model_id) or 0
+            if params > 0:
+                # Save back to catalog for future use
+                self.model_catalog.update_model_field(model_id, "parameters", params)
+        if params <= 0:
             return 0
-        
+
         # Calculate space for 3 copies (original BF16 + working copy + split files)
         bytes_needed = params * self.BYTES_PER_PARAM * 3
         gb_needed = (bytes_needed / (1024**3)) * self.SAFETY_FACTOR
         return max(gb_needed, self.MIN_DISK_SPACE_GB)
-    
+  
     def can_fit_model(self, model_id):
         """
         Check if there is enough disk space to fit the model and its conversion artifacts.
