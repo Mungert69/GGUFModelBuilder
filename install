@@ -1,116 +1,99 @@
 #!/usr/bin/env bash
-# Universal installer (uses whatever `python3` is available)
-# Adds a top-level switch for llama-cpp-python build mode (cpu|cuda)
+set -euo pipefail
 
-set -Eeuo pipefail
+# Defaults
+VENV_DIR="venv"
+LLAMA_DIR_FROM_FLAG=""
+NONINTERACTIVE=0
 
-log() { printf "%s\n" "$*" >&2; }
-have() { command -v "$1" >/dev/null 2>&1; }
+usage() {
+  cat <<'USAGE'
+Usage: ./install.sh [--llama-dir /path/to/llama.cpp] [--venv venv] [--yes]
+  --llama-dir   Path to your local llama.cpp checkout (will be saved to .env)
+  --venv        Virtualenv directory name (default: venv)
+  --yes         Non-interactive; skip prompts and apt confirmations
+USAGE
+}
 
-trap 'log "❌ Install failed at line $LINENO."' ERR
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --llama-dir) LLAMA_DIR_FROM_FLAG="$2"; shift 2;;
+    --venv) VENV_DIR="$2"; shift 2;;
+    --yes|-y) NONINTERACTIVE=1; shift;;
+    -h|--help) usage; exit 0;;
+    *) echo "Unknown arg: $1"; usage; exit 1;;
+  esac
+done
 
-# ---------------- config: llama build mode ----------------
-LLAMA_MODE="${1:-cpu}"   # default is cpu, override with `./install cuda`
-case "$LLAMA_MODE" in
-  cpu)
-    export CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DLLAMA_CUBLAS=OFF"
-    log "[CONFIG] llama-cpp-python build mode: CPU"
-    ;;
-  cuda|gpu)
-    export CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DLLAMA_CUBLAS=ON"
-    log "[CONFIG] llama-cpp-python build mode: CUDA"
-    ;;
-  *)
-    log "[ERROR] invalid mode '$LLAMA_MODE'. use: cpu | cuda"
-    exit 1
-    ;;
-esac
-
-# ---------------- detect python3 ----------------
-if ! have python3; then
-  log "[ERROR] python3 not found on PATH."
-  exit 1
-fi
-
-PY=python3
-PYVER="$($PY -c 'import sys; print(".".join(map(str,sys.version_info[:2])))')"
-log "[INFO] Using python${PYVER} at: $($PY -c 'import sys,shutil; print(shutil.which(sys.executable) or sys.executable)')"
-
-# ---------------- system deps ----------------
-if have apt; then
-  log "[INFO] Installing system packages (build tools, BLAS, audio libs)..."
-  sudo apt update
-  sudo apt install -y \
-    "${PY}-venv" "${PY}-dev" \
-    build-essential cmake ninja-build pkg-config \
-    libopenblas-dev \
-    espeak libsndfile1 ffmpeg || {
-      sudo apt install -y python3-venv python3-dev \
-        build-essential cmake ninja-build pkg-config \
-        libopenblas-dev espeak libsndfile1 ffmpeg
-    }
-elif have brew; then
-  log "[INFO] Detected Homebrew. Installing build & audio dependencies..."
-  brew install cmake ninja pkg-config openblas espeak ffmpeg
-else
-  log "[WARN] No apt/brew detected. Please ensure build deps are installed manually."
-fi
-
-# ---------------- ensure venv ----------------
-if ! $PY -c "import venv" >/dev/null 2>&1; then
-  log "[ERROR] The 'venv' module is missing for python${PYVER}. install ${PY}-venv and retry."
-  exit 1
-fi
-
-# ---------------- create venv ----------------
-log "[1/5] Creating virtual environment with ${PY}..."
-$PY -m venv venv
-log "[2/5] Activating virtual environment..."
-# shellcheck source=/dev/null
-source venv/bin/activate
-PYVENV="$(python -c 'import sys; print(sys.executable)')"
-
-# ---------------- upgrade build toolchain in venv ----------------
-log "[3/5] Upgrading pip/setuptools/wheel + cmake/scikit-build-core..."
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install --upgrade cmake scikit-build-core
-
-# ---------------- fix CC/CXX if broken ----------------
-if [[ -n "${CC:-}" && ! $(command -v "${CC}") ]]; then
-  log "[INFO] CC (${CC}) not found. resetting to gcc."
-  export CC=gcc
-fi
-if [[ -n "${CXX:-}" && ! $(command -v "${CXX}") ]]; then
-  log "[INFO] CXX (${CXX}) not found. resetting to g++."
-  export CXX=g++
-fi
-
-# ---------------- install python deps ----------------
-log "[4/5] Installing dependencies..."
-BASE_PKGS=(python-dotenv huggingface_hub gguf redis hf_xet)
-
-if ! python -m pip install --only-binary=:all: "${BASE_PKGS[@]}"; then
-  log "[INFO] Some wheels unavailable; retrying without wheel restriction..."
-  python -m pip install "${BASE_PKGS[@]}"
-fi
-
-# llama-cpp-python (wheel if available; otherwise build from source with CMAKE_ARGS)
-if ! python -m pip install --only-binary=:all: llama-cpp-python; then
-  log "[INFO] No wheel available; building llama-cpp-python from source (${LLAMA_MODE} mode)."
-  python -m pip install llama-cpp-python
-fi
-
-# ---------------- run your project installer ----------------
-if [[ -z "${INSTALL_MODE:-}" ]]; then
-  if [[ "$LLAMA_MODE" == "cuda" ]]; then
-    export INSTALL_MODE=gpu
+if ! python3 -c "import venv" &>/dev/null; then
+  echo "[INFO] python3-venv is not installed. Installing..."
+  if [[ $NONINTERACTIVE -eq 1 ]]; then
+    sudo apt update -y && sudo apt install -y python3-venv
   else
-    export INSTALL_MODE=cpu
+    sudo apt update && sudo apt install -y python3-venv
+  fi
+else
+  echo "[INFO] python3-venv is already installed."
+fi
+
+echo "[1/7] Creating virtual environment at '$VENV_DIR'..."
+python3 -m venv "$VENV_DIR"
+
+echo "[2/7] Activating virtual environment..."
+# shellcheck disable=SC1090
+source "$VENV_DIR/bin/activate"
+
+echo "[3/7] Upgrading pip..."
+python -m pip install --upgrade pip setuptools wheel
+
+echo "[4/7] Installing base Python deps for your project..."
+python -m pip install \
+  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet
+
+echo "[5/7] Installing system deps for audio (optional, used by your installer)..."
+if [[ $NONINTERACTIVE -eq 1 ]]; then
+  sudo apt-get update -y && sudo apt-get install -y espeak libsndfile1 ffmpeg
+else
+  sudo apt-get update && sudo apt-get install -y espeak libsndfile1 ffmpeg
+fi
+
+# Resolve llama.cpp dir (prompt only if not provided)
+if [[ -z "$LLAMA_DIR_FROM_FLAG" ]]; then
+  if [[ $NONINTERACTIVE -eq 1 ]]; then
+    echo "[WARN] --llama-dir not provided in non-interactive mode; skipping llama.cpp requirements."
+  else
+    read -rp "[INPUT] Path to your llama.cpp repo (or leave blank to skip): " LLAMA_DIR_FROM_FLAG
   fi
 fi
 
-log "[5/5] Running install_dependencies.py (INSTALL_MODE=${INSTALL_MODE})..."
-python install_dependencies.py
+LLAMA_DIR_TRIMMED="${LLAMA_DIR_FROM_FLAG%/}"
+if [[ -n "${LLAMA_DIR_TRIMMED}" ]]; then
+  if [[ ! -d "$LLAMA_DIR_TRIMMED" ]]; then
+    echo "[ERROR] llama.cpp dir not found: $LLAMA_DIR_TRIMMED"
+    exit 1
+  fi
+  CONVERT_REQ="$LLAMA_DIR_TRIMMED/requirements/requirements-convert-hf-to-gguf.txt"
+  echo "[6/7] Installing llama.cpp converter requirements..."
+  if [[ -f "$CONVERT_REQ" ]]; then
+    python -m pip install -r "$CONVERT_REQ"
+  else
+    echo "[WARN] $CONVERT_REQ not found; installing minimal fallback deps..."
+    # minimal set used by converter across recent commits
+    python -m pip install mistral_common sentencepiece tiktoken safetensors
+  fi
 
-log "✅ Setup complete. (python ${PYVER} in venv at $(dirname "$PYVENV"))"
+  # persist to .env so other scripts can find it
+  echo "[INFO] Writing LLAMA_CPP_DIR to .env"
+  touch .env
+  grep -q '^LLAMA_CPP_DIR=' .env && sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env || echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
+else
+  echo "[INFO] Skipping llama.cpp requirements (no directory provided)."
+fi
+
+echo "[7/7] Running install_dependencies.py (your original step)..."
+python install_dependencies.py <<EOF
+1
+EOF
+
+echo "✅ Setup complete."
 
