@@ -7,6 +7,8 @@ import platform
 import argparse
 import importlib.util
 import sysconfig
+from dotenv import load_dotenv
+from pathlib import Path
 
 # ---- requirements (no stdlib modules here) ----
 common_requirements = [
@@ -26,6 +28,25 @@ common_requirements = [
     "ftfy",
     "sentencepiece",
 ]
+# add at top with others:
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+def verify_llama_dir():
+    load_dotenv()
+    llama_dir = os.getenv("LLAMA_CPP_DIR")
+    if not llama_dir:
+        print("[WARN] LLAMA_CPP_DIR not set (.env). You can set it to your llama.cpp path.")
+        return None
+    p = Path(llama_dir)
+    conv = p / "convert_hf_to_gguf.py"
+    if not conv.exists():
+        print(f"[WARN] convert_hf_to_gguf.py not found in {p}. Check LLAMA_CPP_DIR.")
+    else:
+        print(f"[INFO] Found llama.cpp converter at: {conv}")
+    return str(p)
+
 
 def run(cmd: str) -> None:
     try:
@@ -98,6 +119,8 @@ def main() -> None:
     print("Detecting operating system...")
     os_type = platform.system()
     print(f"Operating system detected: {os_type}")
+
+    llama_dir = verify_llama_dir()
 
     install_system_dependencies()
 
