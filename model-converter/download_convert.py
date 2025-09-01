@@ -82,9 +82,23 @@ if os.path.exists(output_file):
     print(f"Output file already exists at {output_file}. Exiting.")
     exit(0)  # Success, no need to proceed further
 
+import time
+
+def retry(func, max_attempts=3, delay=2, *args, **kwargs):
+    for attempt in range(max_attempts):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            print(f"Attempt {attempt+1} failed: {e}")
+            if attempt < max_attempts - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                raise
+
 # List all files in the repository
 try:
-    files = list_repo_files(repo_id=repo_id)
+    files = retry(lambda: list_repo_files(repo_id=repo_id))
     print(f"Files found in repository '{repo_id}': {files}")
 except Exception as e:
     print(f"Failed to list files in repository '{repo_id}': {e}")
@@ -96,7 +110,7 @@ try:
     for file_name in files:
         print(f"Downloading {file_name}...")
         try:
-            file_path = hf_hub_download(repo_id=repo_id, filename=file_name, token=api_token)
+            file_path = retry(lambda: hf_hub_download(repo_id=repo_id, filename=file_name, token=api_token))
             downloaded_files.append(file_path)
             print(f"Downloaded {file_name} to {file_path}")
         except Exception as e:
