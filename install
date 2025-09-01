@@ -1,36 +1,116 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Universal installer (uses whatever `python3` is available)
+# Adds a top-level switch for llama-cpp-python build mode (cpu|cuda)
 
-# Exit immediately if any command fails
-set -e
+set -Eeuo pipefail
 
-# Check if python3-venv is installed
-if ! python3 -c "import venv" &> /dev/null; then
-    echo "[INFO] python3-venv is not installed. Installing..."
-    sudo apt update
-    sudo apt install -y python3-venv
-else
-    echo "[INFO] python3-venv is already installed."
+log() { printf "%s\n" "$*" >&2; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+trap 'log "❌ Install failed at line $LINENO."' ERR
+
+# ---------------- config: llama build mode ----------------
+LLAMA_MODE="${1:-cpu}"   # default is cpu, override with `./install cuda`
+case "$LLAMA_MODE" in
+  cpu)
+    export CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DLLAMA_CUBLAS=OFF"
+    log "[CONFIG] llama-cpp-python build mode: CPU"
+    ;;
+  cuda|gpu)
+    export CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS -DLLAMA_CUBLAS=ON"
+    log "[CONFIG] llama-cpp-python build mode: CUDA"
+    ;;
+  *)
+    log "[ERROR] invalid mode '$LLAMA_MODE'. use: cpu | cuda"
+    exit 1
+    ;;
+esac
+
+# ---------------- detect python3 ----------------
+if ! have python3; then
+  log "[ERROR] python3 not found on PATH."
+  exit 1
 fi
 
-# Step 1: Create a virtual environment using system default python3
-echo "[1/5] Creating virtual environment..."
-python3 -m venv venv
+PY=python3
+PYVER="$($PY -c 'import sys; print(".".join(map(str,sys.version_info[:2])))')"
+log "[INFO] Using python${PYVER} at: $($PY -c 'import sys,shutil; print(shutil.which(sys.executable) or sys.executable)')"
 
-# Step 2: Activate the virtual environment
-echo "[2/5] Activating virtual environment..."
+# ---------------- system deps ----------------
+if have apt; then
+  log "[INFO] Installing system packages (build tools, BLAS, audio libs)..."
+  sudo apt update
+  sudo apt install -y \
+    "${PY}-venv" "${PY}-dev" \
+    build-essential cmake ninja-build pkg-config \
+    libopenblas-dev \
+    espeak libsndfile1 ffmpeg || {
+      sudo apt install -y python3-venv python3-dev \
+        build-essential cmake ninja-build pkg-config \
+        libopenblas-dev espeak libsndfile1 ffmpeg
+    }
+elif have brew; then
+  log "[INFO] Detected Homebrew. Installing build & audio dependencies..."
+  brew install cmake ninja pkg-config openblas espeak ffmpeg
+else
+  log "[WARN] No apt/brew detected. Please ensure build deps are installed manually."
+fi
+
+# ---------------- ensure venv ----------------
+if ! $PY -c "import venv" >/dev/null 2>&1; then
+  log "[ERROR] The 'venv' module is missing for python${PYVER}. install ${PY}-venv and retry."
+  exit 1
+fi
+
+# ---------------- create venv ----------------
+log "[1/5] Creating virtual environment with ${PY}..."
+$PY -m venv venv
+log "[2/5] Activating virtual environment..."
+# shellcheck source=/dev/null
 source venv/bin/activate
+PYVENV="$(python -c 'import sys; print(sys.executable)')"
 
-# Step 3: Upgrade pip
-echo "[3/5] Upgrading pip..."
-pip install --upgrade pip
+# ---------------- upgrade build toolchain in venv ----------------
+log "[3/5] Upgrading pip/setuptools/wheel + cmake/scikit-build-core..."
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install --upgrade cmake scikit-build-core
 
-# Step 4: Install required Python packages
-echo "[4/5] Installing dependencies..."
-pip install python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet
+# ---------------- fix CC/CXX if broken ----------------
+if [[ -n "${CC:-}" && ! $(command -v "${CC}") ]]; then
+  log "[INFO] CC (${CC}) not found. resetting to gcc."
+  export CC=gcc
+fi
+if [[ -n "${CXX:-}" && ! $(command -v "${CXX}") ]]; then
+  log "[INFO] CXX (${CXX}) not found. resetting to g++."
+  export CXX=g++
+fi
 
-# Step 5: Run your install_dependencies.py script
-echo "[5/5] Running install_dependencies.py..."
+# ---------------- install python deps ----------------
+log "[4/5] Installing dependencies..."
+BASE_PKGS=(python-dotenv huggingface_hub gguf redis hf_xet)
+
+if ! python -m pip install --only-binary=:all: "${BASE_PKGS[@]}"; then
+  log "[INFO] Some wheels unavailable; retrying without wheel restriction..."
+  python -m pip install "${BASE_PKGS[@]}"
+fi
+
+# llama-cpp-python (wheel if available; otherwise build from source with CMAKE_ARGS)
+if ! python -m pip install --only-binary=:all: llama-cpp-python; then
+  log "[INFO] No wheel available; building llama-cpp-python from source (${LLAMA_MODE} mode)."
+  python -m pip install llama-cpp-python
+fi
+
+# ---------------- run your project installer ----------------
+if [[ -z "${INSTALL_MODE:-}" ]]; then
+  if [[ "$LLAMA_MODE" == "cuda" ]]; then
+    export INSTALL_MODE=gpu
+  else
+    export INSTALL_MODE=cpu
+  fi
+fi
+
+log "[5/5] Running install_dependencies.py (INSTALL_MODE=${INSTALL_MODE})..."
 python install_dependencies.py
 
-echo "✅ Setup complete."
+log "✅ Setup complete. (python ${PYVER} in venv at $(dirname "$PYVENV"))"
 
