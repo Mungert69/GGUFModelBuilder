@@ -576,9 +576,28 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
             # Update quant progress in Redis after each successful quant
             catalog.set_quant_progress(f"{company_name}/{base_name}", suffix)
             print(f"[DEBUG] Set quant progress: model_id={company_name}/{base_name}, quant={suffix}")
+
+            # Update quantizations field in the model catalog
+            model_id = f"{company_name}/{base_name}"
+            model_entry = catalog.get_model(model_id)
+            if model_entry:
+                quantizations = model_entry.get("quantizations", [])
+                if suffix not in quantizations:
+                    quantizations.append(suffix)
+                    catalog.update_model_field(model_id, "quantizations", quantizations)
         except Exception as e:
             print(f"❌ Exception during quantization for {suffix}: {e}")
             traceback.print_exc()
+            # Log error to model catalog (in-memory and Redis)
+            model_id = f"{company_name}/{base_name}"
+            model_entry = catalog.get_model(model_id)
+            if model_entry:
+                error_log = model_entry.get("error_log", [])
+                error_log.append(f"Quantization {suffix} failed: {str(e)}")
+                # Update in-memory for this run (not strictly needed, but for clarity)
+                model_entry["error_log"] = error_log
+                # Persist to Redis
+                catalog.update_model_field(model_id, "error_log", error_log)
             continue
 
     # Upload imatrix file if repository was created
