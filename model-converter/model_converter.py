@@ -85,9 +85,6 @@ class ModelConverter:
         self.api = HfApi()
         self.fs = HfFileSystem()
         self.EXCLUDED_COMPANIES = [
-            "VIDraft",  
-            "openfree",
-            "agentica-org"
         ]
     
     def parse_params_from_name(self, model_id):
