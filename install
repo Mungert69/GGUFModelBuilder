@@ -25,6 +25,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Ensure python3-venv is available
 if ! python3 -c "import venv" &>/dev/null; then
   echo "[INFO] python3-venv is not installed. Installing..."
   if [[ $NONINTERACTIVE -eq 1 ]]; then
@@ -72,20 +73,33 @@ if [[ -n "${LLAMA_DIR_TRIMMED}" ]]; then
     echo "[ERROR] llama.cpp dir not found: $LLAMA_DIR_TRIMMED"
     exit 1
   fi
-  CONVERT_REQ="$LLAMA_DIR_TRIMMED/requirements/requirements-convert-hf-to-gguf.txt"
+
+  REQ_UPDATE="$LLAMA_DIR_TRIMMED/requirements/requirements-convert_hf_to_gguf_update.txt"
+  REQ_BASE="$LLAMA_DIR_TRIMMED/requirements/requirements-convert_hf_to_gguf.txt"
+
   echo "[6/7] Installing llama.cpp converter requirements..."
-  if [[ -f "$CONVERT_REQ" ]]; then
-    python -m pip install -r "$CONVERT_REQ"
+  if [[ -f "$REQ_UPDATE" ]]; then
+    python -m pip install -r "$REQ_UPDATE"
+  elif [[ -f "$REQ_BASE" ]]; then
+    python -m pip install -r "$REQ_BASE"
   else
-    echo "[WARN] $CONVERT_REQ not found; installing minimal fallback deps..."
-    # minimal set used by converter across recent commits
-    python -m pip install mistral_common sentencepiece tiktoken safetensors
+    echo "[WARN] No converter requirements file found; installing minimal fallback deps..."
+    # minimal set used by recent Tekken-capable converters
+    python -m pip install mistral_common tiktoken safetensors
   fi
 
-  # persist to .env so other scripts can find it
+  # Ensure a new-enough Transformers/Tokenizers for Mistral-3 + Tekken
+  # (override any older pins a req file might have pulled)
+  python -m pip install --upgrade "transformers>=4.46" "tokenizers>=0.22.0"
+
+  # Persist llama.cpp path for downstream scripts/tools
   echo "[INFO] Writing LLAMA_CPP_DIR to .env"
   touch .env
-  grep -q '^LLAMA_CPP_DIR=' .env && sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env || echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
+  if grep -q '^LLAMA_CPP_DIR=' .env; then
+    sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env
+  else
+    echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
+  fi
 else
   echo "[INFO] Skipping llama.cpp requirements (no directory provided)."
 fi
