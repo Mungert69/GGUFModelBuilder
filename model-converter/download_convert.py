@@ -153,20 +153,9 @@ def main():
         # Update the path to the convert_hf_to_gguf.py script
         convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
 
-        # Find vocab file in model_snapshot_dir
-        vocab_file = None
-        for f in os.listdir(model_snapshot_dir):
-            if "vocab" in f.lower() and f.lower().endswith(".txt"):
-                vocab_file = os.path.join(model_snapshot_dir, f)
-                break
-        if not vocab_file:
-            print("Error: Could not find vocab .txt file in model snapshot directory.")
-            return 1
-
         convert_command = [
             "python3", convert_script_path,
             model_snapshot_dir,
-            vocab_file,
             "--outfile", output_file,
             "--model-name", model_name,
             "--outtype", outtype
