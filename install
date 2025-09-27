@@ -50,12 +50,6 @@ echo "[4/7] Installing base Python deps for your project..."
 python -m pip install \
   python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet
 
-echo "[5/7] Installing system deps for audio (optional, used by your installer)..."
-if [[ $NONINTERACTIVE -eq 1 ]]; then
-  sudo apt-get update -y && sudo apt-get install -y espeak libsndfile1 ffmpeg
-else
-  sudo apt-get update && sudo apt-get install -y espeak libsndfile1 ffmpeg
-fi
 
 # Resolve llama.cpp dir (prompt only if not provided)
 if [[ -z "$LLAMA_DIR_FROM_FLAG" ]]; then
@@ -72,28 +66,24 @@ if [[ -n "${LLAMA_DIR_TRIMMED}" ]]; then
     echo "[ERROR] llama.cpp dir not found: $LLAMA_DIR_TRIMMED"
     exit 1
   fi
-  CONVERT_REQ="$LLAMA_DIR_TRIMMED/requirements/requirements-convert-hf-to-gguf.txt"
-  echo "[6/7] Installing llama.cpp converter requirements..."
-  if [[ -f "$CONVERT_REQ" ]]; then
-    python -m pip install -r "$CONVERT_REQ"
-  else
-    echo "[WARN] $CONVERT_REQ not found; installing minimal fallback deps..."
-    # minimal set used by converter across recent commits
-    python -m pip install mistral_common sentencepiece tiktoken safetensors
-  fi
+
+  # Correct filenames (underscores). Prefer the newer update file.
+  REQ_UPDATE="$LLAMA_DIR_TRIMMED/requirements/requirements-convert_hf_to_gguf.txt"
+  REQ_BASE="$LLAMA_DIR_TRIMMED/requirements.txt"
+
+  python -m pip install -r "$REQ_UPDATE"
+  python -m pip install -r "$REQ_BASE"
 
   # persist to .env so other scripts can find it
   echo "[INFO] Writing LLAMA_CPP_DIR to .env"
   touch .env
-  grep -q '^LLAMA_CPP_DIR=' .env && sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env || echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
+  grep -q '^LLAMA_CPP_DIR=' .env \
+    && sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env \
+    || echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
 else
   echo "[INFO] Skipping llama.cpp requirements (no directory provided)."
 fi
 
-echo "[7/7] Running install_dependencies.py (your original step)..."
-python install_dependencies.py <<EOF
-1
-EOF
 
 echo "✅ Setup complete."
 
