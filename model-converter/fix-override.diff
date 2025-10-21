@@ -1,5 +1,5 @@
 diff --git a/src/llama-quant.cpp b/src/llama-quant.cpp
-index 97228b2a6..ced202197 100644
+index 6dd40412b..e96a1f90a 100644
 --- a/src/llama-quant.cpp
 +++ b/src/llama-quant.cpp
 @@ -175,9 +175,47 @@ static void llama_tensor_dequantize_impl(
@@ -82,8 +82,28 @@ index 97228b2a6..ced202197 100644
      return new_type;
  }
  
-@@ -913,6 +974,15 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
-                 new_type = params->output_tensor_type;
+@@ -913,12 +974,33 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
+                 }
+             }
+             if (params->token_embedding_type < GGML_TYPE_COUNT && strcmp(tensor->name, "token_embd.weight") == 0) {
+-                new_type = params->token_embedding_type;
++                const int64_t block = ggml_blck_size(params->token_embedding_type);
++                if (block > 0 && tensor->ne[0] % block == 0) {
++                    new_type = params->token_embedding_type;
++                } else {
++                    LLAMA_LOG_DEBUG("(token_embd override skipped: %s incompatible with cols %" PRId64 ")\n",
++                            ggml_type_name(params->token_embedding_type), tensor->ne[0]);
++                }
+             }
+             if (params->output_tensor_type < GGML_TYPE_COUNT && strcmp(tensor->name, "output.weight") == 0) {
+-                new_type = params->output_tensor_type;
++                const int64_t block = ggml_blck_size(params->output_tensor_type);
++                if (block > 0 && tensor->ne[0] % block == 0) {
++                    new_type = params->output_tensor_type;
++                } else {
++                    LLAMA_LOG_DEBUG("(output override skipped: %s incompatible with cols %" PRId64 ")\n",
++                            ggml_type_name(params->output_tensor_type), tensor->ne[0]);
++                }
              }
  
 +            // HARDCODE OVERRIDE: If tensor is already mxfp4, force new_type to mxfp4
@@ -98,7 +118,7 @@ index 97228b2a6..ced202197 100644
              // If we've decided to quantize to the same type the tensor is already
              // in then there's nothing to do.
              quantize = tensor->type != new_type;
-@@ -1001,7 +1071,7 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
+@@ -1007,7 +1089,7 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
                  new_size += llama_tensor_quantize_impl(new_type, f32_data_03, new_data_03, chunk_size, nrows, n_per_row, imatrix_03, workers, nthread_use);
  
                  // TODO: temporary sanity check that the F16 -> MXFP4 is lossless
