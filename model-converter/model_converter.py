@@ -278,42 +278,63 @@ class ModelConverter:
         output_lines = []
         error_lines = []
 
-        process = subprocess.Popen(
+        with subprocess.Popen(
             ["python3", script_path] + args,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             bufsize=1,  # Line buffering
             universal_newlines=True  # Read as text
-        )
+        ) as process:
 
-        # Read output in real time while also collecting it
-        def read_output(pipe, collection, is_stderr=False):
-            for line in iter(pipe.readline, ''):
-                collection.append(line)
-                if is_stderr:
-                    sys.stderr.write(line)
-                else:
-                    sys.stdout.write(line)
-                sys.stdout.flush()
-            pipe.close()
+            # Read output in real time while also collecting it
+            def read_output(pipe, collection, is_stderr=False):
+                try:
+                    for line in iter(pipe.readline, ''):
+                        collection.append(line)
+                        if is_stderr:
+                            sys.stderr.write(line)
+                            sys.stderr.flush()
+                        else:
+                            sys.stdout.write(line)
+                            sys.stdout.flush()
+                finally:
+                    pipe.close()
 
-        stdout_thread = threading.Thread(
-            target=read_output,
-            args=(process.stdout, output_lines)
-        )
-        stderr_thread = threading.Thread(
-            target=read_output,
-            args=(process.stderr, error_lines, True)
-        )
-        
-        stdout_thread.start()
-        stderr_thread.start()
+            stdout_thread = threading.Thread(
+                target=read_output,
+                args=(process.stdout, output_lines)
+            )
+            stderr_thread = threading.Thread(
+                target=read_output,
+                args=(process.stderr, error_lines, True)
+            )
 
-        process.wait()
-        stdout_thread.join()
-        stderr_thread.join()
+            stdout_thread.start()
+            stderr_thread.start()
 
-        exit_code = process.returncode
+            exit_code = None
+            try:
+                exit_code = process.wait()
+            except KeyboardInterrupt:
+                # Propagate SIGINT to child and ensure cleanup
+                if process.poll() is None:
+                    try:
+                        process.send_signal(signal.SIGINT)
+                        exit_code = process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        exit_code = process.wait()
+                raise
+            except Exception:
+                # On unexpected errors, make sure the child does not linger
+                if process.poll() is None:
+                    process.kill()
+                    exit_code = process.wait()
+                raise
+            finally:
+                stdout_thread.join()
+                stderr_thread.join()
+
         if exit_code != 0:
             print(f"\nError running {script_name}, exited with code {exit_code}")
             print("Error output:")
