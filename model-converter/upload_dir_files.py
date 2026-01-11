@@ -107,6 +107,11 @@ def main():
     parser = argparse.ArgumentParser(description="Upload files to Hugging Face")
     parser.add_argument("repo_id", help="HF repository ID (e.g., Mungert/gemma-3-12b-it-GGUF)")
     parser.add_argument("upload_dir", help="Directory containing files to upload")
+    parser.add_argument(
+        "--keep-files",
+        action="store_true",
+        help="Do not delete local files after successful upload",
+    )
     args = parser.parse_args()
 
     # Repo creation
@@ -157,18 +162,20 @@ def main():
             try:
                 if os.path.dirname(rel_path):
                     if upload_file_with_path(api, repo_id, file_path, rel_path, quant_name):
-                        try:
-                            os.remove(file_path)
-                            print(f"Deleted {rel_path} after successful upload")
-                        except Exception as e:
-                            print(f"Warning: Could not delete {rel_path}: {e}")
+                        if not args.keep_files:
+                            try:
+                                os.remove(file_path)
+                                print(f"Deleted {rel_path} after successful upload")
+                            except Exception as e:
+                                print(f"Warning: Could not delete {rel_path}: {e}")
                 else:
                     if upload_large_file(file_path, repo_id, quant_name):
-                        try:
-                            os.remove(file_path)
-                            print(f"Deleted {filename} after successful upload")
-                        except Exception as e:
-                            print(f"Warning: Could not delete {filename}: {e}")
+                        if not args.keep_files:
+                            try:
+                                os.remove(file_path)
+                                print(f"Deleted {filename} after successful upload")
+                            except Exception as e:
+                                print(f"Warning: Could not delete {filename}: {e}")
             except Exception as e:
                 print(f"Error during upload of {rel_path}: {e}")
 
