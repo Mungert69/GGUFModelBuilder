@@ -2,13 +2,13 @@
     "rules": [
         {
             "base_type": ["IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_k","*attn_q"],
+            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
             "bump": 2,
             "bump_experts": 2
         },
         {
             "base_type": ["IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*attn_output","*attn_qkv","*ffn_gate_inp"],
             "bump": 2,
             "bump_experts": 2
         },
@@ -26,7 +26,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_k","*attn_q"],
+            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
             "bump": 0,
             "bump_experts": 3,
             "bump_order_low": 2,
@@ -36,7 +36,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_v","*attn_qkv"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*attn_qkv"],
             "bump": 2,
             "bump_experts": 3,
             "bump_order_low": 2,
@@ -46,7 +46,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down","*attn_output"],
+            "layer_name": ["*ffn_down","*ffn_gate","*ffn_up","*attn_output","*ffn_gate_inp"],
             "bump": 2,
             "bump_experts": 4,
             "bump_order_low": 2,
@@ -194,13 +194,13 @@
         },
         {
             "base_type": ["Q4_K_S","Q4_K","Q4_K_S","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_k","*attn_q"],
+            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
             "bump": 0,
             "bump_experts": 0
         },
         {
             "base_type": ["Q4_K_S","Q4_K","Q4_K_M","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*attn_output","*attn_qkv","*ffn_gate_inp"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,

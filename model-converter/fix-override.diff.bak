@@ -1,0 +1,129 @@
+diff --git a/src/llama-quant.cpp b/src/llama-quant.cpp
+index 6dd40412b..e96a1f90a 100644
+--- a/src/llama-quant.cpp
++++ b/src/llama-quant.cpp
+@@ -175,9 +175,47 @@ static void llama_tensor_dequantize_impl(
+     workers.clear();
+ }
+ 
++static int quant_type_quality(ggml_type t) {
++    // Higher value = higher quality
++    switch (t) {
++        case GGML_TYPE_F32:   return 100;
++        case GGML_TYPE_F16:   return 90;
++        case GGML_TYPE_BF16:  return 89;
++        case GGML_TYPE_Q8_0:  return 80;
++        case GGML_TYPE_Q6_K:  return 70;
++        case GGML_TYPE_Q5_K:  return 66;
++        case GGML_TYPE_Q5_1:  return 65;
++        case GGML_TYPE_Q5_0:  return 64;
++        case GGML_TYPE_MXFP4: return 60;
++        case GGML_TYPE_Q4_K:  return 58;
++        case GGML_TYPE_IQ4_NL:return 57;
++        case GGML_TYPE_IQ4_XS:return 56;
++        case GGML_TYPE_Q4_1:  return 55;
++        case GGML_TYPE_Q4_0:  return 54;
++        case GGML_TYPE_Q3_K:  return 46;
++        case GGML_TYPE_IQ3_S: return 44;
++        case GGML_TYPE_Q2_K:  return 42;
++        case GGML_TYPE_IQ3_XXS:return 41;
++        case GGML_TYPE_IQ2_S: return 38;
++        case GGML_TYPE_IQ2_XS:return 36;
++        case GGML_TYPE_IQ2_XXS:return 33;
++        case GGML_TYPE_IQ1_S: return 30;
++        case GGML_TYPE_IQ1_M: return 29;
++        default:              return 0;
++    }
++}
++
+ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_type, const ggml_tensor * tensor, llama_ftype ftype) {
+     const std::string name = ggml_get_name(tensor);
+ 
++    static std::unordered_map<std::string, bool> fallback_set;
++    static std::unordered_map<std::string, ggml_type> chosen_type;
++
++    // If fallback was set for this tensor, do not allow override
++    if (fallback_set.count(name) && fallback_set[name]) {
++        return new_type;
++    }
++
+     // TODO: avoid hardcoded tensor names - use the TN_* constants
+     const llm_arch arch = qs.model.arch;
+     const auto       tn = LLM_TN(arch);
+@@ -471,8 +509,31 @@ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_t
+         }
+         LLAMA_LOG_WARN(" - using fallback quantization %s\n", ggml_type_name(new_type));
+         ++qs.n_fallback;
++        fallback_set[name] = true;
++    }
++
++    const bool fallback_active = fallback_set.count(name) && fallback_set[name];
++
++    // Handle override logic here (moved from llama_model_quantize_impl)
++    if (qs.params && qs.params->tensor_types) {
++        if (fallback_active) {
++            LLAMA_LOG_DEBUG("(override skipped: incompatible tensor) ");
++        } else {
++            const std::vector<tensor_quantization> & tensor_types = *static_cast<const std::vector<tensor_quantization> *>(qs.params->tensor_types);
++            for (const auto & [tname, qtype] : tensor_types) {
++                if (std::regex pattern(tname); std::regex_search(name, pattern)) {
++                    if (qtype != new_type) {
++                        LLAMA_LOG_DEBUG("(overriding %s) ", ggml_type_name(new_type));
++                        new_type = qtype;
++                    }
++                }
++            }
++        }
+     }
+ 
++    // Track the chosen type for this tensor
++    chosen_type[name] = new_type;
++
+     return new_type;
+ }
+ 
+@@ -913,12 +974,33 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
+                 }
+             }
+             if (params->token_embedding_type < GGML_TYPE_COUNT && strcmp(tensor->name, "token_embd.weight") == 0) {
+-                new_type = params->token_embedding_type;
++                const int64_t block = ggml_blck_size(params->token_embedding_type);
++                if (block > 0 && tensor->ne[0] % block == 0) {
++                    new_type = params->token_embedding_type;
++                } else {
++                    LLAMA_LOG_DEBUG("(token_embd override skipped: %s incompatible with cols %" PRId64 ")\n",
++                            ggml_type_name(params->token_embedding_type), tensor->ne[0]);
++                }
+             }
+             if (params->output_tensor_type < GGML_TYPE_COUNT && strcmp(tensor->name, "output.weight") == 0) {
+-                new_type = params->output_tensor_type;
++                const int64_t block = ggml_blck_size(params->output_tensor_type);
++                if (block > 0 && tensor->ne[0] % block == 0) {
++                    new_type = params->output_tensor_type;
++                } else {
++                    LLAMA_LOG_DEBUG("(output override skipped: %s incompatible with cols %" PRId64 ")\n",
++                            ggml_type_name(params->output_tensor_type), tensor->ne[0]);
++                }
+             }
+ 
++            // HARDCODE OVERRIDE: If tensor is already mxfp4, force new_type to mxfp4
++            if (tensor->type == GGML_TYPE_MXFP4) {
++                new_type = GGML_TYPE_MXFP4;
++                LLAMA_LOG_INFO("HARDCODE OVERRIDE: tensor '%s' is already mxfp4, forcing new_type = mxfp4\n", name.c_str());
++            }
++
++            // Debug: print current and new type before quantize decision
++            LLAMA_LOG_INFO("DEBUG: tensor->type = %s, new_type = %s\n", ggml_type_name(tensor->type), ggml_type_name(new_type));
++
+             // If we've decided to quantize to the same type the tensor is already
+             // in then there's nothing to do.
+             quantize = tensor->type != new_type;
+@@ -1007,7 +1089,7 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
+                 new_size += llama_tensor_quantize_impl(new_type, f32_data_03, new_data_03, chunk_size, nrows, n_per_row, imatrix_03, workers, nthread_use);
+ 
+                 // TODO: temporary sanity check that the F16 -> MXFP4 is lossless
+-#if 0
++#if 1
+                 if (new_type == GGML_TYPE_MXFP4) {
+                     auto * x = f32_data_03;
+ 
