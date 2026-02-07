@@ -6,18 +6,45 @@ import re
 import subprocess
 from pathlib import Path
 
-# Ordered list of quant levels (lowest precision to highest)
-quant_levels = [
-    "IQ1_S", "IQ1_M",
-    "IQ2_XXS", "IQ2_XS", "IQ2_S", 
-    "Q2_K", 
-    "IQ3_XXS", "IQ3_S", 
+# Supported ladders (only ggml-supported canonical types)
+iq_ladder = [
+    "IQ1_S",
+    "IQ1_M",
+    "IQ2_XXS",
+    "IQ2_XS",
+    "IQ2_S",
+    "IQ3_XXS",
+    "IQ3_S",
+    "IQ4_NL",
+    "IQ4_XS",
+]
+
+k_ladder = [
+    "Q2_K",
     "Q3_K",
-    "IQ4_XS","IQ4_NL", 
     "Q4_K",
     "Q5_K",
     "Q6_K",
-    "Q8_0"
+    "Q8_0",
+]
+
+# Cross-family ladder (IQ then K) for roll-over when IQ tops out
+cross_ladder = [
+    "IQ1_S",
+    "IQ1_M",
+    "IQ2_XXS",
+    "IQ2_XS",
+    "IQ2_S",
+    "IQ3_XXS",
+    "IQ3_S",
+    "IQ4_NL",
+    "IQ4_XS",
+    "Q2_K",
+    "Q3_K",
+    "Q4_K",
+    "Q5_K",
+    "Q6_K",
+    "Q8_0",
 ]
 
 quant_substitutions = {
@@ -113,11 +140,11 @@ def is_layer_match(layer_name: str, pattern: str) -> bool:
         return re.fullmatch(regex_pattern, layer_name) is not None
     return pattern == layer_name
 
-def determine_quant_tier(base_quant: str, 
+def determine_quant_tier(base_quant: str,
     target_type: str,
-    layer_name: str = None, 
-    is_moe: bool = False, 
-    layer_order: float = None, 
+    layer_name: str = None,
+    is_moe: bool = False,
+    layer_order: float = None,
     quant_rules: list = None) -> tuple:
     """
     Improved quantization tier determination with wildcards and F32 protection
@@ -127,12 +154,19 @@ def determine_quant_tier(base_quant: str,
         return (base_quant, "Keeping original F32 precision", False)
     
 
+    normalized_target = quant_substitutions.get(target_type, target_type)
+
+    family_ladder = iq_ladder if normalized_target.startswith("IQ") else k_ladder
+    ladder_name = "iq" if normalized_target.startswith("IQ") else "k"
+
     try:
-        target_idx = quant_levels.index(quant_substitutions.get(target_type, target_type))
+        target_idx = family_ladder.index(normalized_target)
     except ValueError:
-        target_idx = quant_levels.index("Q4_K")
+        fallback = "IQ2_S" if ladder_name == "iq" else "Q4_K"
+        target_idx = family_ladder.index(fallback)
+        normalized_target = fallback
     
-    default_return = (target_type, "No specific rule applied, using target type", False)
+    default_return = (normalized_target, "No specific rule applied, using target type", False)
     
     if not quant_rules:
         return default_return
@@ -180,14 +214,29 @@ def determine_quant_tier(base_quant: str,
     if total_bump == 0:
         return default_return
     
-    new_idx = min(target_idx + total_bump, len(quant_levels) - 1)
-    full_reason = f"Bumped from {target_type} by {total_bump} levels"
+    new_idx = target_idx + total_bump
+
+    if new_idx < len(family_ladder):
+        bumped_type = family_ladder[new_idx]
+    elif ladder_name == "iq":
+        try:
+            cross_start = cross_ladder.index(normalized_target)
+            bumped_type = cross_ladder[min(cross_start + total_bump, len(cross_ladder) - 1)]
+        except ValueError:
+            bumped_type = family_ladder[-1]
+    else:
+        bumped_type = family_ladder[-1]
+
+    # Ensure output is canonical / supported
+    bumped_type = quant_substitutions.get(bumped_type, bumped_type)
+
+    full_reason = f"Bumped from {normalized_target} by {total_bump} levels"
     if layer_name:
         full_reason += f" for {layer_name}"
     if bump_reason:
         full_reason += f" ({bump_reason.strip()})"
     
-    return quant_levels[new_idx], full_reason, True
+    return bumped_type, full_reason, True
 
 def apply_precision_override_rule(
     tensor_name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
