@@ -59,6 +59,13 @@ This codebase provides a **machine learning model conversion and management pipe
 * `update_readme.py`: Populate README with quantization info
 * `tensor_list_builder.py`: Suggest quant strategies per tensor/layer
 
+### Quant selection policy (updated)
+
+* **Effective bpw map (used for sorting/filtering):** IQ1_S≈1.6, IQ1_M≈1.75; IQ2_XXS→M≈2.1–2.6; Q2_K*≈2.6; IQ3_XXS→M≈3.1–3.4; Q3_K*≈3.3; IQ4_NL≈3.8, IQ4_XS≈4.5; Q4*≈4.0–4.5; Q5*≈5.0–5.5; Q6_K≈6.6; Q8_0=8; F16/BF16=16.
+* **Family split with rollover:** IQ targets climb the IQ ladder and, after topping out, roll into stronger K quants; K targets stay in K.
+* **Rules:** `quant_rules.json` has separate IQ-only and K-only entries for mid-bit rules so bumps stay in-family unless IQ needs to roll up into K.
+* **Bit budget filtering:** `make_files.py` uses size-aware thresholds: <4B params start around ~3 bpw (skip IQ1/2 + Q2); 4–10B allow ~2.x bpw; >10B allow the full range including IQ1_S/M.
+
 ---
 
 # How It Works (Typical Flow)
@@ -111,7 +118,6 @@ flowchart TD
 <a href="https://readyforquantum.com" target="_blank">
   <img src="https://readyforquantum.com/logo.png" alt="ReadyForQuantum" width="200">
 </a>
-
 
 
 
