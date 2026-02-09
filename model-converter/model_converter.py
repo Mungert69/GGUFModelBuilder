@@ -556,6 +556,49 @@ class ModelConverter:
             print(f"Error checking config for {model_id}: {e}")
             return False
 
+    def get_expert_count_from_config(self, model_id):
+        """
+        Try to infer number of experts from config keys like num_experts, n_experts, num_local_experts.
+        Returns int or None.
+        """
+        try:
+            config_url = f"https://huggingface.co/{model_id}/raw/main/config.json"
+            response = requests.get(config_url)
+            response.raise_for_status()
+            config = response.json()
+
+            found_match = False
+
+            def find_int(obj):
+                if isinstance(obj, dict):
+                    for k, v in obj.items():
+                        key_l = str(k).lower()
+                        # Only accept keys that end with "_experts"
+                        if key_l.endswith("_experts"):
+                            nonlocal found_match
+                            found_match = True
+                            try:
+                                return int(v)
+                            except Exception:
+                                pass
+                        res = find_int(v)
+                        if res is not None:
+                            return res
+                elif isinstance(obj, (list, tuple)):
+                    for item in obj:
+                        res = find_int(item)
+                        if res is not None:
+                            return res
+                return None
+
+            result = find_int(config)
+            if found_match:
+                return result
+            return None
+        except Exception as e:
+            print(f"Error inferring experts from config for {model_id}: {e}")
+            return None
+
     def is_moe_model(self, model_id):
         """
         Main MoE detection method that tries multiple approaches.
@@ -616,6 +659,12 @@ class ModelConverter:
                     print(f"Skipping {model_id} - {parameters} parameters exceed limit.")
                     continue
                 is_moe = self.check_moe_from_config(model_id)
+                no_experts = None
+                if is_moe:
+                    inferred = self.get_expert_count_from_config(model_id)
+                    # only set if inferred and not already present
+                    if inferred:
+                        no_experts = inferred
                 print(f"Adding {model_id} with parameters={parameters}")
                 new_entry = {
                     "added": datetime.now().isoformat(),
@@ -629,6 +678,8 @@ class ModelConverter:
                     "quantizations": [],
                     "is_moe": is_moe
                 }
+                if no_experts:
+                    new_entry["no_experts"] = no_experts
                 
                 if not self.model_catalog.add_model(model_id, new_entry):
                     print(f"Model {model_id} already exists in Redis")

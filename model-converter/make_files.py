@@ -131,16 +131,16 @@ for config in QUANT_CONFIGS:
     print(config)
 
 QUANT_BIT_LEVELS = {
-    # 1-bit quantizations (very aggressive)
-    "IQ1_S": 1, "IQ1_M": 1, 
-    # 2-bit quantizations
-    "Q2_K": 2, "Q2_K_S": 2, "Q2_K_M": 2, "IQ2_XS": 2, "IQ2_S": 2, "IQ2_M": 2, "IQ2_XXS": 2, 
-    # 3-bit quantizations
-    "Q3_K": 3, "Q3_K_S": 3, "Q3_K_M": 3, "IQ3_XS": 3, "IQ3_S": 3, "IQ3_M": 3, "IQ3_XXS": 3,
-    # 4-bit and up
-    "Q4_K": 4, "Q4_K_S": 4, "Q4_K_M": 4, "IQ4_XS": 4, "IQ4_NL": 4, "Q4_0": 4, "Q4_1": 4,
-    "Q5_K": 5, "Q5_K_S": 5, "Q5_K_M": 5, "Q5_0": 5, "Q5_1" : 5,
-    "Q6_K": 6, "Q8_0": 8, "F16": 16, "BF16": 16
+    # Effective bits-per-weight approximations for filtering/ordering
+    "IQ1_S": 1.6, "IQ1_M": 1.75,
+    "IQ2_XXS": 2.1, "IQ2_XS": 2.3, "IQ2_S": 2.6, "IQ2_M": 2.6,
+    "Q2_K": 2.6, "Q2_K_S": 2.6, "Q2_K_M": 2.6,
+    "IQ3_XXS": 3.1, "IQ3_XS": 3.1, "IQ3_S": 3.4, "IQ3_M": 3.4,
+    "Q3_K": 3.3, "Q3_K_S": 3.3, "Q3_K_M": 3.3,
+    "IQ4_NL": 3.8, "IQ4_XS": 4.5,
+    "Q4_K": 4.5, "Q4_K_S": 4.5, "Q4_K_M": 4.5, "Q4_0": 4.0, "Q4_1": 4.0,
+    "Q5_K": 5.5, "Q5_K_S": 5.5, "Q5_K_M": 5.5, "Q5_0": 5.0, "Q5_1": 5.0,
+    "Q6_K": 6.6, "Q8_0": 8.0, "F16": 16.0, "BF16": 16.0
 }
 def get_standard_chunk_name(base_name, quant_type, part_num, total_parts):
     """Generate HF-standard chunk names with validation"""
@@ -280,16 +280,45 @@ def get_model_size(base_name):
     print(f"⚠ Couldn't determine model size from name: {base_name}")
     return None
 
-def filter_quant_configs(base_name, configs):
+def filter_quant_configs(base_name, configs, model_id=None):
     """Filter quantization configs based on model size, adding TQ quants if 'TriLM' is in the name."""
     model_size = get_model_size(base_name)
     if not model_size:
         print("⚠ Couldn't determine model size from name. Using all quantizations.")
         return configs
 
-    min_bits = 3 if model_size < 3e9 else (  # <4B models
-                2 if model_size < 10e9 else   # 4-10B models
-                1)                           # 10B+ models
+    effective_size = model_size
+    if model_id:
+        entry = catalog.get_model(model_id)
+        if entry:
+            try:
+                is_moe = bool(entry.get("is_moe", False))
+                expert_size = float(entry.get("expert_param_size", 0) or 0)
+                no_experts = float(entry.get("no_experts", 0) or 0)
+
+                name_expert_size = None
+                if is_moe:
+                    # Heuristic: parse "-A3B-" / "-a21b-" in the base name for per-expert size
+                    m = re.search(r"-a(\d+(?:\.\d+)?)b-", base_name, re.IGNORECASE)
+                    if m:
+                        name_expert_size = float(m.group(1)) * 1e9
+
+                    if expert_size > 0:
+                        effective_size = expert_size
+                        print(f"ℹ️ Using expert_param_size={effective_size/1e9:.2f}B from catalog for {model_id}")
+                    elif no_experts > 0 and model_size > 0:
+                        effective_size = model_size / no_experts
+                        print(f"ℹ️ Using per-expert size {effective_size/1e9:.2f}B from no_experts={no_experts} for {model_id}")
+                    elif name_expert_size:
+                        effective_size = name_expert_size
+                        print(f"ℹ️ Using name-derived expert size {effective_size/1e9:.2f}B from pattern in {base_name}")
+            except Exception:
+                pass
+
+    # For tiny models, avoid 1–2 bpw entirely. Allow 2.x on mid-size, 1.x only on big.
+    min_bits = 3.0 if effective_size < 3e9 else (   # <4B effective: start at ~3 bpw
+                2.3 if effective_size < 10e9 else   # 4-10B effective: allow 2.x bpw
+                1.0)                                 # 10B+ effective: allow all
 
     filtered = []
     for config in configs:
@@ -300,7 +329,7 @@ def filter_quant_configs(base_name, configs):
             filtered.append(config)
         else:
             print(f"⚠ Skipping {quant_type} ({bits}bit) for {base_name} "
-                f"({model_size/1e9:.1f}B) - too aggressive")
+                f"(effective {effective_size/1e9:.1f}B) - too aggressive")
 
     return filtered
 
@@ -491,7 +520,8 @@ def quantize_model(input_model, company_name, base_name, allow_requantize=False,
     os.makedirs(output_dir, exist_ok=True)
 
     # Get filtered quantization configs
-    filtered_configs = filter_quant_configs(base_name, QUANT_CONFIGS)
+    model_id = f"{company_name}/{base_name}" if company_name else base_name
+    filtered_configs = filter_quant_configs(base_name, QUANT_CONFIGS, model_id=model_id)
     print(f"🏗 Selected {len(filtered_configs)} quantizations for {base_name}")
 
     # Progress tracking: determine where to resume
@@ -664,4 +694,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

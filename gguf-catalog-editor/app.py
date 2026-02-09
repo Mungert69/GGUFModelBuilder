@@ -378,6 +378,21 @@ def edit_model(model_id):
                 else:
                     updated_model[field] = new_value
                 changed = True
+        # Handle extra fields even if they were not in the original model (expert fields)
+        for extra_field in ["expert_param_size", "no_experts"]:
+            if extra_field in request.form:
+                new_val = request.form.get(extra_field, "").strip()
+                try:
+                    if "." in new_val:
+                        new_val = float(new_val)
+                    else:
+                        new_val = int(new_val)
+                except Exception:
+                    pass
+                if model_data.get(extra_field) != new_val:
+                    updated_model[extra_field] = new_val
+                    changed = True
+
         if changed:
             # Save the updated model in one Redis call
             catalog.r.hset(catalog.catalog_key, model_id, json.dumps(updated_model))
@@ -409,7 +424,9 @@ def add_model():
             'attempts': 0,
             'error_log': [],
             'quantizations': [],
-            "is_moe": False
+            "is_moe": False,
+            "expert_param_size": 0,
+            "no_experts": 0
         }
         # Add/override with any fields from the form (except model_id)
         for key in request.form:
