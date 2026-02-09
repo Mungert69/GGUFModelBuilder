@@ -12,8 +12,15 @@
                 <label class="form-label">Model ID</label>
                 <input type="text" class="form-control" name="model_id" required>
             </div>
-            <!-- Add more fields as needed -->
-        </div>
+            <div class="mb-3">
+                <label class="form-label">expert_param_size (optional)</label>
+                <input type="text" class="form-control" name="expert_param_size" placeholder="e.g., 7e9">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">no_experts (optional)</label>
+                <input type="text" class="form-control" name="no_experts" placeholder="e.g., 8">
+            </div>
+            </div>
         <div class="card-footer">
             <button type="submit" class="btn btn-success">Add Model</button>
             <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
