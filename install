@@ -48,7 +48,7 @@ python -m pip install --upgrade pip setuptools wheel
 
 echo "[4/7] Installing base Python deps for your project..."
 python -m pip install \
-  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet python-dev-is-python3
+  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet python-dev
 
 
 # Resolve llama.cpp dir (prompt only if not provided)
