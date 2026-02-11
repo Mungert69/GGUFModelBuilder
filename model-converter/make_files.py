@@ -283,37 +283,48 @@ def get_model_size(base_name):
 def filter_quant_configs(base_name, configs, model_id=None):
     """Filter quantization configs based on model size, adding TQ quants if 'TriLM' is in the name."""
     model_size = get_model_size(base_name)
+    entry = None
+    if model_id:
+        entry = catalog.get_model(model_id)
+
+    if not model_size and entry:
+        try:
+            parameters = float(entry.get("parameters", 0) or 0)
+        except Exception:
+            parameters = 0
+        if parameters > 0:
+            model_size = parameters
+            print(f"ℹ️ Using catalog parameters={model_size/1e9:.2f}B for {model_id}")
+
     if not model_size:
-        print("⚠ Couldn't determine model size from name. Using all quantizations.")
+        print("⚠ Couldn't determine model size from name or catalog. Using all quantizations.")
         return configs
 
     effective_size = model_size
-    if model_id:
-        entry = catalog.get_model(model_id)
-        if entry:
-            try:
-                is_moe = bool(entry.get("is_moe", False))
-                expert_size = float(entry.get("expert_param_size", 0) or 0)
-                no_experts = float(entry.get("no_experts", 0) or 0)
+    if entry:
+        try:
+            is_moe = bool(entry.get("is_moe", False))
+            expert_size = float(entry.get("expert_param_size", 0) or 0)
+            no_experts = float(entry.get("no_experts", 0) or 0)
 
-                name_expert_size = None
-                if is_moe:
-                    # Heuristic: parse "-A3B-" / "-a21b-" in the base name for per-expert size
-                    m = re.search(r"-a(\d+(?:\.\d+)?)b-", base_name, re.IGNORECASE)
-                    if m:
-                        name_expert_size = float(m.group(1)) * 1e9
+            name_expert_size = None
+            if is_moe:
+                # Heuristic: parse "-A3B-" / "-a21b-" in the base name for per-expert size
+                m = re.search(r"-a(\d+(?:\.\d+)?)b-", base_name, re.IGNORECASE)
+                if m:
+                    name_expert_size = float(m.group(1)) * 1e9
 
-                    if expert_size > 0:
-                        effective_size = expert_size
-                        print(f"ℹ️ Using expert_param_size={effective_size/1e9:.2f}B from catalog for {model_id}")
-                    elif no_experts > 0 and model_size > 0:
-                        effective_size = model_size / no_experts
-                        print(f"ℹ️ Using per-expert size {effective_size/1e9:.2f}B from no_experts={no_experts} for {model_id}")
-                    elif name_expert_size:
-                        effective_size = name_expert_size
-                        print(f"ℹ️ Using name-derived expert size {effective_size/1e9:.2f}B from pattern in {base_name}")
-            except Exception:
-                pass
+                if expert_size > 0:
+                    effective_size = expert_size
+                    print(f"ℹ️ Using expert_param_size={effective_size/1e9:.2f}B from catalog for {model_id}")
+                elif no_experts > 0 and model_size > 0:
+                    effective_size = model_size / no_experts
+                    print(f"ℹ️ Using per-expert size {effective_size/1e9:.2f}B from no_experts={no_experts} for {model_id}")
+                elif name_expert_size:
+                    effective_size = name_expert_size
+                    print(f"ℹ️ Using name-derived expert size {effective_size/1e9:.2f}B from pattern in {base_name}")
+        except Exception:
+            pass
 
     # For tiny models, avoid 1–2 bpw entirely. Allow 2.x on mid-size, 1.x only on big.
     min_bits = 3.0 if effective_size < 3e9 else (   # <4B effective: start at ~3 bpw
