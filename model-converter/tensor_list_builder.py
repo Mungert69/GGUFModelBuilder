@@ -28,8 +28,9 @@ k_ladder = [
     "Q8_0",
 ]
 
-# Cross-family ladder (IQ then K) for roll-over when IQ tops out
-cross_ladder = [
+# Cross-family ladder for IQ overflow.
+# Do not drop to Q2_K after IQ4_XS; move to higher K_M tiers.
+iq_overflow_ladder = [
     "IQ1_S",
     "IQ1_M",
     "IQ2_XXS",
@@ -39,10 +40,8 @@ cross_ladder = [
     "IQ3_S",
     "IQ4_NL",
     "IQ4_XS",
-    "Q2_K",
-    "Q3_K",
-    "Q4_K",
-    "Q5_K",
+    "Q4_K_M",
+    "Q5_K_M",
     "Q6_K",
     "Q8_0",
 ]
@@ -220,15 +219,17 @@ def determine_quant_tier(base_quant: str,
         bumped_type = family_ladder[new_idx]
     elif ladder_name == "iq":
         try:
-            cross_start = cross_ladder.index(normalized_target)
-            bumped_type = cross_ladder[min(cross_start + total_bump, len(cross_ladder) - 1)]
+            cross_start = iq_overflow_ladder.index(normalized_target)
+            bumped_type = iq_overflow_ladder[min(cross_start + total_bump, len(iq_overflow_ladder) - 1)]
         except ValueError:
             bumped_type = family_ladder[-1]
     else:
         bumped_type = family_ladder[-1]
 
     # Ensure output is canonical / supported
-    bumped_type = quant_substitutions.get(bumped_type, bumped_type)
+    # Keep *_M outputs when selected by the overflow ladder.
+    if not bumped_type.endswith("_M"):
+        bumped_type = quant_substitutions.get(bumped_type, bumped_type)
 
     full_reason = f"Bumped from {normalized_target} by {total_bump} levels"
     if layer_name:
@@ -266,7 +267,8 @@ def apply_precision_override_rule(
             if is_moe is None or bool(is_moe) != bool(rule["experts"]):
                 continue
 
-        # Check order_low/order_high if present
+        # Check order_low/order_high if present.
+        # This uses normalized layer order (0..10), same as bump_order logic.
         if layer_order is not None and "order_low" in rule and "order_high" in rule:
             if not (rule["order_low"] <= layer_order <= rule["order_high"]):
                 continue
@@ -327,7 +329,7 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
         # Apply override_types rules if precision_override is set
         suggested_quant, reason, bump_applied = apply_precision_override_rule(
             name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
-            is_moe=is_moe, layer_order=layer_order
+            is_moe=is_moe, layer_order=normalized_layer_order
         )
 
 
