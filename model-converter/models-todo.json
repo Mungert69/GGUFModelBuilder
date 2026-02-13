@@ -8,7 +8,6 @@
     "ibm-granite/granite-3.2-8b-instruct",
     "allenai/OLMo-2-0325-32B-Instruct",
     "NousResearch/DeepHermes-3-Mistral-24B-Preview",
-    "mistralai/Mistral-Small-24B-Instruct-2501",
+    "mistralai/Mistral-Small-24B-Instruct-2501"
   ]
 }
-
