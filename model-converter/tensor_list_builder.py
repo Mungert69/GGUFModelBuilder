@@ -226,10 +226,10 @@ def determine_quant_tier(base_quant: str,
     else:
         bumped_type = family_ladder[-1]
 
-    # Ensure output is canonical / supported
-    # Keep *_M outputs when selected by the overflow ladder.
-    if not bumped_type.endswith("_M"):
-        bumped_type = quant_substitutions.get(bumped_type, bumped_type)
+    # Ensure output is canonical / supported for --tensor-type.
+    # Overflow ladder may pick *_M tiers conceptually; convert them to ggml-valid
+    # tensor types before emitting args.
+    bumped_type = quant_substitutions.get(bumped_type, bumped_type)
 
     full_reason = f"Bumped from {normalized_target} by {total_bump} levels"
     if layer_name:
