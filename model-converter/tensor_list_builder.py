@@ -247,6 +247,7 @@ def apply_precision_override_rule(
     Checks for override_types rules and applies either:
     - precision overrides (BF16/F16), or
     - bump_all_max overrides (Q8_0).
+    - force_type overrides (e.g. F32).
     Returns (suggested_quant, reason, bump_applied).
     """
     effective_override = precision_override.upper() if isinstance(precision_override, str) else None
@@ -277,6 +278,16 @@ def apply_precision_override_rule(
         if layer_order is not None and "order_low" in rule and "order_high" in rule:
             if not (rule["order_low"] <= layer_order <= rule["order_high"]):
                 continue
+
+        # Highest-priority explicit type override.
+        forced_type = rule.get("force_type")
+        if isinstance(forced_type, str) and forced_type.strip():
+            forced_type = forced_type.strip().upper()
+            return (
+                forced_type,
+                f"Override force_type: {forced_type} for {tensor_name} by rule",
+                True,
+            )
 
         # If requested, bump matching tensors to the maximum quantized tier.
         # Do not apply this for explicit full-precision override runs.
