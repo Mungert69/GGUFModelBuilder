@@ -244,15 +244,20 @@ def apply_precision_override_rule(
     is_moe=None, layer_order=None
 ):
     """
-    Checks for override_types rules and applies the precision override if the tensor matches.
+    Checks for override_types rules and applies either:
+    - precision overrides (BF16/F16), or
+    - bump_all_max overrides (Q8_0).
     Returns (suggested_quant, reason, bump_applied).
     """
-    if not precision_override:
-        return suggested_quant, reason, bump_applied
+    effective_override = precision_override.upper() if isinstance(precision_override, str) else None
 
     for rule in quant_rules:
         override_types = rule.get("override_types", [])
-        if precision_override not in override_types:
+        if isinstance(override_types, str):
+            override_types = [override_types]
+
+        # Support wildcard override type rules.
+        if "*" not in override_types and (not effective_override or effective_override not in override_types):
             continue
 
         # Check layer_name match (with wildcard support)
@@ -273,10 +278,23 @@ def apply_precision_override_rule(
             if not (rule["order_low"] <= layer_order <= rule["order_high"]):
                 continue
 
-        # All checks passed, apply override
+        # If requested, bump matching tensors to the maximum quantized tier.
+        # Do not apply this for explicit full-precision override runs.
+        if rule.get("bump_all_max", False):
+            if effective_override in {"BF16", "F16"}:
+                continue
+            return (
+                "Q8_0",
+                f"Override bump_all_max: Q8_0 for {tensor_name} by rule",
+                True,
+            )
+
+        # All checks passed, apply precision override if present.
+        if not effective_override:
+            continue
         return (
-            precision_override,
-            f"Override: {precision_override} for {tensor_name} by rule",
+            effective_override,
+            f"Override: {effective_override} for {tensor_name} by rule",
             True,
         )
     return suggested_quant, reason, bump_applied
