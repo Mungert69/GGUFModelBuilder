@@ -218,7 +218,7 @@
         {
            "override_types": ["*"],
            "layer_name":  ["*ssm_alpha","*ssm_beta"],
-           "bump_all_max": true
+           "force_type": "F32"
         }
     ]
 }
