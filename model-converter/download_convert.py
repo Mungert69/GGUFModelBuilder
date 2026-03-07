@@ -79,10 +79,11 @@ def main():
         output_file = os.path.join(output_dir, f"{model_name}-bf16.gguf")
         outtype = "bf16"
 
-    # Check if the final output file already exists
-    if os.path.exists(output_file):
-        print(f"Output file already exists at {output_file}. Exiting.")
-        return 0  # Success, no need to proceed further
+    # Check if the final output file already exists.
+    # We still continue, so missing mmproj variants can be generated.
+    output_exists = os.path.exists(output_file)
+    if output_exists:
+        print(f"Output file already exists at {output_file}. Skipping main conversion, continuing with mmproj checks.")
 
     import time
 
@@ -139,19 +140,16 @@ def main():
                 print(f"Failed to download README.md: {e}")
                 return 1  # Explicitly indicate failure
 
-    # Identify main model file
-    existing_model_path = None
-    for file_path in downloaded_files:
-        if file_path.endswith(".gguf") and outtype in file_path:
-            existing_model_path = f"{output_dir}/{file_path}"
-            break
+    model_snapshot_dir = os.path.dirname(downloaded_files[0]) if downloaded_files else None
+    if not model_snapshot_dir:
+        print("Error: could not determine model snapshot directory.")
+        return 1
 
-    if not existing_model_path:
-        print(f"No {outtype.upper()}-compatible model file found, converting...")
-        model_snapshot_dir = os.path.dirname(downloaded_files[0])
+    # Update the path to the convert_hf_to_gguf.py script
+    convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
 
-        # Update the path to the convert_hf_to_gguf.py script
-        convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
+    if not output_exists:
+        print(f"No {outtype.upper()} output at {output_file}, converting...")
 
         convert_command = [
             "python3", convert_script_path,
@@ -179,6 +177,9 @@ def main():
         mmproj_quant_types = ["f32", "f16", "bf16", "q8_0"]
         for quant_type in mmproj_quant_types:
             mmproj_output_file = os.path.join(output_dir, f"{model_name}-{quant_type}.mmproj")
+            if os.path.exists(mmproj_output_file):
+                print(f"mmproj already exists for {quant_type}: {mmproj_output_file} (skipping)")
+                continue
             convert_command = [
                 "python3", convert_script_path,
                 model_snapshot_dir,
@@ -193,7 +194,13 @@ def main():
                 if result.returncode == 0:
                     print(f"Successfully created mmproj file: {mmproj_output_file}")
                 else:
-                    print(f"mmproj conversion failed for {quant_type}: {result.stderr}")
+                    print(f"mmproj conversion failed for {quant_type} (exit={result.returncode})")
+                    if result.stdout:
+                        print("stdout:")
+                        print(result.stdout)
+                    if result.stderr:
+                        print("stderr:")
+                        print(result.stderr)
             except Exception as e:
                 print(f"Exception during mmproj conversion for {quant_type}: {e}")
 
