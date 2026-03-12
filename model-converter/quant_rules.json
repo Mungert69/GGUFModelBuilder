@@ -8,7 +8,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
             "bump": 2,
             "bump_experts": 2
         },
@@ -46,7 +46,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down","*ffn_gate","*ffn_up","*attn_output","*ffn_gate_inp","*ssm_out"],
+            "layer_name": ["*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*ffn_gate_inp","*ssm_out","*ssm_in"],
             "bump": 2,
             "bump_experts": 4,
             "bump_order_low": 2,
@@ -56,7 +56,7 @@
         },
         {
             "base_type": ["IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_output","*ssm_out"],
+            "layer_name": ["*attn_output","*ssm_out","*ssm_in"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 0,
@@ -92,13 +92,13 @@
         },
         {
             "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_qkv"],
+            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_qkv"],
             "bump": 1,
             "bump_experts": 1
         },
         {
             "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_qkv"],
+            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_qkv"],
             "bump": 1,
             "bump_experts": 1
         },
@@ -116,7 +116,7 @@
         },
         {
             "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv","*ssm_out"],
+            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ssm_out","*ssm_in"],
             "bump": 1,
             "bump_experts": 1,
             "bump_order_low": 1,
@@ -162,7 +162,7 @@
         },
         {
             "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M","Q4_K_S","Q4_K","Q4_K_M","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -199,7 +199,7 @@
         },
         {
             "override_types": ["BF16","F16"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_output","*attn_qkv","*ssm_out"]
+            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ssm_out","*ssm_in"]
         },
         {
             "override_types": ["BF16","F16"],
