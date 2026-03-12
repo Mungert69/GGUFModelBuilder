@@ -1,246 +1,76 @@
 diff --git a/src/llama-quant.cpp b/src/llama-quant.cpp
-index 24770430e..c7f8ac565 100644
+index 8e8ce2312..3a8402e68 100644
 --- a/src/llama-quant.cpp
 +++ b/src/llama-quant.cpp
-@@ -175,9 +175,47 @@ static void llama_tensor_dequantize_impl(
-     workers.clear();
- }
- 
-+static int quant_type_quality(ggml_type t) {
-+    // Higher value = higher quality
-+    switch (t) {
-+        case GGML_TYPE_F32:   return 100;
-+        case GGML_TYPE_F16:   return 90;
-+        case GGML_TYPE_BF16:  return 89;
-+        case GGML_TYPE_Q8_0:  return 80;
-+        case GGML_TYPE_Q6_K:  return 70;
-+        case GGML_TYPE_Q5_K:  return 66;
-+        case GGML_TYPE_Q5_1:  return 65;
-+        case GGML_TYPE_Q5_0:  return 64;
-+        case GGML_TYPE_MXFP4: return 60;
-+        case GGML_TYPE_Q4_K:  return 58;
-+        case GGML_TYPE_IQ4_NL:return 57;
-+        case GGML_TYPE_IQ4_XS:return 56;
-+        case GGML_TYPE_Q4_1:  return 55;
-+        case GGML_TYPE_Q4_0:  return 54;
-+        case GGML_TYPE_Q3_K:  return 46;
-+        case GGML_TYPE_IQ3_S: return 44;
-+        case GGML_TYPE_Q2_K:  return 42;
-+        case GGML_TYPE_IQ3_XXS:return 41;
-+        case GGML_TYPE_IQ2_S: return 38;
-+        case GGML_TYPE_IQ2_XS:return 36;
-+        case GGML_TYPE_IQ2_XXS:return 33;
-+        case GGML_TYPE_IQ1_S: return 30;
-+        case GGML_TYPE_IQ1_M: return 29;
-+        default:              return 0;
-+    }
-+}
-+
- static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_type, const ggml_tensor * tensor, llama_ftype ftype) {
-     const std::string name = ggml_get_name(tensor);
- 
-+    static std::unordered_map<std::string, bool> fallback_set;
-+    static std::unordered_map<std::string, ggml_type> chosen_type;
-+
-+    // If fallback was set for this tensor, do not allow override
-+    if (fallback_set.count(name) && fallback_set[name]) {
-+        return new_type;
+@@ -657,40 +657,50 @@ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, const llama_mod
+     if (!tensor_allows_quantization(params, qs.model.arch, tensor)) {
+         return tensor->type;
+     }
++    // Preserve already-MXFP4 tensors as-is.
++    if (tensor->type == GGML_TYPE_MXFP4) {
++        return GGML_TYPE_MXFP4;
 +    }
 +
-     // TODO: avoid hardcoded tensor names - use the TN_* constants
-     const llm_arch arch = qs.model.arch;
-     const auto       tn = LLM_TN(arch);
-@@ -422,6 +460,70 @@ static ggml_type llama_tensor_get_type(quantize_state_impl & qs, ggml_type new_t
-         ++qs.i_ffn_up;
++    ggml_type new_type = default_type;
++    bool manual = false;
++    bool require_fallback_check = false;
++
+     if (params->token_embedding_type < GGML_TYPE_COUNT && tm.category == tensor_category::TOKEN_EMBD) {
+-        return params->token_embedding_type;
++        new_type = params->token_embedding_type;
++        require_fallback_check = true;
+     }
+     if (params->output_tensor_type < GGML_TYPE_COUNT && tm.category == tensor_category::OUTPUT) {
+-        return params->output_tensor_type;
++        new_type = params->output_tensor_type;
++        require_fallback_check = true;
      }
  
-+    {
-+        bool convert_incompatible_tensor = false;
-+
-+        const int64_t nx = tensor->ne[0];
-+        const int64_t ny = tensor->ne[1];
-+        const int64_t qk_k = ggml_blck_size(new_type);
-+
-+        if (nx % qk_k != 0) {
-+            LLAMA_LOG_WARN("\n\n%s : tensor cols %" PRId64 " x %" PRId64 " are not divisible by %" PRId64 ", required for %s", __func__, nx, ny, qk_k, ggml_type_name(new_type));
-+            convert_incompatible_tensor = true;
-+        } else {
-+            ++qs.n_k_quantized;
-+        }
-+
-+        if (convert_incompatible_tensor) {
-+            switch (new_type) {
-+                case GGML_TYPE_TQ1_0:
-+                case GGML_TYPE_TQ2_0:  new_type = GGML_TYPE_Q4_0; break;  // TODO: use a symmetric type instead
-+                case GGML_TYPE_IQ2_XXS:
-+                case GGML_TYPE_IQ2_XS:
-+                case GGML_TYPE_IQ2_S:
-+                case GGML_TYPE_IQ3_XXS:
-+                case GGML_TYPE_IQ3_S:
-+                case GGML_TYPE_IQ1_S:
-+                case GGML_TYPE_IQ1_M:
-+                case GGML_TYPE_Q2_K:
-+                case GGML_TYPE_Q3_K:
-+                case GGML_TYPE_IQ4_XS: new_type = GGML_TYPE_IQ4_NL; break;
-+                case GGML_TYPE_Q4_K:   new_type = GGML_TYPE_Q5_0;   break;
-+                case GGML_TYPE_Q5_K:   new_type = GGML_TYPE_Q5_1;   break;
-+                case GGML_TYPE_Q6_K:   new_type = GGML_TYPE_Q8_0;   break;
-+                default: throw std::runtime_error("\nUnsupported tensor size encountered\n");
-+            }
-+            if (tensor->ne[0] % ggml_blck_size(new_type) != 0) {
-+                new_type = GGML_TYPE_F16;
-+            }
-+            LLAMA_LOG_WARN(" - using fallback quantization %s\n", ggml_type_name(new_type));
-+            ++qs.n_fallback;
-+            fallback_set[name] = true;
-+        }
-+    }
-+
-+    const bool fallback_active = fallback_set.count(name) && fallback_set[name];
-+
-+    // Handle override logic here (moved from llama_model_quantize_impl)
-+    if (qs.params && qs.params->tensor_types) {
-+        if (fallback_active) {
-+            LLAMA_LOG_DEBUG("(override skipped: incompatible tensor) ");
-+        } else {
-+            const std::vector<tensor_quantization> & tensor_types = *static_cast<const std::vector<tensor_quantization> *>(qs.params->tensor_types);
-+            for (const auto & [tname, qtype] : tensor_types) {
-+                if (std::regex pattern(tname); std::regex_search(name, pattern)) {
-+                    if (qtype != new_type) {
-+                        LLAMA_LOG_DEBUG("(overriding %s) ", ggml_type_name(new_type));
-+                        new_type = qtype;
-+                    }
-+                }
-+            }
-+        }
-+    }
-+
-+    // Track the chosen type for this tensor
-+    chosen_type[name] = new_type;
-+
-     return new_type;
- }
- 
-@@ -847,77 +949,52 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
- 
-             // get more optimal quantization type based on the tensor shape, layer, etc.
-             if (!params->pure && ggml_is_quantized(default_type)) {
--                // if the user provided tensor types - use those
--                bool manual = false;
--                if (params->tensor_types) {
--                    const std::vector<tensor_quantization> & tensor_types = *static_cast<const std::vector<tensor_quantization> *>(params->tensor_types);
--                    const std::string tensor_name(tensor->name);
--                    for (const auto & [tname, qtype] : tensor_types) {
--                        if (std::regex pattern(tname); std::regex_search(tensor_name, pattern)) {
--                            if  (qtype != new_type) {
--                                LLAMA_LOG_WARN("(manual override: %s -> %s) ", ggml_type_name(new_type), ggml_type_name(qtype));
--                                new_type = qtype; // if two or more types are specified for the same tensor, the last match wins
--                                manual = true;
--                                break;
--                            }
--                        }
+-    ggml_type new_type = default_type;
+-
+-    // get more optimal quantization type based on the tensor shape, layer, etc.
+-    if (!params->pure && ggml_is_quantized(default_type)) {
+-        // if the user provided tensor types - use those
+-        bool manual = false;
+-        if (!qs.tensor_type_patterns.empty()) {
+-            const std::string tensor_name(tensor->name);
+-            for (const auto & [pattern, qtype] : qs.tensor_type_patterns) {
+-                if (std::regex_search(tensor_name, pattern)) {
+-                    if (qtype != new_type) {
+-                        LLAMA_LOG_WARN("%s: %-36s - applying manual override: %s -> %s\n",
+-                                       __func__, tensor_name.c_str(), ggml_type_name(new_type), ggml_type_name(qtype));
+-                        new_type = qtype;
+-                        manual = true;
+-                        break;
 -                    }
 -                }
--
--                // if not manual - use the standard logic for choosing the quantization type based on the selected mixture
--                if (!manual) {
--                    new_type = llama_tensor_get_type(qs, new_type, tensor, ftype);
--                }
--
--                // incompatible tensor shapes are handled here - fallback to a compatible type
--                {
--                    bool convert_incompatible_tensor = false;
--
--                    const int64_t nx = tensor->ne[0];
--                    const int64_t ny = tensor->ne[1];
--                    const int64_t qk_k = ggml_blck_size(new_type);
--
--                    if (nx % qk_k != 0) {
--                        LLAMA_LOG_WARN("\n\n%s : tensor cols %" PRId64 " x %" PRId64 " are not divisible by %" PRId64 ", required for %s", __func__, nx, ny, qk_k, ggml_type_name(new_type));
--                        convert_incompatible_tensor = true;
--                    } else {
--                        ++qs.n_k_quantized;
--                    }
-+                new_type = llama_tensor_get_type(qs, new_type, tensor, ftype);
-+            }
- 
--                    if (convert_incompatible_tensor) {
--                        switch (new_type) {
--                            case GGML_TYPE_TQ1_0:
--                            case GGML_TYPE_TQ2_0:  new_type = GGML_TYPE_Q4_0; break;  // TODO: use a symmetric type instead
--                            case GGML_TYPE_IQ2_XXS:
--                            case GGML_TYPE_IQ2_XS:
--                            case GGML_TYPE_IQ2_S:
--                            case GGML_TYPE_IQ3_XXS:
--                            case GGML_TYPE_IQ3_S:
--                            case GGML_TYPE_IQ1_S:
--                            case GGML_TYPE_IQ1_M:
--                            case GGML_TYPE_Q2_K:
--                            case GGML_TYPE_Q3_K:
--                            case GGML_TYPE_IQ4_XS: new_type = GGML_TYPE_IQ4_NL; break;
--                            case GGML_TYPE_Q4_K:   new_type = GGML_TYPE_Q5_0;   break;
--                            case GGML_TYPE_Q5_K:   new_type = GGML_TYPE_Q5_1;   break;
--                            case GGML_TYPE_Q6_K:   new_type = GGML_TYPE_Q8_0;   break;
--                            default: throw std::runtime_error("\nUnsupported tensor size encountered\n");
--                        }
--                        if (tensor->ne[0] % ggml_blck_size(new_type) != 0) {
--                            new_type = GGML_TYPE_F16;
-+            // In --pure mode we still want explicit --tensor-type overrides.
-+            // Keep pure default for all tensors except manually overridden ones.
-+            if (params->pure && params->tensor_types) {
-+                const std::vector<tensor_quantization> & tensor_types = *static_cast<const std::vector<tensor_quantization> *>(params->tensor_types);
-+                const std::string tensor_name(tensor->name);
-+                for (const auto & [tname, qtype] : tensor_types) {
-+                    if (std::regex pattern(tname); std::regex_search(tensor_name, pattern)) {
-+                        if (qtype != new_type) {
-+                            LLAMA_LOG_DEBUG("(manual override in --pure: %s -> %s) ", ggml_type_name(new_type), ggml_type_name(qtype));
-+                            new_type = qtype;
-                         }
--                        LLAMA_LOG_WARN(" - using fallback quantization %s\n", ggml_type_name(new_type));
--                        ++qs.n_fallback;
-                     }
-                 }
++    // Always honor explicit --tensor-type patterns (including in --pure mode).
++    if (!qs.tensor_type_patterns.empty()) {
++        const std::string tensor_name(tensor->name);
++        for (const auto & [pattern, qtype] : qs.tensor_type_patterns) {
++            if (std::regex_search(tensor_name, pattern) && qtype != new_type) {
++                LLAMA_LOG_WARN("%s: %-36s - applying manual override: %s -> %s\n",
++                               __func__, tensor_name.c_str(), ggml_type_name(new_type), ggml_type_name(qtype));
++                new_type = qtype;
++                manual = true;
++                require_fallback_check = true;
++                break;
              }
-+
-             if (params->token_embedding_type < GGML_TYPE_COUNT && strcmp(tensor->name, "token_embd.weight") == 0) {
--                new_type = params->token_embedding_type;
-+                const int64_t block = ggml_blck_size(params->token_embedding_type);
-+                if (block > 0 && tensor->ne[0] % block == 0) {
-+                    new_type = params->token_embedding_type;
-+                } else {
-+                    LLAMA_LOG_DEBUG("(token_embd override skipped: %s incompatible with cols %" PRId64 ")\n",
-+                            ggml_type_name(params->token_embedding_type), tensor->ne[0]);
-+                }
-             }
-             if (params->output_tensor_type < GGML_TYPE_COUNT && strcmp(tensor->name, "output.weight") == 0) {
--                new_type = params->output_tensor_type;
-+                const int64_t block = ggml_blck_size(params->output_tensor_type);
-+                if (block > 0 && tensor->ne[0] % block == 0) {
-+                    new_type = params->output_tensor_type;
-+                } else {
-+                    LLAMA_LOG_DEBUG("(output override skipped: %s incompatible with cols %" PRId64 ")\n",
-+                            ggml_type_name(params->output_tensor_type), tensor->ne[0]);
-+                }
-             }
+         }
++    }
  
-+            // HARDCODE OVERRIDE: If tensor is already mxfp4, force new_type to mxfp4
-+            if (tensor->type == GGML_TYPE_MXFP4) {
-+                new_type = GGML_TYPE_MXFP4;
-+                LLAMA_LOG_INFO("HARDCODE OVERRIDE: tensor '%s' is already mxfp4, forcing new_type = mxfp4\n", name.c_str());
-+            }
-+
-+            // Debug: print current and new type before quantize decision
-+            LLAMA_LOG_INFO("DEBUG: tensor->type = %s, new_type = %s\n", ggml_type_name(tensor->type), ggml_type_name(new_type));
-+
-             // If we've decided to quantize to the same type the tensor is already
-             // in then there's nothing to do.
-             quantize = tensor->type != new_type;
-@@ -1022,7 +1099,7 @@ static void llama_model_quantize_impl(const std::string & fname_inp, const std::
-                     new_size += llama_tensor_quantize_impl(new_type, f32_data_03, new_data_03, chunk_size, nrows, n_per_row, imatrix_03, workers, nthread_use);
++    // get more optimal quantization type based on the tensor shape, layer, etc.
++    if (!params->pure && ggml_is_quantized(default_type)) {
+         // if not manual - use the standard logic for choosing the quantization type based on the selected mixture
+         if (!manual) {
+             new_type = llama_tensor_get_type_impl(qs, new_type, tensor, params->ftype, tm.category);
++            require_fallback_check = true;
+         }
++    }
  
-                     // TODO: temporary sanity check that the F16 -> MXFP4 is lossless
--#if 0
-+#if 1
-                     if (new_type == GGML_TYPE_MXFP4) {
-                         auto * x = f32_data_03;
+-        // incompatible tensor shapes are handled here - fallback to a compatible type
++    // incompatible tensor shapes are handled here - fallback to a compatible type
++    if (require_fallback_check && ggml_is_quantized(new_type)) {
+         new_type = tensor_type_fallback(qs, tensor, new_type);
+     }
  

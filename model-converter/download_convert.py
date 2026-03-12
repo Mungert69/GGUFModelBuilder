@@ -107,43 +107,85 @@ def main():
         print(f"Failed to list files in repository '{repo_id}': {e}")
         return 1  # Explicitly indicate failure
 
-    # Download each file
-    downloaded_files = []
+    # Use the shared HF cache location and only download missing/incomplete files.
     try:
-        for file_name in files:
-            print(f"Downloading {file_name}...")
+        api = HfApi()
+        model_info = retry(lambda: api.model_info(repo_id=repo_id, files_metadata=True, token=api_token))
+        expected_sizes = {
+            s.rfilename: s.size for s in model_info.siblings
+            if getattr(s, "rfilename", None)
+        }
+    except Exception as e:
+        print(f"Failed to fetch repo metadata for size checks: {e}")
+        return 1
+
+    downloaded_files = []
+    local_file_paths = {}
+    reused_count = 0
+    downloaded_count = 0
+    for file_name in files:
+        expected_size = expected_sizes.get(file_name)
+        local_path = None
+
+        # First check local cache only.
+        try:
+            local_path = hf_hub_download(
+                repo_id=repo_id,
+                filename=file_name,
+                token=api_token,
+                local_files_only=True,
+            )
+            if expected_size is not None and os.path.getsize(local_path) != expected_size:
+                print(
+                    f"Cached file incomplete (size mismatch), will re-download: {file_name} "
+                    f"({os.path.getsize(local_path)} != {expected_size})"
+                )
+                local_path = None
+            else:
+                reused_count += 1
+        except Exception:
+            local_path = None
+
+        # If missing/incomplete, fetch from hub (hf_hub_download reuses cache and resumes when possible).
+        if local_path is None:
+            print(f"Downloading missing/incomplete file: {file_name}")
             try:
-                file_path = retry(lambda: hf_hub_download(repo_id=repo_id, filename=file_name, token=api_token))
-                downloaded_files.append(file_path)
-                print(f"Downloaded {file_name} to {file_path}")
+                local_path = retry(lambda: hf_hub_download(repo_id=repo_id, filename=file_name, token=api_token))
+                downloaded_count += 1
             except Exception as e:
                 print(f"Failed to download {file_name}: {e}")
-                return 1  # Explicitly indicate failure
-    except Exception as e:
-        print(f"An error occurred during the download process: {e}")
-        return 1  # Explicitly indicate failure
+                return 1
 
-    # Download README.md if it exists
-    readme_path = None
-    for file_name in files:
-        if file_name.lower() == "readme.md":
-            print("Downloading README.md...")
-            try:
-                readme_path = hf_hub_download(repo_id=repo_id, filename=file_name, token=api_token)
-                # Copy the README.md to the output directory
-                readme_output_path = os.path.join(output_dir, "README.md")
-                with open(readme_output_path, "wb") as f_out:
-                    with open(readme_path, "rb") as f_in:
-                        f_out.write(f_in.read())
-                print(f"README.md downloaded and saved to {readme_output_path}")
-            except Exception as e:
-                print(f"Failed to download README.md: {e}")
-                return 1  # Explicitly indicate failure
+        local_file_paths[file_name] = local_path
+        downloaded_files.append(local_path)
+
+    safetensors_files = [f for f in files if f.endswith(".safetensors")]
+    safetensors_complete = 0
+    for file_name in safetensors_files:
+        path = local_file_paths.get(file_name)
+        expected_size = expected_sizes.get(file_name)
+        if path and os.path.exists(path):
+            if expected_size is None or os.path.getsize(path) == expected_size:
+                safetensors_complete += 1
+    print(
+        f"Safetensors status: {safetensors_complete}/{len(safetensors_files)} complete, "
+        f"{len(safetensors_files) - safetensors_complete} missing/incomplete."
+    )
+    print(f"Download summary: reused {reused_count} file(s), downloaded {downloaded_count} file(s).")
 
     model_snapshot_dir = os.path.dirname(downloaded_files[0]) if downloaded_files else None
     if not model_snapshot_dir:
         print("Error: could not determine model snapshot directory.")
         return 1
+
+    # Copy README.md to output dir if present in cache.
+    readme_path = local_file_paths.get("README.md") or local_file_paths.get("readme.md")
+    if readme_path and os.path.exists(readme_path):
+        readme_output_path = os.path.join(output_dir, "README.md")
+        with open(readme_output_path, "wb") as f_out:
+            with open(readme_path, "rb") as f_in:
+                f_out.write(f_in.read())
+        print(f"README.md saved to {readme_output_path}")
 
     # Update the path to the convert_hf_to_gguf.py script
     convert_script_path = f"{llama_dir}/convert_hf_to_gguf.py"
