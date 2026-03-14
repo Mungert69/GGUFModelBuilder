@@ -6,21 +6,17 @@ import random
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
-from transformers import AutoTokenizer
+import semantic_rechunk_qwen3 as sr
 
 # -------- Settings --------
-MODEL_NAME = "qwen/qwen3-4b-fp8"
 MAX_TOKENS = 12000  # Model context window
 CHUNK_TOKEN_LIMIT = 3000  # Target max tokens per chunk (leave room for prompt/response)
 WINDOW_SIZE = 20
 TIME_DELAY = 10
-NOVITA_API_URL = "https://api.novita.ai/v3/openai"
 MAX_RETRIES = 3
 BASE_DELAY = 8
 TIME_DELAY = 10
 MIN_CHUNK_TOKENS = 500  # Minimum tokens per merged chunk
-
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-4B")
 
 from semantic_rechunk_qwen3 import (
     safe_chat_completion,
@@ -35,6 +31,15 @@ from semantic_rechunk_qwen3 import (
 from prechunk import smart_prechunk, merge_chunks
 
 def rechunk_text_file(input_file, output_json):
+    config_path = os.path.join(os.path.dirname(__file__), "semantic_rechunk_config.json")
+    runtime_config = sr.load_runtime_config(config_path)
+    sr.apply_runtime_overrides(runtime_config)
+    tokenizer = sr.get_tokenizer()
+    model_name = sr.MODEL_NAME
+    api_base_url = sr.NOVITA_API_URL
+    api_key_env = sr.API_KEY_ENV
+    max_context = sr.MAX_CONTEXT
+
     # Read JSONL or JSON array of {"input": ..., "output": ...}
     with open(input_file, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -57,17 +62,18 @@ def rechunk_text_file(input_file, output_json):
     print(f"[INFO] Initial rough chunks: {len(chunks)}")
     # Setup LLM client
     load_dotenv()
-    api_key = os.getenv("LlmHFKey")
+    api_key = os.getenv(api_key_env)
     if not api_key:
-        print("[FATAL ERROR] Missing API key (LlmHFKey) in .env file")
+        print(f"[FATAL ERROR] Missing API key ({api_key_env}) in environment.")
         sys.exit(1)
-    client = OpenAI(base_url=NOVITA_API_URL, api_key=api_key)
+    client = OpenAI(base_url=api_base_url, api_key=api_key)
     pointer = 0
     semantic_blocks = []
     adaptive_window_size = WINDOW_SIZE
+    adaptive_mode = getattr(sr, "ADAPTIVE_WINDOW", True)
+    adaptive_mode_logged = False
 
     while pointer < len(chunks):
-        max_context = 40960
         SAFETY_BUFFER = 100  # tokens
         reserved_output_tokens = MAX_TOKENS + SAFETY_BUFFER
         window_chunks, total_tokens, cur_window_size = build_adaptive_window(
@@ -75,15 +81,19 @@ def rechunk_text_file(input_file, output_json):
         )
 
         # ---- Adaptive window size logic ----
-        fill_ratio = total_tokens / max_context
-        if fill_ratio < 0.5 and adaptive_window_size < 50:
-            adaptive_window_size += 2
-            print(f"[ADAPT] Prompt fill ratio low ({fill_ratio:.2f}), increasing window size to {adaptive_window_size}")
-        elif fill_ratio > 0.9 and adaptive_window_size > 2:
-            adaptive_window_size = max(2, adaptive_window_size - 2)
-            print(f"[ADAPT] Prompt fill ratio high ({fill_ratio:.2f}), decreasing window size to {adaptive_window_size}")
-        else:
-            print(f"[ADAPT] Prompt fill ratio ok ({fill_ratio:.2f}), keeping window size at {adaptive_window_size}")
+        if adaptive_mode:
+            fill_ratio = total_tokens / max_context
+            if fill_ratio < 0.5 and adaptive_window_size < 50:
+                adaptive_window_size += 2
+                print(f"[ADAPT] Prompt fill ratio low ({fill_ratio:.2f}), increasing window size to {adaptive_window_size}")
+            elif fill_ratio > 0.9 and adaptive_window_size > 2:
+                adaptive_window_size = max(2, adaptive_window_size - 2)
+                print(f"[ADAPT] Prompt fill ratio high ({fill_ratio:.2f}), decreasing window size to {adaptive_window_size}")
+            else:
+                print(f"[ADAPT] Prompt fill ratio ok ({fill_ratio:.2f}), keeping window size at {adaptive_window_size}")
+        elif not adaptive_mode_logged:
+            print(f"[ADAPT] Disabled. Using fixed window size {adaptive_window_size}")
+            adaptive_mode_logged = True
 
         # ---- DEBUG PRINTS ----
         print("\n=== BLOCK DEBUG ===")
@@ -108,7 +118,7 @@ def rechunk_text_file(input_file, output_json):
             sys.exit(1)
 
         end_idx, debug_msg = get_semantic_block_end(
-            window_chunks, client, MODEL_NAME, actual_max_tokens
+            window_chunks, client, model_name, actual_max_tokens
         )
         if end_idx is None:
             print("\n" + "=" * 60 + "\nFATAL segmentation error\n" + "=" * 60)
@@ -131,7 +141,7 @@ def rechunk_text_file(input_file, output_json):
             print(f"  [{pointer + i + 1}] {preview}{ellipsis}")
 
         # Generate question and summary using the shared function
-        question, summary = summarize_text(block_text, client, MODEL_NAME)
+        question, summary = summarize_text(block_text, client, model_name)
         semantic_blocks.append({
             "start": pointer + 1,
             "end": pointer + corrected_end,
