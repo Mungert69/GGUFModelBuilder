@@ -71,6 +71,7 @@ TOKENIZER_NAME = "Qwen/Qwen3-4B"
 DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "semantic_rechunk_config.json")
 tokenizer = None
 _REQUEST_TIMESTAMPS = deque()
+_LAST_REQUEST_TS = 0.0
 _GENERATION_REASONING_ONLY_STREAK = 0
 _GENERATION_LLM_DISABLED = False
 
@@ -415,11 +416,21 @@ def get_tokenizer():
 
 
 def enforce_rate_limit():
+    global _LAST_REQUEST_TS
     if RATE_LIMIT_CALLS_PER_MIN <= 0:
         return
 
     window_seconds = 60.0
+    # Smooth request pacing to avoid short bursts that can still trigger provider-side 429s.
+    min_interval = (window_seconds / float(RATE_LIMIT_CALLS_PER_MIN)) + 0.05
     now = time.monotonic()
+    since_last = now - _LAST_REQUEST_TS
+    if _LAST_REQUEST_TS > 0 and since_last < min_interval:
+        spacing_wait = min_interval - since_last
+        print(f"[RATE] Spacing guard waiting {spacing_wait:.2f}s (target {min_interval:.2f}s/request)")
+        time.sleep(spacing_wait)
+        now = time.monotonic()
+
     while _REQUEST_TIMESTAMPS and (now - _REQUEST_TIMESTAMPS[0]) >= window_seconds:
         _REQUEST_TIMESTAMPS.popleft()
 
@@ -432,7 +443,9 @@ def enforce_rate_limit():
         while _REQUEST_TIMESTAMPS and (now - _REQUEST_TIMESTAMPS[0]) >= window_seconds:
             _REQUEST_TIMESTAMPS.popleft()
 
-    _REQUEST_TIMESTAMPS.append(time.monotonic())
+    request_ts = time.monotonic()
+    _REQUEST_TIMESTAMPS.append(request_ts)
+    _LAST_REQUEST_TS = request_ts
 
 
 
@@ -1863,8 +1876,9 @@ def main():
         dt_str = datetime.now().strftime("%Y%m%d%H%M%S")
         if len(args) > 1:
             base_output = args[1]
-            base, ext = os.path.splitext(base_output)
-            output_json = f"{base.replace(' ', '_')}_{dt_str}{ext}"
+            # In single-file mode, honor the caller-provided output path exactly.
+            # The batch retry runner depends on this deterministic filename.
+            output_json = base_output
         else:
             input_base, _ = os.path.splitext(os.path.basename(input_json))
             output_json = f"{input_base.replace(' ', '_')}_{dt_str}.json"

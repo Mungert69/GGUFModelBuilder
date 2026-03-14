@@ -7,7 +7,7 @@
   "WindowSize": 14,
   "TimeDelay": 2,
   "MaxContext": 131072,
-  "RateLimitPerMinute": 40,
+  "RateLimitPerMinute": 30,
   "RequestTimeoutSeconds": 240,
   "AdaptiveWindow": true,
   "AdaptiveTargetMaxTokens": 22000,
