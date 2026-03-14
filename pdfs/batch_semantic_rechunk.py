@@ -439,9 +439,19 @@ def retry_missing_range(script_path, input_file, work_file, range_start, range_e
 
     mapped_count = 0
     latest_block_file = ""
+    produced_path = ""
     if os.path.exists(temp_output):
-        latest_block_file = temp_output
-        produced = load_json_file(temp_output)
+        produced_path = temp_output
+    else:
+        # Backward compatibility: older single-file mode rewrote output path with a timestamp suffix.
+        stem, ext = os.path.splitext(temp_output)
+        candidates = sorted(glob.glob(f"{stem}_*{ext}"), key=os.path.getmtime)
+        if candidates:
+            produced_path = candidates[-1]
+
+    if produced_path:
+        latest_block_file = produced_path
+        produced = load_json_file(produced_path)
         if isinstance(produced, list):
             mapped = map_block_ranges(produced, range_start - 1, range_start, range_end)
             mapped_count = len(mapped)
