@@ -12,7 +12,8 @@ if [[ ! -x "$PYTHON_BIN" ]]; then
 fi
 
 # Defaults for stage-2 semantic batch processing.
-PATTERN="${PATTERN:-*_chunks.json}"
+# Stage-1 now commonly outputs plain *.json; filtering of derived files is handled in batch_semantic_rechunk.py.
+PATTERN="${PATTERN:-*.json}"
 WORK_DIR="${WORK_DIR:-.semantic_work}"
 STATUS_FILE="${STATUS_FILE:-semantic_batch_status.json}"
 MAX_PASSES="${MAX_PASSES:-20}"
@@ -25,4 +26,3 @@ exec "$PYTHON_BIN" "$SCRIPT_DIR/batch_semantic_rechunk.py" \
   --status-file "$STATUS_FILE" \
   --max-passes "$MAX_PASSES" \
   "$@"
-

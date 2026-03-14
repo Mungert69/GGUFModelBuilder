@@ -20,7 +20,35 @@ def utc_now_iso():
 
 def discover_input_files(pattern):
     files = sorted(glob.glob(pattern))
-    return [f for f in files if os.path.isfile(f)]
+    return [f for f in files if os.path.isfile(f) and is_stage1_source_json(f)]
+
+
+def is_stage1_source_json(path):
+    """
+    Keep only stage-1 source JSON chunk files and ignore generated artifacts from stage-2.
+    """
+    name = os.path.basename(path)
+    lower = name.lower()
+
+    # Keep non-JSON patterns untouched (defensive; current workflow uses JSON files).
+    if not lower.endswith(".json"):
+        return True
+
+    # Exclude generated stage-2 outputs/status/retry artifacts.
+    if lower.startswith("retry_"):
+        return False
+    if lower.startswith("semantic_batch_status"):
+        return False
+    if "_out_" in lower:
+        return False
+    if lower.endswith("_semantic_work.json"):
+        return False
+    if lower.endswith("_semantic_ingest.json"):
+        return False
+    if DATE_SUFFIX_RE.search(lower):
+        return False
+
+    return True
 
 
 def load_json_file(path):
@@ -437,7 +465,7 @@ def retry_missing_range(script_path, input_file, work_file, range_start, range_e
 def main():
     parser = argparse.ArgumentParser(
         description="Stage-2 batch loop: run semantic rechunk and verify chunk coverage.")
-    parser.add_argument("--pattern", default="*_chunks.json", help="Input file glob pattern.")
+    parser.add_argument("--pattern", default="*.json", help="Input file glob pattern.")
     parser.add_argument("--max-passes", type=int, default=10, help="Maximum loop passes.")
     parser.add_argument("--status-file", default="semantic_batch_status.json", help="Status output file path.")
     parser.add_argument("--script", default=os.path.join(os.path.dirname(__file__), "semantic_rechunk_qwen3.py"),
