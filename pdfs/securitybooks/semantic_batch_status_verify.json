@@ -1,0 +1,20 @@
+{
+  "started_at": "2026-03-13T23:25:32+00:00",
+  "pattern": "Hacking_For_Dummies_4th_Edition_chunks.json",
+  "max_passes": 1,
+  "work_files": {
+    "Hacking_For_Dummies_4th_Edition_chunks.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json"
+  },
+  "passes": [
+    {
+      "pass": 1,
+      "started_at": "2026-03-13T23:25:32+00:00",
+      "pending_before_count": 0,
+      "pending_before": [],
+      "runs": [],
+      "ended_at": "2026-03-13T23:25:32+00:00",
+      "message": "All inputs complete."
+    }
+  ],
+  "ended_at": "2026-03-13T23:25:32+00:00"
+}

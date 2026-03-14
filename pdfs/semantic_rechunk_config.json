@@ -1,0 +1,22 @@
+{
+  "LlmHFModelID": "meta/llama-3.3-70b-instruct",
+  "LlmHFUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "LlmHFKeyEnv": "LlmHFKey",
+  "TokenizerName": "meta-llama/Llama-3.3-70B-Instruct",
+  "MaxTokens": 32768,
+  "WindowSize": 14,
+  "TimeDelay": 2,
+  "MaxContext": 131072,
+  "RateLimitPerMinute": 40,
+  "RequestTimeoutSeconds": 240,
+  "AdaptiveWindow": true,
+  "AdaptiveTargetMaxTokens": 22000,
+  "AdaptiveMaxPromptTokens": 36000,
+  "FrontMatterTargetMaxTokens": 12000,
+  "FrontMatterMaxPromptTokens": 18000,
+  "AllowGenerationFallback": false,
+  "GenerationRetries": 2,
+  "GenerationDisableAfterReasoningOnly": 3,
+  "ContentCheckEnabled": true,
+  "ContentCheckMaxTokens": 128
+}
