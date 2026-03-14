@@ -66,12 +66,20 @@ GENERATION_DISABLE_AFTER_REASONING_ONLY = 3
 ALLOW_GENERATION_FALLBACK = False
 CONTENT_CHECK_ENABLED = True
 CONTENT_CHECK_MAX_TOKENS = 128
+RATE_LIMIT_429_COOLDOWN_SECONDS = 15
+RATE_LIMIT_429_COOLDOWN_MAX_SECONDS = 120
+RATE_LIMIT_DYNAMIC_SPACING_STEP = 0.5
+RATE_LIMIT_DYNAMIC_SPACING_MAX_MULTIPLIER = 4.0
+RATE_LIMIT_RECOVERY_SUCCESSES = 6
 
 TOKENIZER_NAME = "Qwen/Qwen3-4B"
 DEFAULT_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "semantic_rechunk_config.json")
 tokenizer = None
 _REQUEST_TIMESTAMPS = deque()
 _LAST_REQUEST_TS = 0.0
+_RATE_LIMIT_COOLDOWN_UNTIL = 0.0
+_RATE_LIMIT_429_STREAK = 0
+_RATE_LIMIT_SUCCESS_STREAK = 0
 _GENERATION_REASONING_ONLY_STREAK = 0
 _GENERATION_LLM_DISABLED = False
 
@@ -182,6 +190,7 @@ def apply_runtime_overrides(config: dict):
     global MODEL_NAME, NOVITA_API_URL, TOKENIZER_NAME, MAX_TOKENS, WINDOW_SIZE, TIME_DELAY, MAX_CONTEXT, API_KEY_ENV, RATE_LIMIT_CALLS_PER_MIN, REQUEST_TIMEOUT_SECONDS, ADAPTIVE_WINDOW, tokenizer
     global ADAPTIVE_MIN_FILL_RATIO, ADAPTIVE_TARGET_FILL_RATIO, ADAPTIVE_MAX_FILL_RATIO, ADAPTIVE_MIN_WINDOW, ADAPTIVE_MAX_WINDOW, ADAPTIVE_STEP, ADAPTIVE_TIMEOUT_SHRINK, ADAPTIVE_TIMEOUT_RETRIES, MIN_CHAPTER_CONTEXT_TOKENS, MIN_FRONT_MATTER_CONTEXT_TOKENS
     global ADAPTIVE_TARGET_MAX_TOKENS, ADAPTIVE_MAX_PROMPT_TOKENS, FRONT_MATTER_TARGET_MAX_TOKENS, FRONT_MATTER_MAX_PROMPT_TOKENS, MAX_HEADING_TRANSITIONS_PER_BLOCK, MIN_CHUNKS_BEFORE_HEADING_SPLIT, QUESTION_MAX_INPUT_CHARS, SUMMARY_MAX_INPUT_CHARS, GENERATION_RETRIES, GENERATION_DISABLE_AFTER_REASONING_ONLY, ALLOW_GENERATION_FALLBACK, CONTENT_CHECK_ENABLED, CONTENT_CHECK_MAX_TOKENS
+    global RATE_LIMIT_429_COOLDOWN_SECONDS, RATE_LIMIT_429_COOLDOWN_MAX_SECONDS, RATE_LIMIT_DYNAMIC_SPACING_STEP, RATE_LIMIT_DYNAMIC_SPACING_MAX_MULTIPLIER, RATE_LIMIT_RECOVERY_SUCCESSES
     if not config:
         return
 
@@ -318,6 +327,30 @@ def apply_runtime_overrides(config: dict):
         config.get("content_check_max_tokens") or config.get("ContentCheckMaxTokens"),
         CONTENT_CHECK_MAX_TOKENS,
         "content_check_max_tokens")
+    RATE_LIMIT_429_COOLDOWN_SECONDS = _coerce_non_negative_int(
+        config.get("rate_limit_429_cooldown_seconds") or config.get("RateLimit429CooldownSeconds"),
+        RATE_LIMIT_429_COOLDOWN_SECONDS,
+        "rate_limit_429_cooldown_seconds")
+    RATE_LIMIT_429_COOLDOWN_MAX_SECONDS = _coerce_non_negative_int(
+        config.get("rate_limit_429_cooldown_max_seconds") or config.get("RateLimit429CooldownMaxSeconds"),
+        RATE_LIMIT_429_COOLDOWN_MAX_SECONDS,
+        "rate_limit_429_cooldown_max_seconds")
+    RATE_LIMIT_DYNAMIC_SPACING_STEP = _coerce_float(
+        config.get("rate_limit_dynamic_spacing_step") or config.get("RateLimitDynamicSpacingStep"),
+        RATE_LIMIT_DYNAMIC_SPACING_STEP,
+        "rate_limit_dynamic_spacing_step",
+        min_value=0.0,
+        max_value=5.0)
+    RATE_LIMIT_DYNAMIC_SPACING_MAX_MULTIPLIER = _coerce_float(
+        config.get("rate_limit_dynamic_spacing_max_multiplier") or config.get("RateLimitDynamicSpacingMaxMultiplier"),
+        RATE_LIMIT_DYNAMIC_SPACING_MAX_MULTIPLIER,
+        "rate_limit_dynamic_spacing_max_multiplier",
+        min_value=1.0,
+        max_value=20.0)
+    RATE_LIMIT_RECOVERY_SUCCESSES = _coerce_positive_int(
+        config.get("rate_limit_recovery_successes") or config.get("RateLimitRecoverySuccesses"),
+        RATE_LIMIT_RECOVERY_SUCCESSES,
+        "rate_limit_recovery_successes")
 
     if ADAPTIVE_MIN_FILL_RATIO >= ADAPTIVE_MAX_FILL_RATIO:
         print(
@@ -421,13 +454,21 @@ def enforce_rate_limit():
         return
 
     window_seconds = 60.0
-    # Smooth request pacing to avoid short bursts that can still trigger provider-side 429s.
-    min_interval = (window_seconds / float(RATE_LIMIT_CALLS_PER_MIN)) + 0.05
+    # Smooth request pacing and dynamically increase spacing when recent 429s are seen.
+    base_interval = (window_seconds / float(RATE_LIMIT_CALLS_PER_MIN)) + 0.05
+    dynamic_multiplier = min(
+        RATE_LIMIT_DYNAMIC_SPACING_MAX_MULTIPLIER,
+        1.0 + (_RATE_LIMIT_429_STREAK * RATE_LIMIT_DYNAMIC_SPACING_STEP)
+    )
+    min_interval = base_interval * dynamic_multiplier
     now = time.monotonic()
     since_last = now - _LAST_REQUEST_TS
     if _LAST_REQUEST_TS > 0 and since_last < min_interval:
         spacing_wait = min_interval - since_last
-        print(f"[RATE] Spacing guard waiting {spacing_wait:.2f}s (target {min_interval:.2f}s/request)")
+        print(
+            f"[RATE] Spacing guard waiting {spacing_wait:.2f}s "
+            f"(target {min_interval:.2f}s/request, base {base_interval:.2f}s, x{dynamic_multiplier:.2f}, streak={_RATE_LIMIT_429_STREAK})"
+        )
         time.sleep(spacing_wait)
         now = time.monotonic()
 
@@ -446,6 +487,52 @@ def enforce_rate_limit():
     request_ts = time.monotonic()
     _REQUEST_TIMESTAMPS.append(request_ts)
     _LAST_REQUEST_TS = request_ts
+
+
+def is_rate_limit_error(exc):
+    if exc is None:
+        return False
+    text = str(exc)
+    if "429" in text:
+        return True
+    return bool(re.search(r"rate.?limit|too many requests", text, flags=re.IGNORECASE))
+
+
+def enforce_rate_limit_cooldown():
+    now = time.monotonic()
+    if _RATE_LIMIT_COOLDOWN_UNTIL <= now:
+        return
+    wait_seconds = _RATE_LIMIT_COOLDOWN_UNTIL - now
+    print(f"[RATE] 429 cooldown waiting {wait_seconds:.2f}s")
+    time.sleep(wait_seconds)
+
+
+def note_rate_limit_error():
+    global _RATE_LIMIT_COOLDOWN_UNTIL, _RATE_LIMIT_429_STREAK, _RATE_LIMIT_SUCCESS_STREAK
+    _RATE_LIMIT_429_STREAK += 1
+    _RATE_LIMIT_SUCCESS_STREAK = 0
+    if RATE_LIMIT_429_COOLDOWN_SECONDS <= 0:
+        return
+    base = float(RATE_LIMIT_429_COOLDOWN_SECONDS)
+    cooldown = base * (2 ** (_RATE_LIMIT_429_STREAK - 1))
+    if RATE_LIMIT_429_COOLDOWN_MAX_SECONDS > 0:
+        cooldown = min(cooldown, float(RATE_LIMIT_429_COOLDOWN_MAX_SECONDS))
+    new_until = time.monotonic() + cooldown
+    _RATE_LIMIT_COOLDOWN_UNTIL = max(_RATE_LIMIT_COOLDOWN_UNTIL, new_until)
+    print(
+        f"[RATE] 429 detected streak={_RATE_LIMIT_429_STREAK} "
+        f"cooldown={cooldown:.2f}s"
+    )
+
+
+def note_rate_limit_recovery():
+    global _RATE_LIMIT_429_STREAK, _RATE_LIMIT_SUCCESS_STREAK
+    if _RATE_LIMIT_429_STREAK <= 0:
+        return
+    _RATE_LIMIT_SUCCESS_STREAK += 1
+    if _RATE_LIMIT_SUCCESS_STREAK >= RATE_LIMIT_RECOVERY_SUCCESSES:
+        _RATE_LIMIT_429_STREAK = max(0, _RATE_LIMIT_429_STREAK - 1)
+        _RATE_LIMIT_SUCCESS_STREAK = 0
 
 
 
@@ -1497,6 +1584,7 @@ def safe_chat_completion(client, prompt_text: str, **kwargs):
     """
     for attempt in range(1, MAX_RETRIES + 1):
         try:
+            enforce_rate_limit_cooldown()
             enforce_rate_limit()
             req_started = time.monotonic()
             print(
@@ -1517,6 +1605,7 @@ def safe_chat_completion(client, prompt_text: str, **kwargs):
             if resp.choices:
                 elapsed = time.monotonic() - req_started
                 print(f"[API] Success attempt={attempt} elapsed={elapsed:.1f}s choices={len(resp.choices)}")
+                note_rate_limit_recovery()
                 return resp
 
             # ---------- empty‑choices ----------
@@ -1524,6 +1613,8 @@ def safe_chat_completion(client, prompt_text: str, **kwargs):
 
         except Exception as e:
             print(f"[WARN] API exception {e!r} (attempt {attempt}/{MAX_RETRIES})")
+            if is_rate_limit_error(e):
+                note_rate_limit_error()
 
         # back‑off before next try
         sleep_time = BASE_DELAY * (2 ** (attempt - 1)) + random.uniform(0, 2)

@@ -327,6 +327,17 @@ def analyze_input(input_file, work_file=None):
     try:
         total_chunks = load_chunk_count(input_file)
         result["total_chunks"] = total_chunks
+        if total_chunks == 0:
+            result["coverage"] = {
+                "block_count": 0,
+                "covered_count": 0,
+                "missing_count": 0,
+                "missing_sample": [],
+                "missing_ranges": [],
+                "is_complete": True
+            }
+            result["status"] = "complete"
+            return result
 
         block_file = ""
         if work_file and os.path.exists(work_file):
@@ -357,10 +368,12 @@ def write_status_file(status_file, payload):
     write_json_file(status_file, payload)
 
 
-def run_semantic(script_path, input_file, output_file=None):
+def run_semantic(script_path, input_file, output_file=None, resume=False):
     cmd = [sys.executable, script_path, input_file]
     if output_file:
         cmd.append(output_file)
+    if resume:
+        cmd.append("--resume")
     cmd.append("--single")
     print(f"[RUN] {' '.join(cmd)}")
     completed = subprocess.run(cmd, check=False)
@@ -423,7 +436,15 @@ def merge_blocks_for_range(work_file, range_start, range_end, mapped_blocks):
     write_json_file(work_file, merged)
 
 
-def retry_missing_range(script_path, input_file, work_file, range_start, range_end, keep_temp=False):
+def retry_missing_range(
+    script_path,
+    input_file,
+    work_file,
+    range_start,
+    range_end,
+    keep_temp=False,
+    retry_state_root=""
+):
     input_data = load_json_file(input_file)
     if not isinstance(input_data, list):
         raise ValueError(f"{input_file} must be a JSON list.")
@@ -431,11 +452,18 @@ def retry_missing_range(script_path, input_file, work_file, range_start, range_e
     if not subset:
         return {"return_code": 0, "new_blocks": 0, "range": [range_start, range_end], "note": "empty_range"}
 
-    temp_dir = tempfile.mkdtemp(prefix="semantic_retry_")
+    if retry_state_root:
+        os.makedirs(retry_state_root, exist_ok=True)
+        safe_base = os.path.splitext(os.path.basename(input_file))[0]
+        temp_dir = os.path.join(retry_state_root, safe_base)
+        os.makedirs(temp_dir, exist_ok=True)
+    else:
+        temp_dir = tempfile.mkdtemp(prefix="semantic_retry_")
     temp_input = os.path.join(temp_dir, f"retry_{range_start}_{range_end}_chunks.json")
-    write_json_file(temp_input, subset)
+    if not os.path.exists(temp_input):
+        write_json_file(temp_input, subset)
     temp_output = os.path.join(temp_dir, f"retry_{range_start}_{range_end}_semantic_blocks.json")
-    rc = run_semantic(script_path, temp_input, output_file=temp_output)
+    rc = run_semantic(script_path, temp_input, output_file=temp_output, resume=True)
 
     mapped_count = 0
     latest_block_file = ""
@@ -458,7 +486,7 @@ def retry_missing_range(script_path, input_file, work_file, range_start, range_e
             if mapped:
                 merge_blocks_for_range(work_file, range_start, range_end, mapped)
 
-    if not keep_temp:
+    if not keep_temp and not retry_state_root:
         try:
             shutil.rmtree(temp_dir)
         except Exception:
@@ -468,7 +496,8 @@ def retry_missing_range(script_path, input_file, work_file, range_start, range_e
         "return_code": rc,
         "new_blocks": mapped_count,
         "range": [range_start, range_end],
-        "temp_block_file": latest_block_file
+        "temp_block_file": latest_block_file,
+        "temp_input_file": temp_input
     }
 
 
@@ -488,6 +517,11 @@ def main():
     )
     parser.add_argument("--dry-run", action="store_true", help="Analyze only, do not execute semantic script.")
     parser.add_argument("--keep-temp", action="store_true", help="Keep temporary retry files for debugging.")
+    parser.add_argument(
+        "--allow-zero-progress-pass",
+        action="store_true",
+        help="Do not fail-fast when a pass merges zero new blocks.",
+    )
     args = parser.parse_args()
 
     input_files = discover_input_files(args.pattern)
@@ -502,6 +536,8 @@ def main():
     work_files = {f: default_work_file(f, work_dir=work_dir if work_dir else None) for f in input_files}
     for input_file, work_file in work_files.items():
         seed_work_file_if_needed(input_file, work_file)
+    retry_state_root = os.path.join(work_dir if work_dir else ".", ".retry_state")
+    os.makedirs(retry_state_root, exist_ok=True)
 
     overall = {
         "started_at": utc_now_iso(),
@@ -510,6 +546,7 @@ def main():
         "work_files": work_files,
         "passes": []
     }
+    aborted_no_progress = False
 
     for pass_num in range(1, args.max_passes + 1):
         analyses_before = [analyze_input(f, work_files.get(f)) for f in input_files]
@@ -552,14 +589,27 @@ def main():
                         work_file=work_files[input_file],
                         range_start=retry_range[0],
                         range_end=retry_range[1],
-                        keep_temp=args.keep_temp
+                        keep_temp=args.keep_temp,
+                        retry_state_root=retry_state_root
                     )
                     run_entry.update(result)
                     run_entry["return_code"] = result.get("return_code")
             pass_info["runs"].append(run_entry)
+            print(
+                f"[RUN-RESULT] file={os.path.basename(input_file)} "
+                f"rc={run_entry.get('return_code')} "
+                f"new_blocks={run_entry.get('new_blocks', 0)} "
+                f"range={run_entry.get('range') or run_entry.get('retry_range')}"
+            )
 
         analyses_after = [analyze_input(f, work_files.get(f)) for f in input_files]
         incomplete_after = [a for a in analyses_after if a["status"] in ("no_output", "incomplete", "error")]
+        new_blocks_total = sum((r.get("new_blocks") or 0) for r in pass_info["runs"])
+        rc_failures = sum(1 for r in pass_info["runs"] if (r.get("return_code") or 0) != 0)
+        zero_merge_runs = sum(1 for r in pass_info["runs"] if (r.get("new_blocks") or 0) == 0)
+        pass_info["new_blocks_total"] = new_blocks_total
+        pass_info["return_code_failures"] = rc_failures
+        pass_info["zero_merge_runs"] = zero_merge_runs
         pass_info["pending_after_count"] = len(incomplete_after)
         pass_info["pending_after"] = [p["input_file"] for p in incomplete_after]
         pass_info["analyses"] = analyses_after
@@ -567,7 +617,25 @@ def main():
         overall["passes"].append(pass_info)
 
         write_status_file(args.status_file, overall)
-        print(f"[PASS {pass_num}] incomplete_after={len(incomplete_after)}")
+        print(
+            f"[PASS {pass_num}] incomplete_after={len(incomplete_after)} "
+            f"new_blocks_total={new_blocks_total} rc_failures={rc_failures}"
+        )
+
+        if (
+            not args.dry_run
+            and pending
+            and new_blocks_total == 0
+            and len(incomplete_after) == len(pending)
+            and not args.allow_zero_progress_pass
+        ):
+            aborted_no_progress = True
+            print(
+                "[FATAL] Zero merged progress in this pass while work remains incomplete. "
+                "Stopping early to avoid wasted runtime. "
+                "Use --allow-zero-progress-pass to override."
+            )
+            break
 
         if not incomplete_after:
             break
@@ -599,6 +667,10 @@ def main():
     if remaining == 0:
         print("[DONE] All input files have full chunk coverage.")
         return 0
+
+    if aborted_no_progress:
+        print(f"[FATAL] Aborted after zero-progress pass. Remaining incomplete files: {remaining}.")
+        return 2
 
     print(f"[WARN] Completed passes with {remaining} file(s) still incomplete.")
     return 1
