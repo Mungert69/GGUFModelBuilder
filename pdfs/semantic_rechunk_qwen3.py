@@ -1504,6 +1504,24 @@ def build_ingest_records(input_json, blocks):
     chunk_total = len(filtered_blocks)
     records = []
 
+    def _normalize_alt_questions(value):
+        items = []
+        if isinstance(value, list):
+            candidates = value
+        elif isinstance(value, str):
+            candidates = [value]
+        else:
+            candidates = []
+        for item in candidates:
+            text = str(item or "").strip()
+            if not text:
+                continue
+            if text not in items:
+                items.append(text)
+            if len(items) >= 3:
+                break
+        return items
+
     for idx, block in enumerate(filtered_blocks, start=1):
         start = _to_int_or_none(block.get("start")) or idx
         end = _to_int_or_none(block.get("end")) or start
@@ -1525,11 +1543,15 @@ def build_ingest_records(input_json, blocks):
         chunk_id = f"{doc_id}:chunk_{idx:05d}"
         prev_chunk_id = f"{doc_id}:chunk_{idx - 1:05d}" if idx > 1 else ""
         next_chunk_id = f"{doc_id}:chunk_{idx + 1:05d}" if idx < chunk_total else ""
+        alt_questions = _normalize_alt_questions(block.get("alt_questions"))
 
         record = {
             "input": block.get("question", ""),
             "summary": block.get("summary", ""),
             "output": block.get("text", ""),
+            "alt_question_1": alt_questions[0] if len(alt_questions) > 0 else "",
+            "alt_question_2": alt_questions[1] if len(alt_questions) > 1 else "",
+            "alt_question_3": alt_questions[2] if len(alt_questions) > 2 else "",
             "doc_id": doc_id,
             "chunk_id": chunk_id,
             "chunk_index": idx,
