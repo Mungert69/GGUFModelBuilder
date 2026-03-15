@@ -1,0 +1,30 @@
+{
+  "started_at": "2026-03-15T22:42:37+00:00",
+  "files": {
+    ".semantic_work/Crypto101_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "updated": 0
+    }
+  },
+  "updated_at": "2026-03-15T22:45:38+00:00",
+  "finished_at": "2026-03-15T22:45:38+00:00",
+  "total_non_content_updates": 0
+}
