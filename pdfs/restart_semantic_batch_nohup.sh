@@ -1,20 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Restart stage-2 semantic batch safely from securitybooks directory.
-# - Stops current batch parent + worker processes for this pipeline.
-# - Optionally clears semantic_batch.log.
-# - Starts a fresh nohup run and prints the new PID.
+# Restart stage-2 semantic batch for a target index directory.
+# Usage:
+#   restart_semantic_batch_nohup.sh [target_dir] [--no-clear-log]
+#
+# Defaults:
+#   target_dir = current directory
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PDFS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-RUN_SCRIPT="$PDFS_DIR/run_semantic_batch.sh"
-LOG_FILE="$SCRIPT_DIR/semantic_batch.log"
-PID_FILE="$SCRIPT_DIR/.semantic_batch.pid"
-
+TARGET_DIR="${1:-$(pwd)}"
 CLEAR_LOG=1
+
 if [[ "${1:-}" == "--no-clear-log" ]]; then
+  if [[ "$(pwd)" == "$SCRIPT_DIR" && -d "$SCRIPT_DIR/securitybooks" ]]; then
+    TARGET_DIR="$SCRIPT_DIR/securitybooks"
+  else
+    TARGET_DIR="$(pwd)"
+  fi
   CLEAR_LOG=0
+elif [[ "${2:-}" == "--no-clear-log" ]]; then
+  CLEAR_LOG=0
+fi
+
+if [[ "$TARGET_DIR" == "$SCRIPT_DIR" && -d "$SCRIPT_DIR/securitybooks" ]]; then
+  TARGET_DIR="$SCRIPT_DIR/securitybooks"
+fi
+
+RUN_SCRIPT="$SCRIPT_DIR/run_semantic_batch.sh"
+LOG_FILE="$TARGET_DIR/semantic_batch.log"
+PID_FILE="$TARGET_DIR/.semantic_batch.pid"
+
+if [[ ! -d "$TARGET_DIR" ]]; then
+  echo "[ERROR] Target directory does not exist: $TARGET_DIR" >&2
+  exit 1
 fi
 
 if [[ ! -x "$RUN_SCRIPT" ]]; then
@@ -22,6 +41,7 @@ if [[ ! -x "$RUN_SCRIPT" ]]; then
   exit 1
 fi
 
+echo "[INFO] Restart target: $TARGET_DIR"
 echo "[INFO] Looking for running semantic batch processes..."
 mapfile -t PIDS < <(
   pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/|/pdfs/filter_non_book_content.py|/pdfs/improve_questions.py|/pdfs/improve_summaries.py" || true
@@ -31,7 +51,9 @@ if [[ ${#PIDS[@]} -gt 0 ]]; then
   echo "[INFO] Stopping PIDs: ${PIDS[*]}"
   kill "${PIDS[@]}" || true
   sleep 2
-  mapfile -t STILL_UP < <(pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/|/pdfs/filter_non_book_content.py|/pdfs/improve_questions.py|/pdfs/improve_summaries.py" || true)
+  mapfile -t STILL_UP < <(
+    pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/|/pdfs/filter_non_book_content.py|/pdfs/improve_questions.py|/pdfs/improve_summaries.py" || true
+  )
   if [[ ${#STILL_UP[@]} -gt 0 ]]; then
     echo "[WARN] Forcing stop for PIDs: ${STILL_UP[*]}"
     kill -9 "${STILL_UP[@]}" || true
@@ -47,7 +69,7 @@ else
   echo "[INFO] Keeping existing log: $LOG_FILE"
 fi
 
-cd "$SCRIPT_DIR"
+cd "$TARGET_DIR"
 echo "[INFO] Starting fresh nohup run..."
 nohup "$RUN_SCRIPT" > "$LOG_FILE" 2>&1 &
 NEW_PID=$!
