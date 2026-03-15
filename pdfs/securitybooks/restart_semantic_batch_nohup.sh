@@ -24,14 +24,14 @@ fi
 
 echo "[INFO] Looking for running semantic batch processes..."
 mapfile -t PIDS < <(
-  pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/" || true
+  pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/|/pdfs/filter_non_book_content.py|/pdfs/improve_questions.py|/pdfs/improve_summaries.py" || true
 )
 
 if [[ ${#PIDS[@]} -gt 0 ]]; then
   echo "[INFO] Stopping PIDs: ${PIDS[*]}"
   kill "${PIDS[@]}" || true
   sleep 2
-  mapfile -t STILL_UP < <(pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/" || true)
+  mapfile -t STILL_UP < <(pgrep -u "$USER" -f "/pdfs/batch_semantic_rechunk.py|/pdfs/semantic_rechunk_qwen3.py .*\\.semantic_work/.retry_state/|/pdfs/filter_non_book_content.py|/pdfs/improve_questions.py|/pdfs/improve_summaries.py" || true)
   if [[ ${#STILL_UP[@]} -gt 0 ]]; then
     echo "[WARN] Forcing stop for PIDs: ${STILL_UP[*]}"
     kill -9 "${STILL_UP[@]}" || true
@@ -58,4 +58,3 @@ echo "  PID: $NEW_PID"
 echo "  PID file: $PID_FILE"
 echo "  Log: $LOG_FILE"
 echo "  Tail: tail -f \"$LOG_FILE\""
-

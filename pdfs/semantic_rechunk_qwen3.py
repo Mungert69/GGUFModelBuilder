@@ -27,7 +27,7 @@ except Exception as exc:
 
 # -------- Settings --------
 MODEL_NAME = "qwen/qwen3-4b-fp8"
-MAX_TOKENS = 6000  # For remote model, as per API
+MAX_TOKENS = 6000  # Default output budget; can be overridden by runtime config/model context.
 WINDOW_SIZE = 20
 TIME_DELAY = 10
 OUTPUT_FILE = "semantic_blocks.json"
@@ -378,6 +378,24 @@ def apply_runtime_overrides(config: dict):
     if FRONT_MATTER_TARGET_MAX_TOKENS > FRONT_MATTER_MAX_PROMPT_TOKENS:
         FRONT_MATTER_TARGET_MAX_TOKENS = FRONT_MATTER_MAX_PROMPT_TOKENS
 
+    # Derive prompt caps from configured model context with safety margin.
+    # This intentionally overrides lower static caps so stage-2 can use near-full context.
+    safety_margin = max(1024, min(4096, int(MAX_CONTEXT * 0.08)))
+    derived_max_prompt_tokens = max(1024, MAX_CONTEXT - safety_margin)
+    derived_target_prompt_tokens = max(1024, int(derived_max_prompt_tokens * 0.72))
+    derived_front_target_tokens = max(1024, int(derived_max_prompt_tokens * 0.55))
+    ADAPTIVE_MAX_PROMPT_TOKENS = derived_max_prompt_tokens
+    ADAPTIVE_TARGET_MAX_TOKENS = min(derived_target_prompt_tokens, ADAPTIVE_MAX_PROMPT_TOKENS)
+    FRONT_MATTER_MAX_PROMPT_TOKENS = derived_max_prompt_tokens
+    FRONT_MATTER_TARGET_MAX_TOKENS = min(derived_front_target_tokens, FRONT_MATTER_MAX_PROMPT_TOKENS)
+    print(
+        f"[INFO] Derived prompt token caps from model context: "
+        f"max_context={MAX_CONTEXT}, safety_margin={safety_margin}, "
+        f"max_output_tokens={MAX_TOKENS}, "
+        f"adaptive_target={ADAPTIVE_TARGET_MAX_TOKENS}, adaptive_max={ADAPTIVE_MAX_PROMPT_TOKENS}, "
+        f"front_target={FRONT_MATTER_TARGET_MAX_TOKENS}, front_max={FRONT_MATTER_MAX_PROMPT_TOKENS}"
+    )
+
 
 def resolve_hf_hub_token():
     env_order = (HF_TOKEN_ENV, "HF_TOKEN", "HUGGINGFACE_HUB_TOKEN")
@@ -548,6 +566,15 @@ def split_text_to_max_tokens(text, max_tokens):
         chunk_text = tok.decode(chunk_tokens)
         splits.append(chunk_text)
     return splits
+
+
+def count_prompt_tokens(text: str) -> int:
+    try:
+        tok = get_tokenizer()
+        return len(tok.encode(text or ""))
+    except Exception:
+        # Fallback heuristic when tokenizer is unavailable.
+        return max(1, int((len(text or "")) / 4))
 
 FRONT_MATTER_PATTERNS = (
     r"\bcopyright\b",
@@ -1109,26 +1136,8 @@ def _collect_heading_lines(text, limit=20):
 
 def build_generation_context(text, max_chars):
     clean = text or ""
-    if len(clean) <= max_chars:
-        return clean
-
-    heading_lines = _collect_heading_lines(clean, limit=24)
-    prefix_len = max_chars // 2
-    suffix_len = max_chars // 3
-    mid_len = max_chars - prefix_len - suffix_len
-    mid_start = max(0, (len(clean) // 2) - (mid_len // 2))
-
-    prefix = clean[:prefix_len]
-    mid = clean[mid_start:mid_start + mid_len]
-    suffix = clean[-suffix_len:] if suffix_len > 0 else ""
-
-    parts = []
-    if heading_lines:
-        parts.append("[HEADINGS]\n" + "\n".join(heading_lines))
-    parts.append("[CONTENT_START]\n" + prefix)
-    parts.append("[CONTENT_MIDDLE]\n" + mid)
-    parts.append("[CONTENT_END]\n" + suffix)
-    return "\n\n".join(parts)
+    # Keep full chunk text for generation quality.
+    return clean
 
 
 def extract_tagged_or_clean_text(raw_text, tag_name):
@@ -1315,8 +1324,8 @@ def summarize_text(text, client, model):
     return question, summary
 
 
-def build_content_check_prompt(text, question, summary):
-    snippet = (text or "")[:1200]
+def build_content_check_prompt(text):
+    snippet = (text or "").strip()
     return (
         "You are classifying one extracted block from a book for RAG ingestion.\n\n"
         "Return exactly one token: yes or no\n"
@@ -1335,8 +1344,6 @@ def build_content_check_prompt(text, question, summary):
         "- If unsure, prefer yes only when there is meaningful explanatory prose.\n"
         "- If the text is mostly navigational/listing matter, prefer no.\n\n"
         "Output only: yes or no\n\n"
-        f"Question: {question}\n"
-        f"Summary: {summary}\n"
         "Text snippet:\n"
         f"{snippet}\n"
     )
@@ -1364,11 +1371,11 @@ def parse_content_check_answer(raw_text):
     return True, stripped
 
 
-def assess_block_book_content(text, question, summary, client, model):
+def assess_block_book_content(text, client, model):
     if not CONTENT_CHECK_ENABLED:
         return True, "disabled"
 
-    prompt = build_content_check_prompt(text, question, summary)
+    prompt = build_content_check_prompt(text)
     try:
         resp = safe_chat_completion(
             client,
@@ -1570,6 +1577,7 @@ def safe_chat_completion(client, prompt_text: str, **kwargs):
     Wrapper that retries on empty‑choice responses / network hiccups.
     If all retries fail it writes the prompt + raw response to disk.
     """
+    prompt_tokens = count_prompt_tokens(prompt_text)
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             enforce_rate_limit_cooldown()
@@ -1577,7 +1585,7 @@ def safe_chat_completion(client, prompt_text: str, **kwargs):
             req_started = time.monotonic()
             print(
                 f"[API] Attempt {attempt}/{MAX_RETRIES} timeout={REQUEST_TIMEOUT_SECONDS}s "
-                f"prompt_chars={len(prompt_text)}"
+                f"prompt_tokens={prompt_tokens}"
             )
             request_kwargs = dict(kwargs)
             request_kwargs.setdefault("timeout", REQUEST_TIMEOUT_SECONDS)
@@ -1849,18 +1857,12 @@ def main():
                 ellipsis = '…' if len(window_chunks[i]) > 60 else ''
                 print(f"  [{pointer + i + 1}] {preview}{ellipsis}")
 
-            question, summary = summarize_text(block_text, client, MODEL_NAME)
-            is_book_content, content_check = assess_block_book_content(
-                block_text,
-                question,
-                summary,
-                client,
-                MODEL_NAME
-            )
-            print(
-                f"[FILTER] Block {pointer + 1}-{pointer + corrected_end} "
-                f"classified as {'book-content' if is_book_content else 'noise'}"
-            )
+            question = ""
+            summary = ""
+            # Stage-3 filter_non_book_content.py is the source of truth for this field.
+            # Stage-2 should not make final keep/drop decisions.
+            is_book_content = True
+            content_check = "stage2_default_true"
             semantic_blocks.append(
                 {
                     "start": pointer + 1,

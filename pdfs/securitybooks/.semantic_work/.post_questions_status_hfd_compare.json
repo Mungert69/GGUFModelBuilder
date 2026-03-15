@@ -1,0 +1,44 @@
+{
+  "started_at": "2026-03-15T14:30:24+00:00",
+  "files": {
+    "securitybooks/.semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "replaced": 15
+    }
+  },
+  "updated_at": "2026-03-15T14:35:51+00:00",
+  "finished_at": "2026-03-15T14:35:51+00:00",
+  "total_questions_replaced": 5
+}
