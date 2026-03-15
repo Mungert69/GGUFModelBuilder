@@ -169,12 +169,16 @@ def build_ingest_records_from_work(input_file, work_file):
         page_start, page_end = extract_page_bounds(covered)
         source_title_local = first_non_empty(covered, ["source_title", "book_title", "title"]) or source_title
 
+        chunk_id = f"{doc_id}:chunk_{idx:05d}"
+        prev_chunk_id = f"{doc_id}:chunk_{idx - 1:05d}" if idx > 1 else ""
+        next_chunk_id = f"{doc_id}:chunk_{idx + 1:05d}" if idx < chunk_total else ""
+
         record = {
             "input": block.get("question", ""),
             "summary": block.get("summary", ""),
             "output": block.get("text", ""),
             "doc_id": doc_id,
-            "chunk_id": f"{doc_id}:chunk_{idx:05d}",
+            "chunk_id": chunk_id,
             "chunk_index": idx,
             "chunk_count": chunk_total,
             "chunk_start": start,
@@ -185,6 +189,8 @@ def build_ingest_records_from_work(input_file, work_file):
             "source_chunk_total": source_chunk_total,
             "page_start": page_start if page_start is not None else "",
             "page_end": page_end if page_end is not None else "",
+            "prev_chunk_id": prev_chunk_id,
+            "next_chunk_id": next_chunk_id,
         }
         records.append(record)
 
