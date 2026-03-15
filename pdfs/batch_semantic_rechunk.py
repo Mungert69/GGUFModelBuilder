@@ -486,6 +486,64 @@ def retry_missing_range(
     }
 
 
+def run_postprocess_for_work_file(
+    work_file,
+    script_dir,
+    postprocess_config,
+    postprocess_status_dir,
+):
+    os.makedirs(postprocess_status_dir, exist_ok=True)
+    base = os.path.splitext(os.path.basename(work_file))[0]
+
+    steps = [
+        ("filter", os.path.join(script_dir, "filter_non_book_content.py")),
+        ("questions", os.path.join(script_dir, "improve_questions.py")),
+        ("summaries", os.path.join(script_dir, "improve_summaries.py")),
+    ]
+
+    results = []
+    for step_name, step_script in steps:
+        if not os.path.exists(step_script):
+            return {
+                "ok": False,
+                "step": step_name,
+                "error": f"Missing script: {step_script}",
+                "results": results,
+            }
+        status_file = os.path.join(postprocess_status_dir, f"{base}.{step_name}.status.json")
+        if os.path.exists(status_file):
+            try:
+                os.remove(status_file)
+            except OSError:
+                pass
+        cmd = [
+            sys.executable,
+            step_script,
+            "--pattern", work_file,
+            "--in-place",
+            "--status-file", status_file,
+            "--config", postprocess_config,
+        ]
+        print(f"[POST] {' '.join(cmd)}")
+        rc = subprocess.run(cmd, check=False).returncode
+        step_result = {
+            "step": step_name,
+            "script": step_script,
+            "status_file": status_file,
+            "return_code": rc,
+        }
+        results.append(step_result)
+        if rc != 0:
+            return {
+                "ok": False,
+                "step": step_name,
+                "error": f"Step failed rc={rc}: {step_name}",
+                "results": results,
+            }
+
+    return {"ok": True, "results": results}
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Stage-2 batch loop: run semantic rechunk and verify chunk coverage.")
@@ -502,6 +560,21 @@ def main():
     )
     parser.add_argument("--dry-run", action="store_true", help="Analyze only, do not execute semantic script.")
     parser.add_argument("--keep-temp", action="store_true", help="Keep temporary retry files for debugging.")
+    parser.add_argument(
+        "--skip-postprocess",
+        action="store_true",
+        help="Skip stage-3 postprocess pipeline (non-book filter, question improve, summary improve).",
+    )
+    parser.add_argument(
+        "--postprocess-config",
+        default=os.path.join(os.path.dirname(__file__), "postprocess_config.json"),
+        help="Config JSON for stage-3 postprocess scripts.",
+    )
+    parser.add_argument(
+        "--postprocess-status-dir",
+        default="",
+        help="Directory for stage-3 status files (default: <work-dir>/.postprocess_state or ./.postprocess_state).",
+    )
     parser.add_argument(
         "--allow-zero-progress-pass",
         action="store_true",
@@ -626,6 +699,51 @@ def main():
             break
 
     analyses_final = [analyze_input(f, work_files.get(f)) for f in input_files]
+
+    postprocess_runs = []
+    if not args.skip_postprocess:
+        completed_work_files = []
+        for analysis in analyses_final:
+            if analysis.get("status") != "complete":
+                continue
+            input_file = analysis["input_file"]
+            work_file = work_files.get(input_file) or ""
+            if work_file and os.path.exists(work_file):
+                completed_work_files.append(work_file)
+
+        status_root = args.postprocess_status_dir.strip() or os.path.join(
+            work_dir if work_dir else ".", ".postprocess_state"
+        )
+        completed_work_files = sorted(set(completed_work_files))
+        for wf in completed_work_files:
+            result = run_postprocess_for_work_file(
+                work_file=wf,
+                script_dir=os.path.dirname(args.script) if os.path.dirname(args.script) else os.path.dirname(__file__),
+                postprocess_config=args.postprocess_config,
+                postprocess_status_dir=status_root,
+            )
+            result["work_file"] = wf
+            postprocess_runs.append(result)
+            if not result.get("ok"):
+                overall["postprocess"] = {
+                    "enabled": True,
+                    "status": "failed",
+                    "runs": postprocess_runs,
+                    "failed_at": result.get("step"),
+                    "error": result.get("error", ""),
+                    "ended_at": utc_now_iso(),
+                }
+                write_status_file(args.status_file, overall)
+                print(f"[FATAL] Stage-3 postprocess failed for {wf}: {result.get('error')}")
+                return 3
+
+    overall["postprocess"] = {
+        "enabled": not args.skip_postprocess,
+        "status": "completed" if not args.skip_postprocess else "skipped",
+        "runs": postprocess_runs,
+        "ended_at": utc_now_iso(),
+    }
+
     for analysis in analyses_final:
         if analysis.get("status") != "complete":
             continue
