@@ -8,13 +8,13 @@ Main Features:
 - Authenticates with Hugging Face Hub.
 - Downloads or generates imatrix files for quantization.
 - Applies quantization with fallback logic for compatibility.
-- Splits large files into Hugging Face standard chunks.
+- Splits large GGUF files with GGUF-native sharding for Hugging Face uploads.
 - Uploads files and chunks to Hugging Face, creating repos as needed.
 - Updates README.md with quantization and model details.
 
 Key Functions:
 - quantize_model: Orchestrates quantization and upload for a model.
-- split_file_standard: Splits large GGUF files into standard-named chunks.
+- split_file_standard: Splits large GGUF files into native GGUF shards.
 - upload_large_file: Handles chunked upload for large files.
 - download_imatrix: Downloads or generates imatrix files for quantization.
 - filter_quant_configs: Filters quantization configs based on model size.
@@ -157,8 +157,44 @@ def get_standard_chunk_name(base_name, quant_type, part_num, total_parts):
     return f"{clean_base}-{quant_type}-{part_num:05d}-of-{total_parts:05d}.gguf"
 
 
-def split_file_standard(file_path, quant_type, chunk_size=45*1024**3):
-    """Robust file splitting with proper error handling"""
+def _find_gguf_split_binary():
+    """Locate llama-gguf-split binary, preferring explicit override."""
+    # Explicit override for custom installs.
+    env_bin = os.getenv("GGUF_SPLIT_BIN")
+    if env_bin and os.path.isfile(env_bin) and os.access(env_bin, os.X_OK):
+        return env_bin
+
+    # PATH lookup for standard installs.
+    path_bin = shutil.which("llama-gguf-split")
+    if path_bin:
+        return path_bin
+
+    # Common local build locations for this project.
+    candidates = [
+        os.path.expanduser("~/code/models/llama.cpp/build/bin/llama-gguf-split"),
+        "/home/mahadeva/code/models/llama.cpp/build/bin/llama-gguf-split",
+        os.path.expanduser("~/code/llama.cpp/build/bin/llama-gguf-split"),
+    ]
+    for candidate in candidates:
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+
+    return None
+
+
+def _split_size_arg(chunk_size_bytes):
+    """
+    Convert byte target into llama-gguf-split size argument.
+    Uses a 5% safety margin to stay below host upload limits.
+    """
+    safe_chunk_size = max(1, int(chunk_size_bytes * 0.95))
+    if safe_chunk_size >= 1_000_000_000:
+        return f"{max(1, safe_chunk_size // 1_000_000_000)}G"
+    return f"{max(1, safe_chunk_size // 1_000_000)}M"
+
+
+def _split_file_standard_legacy_bytes(file_path, quant_type, chunk_size):
+    """Legacy byte chunking fallback for non-GGUF files."""
     file_name = os.path.basename(file_path)
     base_name = file_name.replace('.gguf', '')
     
@@ -205,6 +241,79 @@ def split_file_standard(file_path, quant_type, chunk_size=45*1024**3):
             except:
                 pass
         raise RuntimeError(f"Failed to split file: {str(e)}")
+
+
+def split_file_standard(file_path, quant_type, chunk_size=45*1024**3):
+    """
+    Split large files for HF upload.
+    - GGUF: use llama-gguf-split for native GGUF shards.
+    - Non-GGUF: fallback to legacy byte chunking.
+    """
+    # Keep signature parity; quant_type is currently only used for legacy naming.
+    _ = quant_type
+    input_path = Path(file_path)
+
+    if not input_path.exists():
+        raise RuntimeError(f"Input file not found: {file_path}")
+
+    # Native GGUF splitting is required for public model shards.
+    if input_path.suffix.lower() == ".gguf":
+        split_bin = _find_gguf_split_binary()
+        if not split_bin:
+            raise RuntimeError(
+                "llama-gguf-split not found. Set GGUF_SPLIT_BIN or install/build llama.cpp tools."
+            )
+
+        # Expected output naming: <prefix>-00001-of-000NN.gguf
+        stem = input_path.stem
+        split_pattern = re.compile(rf"^{re.escape(stem)}-\d{{5}}-of-\d{{5}}\.gguf$")
+        existing = [
+            p for p in input_path.parent.iterdir()
+            if p.is_file() and split_pattern.match(p.name)
+        ]
+
+        # Remove stale shards from previous failed runs to avoid mixing old/new parts.
+        for old_part in existing:
+            try:
+                old_part.unlink()
+            except Exception:
+                pass
+
+        size_arg = _split_size_arg(chunk_size)
+        cmd = [
+            split_bin,
+            "--split",
+            "--split-max-size", size_arg,
+            str(input_path),
+            str(input_path),
+        ]
+        try:
+            proc = subprocess.run(
+                cmd,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            stderr = (e.stderr or "").strip()
+            stdout = (e.stdout or "").strip()
+            details = "\n".join(x for x in [stdout, stderr] if x)
+            raise RuntimeError(f"GGUF split failed for {file_path}.\n{details}") from e
+
+        chunks = sorted(
+            str(p) for p in input_path.parent.iterdir()
+            if p.is_file() and split_pattern.match(p.name)
+        )
+        if not chunks:
+            details = "\n".join(x for x in [proc.stdout.strip(), proc.stderr.strip()] if x)
+            raise RuntimeError(
+                f"GGUF split produced no shard files for {file_path}. Command output:\n{details}"
+            )
+        return chunks
+
+    # Non-GGUF fallback (rare; keeps previous behavior for arbitrary large assets).
+    print(f"⚠ Non-GGUF large file; using legacy byte chunking: {file_path}")
+    return _split_file_standard_legacy_bytes(file_path, quant_type, chunk_size)
 
 def upload_file_to_hf(file_path, repo_id, create_dir=False, quant_name=None):
     """Robust uploader with explicit folder control"""
