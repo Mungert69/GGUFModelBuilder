@@ -84,15 +84,6 @@ def first_non_empty(chunks, keys):
     return ""
 
 
-def normalize_section_path(value):
-    if value is None:
-        return ""
-    if isinstance(value, list):
-        parts = [str(v).strip() for v in value if str(v).strip()]
-        return " > ".join(parts)
-    return str(value).strip()
-
-
 def extract_page_bounds(chunks):
     starts = []
     ends = []
@@ -176,9 +167,6 @@ def build_ingest_records_from_work(input_file, work_file):
 
         covered = source_chunks[start - 1 : end] if source_chunk_total > 0 else []
         page_start, page_end = extract_page_bounds(covered)
-        section_path = normalize_section_path(
-            first_non_empty(covered, ["section_path", "section_title", "chapter_title", "chapter", "heading"])
-        )
         source_title_local = first_non_empty(covered, ["source_title", "book_title", "title"]) or source_title
 
         record = {
@@ -195,19 +183,10 @@ def build_ingest_records_from_work(input_file, work_file):
             "source_title": source_title_local,
             "source_file": os.path.basename(input_file),
             "source_chunk_total": source_chunk_total,
-            "section_path": section_path,
             "page_start": page_start if page_start is not None else "",
             "page_end": page_end if page_end is not None else "",
-            "prev_chunk_id": "",
-            "next_chunk_id": "",
         }
         records.append(record)
-
-    for i, record in enumerate(records):
-        if i > 0:
-            record["prev_chunk_id"] = records[i - 1]["chunk_id"]
-        if i + 1 < len(records):
-            record["next_chunk_id"] = records[i + 1]["chunk_id"]
 
     return records
 
