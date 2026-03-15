@@ -1316,25 +1316,29 @@ def summarize_text(text, client, model):
 
 
 def build_content_check_prompt(text, question, summary):
-    context = build_generation_context(text, min(SUMMARY_MAX_INPUT_CHARS, 9000))
+    snippet = (text or "")[:1200]
     return (
-        "You are a strict quality gate for technical-book RAG chunks.\n"
-        "Decide whether this block should be indexed for retrieval.\n\n"
-        "Output exactly one token: yes or no.\n\n"
-        "Decision policy:\n"
-        "- no: table of contents, index pages, appendix/tool directories, long URL/link lists,\n"
-        "  legal/copyright/publisher/contact pages, acknowledgements, ads, ordering info,\n"
-        "  or OCR-garbled text.\n"
-        "- yes: real instructional content (concept explanations, procedures, examples,\n"
-        "  commands, technical reasoning, security guidance).\n\n"
-        "Mixed-content rule:\n"
-        "- If most of the block is list/index/directory style with little explanation, choose no.\n"
-        "- If substantial instructional explanation is present, choose yes.\n\n"
-        "Tie-breaker:\n"
-        "- If truly uncertain after applying the rules, choose yes.\n\n"
+        "You are classifying one extracted block from a book for RAG ingestion.\n\n"
+        "Return exactly one token: yes or no\n"
+        "- yes = keep as book content\n"
+        "- no = drop as non-content/noise\n\n"
+        "Classify as no when the block is primarily:\n"
+        "- table of contents / chapter listings / dot-leader page lists\n"
+        "- back-of-book index entries (term + page numbers)\n"
+        "- publisher/copyright/ISBN/customer-care/ordering/legal notices\n"
+        "- acknowledgements, dedication, foreword/preface, about-the-author, ads\n"
+        "- glossary/bibliography/reference lists with little explanatory prose\n"
+        "- navigation-only text or mostly metadata rather than instructional/explanatory content\n\n"
+        "Classify as yes when the block contains substantive instructional, technical, or conceptual material,\n"
+        "including examples, explanations, walkthroughs, case studies, commands, code, or mitigation guidance.\n\n"
+        "Tie-break rule:\n"
+        "- If unsure, prefer yes only when there is meaningful explanatory prose.\n"
+        "- If the text is mostly navigational/listing matter, prefer no.\n\n"
+        "Output only: yes or no\n\n"
         f"Question: {question}\n"
-        f"Summary: {summary}\n\n"
-        f"{context}\n"
+        f"Summary: {summary}\n"
+        "Text snippet:\n"
+        f"{snippet}\n"
     )
 
 
