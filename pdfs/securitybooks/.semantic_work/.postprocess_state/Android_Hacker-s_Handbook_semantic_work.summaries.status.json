@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-03-15T20:50:07+00:00",
+  "started_at": "2026-03-15T21:15:28+00:00",
   "files": {
     ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json": {
       "done_indices": [
@@ -70,10 +70,10 @@
         64,
         65
       ],
-      "updated": 0
+      "replaced": 64
     }
   },
-  "updated_at": "2026-03-15T21:02:45+00:00",
-  "finished_at": "2026-03-15T21:02:45+00:00",
-  "total_non_content_updates": 0
+  "updated_at": "2026-03-15T21:28:06+00:00",
+  "finished_at": "2026-03-15T21:28:06+00:00",
+  "total_summaries_replaced": 64
 }
