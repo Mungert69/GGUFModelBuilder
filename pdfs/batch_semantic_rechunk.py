@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 
 
 DATE_SUFFIX_RE = re.compile(r"_\d{14}\.json$")
+STAGE1_MANIFEST = "stage1_json_manifest.json"
 
 
 def utc_now_iso():
@@ -48,7 +49,161 @@ def is_stage1_source_json(path):
     if DATE_SUFFIX_RE.search(lower):
         return False
 
+    # Accept only stage-1 chunk schema: JSON array of dicts containing "output".
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+    except Exception:
+        return False
+    if not isinstance(payload, list) or not payload:
+        return False
+    first = payload[0]
+    if not isinstance(first, dict) or "output" not in first:
+        return False
+
     return True
+
+
+def write_input_manifest(manifest_file, analyses):
+    payload = {
+        "generated_at": utc_now_iso(),
+        "inputs": []
+    }
+    for item in analyses:
+        payload["inputs"].append({
+            "input_file": item.get("input_file", ""),
+            "status": item.get("status", "unknown"),
+            "total_chunks": item.get("total_chunks", 0),
+            "work_file": item.get("work_file", ""),
+            "latest_block_file": item.get("latest_block_file", ""),
+            "missing_count": ((item.get("coverage") or {}).get("missing_count", 0)),
+        })
+    write_json_file(manifest_file, payload)
+
+
+def load_input_files_from_stage1_manifest(manifest_path):
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(
+            f"Missing stage-1 manifest: {manifest_path}. "
+            "Run batch_pdf_2_json.py first."
+        )
+
+    payload = load_json_file(manifest_path)
+    if not isinstance(payload, dict):
+        raise ValueError(f"Invalid manifest format in {manifest_path}: expected JSON object.")
+    files = payload.get("files")
+    if not isinstance(files, list):
+        raise ValueError(f"Invalid manifest format in {manifest_path}: missing 'files' array.")
+    manifest_dir = os.path.dirname(os.path.abspath(manifest_path))
+    source_cwd = str(payload.get("cwd") or "").strip()
+
+    selected = []
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        output_json = str(item.get("output_json") or "").strip()
+        status = str(item.get("status") or "").strip().lower()
+        exists = bool(item.get("exists"))
+        if not output_json:
+            continue
+        if status not in ("converted", "existing"):
+            continue
+        if not exists:
+            continue
+        candidates = []
+        if os.path.isabs(output_json):
+            candidates.append(output_json)
+        else:
+            if source_cwd:
+                candidates.append(os.path.join(source_cwd, output_json))
+            candidates.append(os.path.join(manifest_dir, output_json))
+            candidates.append(output_json)
+        resolved = next((p for p in candidates if os.path.exists(p)), None)
+        if resolved:
+            selected.append(resolved)
+
+    # Stable de-duplication while preserving order from stage-1 run.
+    deduped = []
+    seen = set()
+    for path in selected:
+        if path in seen:
+            continue
+        seen.add(path)
+        deduped.append(path)
+    return deduped
+
+
+def resolve_stage1_manifest_path():
+    """
+    Resolve the stage-1 manifest path without requiring cwd discipline.
+    Search order:
+      1) $STAGE1_MANIFEST_PATH (if set)
+      2) ./stage1_json_manifest.json
+      3) <script_dir>/stage1_json_manifest.json
+      4) exactly one direct child directory containing stage1_json_manifest.json
+    """
+    env_path = os.getenv("STAGE1_MANIFEST_PATH", "").strip()
+    if env_path:
+        candidate = os.path.abspath(env_path)
+        if os.path.exists(candidate):
+            return candidate
+        raise FileNotFoundError(f"STAGE1_MANIFEST_PATH is set but file is missing: {candidate}")
+
+    target_dir = os.getenv("TARGET_DIR", "").strip()
+    if target_dir:
+        candidate = os.path.join(os.path.abspath(target_dir), STAGE1_MANIFEST)
+        if os.path.exists(candidate):
+            return candidate
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_index_manifest = os.path.join(script_dir, "securitybooks", STAGE1_MANIFEST)
+    if os.path.exists(default_index_manifest):
+        return default_index_manifest
+
+    direct_candidates = [
+        os.path.abspath(STAGE1_MANIFEST),
+        os.path.join(script_dir, STAGE1_MANIFEST),
+    ]
+    for path in direct_candidates:
+        if os.path.exists(path):
+            return path
+
+    # Fallback: search one level below cwd and script dir.
+    subdir_hits = []
+    for root in (os.getcwd(), script_dir):
+        try:
+            for entry in sorted(os.listdir(root)):
+                dpath = os.path.join(root, entry)
+                if not os.path.isdir(dpath):
+                    continue
+                mpath = os.path.join(dpath, STAGE1_MANIFEST)
+                if os.path.exists(mpath):
+                    subdir_hits.append(os.path.abspath(mpath))
+        except Exception:
+            continue
+
+    # Stable de-dup
+    unique_hits = []
+    seen = set()
+    for p in subdir_hits:
+        if p in seen:
+            continue
+        seen.add(p)
+        unique_hits.append(p)
+
+    if len(unique_hits) == 1:
+        return unique_hits[0]
+    if len(unique_hits) > 1:
+        joined = "\n  - ".join(unique_hits)
+        raise RuntimeError(
+            "Multiple stage-1 manifests found. Run from an index directory or set STAGE1_MANIFEST_PATH.\n"
+            f"  - {joined}"
+        )
+
+    raise FileNotFoundError(
+        f"Could not locate {STAGE1_MANIFEST}. "
+        "Run stage-1 batch in the target index folder first."
+    )
 
 
 def load_json_file(path):
@@ -547,7 +702,6 @@ def run_postprocess_for_work_file(
 def main():
     parser = argparse.ArgumentParser(
         description="Stage-2 batch loop: run semantic rechunk and verify chunk coverage.")
-    parser.add_argument("--pattern", default="*.json", help="Input file glob pattern.")
     parser.add_argument("--max-passes", type=int, default=10, help="Maximum loop passes.")
     parser.add_argument("--status-file", default="semantic_batch_status.json", help="Status output file path.")
     parser.add_argument("--script", default=os.path.join(os.path.dirname(__file__), "semantic_rechunk_qwen3.py"),
@@ -582,25 +736,30 @@ def main():
     )
     args = parser.parse_args()
 
-    input_files = discover_input_files(args.pattern)
+    stage1_manifest_path = resolve_stage1_manifest_path()
+    input_files = load_input_files_from_stage1_manifest(stage1_manifest_path)
     if not input_files:
-        print(f"[INFO] No input files found for pattern: {args.pattern}")
+        print(f"[INFO] No stage-1 JSON files eligible in manifest: {stage1_manifest_path}")
         return 0
 
     work_dir = args.work_dir.strip()
     if work_dir:
         os.makedirs(work_dir, exist_ok=True)
+    manifest_file = os.path.join(work_dir if work_dir else ".", "semantic_batch_inputs.json")
 
     work_files = {f: default_work_file(f, work_dir=work_dir if work_dir else None) for f in input_files}
     for input_file, work_file in work_files.items():
         seed_work_file_if_needed(input_file, work_file)
+    analyses_initial = [analyze_input(f, work_files.get(f)) for f in input_files]
+    write_input_manifest(manifest_file, analyses_initial)
     retry_state_root = os.path.join(work_dir if work_dir else ".", ".retry_state")
     os.makedirs(retry_state_root, exist_ok=True)
 
     overall = {
         "started_at": utc_now_iso(),
-        "pattern": args.pattern,
+        "stage1_manifest_file": stage1_manifest_path,
         "max_passes": args.max_passes,
+        "input_manifest_file": manifest_file,
         "work_files": work_files,
         "passes": []
     }
@@ -699,6 +858,7 @@ def main():
             break
 
     analyses_final = [analyze_input(f, work_files.get(f)) for f in input_files]
+    write_input_manifest(manifest_file, analyses_final)
 
     postprocess_runs = []
     if not args.skip_postprocess:
