@@ -1,0 +1,26 @@
+{
+  "started_at": "2026-03-16T00:52:32+00:00",
+  "files": {
+    ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "replaced": 11
+    }
+  },
+  "updated_at": "2026-03-16T00:54:34+00:00",
+  "finished_at": "2026-03-16T00:54:34+00:00",
+  "total_questions_replaced": 11
+}
