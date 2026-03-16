@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-03-16T00:26:53+00:00",
+  "files": {
+    ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "replaced": 10
+    }
+  },
+  "updated_at": "2026-03-16T00:28:43+00:00",
+  "finished_at": "2026-03-16T00:28:43+00:00",
+  "total_questions_replaced": 10
+}
