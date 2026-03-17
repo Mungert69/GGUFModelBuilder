@@ -677,6 +677,11 @@ def run_postprocess_for_work_file(
         ("questions", os.path.join(script_dir, "improve_questions.py")),
         ("summaries", os.path.join(script_dir, "improve_summaries.py")),
     ]
+    step_descriptions = {
+        "filter": "Classify each chunk as keep/drop (book content filter).",
+        "questions": "Generate/improve retrieval questions for kept chunks.",
+        "summaries": "Generate/improve retrieval summaries for kept chunks.",
+    }
 
     results = []
     for step_name, step_script in steps:
@@ -690,9 +695,30 @@ def run_postprocess_for_work_file(
         status_file = os.path.join(postprocess_status_dir, f"{base}.{step_name}.status.json")
         if os.path.exists(status_file):
             try:
-                os.remove(status_file)
-            except OSError:
-                pass
+                status_payload = load_json_file(status_file)
+            except Exception:
+                status_payload = None
+            if (
+                isinstance(status_payload, dict)
+                and status_payload.get("finished_at")
+                and not needs_postprocess_step_by_content(work_file, step_name)
+            ):
+                print(f"[POST-SKIP] {step_name} already finished for {work_file}")
+                results.append(
+                    {
+                        "step": step_name,
+                        "script": step_script,
+                        "status_file": status_file,
+                        "return_code": 0,
+                        "skipped": True,
+                        "reason": "finished_at_present",
+                    }
+                )
+                continue
+        print(
+            f"[POST-ACTION] step={step_name} file={work_file} "
+            f"action=\"{step_descriptions.get(step_name, step_name)}\""
+        )
         cmd = [
             sys.executable,
             step_script,
@@ -703,6 +729,10 @@ def run_postprocess_for_work_file(
         ]
         print(f"[POST] {' '.join(cmd)}")
         rc = subprocess.run(cmd, check=False).returncode
+        if rc == 0:
+            print(f"[POST-STEP] step={step_name} status=ok file={work_file}")
+        else:
+            print(f"[POST-STEP] step={step_name} status=failed rc={rc} file={work_file}")
         step_result = {
             "step": step_name,
             "script": step_script,
@@ -719,6 +749,72 @@ def run_postprocess_for_work_file(
             }
 
     return {"ok": True, "results": results}
+
+
+def is_postprocess_step_finished(work_file, step_name, postprocess_status_dir):
+    base = os.path.splitext(os.path.basename(work_file))[0]
+    status_file = os.path.join(postprocess_status_dir, f"{base}.{step_name}.status.json")
+    if not os.path.exists(status_file):
+        return False
+    try:
+        payload = load_json_file(status_file)
+    except Exception:
+        return False
+    return isinstance(payload, dict) and bool(payload.get("finished_at"))
+
+
+def _load_work_blocks(work_file):
+    try:
+        payload = load_json_file(work_file)
+    except Exception:
+        return []
+    return payload if isinstance(payload, list) else []
+
+
+def _block_is_book_content(block):
+    value = block.get("is_book_content", True)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "y", "on")
+    return True
+
+
+def needs_postprocess_step_by_content(work_file, step_name):
+    blocks = _load_work_blocks(work_file)
+    if not blocks:
+        return False
+
+    if step_name == "filter":
+        # Re-run filter if is_book_content field is missing.
+        for block in blocks:
+            if not isinstance(block, dict):
+                continue
+            if "is_book_content" not in block:
+                return True
+        return False
+
+    key = "question" if step_name == "questions" else "summary"
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+        if not _block_is_book_content(block):
+            continue
+        if not str(block.get(key) or "").strip():
+            return True
+    return False
+
+
+def is_postprocess_file_finished(work_file, postprocess_status_dir):
+    steps = ("filter", "questions", "summaries")
+    for step in steps:
+        if not is_postprocess_step_finished(work_file, step, postprocess_status_dir):
+            return False
+        if needs_postprocess_step_by_content(work_file, step):
+            return False
+    return True
 
 
 def main():
@@ -803,6 +899,7 @@ def main():
             pass_info["ended_at"] = utc_now_iso()
             pass_info["message"] = "All inputs complete."
             overall["passes"].append(pass_info)
+            write_status_file(args.status_file, overall)
             break
 
         for item in pending:
@@ -884,6 +981,16 @@ def main():
 
     postprocess_runs = []
     if not args.skip_postprocess:
+        overall["postprocess"] = {
+            "enabled": True,
+            "status": "running",
+            "runs": postprocess_runs,
+            "started_at": utc_now_iso(),
+            "current_file": None,
+            "current_step": None,
+        }
+        write_status_file(args.status_file, overall)
+
         completed_work_files = []
         for analysis in analyses_final:
             if analysis.get("status") != "complete":
@@ -897,7 +1004,33 @@ def main():
             work_dir if work_dir else ".", ".postprocess_state"
         )
         completed_work_files = sorted(set(completed_work_files))
-        for wf in completed_work_files:
+        stage3_targets = [
+            wf for wf in completed_work_files
+            if not is_postprocess_file_finished(wf, status_root)
+        ]
+        already_done = len(completed_work_files) - len(stage3_targets)
+        if already_done > 0:
+            print(
+                f"[POST] Skipping {already_done} work file(s) with all postprocess steps already finished."
+            )
+        print(
+            f"[POST] Queue summary total={len(completed_work_files)} "
+            f"todo={len(stage3_targets)} skipped_finished={already_done}"
+        )
+        overall["postprocess"]["work_files_total"] = len(completed_work_files)
+        overall["postprocess"]["work_files_processed"] = len(stage3_targets)
+        overall["postprocess"]["work_files_skipped_finished"] = already_done
+        overall["postprocess"]["remaining_files"] = len(stage3_targets)
+        write_status_file(args.status_file, overall)
+
+        for idx, wf in enumerate(stage3_targets, start=1):
+            print(
+                f"[POST-FILE] index={idx}/{len(stage3_targets)} "
+                f"remaining_before={len(stage3_targets) - idx + 1} file={wf}"
+            )
+            overall["postprocess"]["current_file"] = wf
+            overall["postprocess"]["current_step"] = "running"
+            write_status_file(args.status_file, overall)
             result = run_postprocess_for_work_file(
                 work_file=wf,
                 script_dir=os.path.dirname(args.script) if os.path.dirname(args.script) else os.path.dirname(__file__),
@@ -906,6 +1039,18 @@ def main():
             )
             result["work_file"] = wf
             postprocess_runs.append(result)
+            remaining_dynamic = 0
+            for candidate in completed_work_files:
+                if not is_postprocess_file_finished(candidate, status_root):
+                    remaining_dynamic += 1
+            overall["postprocess"]["remaining_files"] = remaining_dynamic
+            overall["postprocess"]["runs"] = postprocess_runs
+            overall["postprocess"]["current_step"] = "running"
+            write_status_file(args.status_file, overall)
+            print(
+                f"[POST-FILE] done index={idx}/{len(stage3_targets)} "
+                f"remaining_after={remaining_dynamic} file={wf}"
+            )
             if not result.get("ok"):
                 overall["postprocess"] = {
                     "enabled": True,
@@ -923,8 +1068,18 @@ def main():
         "enabled": not args.skip_postprocess,
         "status": "completed" if not args.skip_postprocess else "skipped",
         "runs": postprocess_runs,
+        "work_files_total": len(completed_work_files) if not args.skip_postprocess else 0,
+        "work_files_processed": len(stage3_targets) if not args.skip_postprocess else 0,
+        "work_files_skipped_finished": already_done if not args.skip_postprocess else 0,
+        "remaining_files": 0,
         "ended_at": utc_now_iso(),
     }
+    if not args.skip_postprocess:
+        remaining_post = 0
+        for wf in completed_work_files:
+            if not is_postprocess_file_finished(wf, status_root):
+                remaining_post += 1
+        overall["postprocess"]["remaining_files"] = remaining_post
 
     for analysis in analyses_final:
         if analysis.get("status") != "complete":
@@ -948,16 +1103,26 @@ def main():
     write_status_file(args.status_file, overall)
 
     latest = overall["passes"][-1] if overall["passes"] else {}
-    remaining = latest.get("pending_after_count", 0)
+    stage2_remaining = latest.get("pending_after_count", 0)
+    stage3_remaining = 0
+    if not args.skip_postprocess:
+        stage3_remaining = int((overall.get("postprocess") or {}).get("remaining_files", 0) or 0)
+    remaining = max(stage2_remaining, stage3_remaining)
     if remaining == 0:
-        print("[DONE] All input files have full chunk coverage.")
+        print("[DONE] All input files have full chunk coverage and postprocess completion.")
         return 0
 
     if aborted_no_progress:
-        print(f"[FATAL] Aborted after zero-progress pass. Remaining incomplete files: {remaining}.")
+        print(
+            "[FATAL] Aborted after zero-progress pass. "
+            f"Remaining stage-2 files: {stage2_remaining}. Remaining stage-3 files: {stage3_remaining}."
+        )
         return 2
 
-    print(f"[WARN] Completed passes with {remaining} file(s) still incomplete.")
+    print(
+        "[WARN] Completed passes with pending work. "
+        f"Remaining stage-2 files: {stage2_remaining}. Remaining stage-3 files: {stage3_remaining}."
+    )
     return 1
 
 

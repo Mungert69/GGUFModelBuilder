@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-15T20:31:15+00:00",
+  "generated_at": "2026-03-16T22:58:09+00:00",
   "inputs": [
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary_.json",
@@ -343,6 +343,14 @@
       "total_chunks": 183,
       "work_file": ".semantic_work/web_hacking101_semantic_work.json",
       "latest_block_file": ".semantic_work/web_hacking101_semantic_work.json",
+      "missing_count": 0
+    },
+    {
+      "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json",
+      "status": "complete",
+      "total_chunks": 27,
+      "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json",
+      "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json",
       "missing_count": 0
     }
   ]

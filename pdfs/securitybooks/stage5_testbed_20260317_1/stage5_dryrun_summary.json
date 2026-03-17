@@ -1,0 +1,21 @@
+{
+  "started_at": "2026-03-17T19:14:16+00:00",
+  "index_dir": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage5_testbed_20260317_1",
+  "token_cap": 4096,
+  "dry_run": true,
+  "in_place": false,
+  "total_files": 1,
+  "updated_files": 1,
+  "results": [
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage5_testbed_20260317_1/breaking_into_infosec__semantic_ingest.json",
+      "status": "updated",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage5_testbed_20260317_1/breaking_into_infosec__semantic_ingest_resplit.json",
+      "oversized_before": 1,
+      "oversized_after": 0,
+      "rows_before": 14,
+      "rows_after": 15,
+      "rows_regenerated": 2
+    }
+  ]
+}

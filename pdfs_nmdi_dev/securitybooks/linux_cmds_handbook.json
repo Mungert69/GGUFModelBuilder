@@ -1,0 +1,1074 @@
+[
+  {
+    "output": "1Table of ContentsPrefaceIntroduction to Linux and shellsmanlscdpwdmkdirrmdirmvcpopentouchfindlngzipgunziptaraliascatlesstailwcgrepsort",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 2,
+    "start_page": 2,
+    "end_page": 2
+  },
+  {
+    "output": "2uniqdiffechochownchmodumaskdudfbasenamedirnamepstopkillkillalljobsbgfgtypewhichnohupxargsvimemacsnanowhoamiwhosusudo",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 3,
+    "start_page": 3,
+    "end_page": 3
+  },
+  {
+    "output": "3passwdpingtracerouteclearhistoryexportcrontabunameenvprintenvConclusion",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 4,
+    "start_page": 4,
+    "end_page": 4
+  },
+  {
+    "output": "4PrefaceThe Linux Commands Handbook follows the 80/20rule: learn in 20% of the time the 80% of a topic.I find this approach gives a well-rounded overview.This book does not try to cover everything under thesun related to Linux and its commands. It focuses onthe small core commands that you will use the 80% or90% of the time, trying to simplify the usage of themore complex ones.All those commands work on Linux, macOS, WSL,and anywhere you have a UNIX environment.I hope the contents of this book will help you achievewhat you want: get comfortable with Linux.This book is written by Flavio. I publishprogramming tutorials every day on my websiteflaviocopes.com.You can reach me on Twitter @flaviocopes.Enjoy!",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 5,
+    "start_page": 5,
+    "end_page": 5
+  },
+  {
+    "output": "5Introduction to Linux andshellsLinux is an operating system, like macOS or Windows.It is also the most popular Open Source and free, as infreedom, operating system.It powers the vast majority of the servers thatcompose the Internet. It\u0027s the base upon whicheverything is built upon. But not just that. Android isbased on (a modified version of) Linux.The Linux \u0022core\u0022 (called kernel) was born in 1991 inFinland, and it went a really long way from its humblebeginnings. It went on to be the kernel of the GNUOperating System, creating the duo GNU/Linux.There\u0027s one thing about Linux that corporations likeMicrosoft and Apple, or Google, will never be able tooffer: the freedom to do whatever you want with yourcomputer.They\u0027re actually going in the opposite direction,building walled gardens, especially on the mobile side.Linux is the ultimate freedom.It is developed by volunteers, some paid bycompanies that rely on it, some independently, butthere\u0027s no single commercial company that can dictatewhat goes into Linux, or the project priorities.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 6,
+    "start_page": 6,
+    "end_page": 6
+  },
+  {
+    "output": "6Linux can also be used as your day to day computer. Iuse macOS because I really enjoy the applications,the design and I also used to be an iOS and Mac appsdeveloper, but before using it I used Linux as my maincomputer Operating System.No one can dictate which apps you can run, or \u0022callhome\u0022 with apps that track you, your position, andmore.Linux is also special because there\u0027s not just \u0022oneLinux\u0022, like it happens on Windows or macOS.Instead, we have distributions.A \u0022distro\u0022 is made by a company or organization andpackages the Linux core with additional programs andtooling.For example you have Debian, Red Hat, and Ubuntu,probably the most popular.Many, many more exist. You can create your owndistribution, too. But most likely you\u0027ll use a popularone, one that has lots of users and a community ofpeople around it, so you can do what you need to dowithout losing too much time reinventing the wheeland figuring out answers to common problems.Some desktop computers and laptops ship with Linuxpreinstalled. Or you can install it on your Windows-based computer, or on a Mac.But you don\u0027t need to disrupt your existing computerjust to get an idea of how Linux works.I don\u0027t have a Linux computer.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 7,
+    "start_page": 7,
+    "end_page": 7
+  },
+  {
+    "output": "7If you use a Mac you need to know that under thehood macOS is a UNIX Operating System, and itshares a lot of the same ideas and software that aGNU/Linux system uses, because GNU/Linux is a freealternative to UNIX.UNIX is an umbrella term that groups manyoperating systems used in big corporations andinstitutions, starting from the 70\u0027sThe macOS terminal gives you access to the sameexact commands I\u0027ll describe in the rest of thishandbook.Microsoft has an official Windows Subsystem for Linuxwhich you can (and should!) install on Windows. Thiswill give you the ability to run Linux in a very easy wayon your PC.But the vast majority of the time you will run a Linuxcomputer in the cloud via a VPS (Virtual PrivateServer) like DigitalOcean.A shell is a command interpreter that exposes to theuser an interface to work with the underlying operatingsystem.It allows you to execute operations using text andcommands, and it provides users advanced featureslike being able to create scripts.This is important: shells let you perform things in amore optimized way than a GUI (Graphical UserInterface) could ever possibly let you do. Commandline tools can offer many different configuration optionswithout being too complex to use.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 8,
+    "start_page": 8,
+    "end_page": 8
+  },
+  {
+    "output": "8There are many different kind of shells. This postfocuses on Unix shells, the ones that you will findcommonly on Linux and macOS computers.Many different kind of shells were created for thosesystems over time, and a few of them dominate thespace: Bash, Csh, Zsh, Fish and many more!All shells originate from the Bourne Shell, called sh .\u0022Bourne\u0022 because its creator was Steve Bourne.Bash means Bourne-again shell. sh was proprietaryand not open source, and Bash was created in 1989to create a free alternative for the GNU project and theFree Software Foundation. Since projects had to payto use the Bourne shell, Bash became very popular.If you use a Mac, try opening your Mac terminal. Thatby default is running ZSH. (or, pre-Catalina, Bash)You can set up your system to run any kind of shell,for example I use the Fish shell.Each single shell has its own unique features andadvanced usage, but they all share a commonfunctionality: they can let you execute programs, andthey can be programmed.In the rest of this handbook we\u0027ll see in detail the mostcommon commands you will use.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 9,
+    "start_page": 9,
+    "end_page": 9
+  },
+  {
+    "output": "9manThe first command I want to introduce is a commandthat will help you understand all the other commands.Every time I don\u0027t know how to use a command, I type man \u003Ccommand\u003E to get the manual:This is a man (from manual) page. Man pages are anessential tool to learn, as a developer. They contain somuch information that sometimes it\u0027s almost too much.The above screenshot is just 1 of 14 screens ofexplanation for the ls command.Most of the times when I\u0027m in need to learn acommand quickly I use this site called tldr pages:https://tldr.sh/. It\u0027s a command you can install, thenyou run it like this: tldr \u003Ccommand\u003E , which gives you avery quick overview of a command, with some handyexamples of common usage scenarios:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 10,
+    "start_page": 10,
+    "end_page": 10
+  },
+  {
+    "output": "10This is not a substitute for man , but a handy tool toavoid losing yourself in the huge amount ofinformation present in a man page. Then you can usethe man page to explore all the different options andparameters you can use on a command.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 11,
+    "start_page": 11,
+    "end_page": 11
+  },
+  {
+    "output": "11lsInside a folder you can list all the files that the foldercontains using the ls command:ls If you add a folder name or path, it will print that foldercontents:ls /bin ls accepts a lot of options. One of my favoriteoptions combinations is -al . Try it:ls -al /bin",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 12,
+    "start_page": 12,
+    "end_page": 12
+  },
+  {
+    "output": "12compared to the plain ls , this returns much moreinformation.You have, from left to right:the file permissions (and if your system supportsACLs, you get an ACL flag as well)the number of links to that filethe owner of the filethe group of the filethe file size in bytesthe file modified datetimethe file nameThis set of data is generated by the l option. The a option instead also shows the hidden files.Hidden files are files that start with a dot ( . ).",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 13,
+    "start_page": 13,
+    "end_page": 13
+  },
+  {
+    "output": "13cdOnce you have a folder, you can move into it using the cd command. cd means change directory. Youinvoke it specifying a folder to move into. You canspecify a folder name, or an entire path.Example:mkdir fruits cd fruits Now you are into the fruits folder.You can use the .. special path to indicate theparent folder:cd .. #back to the home folderThe # character indicates the start of the comment,which lasts for the entire line after it\u0027s found.You can use it to form a path:mkdir fruits mkdir cars cd fruits cd ../cars There is another special path indicator which is . ,and indicates the current folder.You can also use absolute paths, which start from theroot folder / :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 14,
+    "start_page": 14,
+    "end_page": 14
+  },
+  {
+    "output": "14cd /etc This command works on Linux, macOS, WSL,and anywhere you have a UNIX environment",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 15,
+    "start_page": 15,
+    "end_page": 15
+  },
+  {
+    "output": "15pwdWhenever you feel lost in the filesystem, call the pwd command to know where you are:pwdIt will print the current folder path.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 16,
+    "start_page": 16,
+    "end_page": 16
+  },
+  {
+    "output": "16mkdirYou create folders using the mkdir command:mkdir fruits You can create multiple folders with one command:mkdir dogs cars You can also create multiple nested folders by addingthe -p option:mkdir -p fruits/apples Options in UNIX commands commonly take this form.You add them right after the command name, and theychange how the command behaves. You can oftencombine multiple options, too.You can find which options a command supports bytyping man \u003Ccommandname\u003E . Try now with man mkdir for example (press the q key to esc the man page).Man pages are the amazing built-in help for UNIX.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 17,
+    "start_page": 17,
+    "end_page": 17
+  },
+  {
+    "output": "17rmdirJust as you can create a folder using mkdir , you candelete a folder using rmdir :mkdir fruits rmdir fruits You can also delete multiple folders at once:mkdir fruits cars rmdir fruits cars The folder you delete must be empty.To delete folders with files in them, we\u0027ll use the moregeneric rm command which deletes files and folders,using the -rf options:rm -rf fruits cars Be careful as this command does not ask forconfirmation and it will immediately remove anythingyou ask it to remove.There is no bin when removing files from thecommand line, and recovering lost files can be hard.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 18,
+    "start_page": 18,
+    "end_page": 18
+  },
+  {
+    "output": "18mvOnce you have a file, you can move it around usingthe mv command. You specify the file current path,and its new path:touch pear mv pear new_pear The pear file is now moved to new_pear . This is howyou rename files and folders.If the last parameter is a folder, the file located at thefirst parameter path is going to be moved into thatfolder. In this case, you can specify a list of files andthey will all be moved in the folder path identified bythe last parameter:touch pear touch apple mkdir fruits mv pear apple fruits #pear and apple moved to the fr",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 19,
+    "start_page": 19,
+    "end_page": 19
+  },
+  {
+    "output": "19cpYou can copy a file using the cp command:touch test cp apple another_apple To copy folders you need to add the -r option torecursively copy the whole folder contents:mkdir fruits cp -r fruits cars",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 20,
+    "start_page": 20,
+    "end_page": 20
+  },
+  {
+    "output": "20openThe open command lets you open a file using thissyntax:open \u003Cfilename\u003E You can also open a directory, which on macOS opensthe Finder app with the current directory open:open \u003Cdirectory name\u003E I use it all the time to open the current directory:open . The special . symbol points to the currentdirectory, as .. points to the parent directoryThe same command can also be be used to run anapplication:open \u003Capplication name\u003E",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 21,
+    "start_page": 21,
+    "end_page": 21
+  },
+  {
+    "output": "21touchYou can create an empty file using the touch command:touch apple If the file already exists, it opens the file in write mode,and the timestamp of the file is updated.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 22,
+    "start_page": 22,
+    "end_page": 22
+  },
+  {
+    "output": "22findThe find command can be used to find files orfolders matching a particular search pattern. Itsearches recursively.Let\u0027s learn it by example.Find all the files under the current tree that have the .js extension and print the relative path of each filematching:find . -name \u0027*.js\u0027It\u0027s important to use quotes around special characterslike * to avoid the shell interpreting them.Find directories under the current tree matching thename \u0022src\u0022:find . -type d -name src Use -type f to search only files, or -type l to onlysearch symbolic links. -name is case sensitive. use -iname to perform acase-insensitive search.You can search under multiple root trees:find folder1 folder2 -name filename.txt",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 23,
+    "start_page": 23,
+    "end_page": 23
+  },
+  {
+    "output": "23Find directories under the current tree matching thename \u0022node_modules\u0022 or \u0027public\u0027:You can also exclude a path, using -not -path :You can search files that have more than 100characters (bytes) in them:find . -type f -size \u002B100c Search files bigger than 100KB but smaller than 1MB:find . -type f -size \u002B100k -size -1M Search files edited more than 3 days agofind . -type f -mtime \u002B3 Search files edited in the last 24 hoursfind . -type f -mtime -1 You can delete all the files matching a search byadding the -delete option. This deletes all the filesedited in the last 24 hours:find . -type f -mtime -1 -delete find . -type d -name node_modules -or -name public find . -type d -name \u0027*.md\u0027 -not -path \u0027node_modules",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 24,
+    "start_page": 24,
+    "end_page": 24
+  },
+  {
+    "output": "24You can execute a command on each result of thesearch. In this example we run cat to print the filecontent:find . -type f -exec cat {} \\; notice the terminating \\; . {} is filled with the filename at execution time.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 25,
+    "start_page": 25,
+    "end_page": 25
+  },
+  {
+    "output": "25lnThe ln command is part of the Linux file systemcommands.It\u0027s used to create links. What is a link? It\u0027s like apointer to another file. A file that points to another file.You might be familiar with Windows shortcuts. They\u0027resimilar.We have 2 types of links: hard links and soft links.Hard linksHard links are rarely used. They have a fewlimitations: you can\u0027t link to directories, and you can\u0027tlink to external filesystems (disks).A hard link is created usingln \u003Coriginal\u003E \u003Clink\u003E For example, say you have a file called recipes.txt.You can create a hard link to it using:ln recipes.txt newrecipes.txt The new hard link you created is indistinguishablefrom a regular file:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 26,
+    "start_page": 26,
+    "end_page": 26
+  },
+  {
+    "output": "26Now any time you edit any of those files, the contentwill be updated for both.If you delete the original file, the link will still containthe original file content, as that\u0027s not removed untilthere is one hard link pointing to it.Soft linksSoft links are different. They are more powerful as youcan link to other filesystems and to directories, butwhen the original is removed, the link will be broken.You create soft links using the -s option of ln :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 27,
+    "start_page": 27,
+    "end_page": 27
+  },
+  {
+    "output": "27ln -s \u003Coriginal\u003E \u003Clink\u003E For example, say you have a file called recipes.txt.You can create a soft link to it using:ln -s recipes.txt newrecipes.txt In this case you can see there\u0027s a special l flagwhen you list the file using ls -al , and the file namehas a @ at the end, and it\u0027s colored differently if youhave colors enabled:Now if you delete the original file, the links will bebroken, and the shell will tell you \u0022No such file ordirectory\u0022 if you try to access it:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 28,
+    "start_page": 28,
+    "end_page": 28
+  },
+  {
+    "output": "28gzipYou can compress a file using the gzip compressionprotocol named LZ77 using the gzip command.Here\u0027s the simplest usage:gzip filename This will compress the file, and append a .gz extension to it. The original file is deleted. To preventthis, you can use the -c option and use outputredirection to write the output to the filename.gz file:gzip -c filename \u003E filename.gz The -c option specifies that output will go to thestandard output stream, leaving the original fileintactOr you can use the -k option:gzip -k filename There are various levels of compression. The morethe compression, the longer it will take to compress(and decompress). Levels range from 1 (fastest, worstcompression) to 9 (slowest, better compression), andthe default is 6.You can choose a specific level with the -\u003CNUMBER\u003E option:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 29,
+    "start_page": 29,
+    "end_page": 29
+  },
+  {
+    "output": "29gzip -1 filename You can compress multiple files by listing them:gzip filename1 filename2 You can compress all the files in a directory,recursively, using the -r option:gzip -r a_folder The -v option prints the compression percentageinformation. Here\u0027s an example of it being used alongwith the -k (keep) option: gzip can also be used to decompress a file, usingthe -d option:gzip -d filename.gz",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 30,
+    "start_page": 30,
+    "end_page": 30
+  },
+  {
+    "output": "30gunzipThe gunzip command is basically equivalent to the gzip command, except the -d option is alwaysenabled by default.The command can be invoked in this way:gunzip filename.gz This will gunzip and will remove the .gz extension,putting the result in the filename file. If that file exists,it will overwrite that.You can extract to a different filename using outputredirection using the -c option:gunzip -c filename.gz \u003E anotherfilename",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 31,
+    "start_page": 31,
+    "end_page": 31
+  },
+  {
+    "output": "31tarThe tar command is used to create an archive,grouping multiple files in a single file.Its name comes from the past and means tapearchive. Back when archives were stored on tapes.This command creates an archive named archive.tar with the content of file1 and file2 :tar -cf archive.tar file1 file2 The c option stands for create. The f option isused to write to file the archive.To extract files from an archive in the current folder,use:tar -xf archive.tar the x option stands for extractand to extract them to a specific directory, use:tar -xf archive.tar -C directory You can also just list the files contained in an archive:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 32,
+    "start_page": 32,
+    "end_page": 32
+  },
+  {
+    "output": "32 tar is often used to create a compressed archive,gzipping the archive.This is done using the z option:tar -czf archive.tar.gz file1 file2 This is just like creating a tar archive, and then running gzip on it.To unarchive a gzipped archive, you can use gunzip ,or gzip -d , and then unarchive it, but tar -xf willrecognize it\u0027s a gzipped archive, and do it for you:tar -xf archive.tar.gz",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 33,
+    "start_page": 33,
+    "end_page": 33
+  },
+  {
+    "output": "33aliasIt\u0027s common to always run a program with a set ofoptions you like using.For example, take the ls command. By default itprints very little information:while using the -al option it will print somethingmore useful, including the file modification date, thesize, the owner, and the permissions, also listinghidden files (files starting with a . :You can create a new command, for example I like tocall it ll , that is an alias to ls -al .You do it in this way:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 34,
+    "start_page": 34,
+    "end_page": 34
+  },
+  {
+    "output": "34alias ll=\u0027ls -al\u0027Once you do, you can call ll just like it was aregular UNIX command:Now calling alias without any option will list thealiases defined:The alias will work until the terminal session is closed.To make it permanent, you need to add it to the shellconfiguration, which could be ~/.bashrc or ~/.profile or ~/.bash_profile if you use the Bashshell, depending on the use case.Be careful with quotes if you have variables in thecommand: using double quotes the variable isresolved at definition time, using single quotes it\u0027sresolved at invocation time. Those 2 are different:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 35,
+    "start_page": 35,
+    "end_page": 35
+  },
+  {
+    "output": "35alias lsthis=\u0022ls $PWD\u0022alias lscurrent=\u0027ls $PWD\u0027$PWD refers to the current folder the shell is into. Ifyou now navigate away to a new folder, lscurrent lists the files in the new folder, lsthis still lists thefiles in the folder you were when you defined the alias.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 36,
+    "start_page": 36,
+    "end_page": 36
+  },
+  {
+    "output": "36catSimilar to tail in some way, we have cat . Except cat can also add content to a file, and this makes itsuper powerful.In its simplest usage, cat prints a file\u0027s content to thestandard output:cat file You can print the content of multiple files:cat file1 file2 and using the output redirection operator \u003E you canconcatenate the content of multiple files into a newfile:cat file1 file2 \u003E file3 Using \u003E\u003E you can append the content of multiple filesinto a new file, creating it if it does not exist:cat file1 file2 \u003E\u003E file3 When watching source code files it\u0027s great to see theline numbers, and you can have cat print them usingthe -n option:cat -n file1",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 37,
+    "start_page": 37,
+    "end_page": 37
+  },
+  {
+    "output": "37You can only add a number to non-blank lines using -b , or you can also remove all the multiple empty linesusing -s . cat is often used in combination with the pipeoperator | to feed a file content as input to anothercommand: cat file1 | anothercommand .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 38,
+    "start_page": 38,
+    "end_page": 38
+  },
+  {
+    "output": "38lessThe less command is one I use a lot. It shows youthe content stored inside a file, in a nice andinteractive UI.Usage: less \u003Cfilename\u003E .Once you are inside a less session, you can quit bypressing q .You can navigate the file contents using the up and down keys, or using the space bar and b tonavigate page by page. You can also jump to the endof the file pressing G and jump back to the startpressing g .You can search contents inside the file by pressing / and typing a word to search. This searches forward.You can search backwards using the ? symbol andtyping a word.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 39,
+    "start_page": 39,
+    "end_page": 39
+  },
+  {
+    "output": "39This command just visualises the file\u0027s content. Youcan directly open an editor by pressing v . It will usethe system editor, which in most cases is vim .Pressing the F key enters follow mode, or watchmode. When the file is changed by someone else, likefrom another program, you get to see the changeslive. By default this is not happening, and you only seethe file version at the time you opened it. You need topress ctrl-C to quit this mode. In this case thebehaviour is similar to running the tail -f\u003Cfilename\u003E command.You can open multiple files, and navigate throughthem using :n (to go to the next file) and :p (to goto the previous).",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 40,
+    "start_page": 40,
+    "end_page": 40
+  },
+  {
+    "output": "40tailThe best use case of tail in my opinion is when calledwith the -f option. It opens the file at the end, andwatches for file changes. Any time there is newcontent in the file, it is printed in the window. This isgreat for watching log files, for example:tail -f /var/log/system.log To exit, press ctrl-C .You can print the last 10 lines in a file:tail -n 10 \u003Cfilename\u003E You can print the whole file content starting from aspecific line using \u002B before the line number:tail -n \u002B10 \u003Cfilename\u003E tail can do much more and as always my advice isto check man tail .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 41,
+    "start_page": 41,
+    "end_page": 41
+  },
+  {
+    "output": "41wcThe wc command gives us useful information abouta file or input it receives via pipes.echo test \u003E\u003E test.txt wc test.txt 1 1 5 test.txt Example via pipes, we can count the output of runningthe ls -al command:ls -al | wc 6 47 284 The first column returned is the number of lines. Thesecond is the number of words. The third is thenumber of bytes.We can tell it to just count the lines:wc -l test.txt or just the words:wc -w test.txt or just the bytes:wc -c test.txt",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 42,
+    "start_page": 42,
+    "end_page": 42
+  },
+  {
+    "output": "42Bytes in ASCII charsets equate to characters, but withnon-ASCII charsets, the number of characters mightdiffer because some characters might take multiplebytes, for example this happens in Unicode.In this case the -m flag will help getting the correctvalue:wc -m test.txt",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 43,
+    "start_page": 43,
+    "end_page": 43
+  },
+  {
+    "output": "43grepThe grep command is a very useful tool, that whenyou master will help you tremendously in your day today.If you\u0027re wondering, grep stands for globalregular expression printYou can use grep to search in files, or combine itwith pipes to filter the output of another command.For example here\u0027s how we can find the occurences ofthe document.getElementById line in the index.md file:grep document.getElementById index.md Using the -n option it will show the line numbers:grep -n document.getElementById index.md",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 44,
+    "start_page": 44,
+    "end_page": 44
+  },
+  {
+    "output": "44One very useful thing is to tell grep to print 2 linesbefore, and 2 lines after the matched line, to give usmore context. That\u0027s done using the -C option, whichaccepts a number of lines:grep -nC 2 document.getElementById index.md Search is case sensitive by default. Use the -i flagto make it insensitive.As mentioned, you can use grep to filter the output ofanother command. We can replicate the samefunctionality as above using:less index.md | grep -n document.getElementById The search string can be a regular expression, andthis makes grep very powerful.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 45,
+    "start_page": 45,
+    "end_page": 45
+  },
+  {
+    "output": "45Another thing you might find very useful is to invert theresult, excluding the lines that match a particularstring, using the -v option:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 46,
+    "start_page": 46,
+    "end_page": 46
+  },
+  {
+    "output": "46sortSuppose you have a text file which contains thenames of dogs:This list is unordered.The sort command helps us sorting them by name:Use the r option to reverse the order:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 47,
+    "start_page": 47,
+    "end_page": 47
+  },
+  {
+    "output": "47Sorting by default is case sensitive, and alphabetic.Use the --ignore-case option to sort case insensitive,and the -n option to sort using a numeric order.If the file contains duplicate lines:You can use the -u option to remove them:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 48,
+    "start_page": 48,
+    "end_page": 48
+  },
+  {
+    "output": "48 sort does not just works on files, as many UNIXcommands it also works with pipes, so you can use onthe output of another command, for example you canorder the files returned by ls with:ls | sort sort is very powerful and has lots more options,which you can explore calling man sort .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 49,
+    "start_page": 49,
+    "end_page": 49
+  },
+  {
+    "output": "49",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 50,
+    "start_page": 50,
+    "end_page": 50
+  },
+  {
+    "output": "50uniq uniq is a command useful to sort lines of text.You can get those lines from a file, or using pipes fromthe output of another command:uniq dogs.txt ls | uniq You need to consider this key thing: uniq will onlydetect adjacent duplicate lines.This implies that you will most likely use it along with sort :sort dogs.txt | uniq The sort command has its own way to removeduplicates with the -u (unique) option. But uniq hasmore power.By default it removes duplicate lines:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 51,
+    "start_page": 51,
+    "end_page": 51
+  },
+  {
+    "output": "51You can tell it to only display duplicate lines, forexample, with the -d option:sort dogs.txt | uniq -d",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 52,
+    "start_page": 52,
+    "end_page": 52
+  },
+  {
+    "output": "52You can use the -u option to only display non-duplicate lines:You can count the occurrences of each line with the -c option:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 53,
+    "start_page": 53,
+    "end_page": 53
+  },
+  {
+    "output": "53Use the special combination:sort dogs.txt | uniq -c | sort -nr to then sort those lines by most frequent:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 54,
+    "start_page": 54,
+    "end_page": 54
+  },
+  {
+    "output": "54diff diff is a handy command. Suppose you have 2files, which contain almost the same information, butyou can\u0027t find the difference between the two. diff will process the files and will tell you what\u0027s thedifference.Suppose you have 2 files: dogs.txt and moredogs.txt . The difference is that moredogs.txt contains one more dog name: diff dogs.txt moredogs.txt will tell you the secondfile has one more line, line 3 with the line Vanille :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 55,
+    "start_page": 55,
+    "end_page": 55
+  },
+  {
+    "output": "55If you invert the order of the files, it will tell you that thesecond file is missing line 3, whose content is Vanille :Using the -y option will compare the 2 files line byline:The -u option however will be more familiar to you,because that\u0027s the same used by the Git versioncontrol system to display differences betweenversions:Comparing directories works in the same way. Youmust use the -r option to compare recursively(going into subdirectories):",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 56,
+    "start_page": 56,
+    "end_page": 56
+  },
+  {
+    "output": "56In case you\u0027re interested in which files differ, ratherthan the content, use the r and q options:There are many more options you can explore in theman page running man diff :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 57,
+    "start_page": 57,
+    "end_page": 57
+  },
+  {
+    "output": "57",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 58,
+    "start_page": 58,
+    "end_page": 58
+  },
+  {
+    "output": "58echoThe echo command does one simple job: it prints tothe output the argument passed to it.This example:echo \u0022hello\u0022will print hello to the terminal.We can append the output to a file:echo \u0022hello\u0022 \u003E\u003E output.txt We can interpolate environment variables:echo \u0022The path variable is $PATH\u0022Beware that special characters need to be escapedwith a backslash \\ . $ for example:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 59,
+    "start_page": 59,
+    "end_page": 59
+  },
+  {
+    "output": "59This is just the start. We can do some nice thingswhen it comes to interacting with the shell features.We can echo the files in the current folder:echo * We can echo the files in the current folder that startwith the letter o :echo o* Any valid Bash (or any shell you are using) commandand feature can be used here.You can print your home folder path:echo ~ You can also execute commands, and print the resultto the standard output (or to file, as you saw):echo $(ls -al)",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 60,
+    "start_page": 60,
+    "end_page": 60
+  },
+  {
+    "output": "60Note that whitespace is not preserved by default. Youneed to wrap the command in double quotes to do so:You can generate a list of strings, for example ranges:echo {1..5}",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 61,
+    "start_page": 61,
+    "end_page": 61
+  },
+  {
+    "output": "61chownEvery file/directory in an Operating System like Linuxor macOS (and every UNIX systems in general) hasan owner.The owner of a file can do everything with it. It candecide the fate of that file.The owner (and the root user) can change theowner to another user, too, using the chown command:chown \u003Cowner\u003E \u003Cfile\u003E Like this:chown flavio test.txt For example if you have a file that\u0027s owned by root ,you can\u0027t write to it as another user:You can use chown to transfer the ownership to you:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 62,
+    "start_page": 62,
+    "end_page": 62
+  },
+  {
+    "output": "62It\u0027s rather common to have the need to change theownership of a directory, and recursively all the filescontained, plus all the subdirectories and the filescontained in them, too.You can do so using the -R flag:chown -R \u003Cowner\u003E \u003Cfile\u003E Files/directories don\u0027t just have an owner, they alsohave a group. Through this command you canchange that simultaneously while you change theowner:chown \u003Cowner\u003E:\u003Cgroup\u003E \u003Cfile\u003E Example:chown flavio:users test.txt You can also just change the group of a file using the chgrp command:chgrp \u003Cgroup\u003E \u003Cfilename\u003E",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 63,
+    "start_page": 63,
+    "end_page": 63
+  },
+  {
+    "output": "63chmodEvery file in the Linux / macOS Operating Systems(and UNIX systems in general) has 3 permissions:Read, write, execute.Go into a folder, and run the ls -al command.The weird strings you see on each file line, like drwxr-xr-x , define the permissions of the file or folder.Let\u0027s dissect it.The first letter indicates the type of file: - means it\u0027s a normal file d means it\u0027s a directory l means it\u0027s a linkThen you have 3 sets of values:The first set represents the permissions of theowner of the fileThe second set represents the permissions of themembers of the group the file is associated to",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 64,
+    "start_page": 64,
+    "end_page": 64
+  },
+  {
+    "output": "64The third set represents the permissions of theeveryone elseThose sets are composed by 3 values. rwx meansthat specific persona has read, write and executionaccess. Anything that is removed is swapped with a - , which lets you form various combinations ofvalues and relative permissions: rw- , r-- , r-x ,and so on.You can change the permissions given to a file usingthe chmod command. chmod can be used in 2 ways. The first is usingsymbolic arguments, the second is using numericarguments. Let\u0027s start with symbols first, which is moreintuitive.You type chmod followed by a space, and a letter: a stands for all u stands for user g stands for group o stands for othersThen you type either \u002B or - to add a permission, orto remove it. Then you enter one or more permissionssymbols ( r , w , x ).All followed by the file or folder name.Here are some examples:chmod a\u002Br filename #everyone can now read chmod a\u002Brw filename #everyone can now read and writechmod o-rwx filename #others (not the owner, not in",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 65,
+    "start_page": 65,
+    "end_page": 65
+  },
+  {
+    "output": "65You can apply the same permissions to multiplepersonas by adding multiple letters before the \u002B / - :In case you are editing a folder, you can apply thepermissions to every file contained in that folder usingthe -r (recursive) flag.Numeric arguments are faster but I find them hard toremember when you are not using them day to day.You use a digit that represents the permissions of thepersona. This number value can be a maximum of 7,and it\u0027s calculated in this way: 1 if has execution permission 2 if has write permission 4 if has read permissionThis gives us 4 combinations: 0 no permissions 1 can execute 2 can write 3 can write, execute 4 can read 5 can read, execute 6 can read, write 7 can read, write and executeWe use them in pairs of 3, to set the permissions of allthe 3 groups altogether:chmod og-r filename #other and group can\u0027t read any",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 66,
+    "start_page": 66,
+    "end_page": 66
+  },
+  {
+    "output": "66chmod 777 filename chmod 755 filename chmod 644 filename",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 67,
+    "start_page": 67,
+    "end_page": 67
+  },
+  {
+    "output": "67umaskWhen you create a file, you don\u0027t have to decidepermissions up front. Permissions have defaults.Those defaults can be controlled and modified usingthe umask command.Typing umask with no arguments will show you thecurrent umask, in this case 0022 :What does 0022 mean? That\u0027s an octal value thatrepresent the permissions.Another common value is 0002 .Use umask -S to see a human-readable notation:In this case, the user ( u ), owner of the file, has read,write and execution permissions on files.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 68,
+    "start_page": 68,
+    "end_page": 68
+  },
+  {
+    "output": "68Other users belonging to the same group ( g ) haveread and execution permission, same as all the otherusers ( o ).In the numeric notation, we typically change the last 3digits.Here\u0027s a list that gives a meaning to the number: 0 read, write, execute 1 read and write 2 read and execute 3 read only 4 write and execute 5 write only 6 execute only 7 no permissionsNote that this numeric notation differs from the one weuse in chmod .We can set a new value for the mask setting the valuein numeric format:umask 002 or you can change a specific role\u0027s permission:umask g\u002Br",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 69,
+    "start_page": 69,
+    "end_page": 69
+  },
+  {
+    "output": "69duThe du command will calculate the size of a directoryas a whole:du The 32 number here is a value expressed in bytes.Running du * will calculate the size of each fileindividually:You can set du to display values in MegaBytes using du -m , and GigaBytes using du -g .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 70,
+    "start_page": 70,
+    "end_page": 70
+  },
+  {
+    "output": "70The -h option will show a human-readable notationfor sizes, adapting to the size:Adding the -a option will print the size of each file inthe directories, too:A handy thing is to sort the directories by size:du -h \u003Cdirectory\u003E | sort -nr and then piping to head to only get the first 10results:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 71,
+    "start_page": 71,
+    "end_page": 71
+  },
+  {
+    "output": "71",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 72,
+    "start_page": 72,
+    "end_page": 72
+  },
+  {
+    "output": "72dfThe df command is used to get disk usageinformation.Its basic form will print information about the volumesmounted:Using the -h option ( df -h ) will show those valuesin a human-readable format:You can also specify a file or directory name to getinformation about the specific volume it lives on:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 73,
+    "start_page": 73,
+    "end_page": 73
+  },
+  {
+    "output": "73basenameSuppose you have a path to a file, for example /Users/flavio/test.txt .Runningbasename /Users/flavio/test.txt will return the test.txt string:If you run basename on a path string that points to adirectory, you will get the last segment of the path. Inthis example, /Users/flavio is a directory:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 74,
+    "start_page": 74,
+    "end_page": 74
+  },
+  {
+    "output": "74dirnameSuppose you have a path to a file, for example /Users/flavio/test.txt .Runningdirname /Users/flavio/test.txt will return the /Users/flavio string:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 75,
+    "start_page": 75,
+    "end_page": 75
+  },
+  {
+    "output": "75psYour computer is running, at all times, tons of differentprocesses.You can inspect them all using the ps command:This is the list of user-initiated processes currentlyrunning in the current session.Here I have a few fish shell instances, mostlyopened by VS Code inside the editor, and aninstances of Hugo running the development preview ofa site.Those are just the commands assigned to the currentuser. To list all processes we need to pass someoptions to ps .The most common I use is ps ax :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 76,
+    "start_page": 76,
+    "end_page": 76
+  },
+  {
+    "output": "76The a option is used to also list other usersprocesses, not just our own. x shows processesnot linked to any terminal (not initiated by usersthrough a terminal).As you can see, the longer commands are cut. Usethe command ps axww to continue the commandlisting on a new line instead of cutting it:We need to specify w 2 times to apply thissetting, it\u0027s not a typo.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 77,
+    "start_page": 77,
+    "end_page": 77
+  },
+  {
+    "output": "77You can search for a specific process combining grep with a pipe, like this:ps axww | grep \u0022Visual Studio Code\u0022The columns returned by ps represent some keyinformation.The first information is PID , the process ID. This iskey when you want to reference this process inanother command, for example to kill it.Then we have TT that tells us the terminal id used.Then STAT tells us the state of the process: I a process that is idle (sleeping for longer thanabout 20 seconds) R a runnable process S aprocess that is sleeping for less than about 20seconds T a stopped process U a process inuninterruptible wait Z a dead process (a zombie)If you have more than one letter, the secondrepresents further information, which can be verytechnical.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 78,
+    "start_page": 78,
+    "end_page": 78
+  },
+  {
+    "output": "78It\u0027s common to have \u002B which indicates the process isin the foreground in its terminal. s means theprocess is a session leader. TIME tells us how long the process has been running.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 79,
+    "start_page": 79,
+    "end_page": 79
+  },
+  {
+    "output": "79topA quick guide to the top command, used to list theprocesses running in real timeThe top command is used to display dynamic real-time information about running processes in thesystem.It\u0027s really handy to understand what is going on.Its usage is simple, you just type top , and theterminal will be fully immersed in this new view:The process is long-running. To quit, you can type the q letter or ctrl-C .There\u0027s a lot of information being given to us: thenumber of processes, how many are running orsleeping, the system load, the CPU usage, and a lotmore.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 80,
+    "start_page": 80,
+    "end_page": 80
+  },
+  {
+    "output": "80Below, the list of processes taking the most memoryand CPU is constantly updated.By default, as you can see from the %CPU columnhighlighted, they are sorted by the CPU used.You can add a flag to sort processes by memoryutilized:top -o mem",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 81,
+    "start_page": 81,
+    "end_page": 81
+  },
+  {
+    "output": "81killLinux processes can receive signals and react tothem.That\u0027s one way we can interact with running programs.The kill program can send a variety of signals to aprogram.It\u0027s not just used to terminate a program, like the namewould suggest, but that\u0027s its main job.We use it in this way:kill \u003CPID\u003E By default, this sends the TERM signal to the processid specified.We can use flags to send other signals, including:kill -HUP \u003CPID\u003E kill -INT \u003CPID\u003E kill -KILL \u003CPID\u003E kill -TERM \u003CPID\u003E kill -CONT \u003CPID\u003E kill -STOP \u003CPID\u003E HUP means hang up. It\u0027s sent automatically when aterminal window that started a process is closedbefore terminating the process.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 82,
+    "start_page": 82,
+    "end_page": 82
+  },
+  {
+    "output": "82 INT means interrupt, and it sends the same signalused when we press ctrl-C in the terminal, whichusually terminates the process. KILL is not sent to the process, but to the operatingsystem kernel, which immediately stops andterminates the process. TERM means terminate. The process will receive itand terminate itself. It\u0027s the default signal sent by kill . CONT means continue. It can be used to resume astopped process. STOP is not sent to the process, but to the operatingsystem kernel, which immediately stops (but does notterminate) the process.You might see numbers used instead, like kill -1\u003CPID\u003E . In this case, 1 corresponds to HUP . 2 corresponds to INT . 9 corresponds to KILL . 15 corresponds to TERM . 18 corresponds to CONT . 15 corresponds to STOP .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 83,
+    "start_page": 83,
+    "end_page": 83
+  },
+  {
+    "output": "83killallSimilar to the kill command, killall instead ofsending a signal to a specific process id will send thesignal to multiple processes at once.This is the syntax:killall \u003Cname\u003E where name is the name of a program. For exampleyou can have multiple instances of the top programrunning, and killall top will terminate them all.You can specify the signal, like with kill (and checkthe kill tutorial to read more about the specifickinds of signals we can send), for example:killall -HUP top",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 84,
+    "start_page": 84,
+    "end_page": 84
+  },
+  {
+    "output": "84jobsWhen we run a command in Linux / macOS, we canset it to run in the background using the \u0026 symbolafter the command. For example we can run top inthe background:top \u0026 This is very handy for long-running programs.We can get back to that program using the fg command. This works fine if we just have one job inthe background, otherwise we need to use the jobnumber: fg 1 , fg 2 and so on. To get the jobnumber, we use the jobs command.Say we run top \u0026 and then top -o mem \u0026 , so wehave 2 top instances running. jobs will tell us this:Now we can switch back to one of those using fg\u003Cjobid\u003E . To stop the program again we can hit cmd-Z .Running jobs -l will also print the process id of eachjob.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 85,
+    "start_page": 85,
+    "end_page": 85
+  },
+  {
+    "output": "85bgWhen a command is running you can suspend it using ctrl-Z .The command will immediately stop, and you get backto the shell terminal.You can resume the execution of the command in thebackground, so it will keep running but it will notprevent you from doing other work in the terminal.In this example I have 2 commands stopped:I can run bg 1 to resume in the background theexecution of the job #1.I could have also said bg without any option, as thedefault is to pick the job #1 in the list.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 86,
+    "start_page": 86,
+    "end_page": 86
+  },
+  {
+    "output": "86fgWhen a command is running in the background,because you started it with \u0026 at the end (example: top \u0026 or because you put it in the background withthe bg command, you can put it to the foregroundusing fg .Runningfgwill resume to the foreground the last job that wassuspended.You can also specify which job you want to resume tothe foreground passing the job number, which you canget using the jobs command.Running fg 2 will resume job #2:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 87,
+    "start_page": 87,
+    "end_page": 87
+  },
+  {
+    "output": "87",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 88,
+    "start_page": 88,
+    "end_page": 88
+  },
+  {
+    "output": "88typeA command can be one of those 4 types:an executablea shell built-in programa shell functionan aliasThe type command can help figure out this, in casewe want to know or we\u0027re just curious. It will tell youhow the command will be interpreted.The output will depend on the shell used. This is Bash:This is Zsh:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 89,
+    "start_page": 89,
+    "end_page": 89
+  },
+  {
+    "output": "89This is Fish:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 90,
+    "start_page": 90,
+    "end_page": 90
+  },
+  {
+    "output": "90One of the most interesting things here is that foraliases it will tell you what is aliasing to. You can seethe ll alias, in the case of Bash and Zsh, but Fishprovides it by default, so it will tell you it\u0027s a built-inshell function.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 91,
+    "start_page": 91,
+    "end_page": 91
+  },
+  {
+    "output": "91whichSuppose you have a command you can execute,because it\u0027s in the shell path, but you want to knowwhere it is located.You can do so using which . The command will returnthe path to the command specified: which will only work for executables stored on disk,not aliases or built-in shell functions.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 92,
+    "start_page": 92,
+    "end_page": 92
+  },
+  {
+    "output": "92nohupSometimes you have to run a long-lived process on aremote machine, and then you need to disconnect.Or you simply want to prevent the command to behalted if there\u0027s any network issue between you andthe server.The way to make a command run even after you logout or close the session to a server is to use the nohup command.Use nohup \u003Ccommand\u003E to let the process continueworking even after you log out.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 93,
+    "start_page": 93,
+    "end_page": 93
+  },
+  {
+    "output": "93xargsThe xargs command is used in a UNIX shell toconvert input from standard input into arguments to acommand.In other words, through the use of xargs the outputof a command is used as the input of anothercommand.Here\u0027s the syntax you will use:command1 | xargs command2 We use a pipe ( | ) to pass the output to xargs . Thatwill take care of running the command2 command,using the output of command1 as its argument(s).Let\u0027s do a simple example. You want to remove somespecific files from a directory. Those files are listedinside a text file.We have 3 files: file1 , file2 , file3 .In todelete.txt we have a list of files we want todelete, in this example file1 and file3 :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 94,
+    "start_page": 94,
+    "end_page": 94
+  },
+  {
+    "output": "94We will channel the output of cat todelete.txt to the rm command, through xargs .In this way:cat todelete.txt | xargs rm That\u0027s the result, the files we listed are now deleted:The way it works is that xargs will run rm 2 times,one for each line returned by cat .This is the simplest usage of xargs . There areseveral options we can use.One of the most useful in my opinion, especially whenstarting to learn xargs , is -p . Using this option willmake xargs print a confirmation prompt with theaction it\u0027s going to take:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 95,
+    "start_page": 95,
+    "end_page": 95
+  },
+  {
+    "output": "95The -n option lets you tell xargs to perform oneiteration at a time, so you can individually confirmthem with -p . Here we tell xargs to perform oneiteration at a time with -n1 :The -I option is another widely used one. It allowsyou to get the output into a placeholder, and then youcan do various things.One of them is to run multiple commands:You can swap the % symbol I used above withanything else, it\u0027s a variablecommand1 | xargs -I % /bin/bash -c \u0027command2 %; comm",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 96,
+    "start_page": 96,
+    "end_page": 96
+  },
+  {
+    "output": "96vim vim is a very popular file editor, especially amongprogrammers. It\u0027s actively developed and frequentlyupdated, and there\u0027s a very big community around it.There\u0027s even a Vim conference! vi in modern systems is just an alias to vim , whichmeans vi i m proved.You start it by running vi on the command line.You can specify a filename at invocation time to editthat specific file:vi test.txt",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 97,
+    "start_page": 97,
+    "end_page": 97
+  },
+  {
+    "output": "97You have to know that Vim has 2 main modes:command (or normal) modeinsert modeWhen you start the editor, you are in command mode.You can\u0027t enter text like you expect from a GUI-basededitor. You have to enter insert mode. You can do thisby pressing the i key. Once you do so, the --INSERT -- word appear at the bottom of the editor:Now you can start typing and filling the screen with thefile contents:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 98,
+    "start_page": 98,
+    "end_page": 98
+  },
+  {
+    "output": "98You can move around the file with the arrow keys, orusing the h - j - k - l keys. h-l for left-right, j-k for down-up.Once you are done editing you can press the esc key to exit insert mode, and go back to commandmode.At this point you can navigate the file, but you can\u0027tadd content to it (and be careful which keys you pressas they might be commands).One thing you might want to do now is saving the file.You can do so by pressing : (colon), then w .",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 99,
+    "start_page": 99,
+    "end_page": 99
+  },
+  {
+    "output": "99You can save and quit pressing : then w and q : :wq You can quit without saving, pressing : then q and ! : :q! You can undo and edit by going to command modeand pressing u . You can redo (cancel an undo) bypressing ctrl-r .Those are the basics of working with Vim. From herestarts a rabbit hole we can\u0027t go into in this littleintroduction.I will only mention those commands that will get youstarted editing with Vim:pressing the x key deletes the charactercurrently highlightedpressing A goes at the end of the currentlyselected linepress 0 to go to the start of the linego to the first character of a word and press d followed by w to delete that word. If you follow itwith e instead of w , the white space before thenext word is preserveduse a number between d and w to delete morethan 1 word, for example use d3w to delete 3words forwardpress d followed by d to delete a whole entireline. Press d followed by $ to delete the entireline from where the cursor is, until the endTo find out more about Vim I can recommend the VimFAQ and especially running the vimtutor command,which should already be installed in your system and",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 100,
+    "start_page": 100,
+    "end_page": 100
+  },
+  {
+    "output": "100will greatly help you start your vim explorations.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 101,
+    "start_page": 101,
+    "end_page": 101
+  },
+  {
+    "output": "101emacs emacs is an awesome editor and it\u0027s historicallyregarded as the editor for UNIX systems. Famously vi vs emacs flame wars and heated discussionscaused many unproductive hours for developersaround the world. emacs is very powerful. Some people use it all daylong as a kind of operating system(https://news.ycombinator.com/item?id=19127258).We\u0027ll just talk about the basics here.You can open a new emacs session simply byinvoking emacs :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 102,
+    "start_page": 102,
+    "end_page": 102
+  },
+  {
+    "output": "102macOS users, stop a second now. If you are onLinux there are no problems, but macOS does notship applications using GPLv3, and every built-inUNIX command that has been updated to GPLv3has not been updated. While there is a littleproblem with the commands I listed up to now, inthis case using an emacs version from 2007 is notexactly the same as using a version with 12 yearsof improvements and change. This is not aproblem with Vim, which is up to date. To fix this,run brew install emacs and running emacs willuse the new version from Homebrew (make sureyou have Homebrew installed)You can also edit an existing file calling emacs\u003Cfilename\u003E :You can start editing and once you are done, press ctrl-x followed by ctrl-w . You confirm the folder:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 103,
+    "start_page": 103,
+    "end_page": 103
+  },
+  {
+    "output": "103and Emacs tell you the file exists, asking you if itshould overwrite it:Answer y , and you get a confirmation of success:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 104,
+    "start_page": 104,
+    "end_page": 104
+  },
+  {
+    "output": "104You can exit Emacs pressing ctrl-x followed by ctrl-c . Or ctrl-x followed by c (keep ctrl pressed).There is a lot to know about Emacs. More than I amable to write in this little introduction. I encourage youto open Emacs and press ctrl-h r to open thebuilt-in manual and ctrl-h t to open the officialtutorial.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 105,
+    "start_page": 105,
+    "end_page": 105
+  },
+  {
+    "output": "105nano nano is a beginner friendly editor.Run it using nano \u003Cfilename\u003E .You can directly type characters into the file withoutworrying about modes.You can quit without editing using ctrl-X . If youedited the file buffer, the editor will ask you forconfirmation and you can save the edits, or discardthem. The help at the bottom shows you the keyboardcommands that let you work with the file: pico is more or less the same, although nano is theGNU version of pico which at some point in historywas not open source and the nano clone was madeto satisfy the GNU operating system licenserequirements.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 106,
+    "start_page": 106,
+    "end_page": 106
+  },
+  {
+    "output": "106whoamiType whoami to print the user name currently loggedin to the terminal session:Note: this is different from the who am i command, which prints more information",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 107,
+    "start_page": 107,
+    "end_page": 107
+  },
+  {
+    "output": "107whoThe who command displays the users logged in tothe system.Unless you\u0027re using a server multiple people haveaccess to, chances are you will be the only userlogged in, multiple times:Why multiple times? Because each shell opened willcount as an access.You can see the name of the terminal used, and thetime/day the session was started.The -aH flags will tell who to display moreinformation, including the idle time and the process IDof the terminal:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 108,
+    "start_page": 108,
+    "end_page": 108
+  },
+  {
+    "output": "108The special who am i command will list the currentterminal session details:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 109,
+    "start_page": 109,
+    "end_page": 109
+  },
+  {
+    "output": "109suWhile you\u0027re logged in to the terminal shell with oneuser, you might have the need to switch to anotheruser.For example you\u0027re logged in as root to perform somemaintenance, but then you want to switch to a useraccount.You can do so with the su command:su \u003Cusername\u003E For example: su flavio .If you\u0027re logged in as a user, running su withoutanything else will prompt to enter the root userpassword, as that\u0027s the default behavior. su will start a new shell as another user.When you\u0027re done, typing exit in the shell will closethat shell, and will return back to the current user\u0027sshell.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 110,
+    "start_page": 110,
+    "end_page": 110
+  },
+  {
+    "output": "110sudo sudo is commonly used to run a command as root.You must be enabled to use sudo , and once you do,you can run commands as root by entering your user\u0027spassword (not the root user password).The permissions are highly configurable, which isgreat especially in a multi-user server environment,and some users can be granted access to runningspecific commands through sudo .For example you can edit a system configuration file:sudo nano /etc/hosts which would otherwise fail to save since you don\u0027thave the permissions for it.You can run sudo -i to start a shell as root:You can use sudo to run commands as any user. root is the default, but use the -u option to specifyanother user:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 111,
+    "start_page": 111,
+    "end_page": 111
+  },
+  {
+    "output": "111sudo -u flavio ls /Users/flavio",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 112,
+    "start_page": 112,
+    "end_page": 112
+  },
+  {
+    "output": "112passwdUsers in Linux have a password assigned. You canchange the password using the passwd command.There are two situations here.The first is when you want to change your password.In this case you type:passwd and an interactive prompt will ask you for the oldpassword, then it will ask you for the new one:When you\u0027re root (or have superuser privileges) youcan set the username of which you want to change thepassword:passwd \u003Cusername\u003E \u003Cnew password\u003E In this case you don\u0027t need to enter the old one.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 113,
+    "start_page": 113,
+    "end_page": 113
+  },
+  {
+    "output": "113pingThe ping command pings a specific network host, onthe local network or on the Internet.You use it with the syntax ping \u003Chost\u003E where \u003Chost\u003E could be a domain name, or an IP address.Here\u0027s an example pinging google.com :The commands sends a request to the server, and theserver returns a response. ping keep sending the request every second, bydefault, and will keep running until you stop it with ctrl-C , unless you pass the number of times youwant to try with the -c option: ping -c 2 google.com .Once ping is stopped, it will print some statisticsabout the results: the percentage of packages lost,and statistics about the network performance.As you can see the screen prints the host IP address,and the time that it took to get the response back.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 114,
+    "start_page": 114,
+    "end_page": 114
+  },
+  {
+    "output": "114Not all servers support pinging, in case the requeststimes out:Sometimes this is done on purpose, to \u0022hide\u0022 theserver, or just to reduce the load. The ping packetscan also be filtered by firewalls. ping works using the ICMP protocol (InternetControl Message Protocol), a network layer protocoljust like TCP or UDP.The request sends a packet to the server with the ECHO_REQUEST message, and the server returns a ECHO_REPLY message. I won\u0027t go into details, but thisis the basic concept.Pinging a host is useful to know if the host isreachable (supposing it implements ping), and howdistant it is in terms of how long it takes to get back toyou. Usually the nearest the server is geographically,the less time it will take to return back to you, forsimple physical laws that cause a longer distance tointroduce more delay in the cables.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 115,
+    "start_page": 115,
+    "end_page": 115
+  },
+  {
+    "output": "115tracerouteWhen you try to reach a host on the Internet, you gothrough your home router, then you reach your ISPnetwork, which in turn goes through its own upstreamnetwork router, and so on, until you finally reach thehost.Have you ever wanted to know what are the steps thatyour packets go through to do that?The traceroute command is made for this.You invoketraceroute \u003Chost\u003E and it will (slowly) gather all the information while thepacket travels.In this example I tried reaching for my blog with traceroute flaviocopes.com :",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 116,
+    "start_page": 116,
+    "end_page": 116
+  },
+  {
+    "output": "116Not every router travelled returns us information. Inthis case, traceroute prints * * * . Otherwise, wecan see the hostname, the IP address, and someperformance indicator.For every router we can see 3 samples, which meanstraceroute tries by default 3 times to get you a goodindication of the time needed to reach it. This is why ittakes this long to execute traceroute compared tosimply doing a ping to that host.You can customize this number with the -q option:traceroute -q 1 flaviocopes.com",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 117,
+    "start_page": 117,
+    "end_page": 117
+  },
+  {
+    "output": "117clearType clear to clear all the previous commands thatwere ran in the current terminal.The screen will clear and you will just see the promptat the top:Note: this command has a handy shortcut: ctrl-L Once you do that, you will lose access to scrolling tosee the output of the previous commands entered.So you might want to use clear -x instead, whichstill clears the screen, but lets you go back to see theprevious work by scrolling up.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 118,
+    "start_page": 118,
+    "end_page": 118
+  },
+  {
+    "output": "118historyEvery time we run a command, that\u0027s memorized inthe history.You can display all the history using:historyThis shows the history with numbers:You can use the syntax !\u003Ccommand number\u003E to repeata command stored in the history, in the aboveexample typing !121 will repeat the ls -al | wc -l command.Typically the last 500 commands are stored in thehistory.You can combine this with grep to find a commandyou ran:history | grep docker",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 119,
+    "start_page": 119,
+    "end_page": 119
+  },
+  {
+    "output": "119To clear the history, run history -c",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 120,
+    "start_page": 120,
+    "end_page": 120
+  },
+  {
+    "output": "120exportThe export command is used to export variables tochild processes.What does this mean?Suppose you have a variable TEST defined in thisway:TEST=\u0022test\u0022You can print its value using echo $TEST :But if you try defining a Bash script in a file script.sh with the above command:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 121,
+    "start_page": 121,
+    "end_page": 121
+  },
+  {
+    "output": "121Then you set chmod u\u002Bx script.sh and you executethis script with ./script.sh , the echo $TEST line willprint nothing!This is because in Bash the TEST variable wasdefined local to the shell. When executing a shellscript or another command, a subshell is launched toexecute it, which does not contain the current shelllocal variables.To make the variable available there we need to define TEST not in this way:TEST=\u0022test\u0022but in this way:export TEST=\u0022test\u0022Try that, and running ./script.sh now should print\u0022test\u0022:Sometimes you need to append something to avariable. It\u0027s often done with the PATH variable. Youuse this syntax:export PATH=$PATH:/new/path",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 122,
+    "start_page": 122,
+    "end_page": 122
+  },
+  {
+    "output": "122It\u0027s common to use export when you create newvariables in this way, but also when you createvariables in the .bash_profile or .bashrc configuration files with Bash, or in .zshenv with Zsh.To remove a variable, use the -n option:export -n TEST Calling export without any option will list all theexported variables.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 123,
+    "start_page": 123,
+    "end_page": 123
+  },
+  {
+    "output": "123crontabCron jobs are jobs that are scheduled to run at specificintervals. You might have a command performsomething every hour, or every day, or every 2 weeks.Or on weekends. They are very powerful, especiallyon servers to perform maintenance and automations.The crontab command is the entry point to work withcron jobs.The first thing you can do is to explore which cron jobsare defined by you:crontab -lYou might have none, like me:Runcrontab -eto edit the cron jobs, and add new ones.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 124,
+    "start_page": 124,
+    "end_page": 124
+  },
+  {
+    "output": "124By default this opens with the default editor, which isusually vim . I like nano more, you can use this lineto use a different editor:EDITOR=nano crontab -eNow you can add one line for each cron job.The syntax to define cron jobs is kind of scary. This iswhy I usually use a website to help me generate itwithout errors: https://crontab-generator.org/You pick a time interval for the cron job, and you typethe command to execute.",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 125,
+    "start_page": 125,
+    "end_page": 125
+  },
+  {
+    "output": "125I chose to run a script located in /Users/flavio/test.sh every 12 hours. This is thecrontab line I need to run:I run crontab -e :EDITOR=nano crontab -eand I add that line, then I press ctrl-X and press y to save.If all goes well, the cron job is set up:Once this is done, you can see the list of active cronjobs by running:crontab -l* */12 * * * /Users/flavio/test.sh \u003E/dev/null 2\u003E\u00261",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 126,
+    "start_page": 126,
+    "end_page": 126
+  },
+  {
+    "output": "126You can remove a cron job running crontab -e again,removing the line and exiting the editor:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 127,
+    "start_page": 127,
+    "end_page": 127
+  },
+  {
+    "output": "127unameCalling uname without any options will return theOperating System codename:The m option shows the hardware name ( x86_64 inthis example) and the p option prints the processorarchitecture name ( i386 in this example):The s option prints the Operating System name. r prints the release, v prints the version:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 128,
+    "start_page": 128,
+    "end_page": 128
+  },
+  {
+    "output": "128The n option prints the node network name:The a option prints all the information available:",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 129,
+    "start_page": 129,
+    "end_page": 129
+  },
+  {
+    "output": "129On macOS you can also use the sw_vers commandto print more information about the macOS OperatingSystem. Note that this differs from the Darwin (theKernel) version, which above is 19.6.0 .Darwin is the name of the kernel of macOS. Thekernel is the \u0022core\u0022 of the Operating System, whilethe Operating System as a whole is calledmacOS. In Linux, Linux is the kernel, GNU/Linuxwould be the Operating System name, althoughwe all refer to it as \u0022Linux\u0022",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 130,
+    "start_page": 130,
+    "end_page": 130
+  },
+  {
+    "output": "130envThe env command can be used to pass environmentvariables without setting them on the outerenvironment (the current shell).Suppose you want to run a Node.js app and set the USER variable to it.You can runenv USER=flavio node app.js and the USER environment variable will be accessiblefrom the Node.js app via the Node process.env interface.You can also run the command clearing all theenvironment variables already set, using the -i option:env -i node app.js In this case you will get an error saying env: node: Nosuch file or directory because the node commandis not reachable, as the PATH variable used by theshell to look up commands in the common paths isunset.So you need to pass the full path to the node program:env -i /usr/local/bin/node app.js",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 131,
+    "start_page": 131,
+    "end_page": 131
+  },
+  {
+    "output": "131Try with a simple app.js file with this content:console.log(process.env.NAME) console.log(process.env.PATH) You will see the output beingundefined undefined You can pass an env variable:env -i NAME=flavio node app.js and the output will beflavio undefined Removing the -i option will make PATH availableagain inside the program:The env command can also be used to print out allthe environment variables, if ran with no options:env",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 132,
+    "start_page": 132,
+    "end_page": 132
+  },
+  {
+    "output": "132it will return a list of the environment variables set, forexample:You can also make a variable inaccessible inside theprogram you run, using the -u option, for examplethis code removes the HOME variable from thecommand environment:env -u HOME node app.js HOME=/Users/flavio LOGNAME=flavio PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/LPWD=/Users/flavio SHELL=/usr/local/bin/fish",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 133,
+    "start_page": 133,
+    "end_page": 133
+  },
+  {
+    "output": "133printenvA quick guide to the printenv command, used toprint the values of environment variablesIn any shell there are a good number of environmentvariables, set either by the system, or by your ownshell scripts and configuration.You can print them all to the terminal using the printenv command. The output will be somethinglike this:with a few more lines, usually.You can append a variable name as a parameter, toonly show that variable value:printenv PATH HOME=/Users/flavio LOGNAME=flavio PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/LPWD=/Users/flavio SHELL=/usr/local/bin/fish",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 134,
+    "start_page": 134,
+    "end_page": 134
+  },
+  {
+    "output": "134ConclusionThanks a lot for reading this book.I hope it will inspire you to know more about Linux andits capabilities.To learn more, check out my blog flaviocopes.com.Send any feedback, errata or opinions athey@flaviocopes.com",
+    "source_title": "linux cmds handbook",
+    "source_file": "linux cmds handbook.pdf",
+    "page": 135,
+    "start_page": 135,
+    "end_page": 135
+  }
+]

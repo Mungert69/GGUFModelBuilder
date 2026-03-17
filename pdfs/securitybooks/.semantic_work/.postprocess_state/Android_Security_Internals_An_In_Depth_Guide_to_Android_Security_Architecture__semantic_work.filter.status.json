@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-03-15T21:28:08+00:00",
+  "started_at": "2026-03-16T20:54:35+00:00",
   "files": {
     ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json": {
       "done_indices": [
@@ -38,10 +38,10 @@
         32,
         33
       ],
-      "updated": 0
+      "updated": 1
     }
   },
-  "updated_at": "2026-03-15T21:32:45+00:00",
-  "finished_at": "2026-03-15T21:32:45+00:00",
-  "total_non_content_updates": 0
+  "updated_at": "2026-03-16T20:59:15+00:00",
+  "finished_at": "2026-03-16T20:59:15+00:00",
+  "total_non_content_updates": 1
 }

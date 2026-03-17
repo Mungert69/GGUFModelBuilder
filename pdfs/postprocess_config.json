@@ -1,5 +1,5 @@
 {
-  "LlmHFModelID": "meta/llama-3.3-70b-instruct",
+  "LlmHFModelID": "deepseek-ai/deepseek-v3.2",
   "LlmHFUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
   "LlmHFKeyEnv": "LlmHFKey",
   "MaxTokens": 32768,
