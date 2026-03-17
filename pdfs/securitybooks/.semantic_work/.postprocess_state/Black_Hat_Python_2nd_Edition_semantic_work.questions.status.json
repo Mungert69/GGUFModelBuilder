@@ -1,5 +1,5 @@
 {
-  "started_at": "2026-03-15T22:20:47+00:00",
+  "started_at": "2026-03-16T21:53:33+00:00",
   "files": {
     ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json": {
       "done_indices": [
@@ -22,14 +22,12 @@
         16,
         17,
         18,
-        19,
-        20,
-        21
+        19
       ],
-      "replaced": 20
+      "replaced": 19
     }
   },
-  "updated_at": "2026-03-15T22:24:49+00:00",
-  "finished_at": "2026-03-15T22:24:49+00:00",
-  "total_questions_replaced": 20
+  "updated_at": "2026-03-16T21:57:43+00:00",
+  "finished_at": "2026-03-16T21:57:43+00:00",
+  "total_questions_replaced": 19
 }

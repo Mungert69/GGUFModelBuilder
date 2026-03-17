@@ -167,18 +167,19 @@ def main():
         replaced = 0
         processed = 0
         for idx, block in enumerate(blocks):
-            if idx in done:
-                continue
-            if args.max_blocks_per_file > 0 and processed >= args.max_blocks_per_file:
-                break
-            processed += 1
-
             if not isinstance(block, dict):
                 done.add(idx)
                 continue
             if not is_trueish(block.get("is_book_content", True)):
                 done.add(idx)
                 continue
+            existing_summary = str(block.get("summary") or "").strip()
+            # If a block is marked done but summary is still empty, force reprocessing.
+            if idx in done and existing_summary:
+                continue
+            if args.max_blocks_per_file > 0 and processed >= args.max_blocks_per_file:
+                break
+            processed += 1
 
             text = str(block.get("text") or "")
             prompt = build_prompt(

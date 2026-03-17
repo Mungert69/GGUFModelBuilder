@@ -1,0 +1,266 @@
+{
+  "generated_at": "2026-03-16T23:53:32.3682537\u002B00:00",
+  "generator": "NetworkMonitorDataInjest.PdfToJsonManifestService",
+  "cwd": "/home/mahadeva/code/GGUFModelBuilder/pdfs_nmdi_dev/securitybooks",
+  "files": [
+    {
+      "pdf_file": "A Bug Hunter\u0027s Diary .pdf",
+      "output_json": "A_Bug_Hunters_Diary_.json",
+      "status": "converted",
+      "exists": true
+    },
+    {
+      "pdf_file": "Advanced Penetration Testing - Hacking the World\u0027s Most Secure Networks by Wil Allsopp.pdf",
+      "output_json": "Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Android Hacker-s Handbook.pdf",
+      "output_json": "Android_Hacker-s_Handbook.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Android Security Internals An In Depth Guide to Android Security Architecture .pdf",
+      "output_json": "Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Attacking network protocols.pdf",
+      "output_json": "Attacking_network_protocols.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Black Hat Go Go Programming For Hackers and Pentesters.pdf",
+      "output_json": "Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
+      "status": "error",
+      "exists": false,
+      "error": "The type of the catalog dictionary was not Catalog: \u003CRotate, 0\u003E, \u003CType, /Page\u003E, \u003CParent, 3 0\u003E, \u003CMediaBox, [ 0.0000, 841.8960, 595.2960, 0.0000 ]\u003E, \u003CCropBox, [ 0.0000, 841.8960, 595.2960, 0.0000 ]\u003E."
+    },
+    {
+      "pdf_file": "Black Hat Python, 2nd Edition.pdf",
+      "output_json": "Black_Hat_Python_2nd_Edition.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "breaking into infosec .pdf",
+      "output_json": "breaking_into_infosec_.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Bug Bounty Playbook.pdf",
+      "output_json": "Bug_Bounty_Playbook.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "bug-bounty-bootcamp.pdf",
+      "output_json": "bug-bounty-bootcamp.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Crypto101.pdf",
+      "output_json": "Crypto101.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Game Hacking Developing Autonomous Bots for Online Games.pdf",
+      "output_json": "Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "ghost-in-the-wires-kevin-mitnick.pdf",
+      "output_json": "ghost-in-the-wires-kevin-mitnick.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Gray Hat C Sharp.pdf",
+      "output_json": "Gray_Hat_C_Sharp.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Hacking For Dummies, 4th Edition.pdf",
+      "output_json": "Hacking_For_Dummies_4th_Edition.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Hacking The Art of Exploitation 2nd Edition.pdf",
+      "output_json": "Hacking_The_Art_of_Exploitation_2nd_Edition.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Hash Crack - Password Cracking Manual v2.pdf",
+      "output_json": "Hash_Crack_-_Password_Cracking_Manual_v2.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "How software works the magic behind encryption, CGI, search engines, and other everyday technologies .pdf",
+      "output_json": "How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Inside Cyber Warfare.pdf",
+      "output_json": "Inside_Cyber_Warfare.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Kali Linux Wireless Penetration Testing - Beginner\u0027s Guide - Learn to penetrate Wi-Fi and wireless networks to secure your system from vulnerabilities by Vivek Ramachandran and Cameron Buchanan.pdf",
+      "output_json": "Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Kali Linux Wireless Penetration Testing.pdf",
+      "output_json": "Kali_Linux_Wireless_Penetration_Testing.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Kennedy D. Metasploit. The Penetration Tester\u0027s Guide 2ed 2024.pdf",
+      "output_json": "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Linux Basics for Hackers.pdf",
+      "output_json": "Linux_Basics_for_Hackers.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "linux cmds handbook.pdf",
+      "output_json": "linux_cmds_handbook.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Metasploit the penetration tester\u0027s guide.pdf",
+      "output_json": "Metasploit_the_penetration_testers_guide.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "PDF1.pdf",
+      "output_json": "PDF1.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "PDF2.pdf",
+      "output_json": "PDF2.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "PDF3.pdf",
+      "output_json": "PDF3.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Penetration Testing A Hands-On Introduction to Hacking by Georgia Weidman.pdf",
+      "output_json": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Penetration Testing A Hands-On Introduction to Hacking.pdf",
+      "output_json": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Python For Kids.pdf",
+      "output_json": "Python_For_Kids.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Real-World-Bug-Hunting.pdf",
+      "output_json": "Real-World-Bug-Hunting.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "RTFM.pdf",
+      "output_json": "RTFM.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Serious Cryptography A Practical Introduction to Modern Encryption .pdf",
+      "output_json": "Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Social engineering the art of human hacking.pdf",
+      "output_json": "Social_engineering_the_art_of_human_hacking.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Social Engineering The Science of Human Hacking 2nd Edition.pdf",
+      "output_json": "Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "The Art of Deception.pdf",
+      "output_json": "The_Art_of_Deception.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "The Art of Invisibility.pdf",
+      "output_json": "The_Art_of_Invisibility.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "The Hacker Playbook 3 Practical Guide To Penetration Testing.pdf",
+      "output_json": "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "The Mobile Application Hacker\u0027s Handbook .pdf",
+      "output_json": "The_Mobile_Application_Hackers_Handbook_.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "The tangled web.pdf",
+      "output_json": "The_tangled_web.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "Web application hackers handbook.pdf",
+      "output_json": "Web_application_hackers_handbook.json",
+      "status": "existing",
+      "exists": true
+    },
+    {
+      "pdf_file": "web hacking101.pdf",
+      "output_json": "web_hacking101.json",
+      "status": "existing",
+      "exists": true
+    }
+  ]
+}

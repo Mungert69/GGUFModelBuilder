@@ -260,6 +260,11 @@
       "output_json": "web_hacking101.json",
       "status": "existing",
       "exists": true
+    },
+    {
+      "output_json": "Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json",
+      "status": "existing",
+      "exists": true
     }
   ]
 }

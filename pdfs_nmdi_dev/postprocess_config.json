@@ -1,0 +1,17 @@
+{
+  "LlmHFModelID": "deepseek-ai/deepseek-v3.2",
+  "LlmHFUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
+  "LlmHFKeyEnv": "LlmHFKey",
+  "MaxTokens": 32768,
+  "MaxContext": 128000,
+  "RequestTimeoutSeconds": 240,
+  "RateLimitPerMinute": 5,
+  "HfRetryMaxAttempts": 3,
+  "HfRetryDelaySeconds": 8,
+  "RateLimit429CooldownSeconds": 30,
+  "RateLimit429CooldownMaxSeconds": 300,
+  "RateLimitDynamicSpacingStep": 0.35,
+  "RateLimitDynamicSpacingMaxMultiplier": 8.0,
+  "RateLimitRecoverySuccesses": 20,
+  "ContentCheckMaxTokens": 128
+}

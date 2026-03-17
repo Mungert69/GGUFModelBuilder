@@ -1,272 +1,94 @@
 {
-  "started_at": "2026-03-15T18:48:10+00:00",
-  "pattern": "*.json",
+  "started_at": "2026-03-16T22:54:58+00:00",
+  "stage1_manifest_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage1_json_manifest.json",
   "max_passes": 20,
+  "input_manifest_file": ".semantic_work/semantic_batch_inputs.json",
   "work_files": {
-    "A_Bug_Hunters_Diary_.json": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-    "Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-    "Android_Hacker-s_Handbook.json": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-    "Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-    "Attacking_network_protocols.json": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-    "Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-    "Black_Hat_Python_2nd_Edition.json": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-    "Bug_Bounty_Playbook.json": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-    "Crypto101.json": ".semantic_work/Crypto101_semantic_work.json",
-    "Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-    "Gray_Hat_C_Sharp.json": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-    "Hacking_For_Dummies_4th_Edition.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-    "Hacking_For_Dummies_4th_Edition_chunks.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-    "Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-    "Hacking_The_Art_of_Exploitation_2nd_Edition.json": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-    "Hash_Crack_-_Password_Cracking_Manual_v2.json": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-    "How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-    "Inside_Cyber_Warfare.json": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-    "Kali_Linux_Wireless_Penetration_Testing.json": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-    "Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-    "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-    "Linux_Basics_for_Hackers.json": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-    "Metasploit_the_penetration_testers_guide.json": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-    "PDF1.json": ".semantic_work/PDF1_semantic_work.json",
-    "PDF2.json": ".semantic_work/PDF2_semantic_work.json",
-    "PDF3.json": ".semantic_work/PDF3_semantic_work.json",
-    "Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-    "Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-    "Python_For_Kids.json": ".semantic_work/Python_For_Kids_semantic_work.json",
-    "RTFM.json": ".semantic_work/RTFM_semantic_work.json",
-    "Real-World-Bug-Hunting.json": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-    "Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-    "Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-    "Social_engineering_the_art_of_human_hacking.json": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-    "The_Art_of_Deception.json": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-    "The_Art_of_Invisibility.json": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-    "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-    "The_Mobile_Application_Hackers_Handbook_.json": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-    "The_tangled_web.json": ".semantic_work/The_tangled_web_semantic_work.json",
-    "Web_application_hackers_handbook.json": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-    "breaking_into_infosec_.json": ".semantic_work/breaking_into_infosec__semantic_work.json",
-    "bug-bounty-bootcamp.json": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-    "ghost-in-the-wires-kevin-mitnick.json": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-    "linux_cmds_handbook.json": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-    "pdf_quality_scan.json": ".semantic_work/pdf_quality_scan_semantic_work.json",
-    "semantic_work_audit_report.json": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-    "source_json_quality_scan.json": ".semantic_work/source_json_quality_scan_semantic_work.json",
-    "web_hacking101.json": ".semantic_work/web_hacking101_semantic_work.json"
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary_.json": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook.json": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Attacking_network_protocols.json": ".semantic_work/Attacking_network_protocols_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Python_2nd_Edition.json": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook.json": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101.json": ".semantic_work/Crypto101_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Gray_Hat_C_Sharp.json": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_The_Art_of_Exploitation_2nd_Edition.json": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hash_Crack_-_Password_Cracking_Manual_v2.json": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Inside_Cyber_Warfare.json": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing.json": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Linux_Basics_for_Hackers.json": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Metasploit_the_penetration_testers_guide.json": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF1.json": ".semantic_work/PDF1_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF2.json": ".semantic_work/PDF2_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF3.json": ".semantic_work/PDF3_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Python_For_Kids.json": ".semantic_work/Python_For_Kids_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/RTFM.json": ".semantic_work/RTFM_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Real-World-Bug-Hunting.json": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking.json": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception.json": ".semantic_work/The_Art_of_Deception_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility.json": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook_.json": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_tangled_web.json": ".semantic_work/The_tangled_web_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook.json": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec_.json": ".semantic_work/breaking_into_infosec__semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/bug-bounty-bootcamp.json": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick.json": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook.json": ".semantic_work/linux_cmds_handbook_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/web_hacking101.json": ".semantic_work/web_hacking101_semantic_work.json",
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json"
   },
   "passes": [
     {
       "pass": 1,
-      "started_at": "2026-03-15T18:48:11+00:00",
-      "pending_before_count": 11,
+      "started_at": "2026-03-16T22:54:59+00:00",
+      "pending_before_count": 1,
       "pending_before": [
-        "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
-        "The_tangled_web.json",
-        "Web_application_hackers_handbook.json",
-        "breaking_into_infosec_.json",
-        "bug-bounty-bootcamp.json",
-        "ghost-in-the-wires-kevin-mitnick.json",
-        "linux_cmds_handbook.json",
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json",
-        "web_hacking101.json"
+        "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json"
       ],
       "runs": [
         {
-          "input_file": "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
-          "work_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json",
+          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json",
           "return_code": 0,
           "retry_range": [
             1,
-            228
+            27
           ],
-          "new_blocks": 35,
+          "new_blocks": 13,
           "range": [
             1,
-            228
+            27
           ],
-          "temp_block_file": ".semantic_work/.retry_state/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024/retry_1_228_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024/retry_1_228_chunks.json"
-        },
-        {
-          "input_file": "The_tangled_web.json",
-          "work_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            271
-          ],
-          "new_blocks": 26,
-          "range": [
-            1,
-            271
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/The_tangled_web/retry_1_271_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/The_tangled_web/retry_1_271_chunks.json"
-        },
-        {
-          "input_file": "Web_application_hackers_handbook.json",
-          "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            736
-          ],
-          "new_blocks": 90,
-          "range": [
-            1,
-            736
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/Web_application_hackers_handbook/retry_1_736_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/Web_application_hackers_handbook/retry_1_736_chunks.json"
-        },
-        {
-          "input_file": "breaking_into_infosec_.json",
-          "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            50
-          ],
-          "new_blocks": 17,
-          "range": [
-            1,
-            50
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/breaking_into_infosec_/retry_1_50_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/breaking_into_infosec_/retry_1_50_chunks.json"
-        },
-        {
-          "input_file": "bug-bounty-bootcamp.json",
-          "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            357
-          ],
-          "new_blocks": 58,
-          "range": [
-            1,
-            357
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/bug-bounty-bootcamp/retry_1_357_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/bug-bounty-bootcamp/retry_1_357_chunks.json"
-        },
-        {
-          "input_file": "ghost-in-the-wires-kevin-mitnick.json",
-          "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            338
-          ],
-          "new_blocks": 59,
-          "range": [
-            1,
-            338
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/ghost-in-the-wires-kevin-mitnick/retry_1_338_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/ghost-in-the-wires-kevin-mitnick/retry_1_338_chunks.json"
-        },
-        {
-          "input_file": "linux_cmds_handbook.json",
-          "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            25
-          ],
-          "new_blocks": 2,
-          "range": [
-            1,
-            25
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/linux_cmds_handbook/retry_1_25_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/linux_cmds_handbook/retry_1_25_chunks.json"
-        },
-        {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            42
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            42
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/pdf_quality_scan/retry_1_42_chunks.json"
-        },
-        {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            33
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            33
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/semantic_work_audit_report/retry_1_33_chunks.json"
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            47
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            47
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/source_json_quality_scan/retry_1_47_chunks.json"
-        },
-        {
-          "input_file": "web_hacking101.json",
-          "work_file": ".semantic_work/web_hacking101_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            1,
-            183
-          ],
-          "new_blocks": 29,
-          "range": [
-            1,
-            183
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/web_hacking101/retry_1_183_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/web_hacking101/retry_1_183_chunks.json"
+          "temp_block_file": ".semantic_work/.retry_state/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1/retry_1_27_semantic_blocks.json",
+          "temp_input_file": ".semantic_work/.retry_state/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1/retry_1_27_chunks.json"
         }
       ],
-      "new_blocks_total": 316,
-      "return_code_failures": 3,
-      "zero_merge_runs": 3,
-      "pending_after_count": 4,
-      "pending_after": [
-        "linux_cmds_handbook.json",
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json"
-      ],
+      "new_blocks_total": 13,
+      "return_code_failures": 0,
+      "zero_merge_runs": 0,
+      "pending_after_count": 0,
+      "pending_after": [],
       "analyses": [
         {
-          "input_file": "A_Bug_Hunters_Diary_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary_.json",
           "work_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 125,
           "latest_block_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:39:31+00:00",
+          "latest_block_mtime": "2026-03-16T20:00:59+00:00",
           "coverage": {
             "block_count": 21,
             "covered_count": 125,
@@ -277,13 +99,13 @@
           }
         },
         {
-          "input_file": "Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
           "work_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 161,
           "latest_block_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:59:33+00:00",
+          "latest_block_mtime": "2026-03-16T20:11:03+00:00",
           "coverage": {
             "block_count": 17,
             "covered_count": 161,
@@ -294,13 +116,13 @@
           }
         },
         {
-          "input_file": "Android_Hacker-s_Handbook.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook.json",
           "work_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 437,
           "latest_block_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T20:54:34+00:00",
           "coverage": {
             "block_count": 77,
             "covered_count": 437,
@@ -311,13 +133,13 @@
           }
         },
         {
-          "input_file": "Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
           "work_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 365,
           "latest_block_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T21:11:04+00:00",
           "coverage": {
             "block_count": 41,
             "covered_count": 365,
@@ -328,13 +150,13 @@
           }
         },
         {
-          "input_file": "Attacking_network_protocols.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Attacking_network_protocols.json",
           "work_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 285,
           "latest_block_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T21:25:21+00:00",
           "coverage": {
             "block_count": 34,
             "covered_count": 285,
@@ -345,13 +167,13 @@
           }
         },
         {
-          "input_file": "Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
           "work_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 263,
           "latest_block_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T21:49:41+00:00",
           "coverage": {
             "block_count": 46,
             "covered_count": 263,
@@ -362,13 +184,13 @@
           }
         },
         {
-          "input_file": "Black_Hat_Python_2nd_Edition.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Python_2nd_Edition.json",
           "work_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 142,
           "latest_block_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T00:14:39+00:00",
+          "latest_block_mtime": "2026-03-16T22:02:58+00:00",
           "coverage": {
             "block_count": 25,
             "covered_count": 142,
@@ -379,13 +201,13 @@
           }
         },
         {
-          "input_file": "Bug_Bounty_Playbook.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook.json",
           "work_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 66,
           "latest_block_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-15T22:42:36+00:00",
           "coverage": {
             "block_count": 26,
             "covered_count": 66,
@@ -396,13 +218,13 @@
           }
         },
         {
-          "input_file": "Crypto101.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101.json",
           "work_file": ".semantic_work/Crypto101_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 96,
           "latest_block_file": ".semantic_work/Crypto101_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-15T22:51:44+00:00",
           "coverage": {
             "block_count": 20,
             "covered_count": 96,
@@ -413,13 +235,13 @@
           }
         },
         {
-          "input_file": "Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
           "work_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 231,
           "latest_block_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:17:56+00:00",
+          "latest_block_mtime": "2026-03-15T23:03:03+00:00",
           "coverage": {
             "block_count": 26,
             "covered_count": 231,
@@ -430,13 +252,13 @@
           }
         },
         {
-          "input_file": "Gray_Hat_C_Sharp.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Gray_Hat_C_Sharp.json",
           "work_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 262,
           "latest_block_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:43:31+00:00",
+          "latest_block_mtime": "2026-03-15T23:17:10+00:00",
           "coverage": {
             "block_count": 32,
             "covered_count": 262,
@@ -447,13 +269,13 @@
           }
         },
         {
-          "input_file": "Hacking_For_Dummies_4th_Edition.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition.json",
           "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 282,
           "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T02:14:50+00:00",
+          "latest_block_mtime": "2026-03-15T23:30:49+00:00",
           "coverage": {
             "block_count": 39,
             "covered_count": 282,
@@ -464,47 +286,13 @@
           }
         },
         {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 282,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T00:08:29+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 282,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 27,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T17:59:42+00:00",
-          "coverage": {
-            "block_count": 9,
-            "covered_count": 27,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_The_Art_of_Exploitation_2nd_Edition.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_The_Art_of_Exploitation_2nd_Edition.json",
           "work_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 373,
           "latest_block_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T04:26:17+00:00",
+          "latest_block_mtime": "2026-03-16T00:20:05+00:00",
           "coverage": {
             "block_count": 91,
             "covered_count": 373,
@@ -515,13 +303,13 @@
           }
         },
         {
-          "input_file": "Hash_Crack_-_Password_Cracking_Manual_v2.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hash_Crack_-_Password_Cracking_Manual_v2.json",
           "work_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 38,
           "latest_block_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T00:25:02+00:00",
           "coverage": {
             "block_count": 13,
             "covered_count": 38,
@@ -532,13 +320,13 @@
           }
         },
         {
-          "input_file": "How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
           "work_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 156,
           "latest_block_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T00:30:39+00:00",
           "coverage": {
             "block_count": 18,
             "covered_count": 156,
@@ -549,13 +337,13 @@
           }
         },
         {
-          "input_file": "Inside_Cyber_Warfare.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Inside_Cyber_Warfare.json",
           "work_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 188,
           "latest_block_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:04:13+00:00",
+          "latest_block_mtime": "2026-03-16T00:44:17+00:00",
           "coverage": {
             "block_count": 27,
             "covered_count": 188,
@@ -566,30 +354,13 @@
           }
         },
         {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing.json",
-          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:09:41+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
           "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 96,
           "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:23:22+00:00",
+          "latest_block_mtime": "2026-03-16T00:50:30+00:00",
           "coverage": {
             "block_count": 17,
             "covered_count": 96,
@@ -600,13 +371,30 @@
           }
         },
         {
-          "input_file": "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing.json",
+          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
+          "status": "complete",
+          "error": "",
+          "total_chunks": 96,
+          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
+          "latest_block_mtime": "2026-03-16T00:56:37+00:00",
+          "coverage": {
+            "block_count": 17,
+            "covered_count": 96,
+            "missing_count": 0,
+            "missing_sample": [],
+            "missing_ranges": [],
+            "is_complete": true
+          }
+        },
+        {
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
           "work_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 228,
           "latest_block_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:55:40+00:00",
+          "latest_block_mtime": "2026-03-16T01:15:56+00:00",
           "coverage": {
             "block_count": 35,
             "covered_count": 228,
@@ -617,13 +405,13 @@
           }
         },
         {
-          "input_file": "Linux_Basics_for_Hackers.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Linux_Basics_for_Hackers.json",
           "work_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 170,
           "latest_block_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:46:38+00:00",
+          "latest_block_mtime": "2026-03-16T01:29:34+00:00",
           "coverage": {
             "block_count": 29,
             "covered_count": 170,
@@ -634,13 +422,13 @@
           }
         },
         {
-          "input_file": "Metasploit_the_penetration_testers_guide.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Metasploit_the_penetration_testers_guide.json",
           "work_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 234,
           "latest_block_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T01:46:45+00:00",
           "coverage": {
             "block_count": 39,
             "covered_count": 234,
@@ -651,13 +439,13 @@
           }
         },
         {
-          "input_file": "PDF1.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF1.json",
           "work_file": ".semantic_work/PDF1_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 559,
           "latest_block_file": ".semantic_work/PDF1_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T02:32:15+00:00",
           "coverage": {
             "block_count": 85,
             "covered_count": 559,
@@ -668,13 +456,13 @@
           }
         },
         {
-          "input_file": "PDF2.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF2.json",
           "work_file": ".semantic_work/PDF2_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 232,
           "latest_block_file": ".semantic_work/PDF2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T02:48:16+00:00",
           "coverage": {
             "block_count": 35,
             "covered_count": 232,
@@ -685,13 +473,13 @@
           }
         },
         {
-          "input_file": "PDF3.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF3.json",
           "work_file": ".semantic_work/PDF3_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 359,
           "latest_block_file": ".semantic_work/PDF3_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T03:33:25+00:00",
           "coverage": {
             "block_count": 94,
             "covered_count": 359,
@@ -702,30 +490,13 @@
           }
         },
         {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
-          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 89,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
           "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 359,
           "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T04:13:38+00:00",
           "coverage": {
             "block_count": 88,
             "covered_count": 359,
@@ -736,13 +507,30 @@
           }
         },
         {
-          "input_file": "Python_For_Kids.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
+          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
+          "status": "complete",
+          "error": "",
+          "total_chunks": 359,
+          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
+          "latest_block_mtime": "2026-03-16T04:54:25+00:00",
+          "coverage": {
+            "block_count": 89,
+            "covered_count": 359,
+            "missing_count": 0,
+            "missing_sample": [],
+            "missing_ranges": [],
+            "is_complete": true
+          }
+        },
+        {
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Python_For_Kids.json",
           "work_file": ".semantic_work/Python_For_Kids_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 209,
           "latest_block_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T11:59:19+00:00",
+          "latest_block_mtime": "2026-03-16T05:09:01+00:00",
           "coverage": {
             "block_count": 31,
             "covered_count": 209,
@@ -753,7 +541,7 @@
           }
         },
         {
-          "input_file": "RTFM.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/RTFM.json",
           "work_file": ".semantic_work/RTFM_semantic_work.json",
           "status": "complete",
           "error": "",
@@ -770,13 +558,13 @@
           }
         },
         {
-          "input_file": "Real-World-Bug-Hunting.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Real-World-Bug-Hunting.json",
           "work_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 214,
           "latest_block_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T12:34:46+00:00",
+          "latest_block_mtime": "2026-03-16T05:29:29+00:00",
           "coverage": {
             "block_count": 43,
             "covered_count": 214,
@@ -787,13 +575,13 @@
           }
         },
         {
-          "input_file": "Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
           "work_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 289,
           "latest_block_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T05:43:06+00:00",
           "coverage": {
             "block_count": 29,
             "covered_count": 289,
@@ -804,13 +592,13 @@
           }
         },
         {
-          "input_file": "Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
           "work_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 215,
           "latest_block_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
+          "latest_block_mtime": "2026-03-16T05:53:41+00:00",
           "coverage": {
             "block_count": 24,
             "covered_count": 215,
@@ -821,13 +609,13 @@
           }
         },
         {
-          "input_file": "Social_engineering_the_art_of_human_hacking.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking.json",
           "work_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 341,
           "latest_block_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T13:55:40+00:00",
+          "latest_block_mtime": "2026-03-16T06:15:00+00:00",
           "coverage": {
             "block_count": 46,
             "covered_count": 341,
@@ -838,13 +626,13 @@
           }
         },
         {
-          "input_file": "The_Art_of_Deception.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception.json",
           "work_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 272,
           "latest_block_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:06:39+00:00",
+          "latest_block_mtime": "2026-03-16T06:41:59+00:00",
           "coverage": {
             "block_count": 47,
             "covered_count": 272,
@@ -855,13 +643,13 @@
           }
         },
         {
-          "input_file": "The_Art_of_Invisibility.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility.json",
           "work_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 205,
           "latest_block_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:11:53+00:00",
+          "latest_block_mtime": "2026-03-16T06:53:46+00:00",
           "coverage": {
             "block_count": 24,
             "covered_count": 205,
@@ -872,13 +660,13 @@
           }
         },
         {
-          "input_file": "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
           "work_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 166,
           "latest_block_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:18:42+00:00",
+          "latest_block_mtime": "2026-03-16T07:13:44+00:00",
           "coverage": {
             "block_count": 33,
             "covered_count": 166,
@@ -889,13 +677,13 @@
           }
         },
         {
-          "input_file": "The_Mobile_Application_Hackers_Handbook_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook_.json",
           "work_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 493,
           "latest_block_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:43:50+00:00",
+          "latest_block_mtime": "2026-03-16T08:17:42+00:00",
           "coverage": {
             "block_count": 109,
             "covered_count": 493,
@@ -906,13 +694,13 @@
           }
         },
         {
-          "input_file": "The_tangled_web.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_tangled_web.json",
           "work_file": ".semantic_work/The_tangled_web_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 271,
           "latest_block_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:57:02+00:00",
+          "latest_block_mtime": "2026-03-16T22:36:14+00:00",
           "coverage": {
             "block_count": 26,
             "covered_count": 271,
@@ -923,13 +711,13 @@
           }
         },
         {
-          "input_file": "Web_application_hackers_handbook.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook.json",
           "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 736,
           "latest_block_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:17:43+00:00",
+          "latest_block_mtime": "2026-03-16T22:46:01+00:00",
           "coverage": {
             "block_count": 90,
             "covered_count": 736,
@@ -940,7 +728,7 @@
           }
         },
         {
-          "input_file": "breaking_into_infosec_.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec_.json",
           "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
           "status": "complete",
           "error": "",
@@ -957,7 +745,7 @@
           }
         },
         {
-          "input_file": "bug-bounty-bootcamp.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/bug-bounty-bootcamp.json",
           "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
           "status": "complete",
           "error": "",
@@ -974,7 +762,7 @@
           }
         },
         {
-          "input_file": "ghost-in-the-wires-kevin-mitnick.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick.json",
           "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
           "status": "complete",
           "error": "",
@@ -991,917 +779,7 @@
           }
         },
         {
-          "input_file": "linux_cmds_handbook.json",
-          "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "status": "incomplete",
-          "error": "",
-          "total_chunks": 25,
-          "latest_block_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:47:43+00:00",
-          "coverage": {
-            "block_count": 2,
-            "covered_count": 4,
-            "missing_count": 21,
-            "missing_sample": [
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24
-            ],
-            "missing_ranges": [
-              [
-                5,
-                25
-              ]
-            ],
-            "is_complete": false
-          }
-        },
-        {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 42,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 33,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 47,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "web_hacking101.json",
-          "work_file": ".semantic_work/web_hacking101_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 183,
-          "latest_block_file": ".semantic_work/web_hacking101_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:53:49+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 183,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        }
-      ],
-      "ended_at": "2026-03-15T19:53:50+00:00"
-    },
-    {
-      "pass": 2,
-      "started_at": "2026-03-15T19:53:50+00:00",
-      "pending_before_count": 4,
-      "pending_before": [
-        "linux_cmds_handbook.json",
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json"
-      ],
-      "runs": [
-        {
-          "input_file": "linux_cmds_handbook.json",
-          "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "return_code": 0,
-          "retry_range": [
-            5,
-            25
-          ],
-          "new_blocks": 10,
-          "range": [
-            5,
-            25
-          ],
-          "temp_block_file": ".semantic_work/.retry_state/linux_cmds_handbook/retry_5_25_semantic_blocks.json",
-          "temp_input_file": ".semantic_work/.retry_state/linux_cmds_handbook/retry_5_25_chunks.json"
-        },
-        {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            42
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            42
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/pdf_quality_scan/retry_1_42_chunks.json"
-        },
-        {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            33
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            33
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/semantic_work_audit_report/retry_1_33_chunks.json"
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            47
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            47
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/source_json_quality_scan/retry_1_47_chunks.json"
-        }
-      ],
-      "new_blocks_total": 10,
-      "return_code_failures": 3,
-      "zero_merge_runs": 3,
-      "pending_after_count": 3,
-      "pending_after": [
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json"
-      ],
-      "analyses": [
-        {
-          "input_file": "A_Bug_Hunters_Diary_.json",
-          "work_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 125,
-          "latest_block_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:39:31+00:00",
-          "coverage": {
-            "block_count": 21,
-            "covered_count": 125,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
-          "work_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 161,
-          "latest_block_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:59:33+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 161,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Android_Hacker-s_Handbook.json",
-          "work_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 437,
-          "latest_block_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 77,
-            "covered_count": 437,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
-          "work_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 365,
-          "latest_block_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 41,
-            "covered_count": 365,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Attacking_network_protocols.json",
-          "work_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 285,
-          "latest_block_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 34,
-            "covered_count": 285,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
-          "work_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 263,
-          "latest_block_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 46,
-            "covered_count": 263,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Black_Hat_Python_2nd_Edition.json",
-          "work_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 142,
-          "latest_block_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T00:14:39+00:00",
-          "coverage": {
-            "block_count": 25,
-            "covered_count": 142,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Bug_Bounty_Playbook.json",
-          "work_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 66,
-          "latest_block_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 66,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Crypto101.json",
-          "work_file": ".semantic_work/Crypto101_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Crypto101_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 20,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
-          "work_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 231,
-          "latest_block_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:17:56+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 231,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Gray_Hat_C_Sharp.json",
-          "work_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 262,
-          "latest_block_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:43:31+00:00",
-          "coverage": {
-            "block_count": 32,
-            "covered_count": 262,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 282,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T02:14:50+00:00",
-          "coverage": {
-            "block_count": 39,
-            "covered_count": 282,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 282,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T00:08:29+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 282,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 27,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T17:59:42+00:00",
-          "coverage": {
-            "block_count": 9,
-            "covered_count": 27,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_The_Art_of_Exploitation_2nd_Edition.json",
-          "work_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 373,
-          "latest_block_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T04:26:17+00:00",
-          "coverage": {
-            "block_count": 91,
-            "covered_count": 373,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hash_Crack_-_Password_Cracking_Manual_v2.json",
-          "work_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 38,
-          "latest_block_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 13,
-            "covered_count": 38,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
-          "work_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 156,
-          "latest_block_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 18,
-            "covered_count": 156,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Inside_Cyber_Warfare.json",
-          "work_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 188,
-          "latest_block_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:04:13+00:00",
-          "coverage": {
-            "block_count": 27,
-            "covered_count": 188,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing.json",
-          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:09:41+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
-          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:23:22+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
-          "work_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 228,
-          "latest_block_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:55:40+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 228,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Linux_Basics_for_Hackers.json",
-          "work_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 170,
-          "latest_block_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:46:38+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 170,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Metasploit_the_penetration_testers_guide.json",
-          "work_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 234,
-          "latest_block_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 39,
-            "covered_count": 234,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF1.json",
-          "work_file": ".semantic_work/PDF1_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 559,
-          "latest_block_file": ".semantic_work/PDF1_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 85,
-            "covered_count": 559,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF2.json",
-          "work_file": ".semantic_work/PDF2_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 232,
-          "latest_block_file": ".semantic_work/PDF2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 232,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF3.json",
-          "work_file": ".semantic_work/PDF3_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/PDF3_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 94,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
-          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 89,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
-          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 88,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Python_For_Kids.json",
-          "work_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 209,
-          "latest_block_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T11:59:19+00:00",
-          "coverage": {
-            "block_count": 31,
-            "covered_count": 209,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "RTFM.json",
-          "work_file": ".semantic_work/RTFM_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 0,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {
-            "block_count": 0,
-            "covered_count": 0,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Real-World-Bug-Hunting.json",
-          "work_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 214,
-          "latest_block_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T12:34:46+00:00",
-          "coverage": {
-            "block_count": 43,
-            "covered_count": 214,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
-          "work_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 289,
-          "latest_block_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 289,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
-          "work_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 215,
-          "latest_block_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 24,
-            "covered_count": 215,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Social_engineering_the_art_of_human_hacking.json",
-          "work_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 341,
-          "latest_block_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T13:55:40+00:00",
-          "coverage": {
-            "block_count": 46,
-            "covered_count": 341,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Art_of_Deception.json",
-          "work_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 272,
-          "latest_block_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:06:39+00:00",
-          "coverage": {
-            "block_count": 47,
-            "covered_count": 272,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Art_of_Invisibility.json",
-          "work_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 205,
-          "latest_block_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:11:53+00:00",
-          "coverage": {
-            "block_count": 24,
-            "covered_count": 205,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
-          "work_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 166,
-          "latest_block_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:18:42+00:00",
-          "coverage": {
-            "block_count": 33,
-            "covered_count": 166,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Mobile_Application_Hackers_Handbook_.json",
-          "work_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 493,
-          "latest_block_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:43:50+00:00",
-          "coverage": {
-            "block_count": 109,
-            "covered_count": 493,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_tangled_web.json",
-          "work_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 271,
-          "latest_block_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:57:02+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 271,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Web_application_hackers_handbook.json",
-          "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 736,
-          "latest_block_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:17:43+00:00",
-          "coverage": {
-            "block_count": 90,
-            "covered_count": 736,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "breaking_into_infosec_.json",
-          "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 50,
-          "latest_block_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:21:13+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 50,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "bug-bounty-bootcamp.json",
-          "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 357,
-          "latest_block_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:34:20+00:00",
-          "coverage": {
-            "block_count": 58,
-            "covered_count": 357,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "ghost-in-the-wires-kevin-mitnick.json",
-          "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 338,
-          "latest_block_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:47:02+00:00",
-          "coverage": {
-            "block_count": 59,
-            "covered_count": 338,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "linux_cmds_handbook.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook.json",
           "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
           "status": "complete",
           "error": "",
@@ -1918,37 +796,7 @@
           }
         },
         {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 42,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 33,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 47,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "web_hacking101.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/web_hacking101.json",
           "work_file": ".semantic_work/web_hacking101_semantic_work.json",
           "status": "complete",
           "error": "",
@@ -1963,876 +811,208 @@
             "missing_ranges": [],
             "is_complete": true
           }
-        }
-      ],
-      "ended_at": "2026-03-15T19:56:00+00:00"
-    },
-    {
-      "pass": 3,
-      "started_at": "2026-03-15T19:56:01+00:00",
-      "pending_before_count": 3,
-      "pending_before": [
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json"
-      ],
-      "runs": [
-        {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            42
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            42
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/pdf_quality_scan/retry_1_42_chunks.json"
         },
         {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            33
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            33
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/semantic_work_audit_report/retry_1_33_chunks.json"
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "return_code": 1,
-          "retry_range": [
-            1,
-            47
-          ],
-          "new_blocks": 0,
-          "range": [
-            1,
-            47
-          ],
-          "temp_block_file": "",
-          "temp_input_file": ".semantic_work/.retry_state/source_json_quality_scan/retry_1_47_chunks.json"
-        }
-      ],
-      "new_blocks_total": 0,
-      "return_code_failures": 3,
-      "zero_merge_runs": 3,
-      "pending_after_count": 3,
-      "pending_after": [
-        "pdf_quality_scan.json",
-        "semantic_work_audit_report.json",
-        "source_json_quality_scan.json"
-      ],
-      "analyses": [
-        {
-          "input_file": "A_Bug_Hunters_Diary_.json",
-          "work_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 125,
-          "latest_block_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:39:31+00:00",
-          "coverage": {
-            "block_count": 21,
-            "covered_count": 125,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
-          "work_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 161,
-          "latest_block_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T20:59:33+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 161,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Android_Hacker-s_Handbook.json",
-          "work_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 437,
-          "latest_block_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 77,
-            "covered_count": 437,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
-          "work_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 365,
-          "latest_block_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 41,
-            "covered_count": 365,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Attacking_network_protocols.json",
-          "work_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 285,
-          "latest_block_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 34,
-            "covered_count": 285,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
-          "work_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 263,
-          "latest_block_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 46,
-            "covered_count": 263,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Black_Hat_Python_2nd_Edition.json",
-          "work_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 142,
-          "latest_block_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T00:14:39+00:00",
-          "coverage": {
-            "block_count": 25,
-            "covered_count": 142,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Bug_Bounty_Playbook.json",
-          "work_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 66,
-          "latest_block_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 66,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Crypto101.json",
-          "work_file": ".semantic_work/Crypto101_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Crypto101_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 20,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
-          "work_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 231,
-          "latest_block_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:17:56+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 231,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Gray_Hat_C_Sharp.json",
-          "work_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 262,
-          "latest_block_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T01:43:31+00:00",
-          "coverage": {
-            "block_count": 32,
-            "covered_count": 262,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 282,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T02:14:50+00:00",
-          "coverage": {
-            "block_count": 39,
-            "covered_count": 282,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 282,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_work.json",
-          "latest_block_mtime": "2026-03-14T00:08:29+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 282,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010.json",
-          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
+          "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1.json",
+          "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json",
           "status": "complete",
           "error": "",
           "total_chunks": 27,
-          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest.backup_20260315_143010_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T17:59:42+00:00",
+          "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json",
+          "latest_block_mtime": "2026-03-16T22:58:08+00:00",
           "coverage": {
-            "block_count": 9,
+            "block_count": 13,
             "covered_count": 27,
             "missing_count": 0,
             "missing_sample": [],
             "missing_ranges": [],
             "is_complete": true
           }
-        },
-        {
-          "input_file": "Hacking_The_Art_of_Exploitation_2nd_Edition.json",
-          "work_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 373,
-          "latest_block_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T04:26:17+00:00",
-          "coverage": {
-            "block_count": 91,
-            "covered_count": 373,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Hash_Crack_-_Password_Cracking_Manual_v2.json",
-          "work_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 38,
-          "latest_block_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 13,
-            "covered_count": 38,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
-          "work_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 156,
-          "latest_block_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 18,
-            "covered_count": 156,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Inside_Cyber_Warfare.json",
-          "work_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 188,
-          "latest_block_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:04:13+00:00",
-          "coverage": {
-            "block_count": 27,
-            "covered_count": 188,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing.json",
-          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:09:41+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
-          "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 96,
-          "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:23:22+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 96,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
-          "work_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 228,
-          "latest_block_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:55:40+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 228,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Linux_Basics_for_Hackers.json",
-          "work_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 170,
-          "latest_block_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T05:46:38+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 170,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Metasploit_the_penetration_testers_guide.json",
-          "work_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 234,
-          "latest_block_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 39,
-            "covered_count": 234,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF1.json",
-          "work_file": ".semantic_work/PDF1_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 559,
-          "latest_block_file": ".semantic_work/PDF1_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 85,
-            "covered_count": 559,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF2.json",
-          "work_file": ".semantic_work/PDF2_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 232,
-          "latest_block_file": ".semantic_work/PDF2_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 35,
-            "covered_count": 232,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "PDF3.json",
-          "work_file": ".semantic_work/PDF3_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/PDF3_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 94,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
-          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 89,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
-          "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 359,
-          "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 88,
-            "covered_count": 359,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Python_For_Kids.json",
-          "work_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 209,
-          "latest_block_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T11:59:19+00:00",
-          "coverage": {
-            "block_count": 31,
-            "covered_count": 209,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "RTFM.json",
-          "work_file": ".semantic_work/RTFM_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 0,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {
-            "block_count": 0,
-            "covered_count": 0,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Real-World-Bug-Hunting.json",
-          "work_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 214,
-          "latest_block_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T12:34:46+00:00",
-          "coverage": {
-            "block_count": 43,
-            "covered_count": 214,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
-          "work_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 289,
-          "latest_block_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 289,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
-          "work_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 215,
-          "latest_block_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T14:03:41+00:00",
-          "coverage": {
-            "block_count": 24,
-            "covered_count": 215,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Social_engineering_the_art_of_human_hacking.json",
-          "work_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 341,
-          "latest_block_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T13:55:40+00:00",
-          "coverage": {
-            "block_count": 46,
-            "covered_count": 341,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Art_of_Deception.json",
-          "work_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 272,
-          "latest_block_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:06:39+00:00",
-          "coverage": {
-            "block_count": 47,
-            "covered_count": 272,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Art_of_Invisibility.json",
-          "work_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 205,
-          "latest_block_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:11:53+00:00",
-          "coverage": {
-            "block_count": 24,
-            "covered_count": 205,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
-          "work_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 166,
-          "latest_block_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:18:42+00:00",
-          "coverage": {
-            "block_count": 33,
-            "covered_count": 166,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_Mobile_Application_Hackers_Handbook_.json",
-          "work_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 493,
-          "latest_block_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:43:50+00:00",
-          "coverage": {
-            "block_count": 109,
-            "covered_count": 493,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "The_tangled_web.json",
-          "work_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 271,
-          "latest_block_file": ".semantic_work/The_tangled_web_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T18:57:02+00:00",
-          "coverage": {
-            "block_count": 26,
-            "covered_count": 271,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "Web_application_hackers_handbook.json",
-          "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 736,
-          "latest_block_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:17:43+00:00",
-          "coverage": {
-            "block_count": 90,
-            "covered_count": 736,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "breaking_into_infosec_.json",
-          "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 50,
-          "latest_block_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:21:13+00:00",
-          "coverage": {
-            "block_count": 17,
-            "covered_count": 50,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "bug-bounty-bootcamp.json",
-          "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 357,
-          "latest_block_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:34:20+00:00",
-          "coverage": {
-            "block_count": 58,
-            "covered_count": 357,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "ghost-in-the-wires-kevin-mitnick.json",
-          "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 338,
-          "latest_block_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:47:02+00:00",
-          "coverage": {
-            "block_count": 59,
-            "covered_count": 338,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "linux_cmds_handbook.json",
-          "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 25,
-          "latest_block_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:55:56+00:00",
-          "coverage": {
-            "block_count": 12,
-            "covered_count": 25,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
-        },
-        {
-          "input_file": "pdf_quality_scan.json",
-          "work_file": ".semantic_work/pdf_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 42,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "semantic_work_audit_report.json",
-          "work_file": ".semantic_work/semantic_work_audit_report_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 33,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "source_json_quality_scan.json",
-          "work_file": ".semantic_work/source_json_quality_scan_semantic_work.json",
-          "status": "no_output",
-          "error": "",
-          "total_chunks": 47,
-          "latest_block_file": "",
-          "latest_block_mtime": "",
-          "coverage": {}
-        },
-        {
-          "input_file": "web_hacking101.json",
-          "work_file": ".semantic_work/web_hacking101_semantic_work.json",
-          "status": "complete",
-          "error": "",
-          "total_chunks": 183,
-          "latest_block_file": ".semantic_work/web_hacking101_semantic_work.json",
-          "latest_block_mtime": "2026-03-15T19:53:49+00:00",
-          "coverage": {
-            "block_count": 29,
-            "covered_count": 183,
-            "missing_count": 0,
-            "missing_sample": [],
-            "missing_ranges": [],
-            "is_complete": true
-          }
         }
       ],
-      "ended_at": "2026-03-15T19:56:04+00:00"
+      "ended_at": "2026-03-16T22:58:08+00:00"
     }
-  ]
+  ],
+  "postprocess": {
+    "enabled": true,
+    "status": "completed",
+    "runs": [
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/Web_application_hackers_handbook_semantic_work.filter.status.json",
+            "return_code": 0,
+            "skipped": true,
+            "reason": "finished_at_present"
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/Web_application_hackers_handbook_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/Web_application_hackers_handbook_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/breaking_into_infosec__semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/breaking_into_infosec__semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/breaking_into_infosec__semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/bug-bounty-bootcamp_semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/bug-bounty-bootcamp_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/bug-bounty-bootcamp_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/ghost-in-the-wires-kevin-mitnick_semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/ghost-in-the-wires-kevin-mitnick_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/ghost-in-the-wires-kevin-mitnick_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/linux_cmds_handbook_semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/linux_cmds_handbook_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/linux_cmds_handbook_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json"
+      },
+      {
+        "ok": true,
+        "results": [
+          {
+            "step": "filter",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/filter_non_book_content.py",
+            "status_file": ".semantic_work/.postprocess_state/web_hacking101_semantic_work.filter.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "questions",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_questions.py",
+            "status_file": ".semantic_work/.postprocess_state/web_hacking101_semantic_work.questions.status.json",
+            "return_code": 0
+          },
+          {
+            "step": "summaries",
+            "script": "/home/mahadeva/code/GGUFModelBuilder/pdfs/improve_summaries.py",
+            "status_file": ".semantic_work/.postprocess_state/web_hacking101_semantic_work.summaries.status.json",
+            "return_code": 0
+          }
+        ],
+        "work_file": ".semantic_work/web_hacking101_semantic_work.json"
+      }
+    ],
+    "work_files_total": 43,
+    "work_files_processed": 7,
+    "work_files_skipped_finished": 36,
+    "remaining_files": 0,
+    "ended_at": "2026-03-17T03:41:25+00:00"
+  },
+  "ended_at": "2026-03-17T03:41:26+00:00"
 }

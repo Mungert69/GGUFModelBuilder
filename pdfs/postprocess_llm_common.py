@@ -2,6 +2,7 @@ import json
 import os
 import re
 import time
+import uuid
 from collections import deque
 from typing import Any, Dict, Optional
 
@@ -198,16 +199,33 @@ def safe_chat_completion(
     prompt_text: str,
     max_tokens: int,
     temperature: float = 0.0,
+    call_label: str = "",
+    call_meta: Optional[Dict[str, Any]] = None,
 ) -> str:
     last_error: Optional[Exception] = None
     max_retries = controller.max_retries
 
     prompt_tokens = estimate_prompt_tokens(prompt_text)
+    call_id = uuid.uuid4().hex[:8]
+    label = (call_label or "").strip() or "llm_call"
+    meta_text = ""
+    if isinstance(call_meta, dict) and call_meta:
+        parts = []
+        for k in sorted(call_meta.keys()):
+            try:
+                v = call_meta.get(k)
+                parts.append(f"{k}={v}")
+            except Exception:
+                continue
+        if parts:
+            meta_text = " " + " ".join(parts)
     for attempt in range(1, max_retries + 1):
         try:
             controller.wait_before_call()
             print(
                 f"[API] Attempt {attempt}/{max_retries} "
+                f"call_id={call_id} label={label}"
+                f"{meta_text} "
                 f"timeout={controller.request_timeout_seconds}s "
                 f"prompt_tokens={prompt_tokens}"
             )
@@ -224,7 +242,10 @@ def safe_chat_completion(
                 response_format={"type": "text"},
             )
             elapsed = time.time() - start
-            print(f"[API] Success attempt={attempt} elapsed={elapsed:.1f}s choices={len(resp.choices or [])}")
+            print(
+                f"[API] Success attempt={attempt} call_id={call_id} "
+                f"label={label}{meta_text} elapsed={elapsed:.1f}s choices={len(resp.choices or [])}"
+            )
             controller.on_success()
             return extract_text_from_response(resp)
         except Exception as exc:  # keep broad for provider-specific error classes
@@ -232,7 +253,10 @@ def safe_chat_completion(
             txt = repr(exc)
             if "429" in txt or "RateLimit" in txt or "Too Many Requests" in txt:
                 controller.on_429()
-            print(f"[WARN] API exception {txt} (attempt {attempt}/{max_retries})")
+            print(
+                f"[WARN] API exception call_id={call_id} label={label}{meta_text} "
+                f"{txt} (attempt {attempt}/{max_retries})"
+            )
             if attempt < max_retries:
                 delay = controller.base_delay_seconds * (2 ** (attempt - 1))
                 time.sleep(delay)

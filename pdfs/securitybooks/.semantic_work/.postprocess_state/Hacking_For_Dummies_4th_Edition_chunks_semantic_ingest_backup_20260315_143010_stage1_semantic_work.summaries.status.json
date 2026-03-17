@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-03-16T23:05:21+00:00",
+  "files": {
+    ".semantic_work/Hacking_For_Dummies_4th_Edition_chunks_semantic_ingest_backup_20260315_143010_stage1_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "replaced": 12
+    }
+  },
+  "updated_at": "2026-03-16T23:07:52+00:00",
+  "finished_at": "2026-03-16T23:07:52+00:00",
+  "total_summaries_replaced": 12
+}

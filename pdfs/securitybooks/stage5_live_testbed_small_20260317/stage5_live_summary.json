@@ -1,0 +1,16 @@
+{
+  "started_at": "2026-03-17T19:22:15+00:00",
+  "index_dir": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage5_live_testbed_small_20260317",
+  "token_cap": 4096,
+  "dry_run": false,
+  "in_place": false,
+  "total_files": 1,
+  "updated_files": 0,
+  "results": [
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/stage5_live_testbed_small_20260317/breaking_small_semantic_ingest.json",
+      "status": "no_oversized",
+      "oversized_before": 0
+    }
+  ]
+}
