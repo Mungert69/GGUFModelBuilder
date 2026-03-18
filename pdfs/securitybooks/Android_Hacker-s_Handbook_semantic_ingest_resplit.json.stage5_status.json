@@ -1,7 +1,7 @@
 {
   "version": 1,
   "started_at": "2026-03-17T22:12:30+00:00",
-  "updated_at": "2026-03-17T23:08:40+00:00",
+  "updated_at": "2026-03-17T23:51:16+00:00",
   "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook_semantic_ingest.json",
   "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook_semantic_ingest_resplit.json",
   "ingest_file_signature": {
@@ -14,9 +14,9 @@
   },
   "token_cap": 4096,
   "max_window": 24,
-  "phase": "regen",
+  "phase": "done",
   "split_next_source_index": 64,
-  "regen_next_changed_pos": 55,
+  "regen_next_changed_pos": 98,
   "oversized_before": 14,
   "changed_indices": [
     0,
@@ -118,5 +118,9 @@
     146,
     147
   ],
-  "done": false
+  "done": true,
+  "oversized_after": 0,
+  "rows_after": 148,
+  "rows_regenerated": 98,
+  "completed_at": "2026-03-17T23:51:16+00:00"
 }
