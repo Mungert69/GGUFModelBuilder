@@ -1,0 +1,565 @@
+{
+  "started_at": "2026-03-19T22:33:55+00:00",
+  "updated_at": "2026-03-19T23:13:35+00:00",
+  "version": 1,
+  "files": {
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary__semantic_ingest.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "records": {
+        "0": {
+          "state": "rewritten",
+          "summary_tokens_before": 125,
+          "output_tokens": 3098,
+          "summary_tokens_after": 74,
+          "summary_sha1_before": "f016df68d0c6122c7a0628fad35e72682cdd668a",
+          "summary_sha1_after": "2a4e11ae186df7b1a26284ec2e7f537a14857ab2",
+          "updated_at": "2026-03-19T23:10:28+00:00"
+        },
+        "1": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 98,
+          "output_tokens": 6859,
+          "updated_at": "2026-03-19T23:10:28+00:00"
+        },
+        "2": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 118,
+          "output_tokens": 12138,
+          "updated_at": "2026-03-19T23:10:28+00:00"
+        },
+        "3": {
+          "state": "rewritten",
+          "summary_tokens_before": 70,
+          "output_tokens": 1955,
+          "summary_tokens_after": 84,
+          "summary_sha1_before": "47f83fefd94871fde884be5eea8b947ce2487f70",
+          "summary_sha1_after": "673dd40a969877cce773e974cc25b38a9cc3f749",
+          "updated_at": "2026-03-19T23:10:34+00:00"
+        },
+        "4": {
+          "state": "rewritten",
+          "summary_tokens_before": 104,
+          "output_tokens": 2533,
+          "summary_tokens_after": 125,
+          "summary_sha1_before": "bdbc1976b1cf12386b55d9d3179c8269a7e659b6",
+          "summary_sha1_after": "a103a188fd61f9cc403d5fb9179dee2c014a3ea5",
+          "updated_at": "2026-03-19T23:10:45+00:00"
+        },
+        "5": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 66,
+          "output_tokens": 11173,
+          "updated_at": "2026-03-19T23:10:45+00:00"
+        },
+        "6": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 115,
+          "output_tokens": 4251,
+          "updated_at": "2026-03-19T23:10:45+00:00"
+        },
+        "7": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 68,
+          "output_tokens": 4139,
+          "updated_at": "2026-03-19T23:10:45+00:00"
+        },
+        "8": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 104,
+          "output_tokens": 7608,
+          "updated_at": "2026-03-19T23:10:45+00:00"
+        },
+        "9": {
+          "state": "rewritten",
+          "summary_tokens_before": 101,
+          "output_tokens": 2811,
+          "summary_tokens_after": 105,
+          "summary_sha1_before": "a54aeb9363b2e38fb347c6b1bd50e607c2a5fe1c",
+          "summary_sha1_after": "74f53acf79aa02df30c5fa0e2d508ff67aed372a",
+          "updated_at": "2026-03-19T23:11:40+00:00"
+        },
+        "10": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 74,
+          "output_tokens": 4645,
+          "updated_at": "2026-03-19T23:11:40+00:00"
+        },
+        "11": {
+          "state": "rewritten",
+          "summary_tokens_before": 38,
+          "output_tokens": 1270,
+          "summary_tokens_after": 62,
+          "summary_sha1_before": "288ea374dc5f4c1cce3b3edcbe440cda2e3d4ff2",
+          "summary_sha1_after": "04fa1331462f3da536ff630584c675e9ef87bd49",
+          "updated_at": "2026-03-19T23:12:09+00:00"
+        },
+        "12": {
+          "state": "rewritten",
+          "summary_tokens_before": 95,
+          "output_tokens": 1684,
+          "summary_tokens_after": 107,
+          "summary_sha1_before": "9a63c0ed8d9d0b24ddef3a2623643676ba98a7a6",
+          "summary_sha1_after": "06a61b99e3b3d6495ff9a175a8be524f39bb3566",
+          "updated_at": "2026-03-19T23:12:45+00:00"
+        },
+        "13": {
+          "state": "rewritten",
+          "summary_tokens_before": 79,
+          "output_tokens": 1958,
+          "summary_tokens_after": 84,
+          "summary_sha1_before": "7678857171c548fb93bb8f6ef897246ef7fe6555",
+          "summary_sha1_after": "70633dc39349d197e09fd5bb508acf507175c65a",
+          "updated_at": "2026-03-19T23:13:10+00:00"
+        },
+        "14": {
+          "state": "rewritten",
+          "summary_tokens_before": 78,
+          "output_tokens": 1348,
+          "summary_tokens_after": 83,
+          "summary_sha1_before": "0d0fb43f6dbb86379f5efbde82209677da44b94e",
+          "summary_sha1_after": "29af1953517edb62aa813c3fce816e802b945f1c",
+          "updated_at": "2026-03-19T23:13:23+00:00"
+        },
+        "15": {
+          "state": "rewritten",
+          "summary_tokens_before": 67,
+          "output_tokens": 2255,
+          "summary_tokens_after": 90,
+          "summary_sha1_before": "6158caaa46f44301d90a6f24202a8b5db76e7a15",
+          "summary_sha1_after": "480192c4b6a8cef9b70a12192702db3af41ce128",
+          "updated_at": "2026-03-19T23:13:35+00:00"
+        }
+      },
+      "stats": {
+        "rewritten": 9,
+        "skipped": 7,
+        "failed": 0
+      },
+      "reset_at": "2026-03-19T23:10:03+00:00",
+      "summary_token_cap": 4096,
+      "file_signature": {
+        "size": 338226,
+        "mtime_ns": 1773961929076512371
+      },
+      "payload_signature": {
+        "rows": 18,
+        "sha1": "80b4e613836d2591ba93c1476049684571f269b9"
+      },
+      "updated_at": "2026-03-19T23:13:35+00:00",
+      "rows_total": 18,
+      "source_signature": "e176cef1fdc760c8280027930d581fff003226c3"
+    },
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_ingest.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "records": {
+        "0": {
+          "state": "rewritten",
+          "summary_tokens_before": 70,
+          "summary_tokens_after": 161,
+          "summary_sha1_before": "5ebb6282f9cfbf0d28ff14f8d13e99052fa93a82",
+          "summary_sha1_after": "87413c6b07f3747e3de154c56ed17b6139e70fcf",
+          "updated_at": "2026-03-19T22:42:44+00:00"
+        },
+        "1": {
+          "state": "rewritten",
+          "summary_tokens_before": 103,
+          "summary_tokens_after": 116,
+          "summary_sha1_before": "dd163d6ad39792690ac13326666e83918228395b",
+          "summary_sha1_after": "34f1225321b79955871be7f20f5c69bb83598fb1",
+          "updated_at": "2026-03-19T22:43:14+00:00"
+        },
+        "2": {
+          "state": "rewritten",
+          "summary_tokens_before": 64,
+          "summary_tokens_after": 150,
+          "summary_sha1_before": "9d2f05d0b0e8dd2b2cee501de8bc7fb070d2d3d3",
+          "summary_sha1_after": "a498bbdab2bffe5fbc08cc9d77495dd0d21facbc",
+          "updated_at": "2026-03-19T22:43:42+00:00"
+        },
+        "3": {
+          "state": "rewritten",
+          "summary_tokens_before": 62,
+          "summary_tokens_after": 99,
+          "summary_sha1_before": "5bf2f9a390281ba46b82f3352c221362511ae5d7",
+          "summary_sha1_after": "5b7381438e3fe1b63e36a6fdcab7db7c346d004e",
+          "updated_at": "2026-03-19T22:43:51+00:00"
+        },
+        "4": {
+          "state": "rewritten",
+          "summary_tokens_before": 113,
+          "summary_tokens_after": 74,
+          "summary_sha1_before": "1b41de4b15efa45ed429e08f07bd204894d225b2",
+          "summary_sha1_after": "807f8ca047249fd15f9694192e7e9b4b37c9a7df",
+          "updated_at": "2026-03-19T22:44:04+00:00"
+        },
+        "5": {
+          "state": "rewritten",
+          "summary_tokens_before": 69,
+          "summary_tokens_after": 124,
+          "summary_sha1_before": "efe13ba4b13866a365cc72a648687a570d6ed0a1",
+          "summary_sha1_after": "35b90302dd536664002934bf502479e34a9294d5",
+          "updated_at": "2026-03-19T22:44:26+00:00"
+        },
+        "6": {
+          "state": "rewritten",
+          "summary_tokens_before": 78,
+          "summary_tokens_after": 77,
+          "summary_sha1_before": "4f3024d9f3353ca459a4971dce7a7ee571a64ce4",
+          "summary_sha1_after": "761a6c749d8d75141044a91a48c561a4c3856c91",
+          "updated_at": "2026-03-19T22:44:40+00:00"
+        },
+        "7": {
+          "state": "rewritten",
+          "summary_tokens_before": 61,
+          "summary_tokens_after": 157,
+          "summary_sha1_before": "9ca9adedd14366ab57e7b55e43688c8e9bfadb3d",
+          "summary_sha1_after": "078301f9df66ab722238a7c5bf511e5accb6732d",
+          "updated_at": "2026-03-19T22:46:15+00:00"
+        },
+        "8": {
+          "state": "rewritten",
+          "summary_tokens_before": 51,
+          "summary_tokens_after": 109,
+          "summary_sha1_before": "b93f8f8e05b129cd61477f69486cb94d69f02b9a",
+          "summary_sha1_after": "b2ea60b70a6423f3fc4089139cf0d458a93b0160",
+          "updated_at": "2026-03-19T22:46:36+00:00"
+        },
+        "9": {
+          "state": "rewritten",
+          "summary_tokens_before": 65,
+          "summary_tokens_after": 92,
+          "summary_sha1_before": "cb6ae3ab813ecab2175cdf5ea2bda5bec0de8160",
+          "summary_sha1_after": "af866f6f12919b7367670adec534710d02e9cb42",
+          "updated_at": "2026-03-19T22:47:42+00:00"
+        },
+        "10": {
+          "state": "rewritten",
+          "summary_tokens_before": 59,
+          "summary_tokens_after": 115,
+          "summary_sha1_before": "26fcf9bb7dea0fe1b1b4906f602c09d5dee62ec0",
+          "summary_sha1_after": "8d5ae5b052593d177431562e6bfe81c7e08e75d2",
+          "updated_at": "2026-03-19T22:48:07+00:00"
+        },
+        "11": {
+          "state": "rewritten",
+          "summary_tokens_before": 58,
+          "summary_tokens_after": 86,
+          "summary_sha1_before": "4233db545613853c4e7185a30a1a4752a31a0503",
+          "summary_sha1_after": "51d7aa85797a71a05bf830d0cdaf3dbc32ad7b96",
+          "updated_at": "2026-03-19T22:48:25+00:00"
+        },
+        "12": {
+          "state": "rewritten",
+          "summary_tokens_before": 66,
+          "summary_tokens_after": 74,
+          "summary_sha1_before": "43cef142a9f536bc5faa8414839b141621f9ae63",
+          "summary_sha1_after": "83bf43e761fd9054ff5f96fa301416b8a3834a3b",
+          "updated_at": "2026-03-19T22:49:25+00:00"
+        },
+        "13": {
+          "state": "rewritten",
+          "summary_tokens_before": 103,
+          "summary_tokens_after": 134,
+          "summary_sha1_before": "7f7fc81fa4dad97dfbdfd22ad7d25763d1869a0a",
+          "summary_sha1_after": "96a5278a41494d9f27d6e4432a5469125dc4c04f",
+          "updated_at": "2026-03-19T22:50:37+00:00"
+        },
+        "14": {
+          "state": "rewritten",
+          "summary_tokens_before": 76,
+          "summary_tokens_after": 65,
+          "summary_sha1_before": "26c1128c26e137cb4c4596f1c9757f26ed2a74d2",
+          "summary_sha1_after": "ab92b90a7551e6e4b7cd150e69cdd95f7e3abc20",
+          "updated_at": "2026-03-19T22:50:47+00:00"
+        }
+      },
+      "stats": {
+        "rewritten": 15,
+        "skipped": 0,
+        "failed": 0
+      },
+      "reset_at": "2026-03-19T22:42:23+00:00",
+      "summary_token_cap": 4096,
+      "file_signature": {
+        "size": 487607,
+        "mtime_ns": 1773718885873350133
+      },
+      "payload_signature": {
+        "rows": 15,
+        "sha1": "35807b8eb616635ce5e6d47674d2e1b10da3d2db"
+      },
+      "updated_at": "2026-03-19T22:50:47+00:00"
+    },
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook_semantic_ingest.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "records": {
+        "0": {
+          "state": "rewritten",
+          "summary_tokens_before": 52,
+          "summary_tokens_after": 175,
+          "summary_sha1_before": "f7a6a5d685532498cd26bca0991c7b6de3786ce6",
+          "summary_sha1_after": "2bad331fedc09bb389478a91391dc67131f056c9",
+          "updated_at": "2026-03-19T22:51:19+00:00"
+        },
+        "1": {
+          "state": "rewritten",
+          "summary_tokens_before": 50,
+          "summary_tokens_after": 134,
+          "summary_sha1_before": "3340bf0e20a00b0bf79dff64c59e551b9a7bafc3",
+          "summary_sha1_after": "59d77d95e8d7cd9ce56dab70d88adfd9642270f5",
+          "updated_at": "2026-03-19T22:51:37+00:00"
+        },
+        "2": {
+          "state": "rewritten",
+          "summary_tokens_before": 64,
+          "summary_tokens_after": 98,
+          "summary_sha1_before": "646ced0ed86a54fdb95fa191f634910a4db8f5b7",
+          "summary_sha1_after": "5b7c5a1d9828363caaea8abb65315d472b6a1e43",
+          "updated_at": "2026-03-19T22:53:58+00:00"
+        },
+        "3": {
+          "state": "rewritten",
+          "summary_tokens_before": 53,
+          "summary_tokens_after": 114,
+          "summary_sha1_before": "10ee96b2f642fef1d30c6fd07d44320d84cec76c",
+          "summary_sha1_after": "6bd3b55fdd06c872c293a8912aeba3ce3d6ef038",
+          "updated_at": "2026-03-19T22:54:26+00:00"
+        },
+        "4": {
+          "state": "rewritten",
+          "summary_tokens_before": 58,
+          "summary_tokens_after": 105,
+          "summary_sha1_before": "c7be740793513dc64c01ab9f058734fb6d47dfd6",
+          "summary_sha1_after": "fc5b1df4c75882fd48bfc7b6da9f1fa358747849",
+          "updated_at": "2026-03-19T22:54:37+00:00"
+        },
+        "5": {
+          "state": "rewritten",
+          "summary_tokens_before": 80,
+          "summary_tokens_after": 143,
+          "summary_sha1_before": "11333d7b7b9cbac2f809f8458360278e69e700f1",
+          "summary_sha1_after": "4aae9a0c4b2f8fde932f11d60967621a98879d5f",
+          "updated_at": "2026-03-19T22:54:57+00:00"
+        },
+        "6": {
+          "state": "rewritten",
+          "summary_tokens_before": 65,
+          "summary_tokens_after": 103,
+          "summary_sha1_before": "6aa0d80ed946361cbf9164dbe84736289763455d",
+          "summary_sha1_after": "c0510a261cf48607e8140c9f36c37629957a3262",
+          "updated_at": "2026-03-19T22:55:18+00:00"
+        },
+        "7": {
+          "state": "rewritten",
+          "summary_tokens_before": 70,
+          "summary_tokens_after": 121,
+          "summary_sha1_before": "9e70a6db0102db34a4121786c83809d010ef2c48",
+          "summary_sha1_after": "a124bba178cb2498f8688469feca093656744662",
+          "updated_at": "2026-03-19T22:55:39+00:00"
+        },
+        "8": {
+          "state": "rewritten",
+          "summary_tokens_before": 58,
+          "summary_tokens_after": 102,
+          "summary_sha1_before": "70983b26d082bae1c15031bc6f58cac6a7869399",
+          "summary_sha1_after": "1ce19fb12ccc3a2c63c9c5084c4efd5f093bac20",
+          "updated_at": "2026-03-19T22:56:52+00:00"
+        },
+        "9": {
+          "state": "rewritten",
+          "summary_tokens_before": 67,
+          "summary_tokens_after": 70,
+          "summary_sha1_before": "123794426886ca3578f3db503daef995f9598441",
+          "summary_sha1_after": "28adcb28880a81efda3fb1075d67d78df2806e73",
+          "updated_at": "2026-03-19T22:58:18+00:00"
+        },
+        "10": {
+          "state": "rewritten",
+          "summary_tokens_before": 78,
+          "summary_tokens_after": 71,
+          "summary_sha1_before": "aed290213051df9a70cf46fce607ab2a71753cc2",
+          "summary_sha1_after": "874ba807a63735c1d0b3064c70a4800261af72d6",
+          "updated_at": "2026-03-19T22:58:45+00:00"
+        },
+        "11": {
+          "state": "rewritten",
+          "summary_tokens_before": 64,
+          "summary_tokens_after": 105,
+          "summary_sha1_before": "bebff290ebc9890c359962551f935437b7524c69",
+          "summary_sha1_after": "dc89ea0b1a89a8dd2a477396d4626076e382247a",
+          "updated_at": "2026-03-19T23:01:22+00:00"
+        },
+        "12": {
+          "state": "rewritten",
+          "summary_tokens_before": 91,
+          "summary_tokens_after": 50,
+          "summary_sha1_before": "4a26bfdaf25f1d0d2ea7ac207281663b448febec",
+          "summary_sha1_after": "95cee92a81a19510766a5ea3267bceb3977cdc3c",
+          "updated_at": "2026-03-19T23:01:32+00:00"
+        },
+        "13": {
+          "state": "rewritten",
+          "summary_tokens_before": 83,
+          "summary_tokens_after": 87,
+          "summary_sha1_before": "4ecb6a6b19f0ecc4389159fc8b5b0d0ac3a873c3",
+          "summary_sha1_after": "3e5036a5ba98c0774163d4d13a4069c81b7e75c6",
+          "updated_at": "2026-03-19T23:01:43+00:00"
+        },
+        "14": {
+          "state": "rewritten",
+          "summary_tokens_before": 59,
+          "summary_tokens_after": 97,
+          "summary_sha1_before": "650637c66512918bb2ffac7d2870edd6ba19f7d9",
+          "summary_sha1_after": "2bfc2167219d9e1e14b163702f6278160c59d7c2",
+          "updated_at": "2026-03-19T23:03:04+00:00"
+        },
+        "15": {
+          "state": "rewritten",
+          "summary_tokens_before": 65,
+          "summary_tokens_after": 88,
+          "summary_sha1_before": "354ab69e36d3b72a2673a24a7d49f211b54e834c",
+          "summary_sha1_after": "c8f7591281713f6d28a433ea856dd4d0e2a3c1b8",
+          "updated_at": "2026-03-19T23:03:54+00:00"
+        },
+        "16": {
+          "state": "rewritten",
+          "summary_tokens_before": 61,
+          "summary_tokens_after": 120,
+          "summary_sha1_before": "839effe9d924edd0ec7947700cf2f1810b8d62b7",
+          "summary_sha1_after": "0dee44941a8fcdb60eb5bb2af352073a2d15bc95",
+          "updated_at": "2026-03-19T23:04:47+00:00"
+        },
+        "17": {
+          "state": "rewritten",
+          "summary_tokens_before": 60,
+          "summary_tokens_after": 65,
+          "summary_sha1_before": "f4024862fb398308fff3e14678fa6fed42c3bf56",
+          "summary_sha1_after": "9f40fd1ba5cbfbd351c7d09672ce9c59dde194be",
+          "updated_at": "2026-03-19T23:05:25+00:00"
+        },
+        "18": {
+          "state": "rewritten",
+          "summary_tokens_before": 69,
+          "summary_tokens_after": 127,
+          "summary_sha1_before": "ae4584d4952ae7f0ab97ea07ee81f2eaa52ae6ca",
+          "summary_sha1_after": "01b97d6b9b5688a0bcb87f83421194b4a6557fa2",
+          "updated_at": "2026-03-19T23:06:47+00:00"
+        },
+        "19": {
+          "state": "rewritten",
+          "summary_tokens_before": 90,
+          "summary_tokens_after": 119,
+          "summary_sha1_before": "9ff2e81dd9158844f3f735522514858d94595560",
+          "summary_sha1_after": "5140217175c19cf7e48accf7ffb0c0d203fc22c9",
+          "updated_at": "2026-03-19T23:07:15+00:00"
+        },
+        "20": {
+          "state": "rewritten",
+          "summary_tokens_before": 74,
+          "summary_tokens_after": 64,
+          "summary_sha1_before": "1f660a15cddf3961ab423e107ff0f5f40499a0fd",
+          "summary_sha1_after": "4e26a06e1f4d6911915cbf6fb9fa6b9c1dbb11c6",
+          "updated_at": "2026-03-19T23:07:34+00:00"
+        },
+        "21": {
+          "state": "rewritten",
+          "summary_tokens_before": 47,
+          "summary_tokens_after": 117,
+          "summary_sha1_before": "bc5c666e06d95905512b6174470e2bccfa935ba0",
+          "summary_sha1_after": "afe1b108fbd94712af3f4e3af7117054d859958c",
+          "updated_at": "2026-03-19T23:07:56+00:00"
+        },
+        "22": {
+          "state": "rewritten",
+          "summary_tokens_before": 64,
+          "summary_tokens_after": 62,
+          "summary_sha1_before": "8bc204cc978e821148b2297ec9ecce13087aa51c",
+          "summary_sha1_after": "8381edad8293b93e02848e6172338a3545c810ef",
+          "updated_at": "2026-03-19T23:08:09+00:00"
+        },
+        "23": {
+          "state": "rewritten",
+          "summary_tokens_before": 53,
+          "summary_tokens_after": 112,
+          "summary_sha1_before": "25d952206c7e9852c23feefb0ebc0cb194671286",
+          "summary_sha1_after": "923f72a9f9044f96a600626eb1ee95655db3987b",
+          "updated_at": "2026-03-19T23:08:28+00:00"
+        }
+      },
+      "stats": {
+        "rewritten": 24,
+        "skipped": 0,
+        "failed": 0
+      },
+      "reset_at": "2026-03-19T22:50:47+00:00",
+      "summary_token_cap": 4096,
+      "file_signature": {
+        "size": 1270794,
+        "mtime_ns": 1773718885913349968
+      },
+      "payload_signature": {
+        "rows": 64,
+        "sha1": "92b7dd9bd15b763fa7a4e99e9e44e6cf7589d7cf"
+      },
+      "updated_at": "2026-03-19T23:08:28+00:00"
+    }
+  }
+}
