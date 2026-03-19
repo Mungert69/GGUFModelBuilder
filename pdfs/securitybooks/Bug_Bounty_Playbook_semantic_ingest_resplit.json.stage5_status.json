@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "started_at": "2026-03-18T09:53:24+00:00",
+  "updated_at": "2026-03-18T10:00:11+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 229938,
+    "mtime_ns": 1773718886017349537
+  },
+  "ingest_payload_signature": {
+    "rows": 24,
+    "sha1": "3410040931968eb8fc61b5c8f2bbf354691a7ce8"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "done",
+  "split_next_source_index": 24,
+  "regen_next_changed_pos": 4,
+  "oversized_before": 1,
+  "changed_indices": [
+    4,
+    5,
+    6,
+    7
+  ],
+  "done": true,
+  "oversized_after": 0,
+  "rows_after": 27,
+  "rows_regenerated": 4,
+  "completed_at": "2026-03-18T10:00:11+00:00"
+}

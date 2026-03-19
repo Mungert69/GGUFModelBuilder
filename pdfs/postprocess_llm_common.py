@@ -4,6 +4,7 @@ import re
 import time
 import uuid
 from collections import deque
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 from dotenv import load_dotenv
@@ -192,6 +193,10 @@ def estimate_prompt_tokens(text: str) -> int:
     return len(re.findall(r"\w+|[^\w\s]", text, re.UNICODE))
 
 
+def ts_utc() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
 def safe_chat_completion(
     client: OpenAI,
     controller: RateController,
@@ -223,7 +228,7 @@ def safe_chat_completion(
         try:
             controller.wait_before_call()
             print(
-                f"[API] Attempt {attempt}/{max_retries} "
+                f"[{ts_utc()}] [API] Attempt {attempt}/{max_retries} "
                 f"call_id={call_id} label={label}"
                 f"{meta_text} "
                 f"timeout={controller.request_timeout_seconds}s "
@@ -243,7 +248,7 @@ def safe_chat_completion(
             )
             elapsed = time.time() - start
             print(
-                f"[API] Success attempt={attempt} call_id={call_id} "
+                f"[{ts_utc()}] [API] Success attempt={attempt} call_id={call_id} "
                 f"label={label}{meta_text} elapsed={elapsed:.1f}s choices={len(resp.choices or [])}"
             )
             controller.on_success()
@@ -254,7 +259,7 @@ def safe_chat_completion(
             if "429" in txt or "RateLimit" in txt or "Too Many Requests" in txt:
                 controller.on_429()
             print(
-                f"[WARN] API exception call_id={call_id} label={label}{meta_text} "
+                f"[{ts_utc()}] [WARN] API exception call_id={call_id} label={label}{meta_text} "
                 f"{txt} (attempt {attempt}/{max_retries})"
             )
             if attempt < max_retries:
