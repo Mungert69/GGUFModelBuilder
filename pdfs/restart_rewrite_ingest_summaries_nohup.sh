@@ -3,25 +3,49 @@ set -euo pipefail
 
 # Restart ingest summary rewrite run for a target index directory.
 # Usage:
-#   restart_rewrite_ingest_summaries_nohup.sh [target_dir] [--no-clear-log]
+#   restart_rewrite_ingest_summaries_nohup.sh [target_dir] [ingest_pattern] [--no-clear-log]
 #
 # Defaults:
 #   target_dir = current directory
 #   when run from ./pdfs, defaults to ./pdfs/securitybooks
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET_DIR="${1:-$(pwd)}"
+TARGET_DIR=""
+INGEST_PATTERN=""
 CLEAR_LOG=1
 
-if [[ "${1:-}" == "--no-clear-log" ]]; then
+for arg in "$@"; do
+  case "$arg" in
+    --no-clear-log)
+      CLEAR_LOG=0
+      ;;
+    -*)
+      echo "[ERROR] Unknown flag: $arg" >&2
+      exit 1
+      ;;
+    *)
+      if [[ -z "$TARGET_DIR" ]]; then
+        TARGET_DIR="$arg"
+      elif [[ -z "$INGEST_PATTERN" ]]; then
+        INGEST_PATTERN="$arg"
+      else
+        echo "[ERROR] Too many positional arguments. Usage: $0 [target_dir] [ingest_pattern] [--no-clear-log]" >&2
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+if [[ -z "$TARGET_DIR" ]]; then
   if [[ "$(pwd)" == "$SCRIPT_DIR" && -d "$SCRIPT_DIR/securitybooks" ]]; then
     TARGET_DIR="$SCRIPT_DIR/securitybooks"
   else
     TARGET_DIR="$(pwd)"
   fi
-  CLEAR_LOG=0
-elif [[ "${2:-}" == "--no-clear-log" ]]; then
-  CLEAR_LOG=0
+fi
+
+if [[ -z "$INGEST_PATTERN" ]]; then
+  INGEST_PATTERN="*_semantic_ingest.json"
 fi
 
 if [[ "$TARGET_DIR" == "$SCRIPT_DIR" && -d "$SCRIPT_DIR/securitybooks" ]]; then
@@ -43,6 +67,7 @@ if [[ ! -x "$RUN_SCRIPT" ]]; then
 fi
 
 echo "[INFO] Restart target: $TARGET_DIR"
+echo "[INFO] Ingest pattern: $INGEST_PATTERN"
 echo "[INFO] Looking for running summary rewrite processes..."
 mapfile -t PIDS < <(
   pgrep -u "$USER" -f "/pdfs/rewrite_ingest_summaries.py|/pdfs/run_rewrite_ingest_summaries.sh|/pdfs/restart_rewrite_ingest_summaries_nohup.sh" || true
@@ -72,7 +97,7 @@ fi
 
 cd "$TARGET_DIR"
 echo "[INFO] Starting fresh nohup run..."
-nohup env INDEX_DIR="$TARGET_DIR" "$RUN_SCRIPT" > "$LOG_FILE" 2>&1 &
+nohup env INDEX_DIR="$TARGET_DIR" INGEST_PATTERN="$INGEST_PATTERN" "$RUN_SCRIPT" > "$LOG_FILE" 2>&1 &
 NEW_PID=$!
 echo "$NEW_PID" > "$PID_FILE"
 
@@ -81,4 +106,3 @@ echo "  PID: $NEW_PID"
 echo "  PID file: $PID_FILE"
 echo "  Log: $LOG_FILE"
 echo "  Tail: tail -f \"$LOG_FILE\""
-

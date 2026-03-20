@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Run ingest summary rewrite pass with sensible defaults.
 # Environment overrides:
-#   INDEX_DIR, INGEST_PATTERN, STATUS_FILE, SUMMARY_TOKEN_CAP, MAX_FILES, MAX_ROWS_PER_FILE, DRY_RUN
+#   INDEX_DIR, INGEST_PATTERN, STATUS_FILE, SUMMARY_TOKEN_CAP, MAX_FILES, MAX_ROWS_PER_FILE, DRY_RUN, LOG_DIR
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -20,6 +20,11 @@ SUMMARY_TOKEN_CAP="${SUMMARY_TOKEN_CAP:-4096}"
 MAX_FILES="${MAX_FILES:-0}"
 MAX_ROWS_PER_FILE="${MAX_ROWS_PER_FILE:-0}"
 DRY_RUN="${DRY_RUN:-0}"
+LOG_DIR="${LOG_DIR:-$INDEX_DIR}"
+
+mkdir -p "$LOG_DIR"
+TS="$(date +%Y%m%d_%H%M%S)"
+RUN_LOG="$LOG_DIR/rewrite_ingest_summaries_run_${TS}.log"
 
 ARGS=(
   "$SCRIPT_DIR/rewrite_ingest_summaries.py"
@@ -47,7 +52,7 @@ echo "[INFO] summary_token_cap: $SUMMARY_TOKEN_CAP"
 echo "[INFO] max_files: $MAX_FILES"
 echo "[INFO] max_rows_per_file: $MAX_ROWS_PER_FILE"
 echo "[INFO] dry_run: $DRY_RUN"
+echo "[INFO] run_log: $RUN_LOG"
 echo "[INFO] cmd: $PYTHON_BIN ${ARGS[*]}"
 
-exec "$PYTHON_BIN" -u "${ARGS[@]}"
-
+PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u "${ARGS[@]}" 2>&1 | tee "$RUN_LOG"
