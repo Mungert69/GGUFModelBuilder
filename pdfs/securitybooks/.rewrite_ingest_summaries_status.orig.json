@@ -1,0 +1,65 @@
+{
+  "started_at": "2026-03-20T01:13:51+00:00",
+  "updated_at": "2026-03-20T01:15:06+00:00",
+  "version": 1,
+  "files": {
+    "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary__semantic_ingest.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "records": {
+        "0": {
+          "state": "rewritten",
+          "summary_tokens_before": 74,
+          "output_tokens": 3098,
+          "summary_tokens_after": 101,
+          "summary_sha1_before": "2a4e11ae186df7b1a26284ec2e7f537a14857ab2",
+          "summary_sha1_after": "5f63ac95811d88dd1ac948b93394d46ce56aaeb0",
+          "updated_at": "2026-03-20T01:14:50+00:00"
+        },
+        "1": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 98,
+          "output_tokens": 6859,
+          "updated_at": "2026-03-20T01:14:50+00:00"
+        },
+        "2": {
+          "state": "skipped_output_over_cap",
+          "summary_tokens_before": 118,
+          "output_tokens": 12138,
+          "updated_at": "2026-03-20T01:14:50+00:00"
+        },
+        "3": {
+          "state": "rewritten",
+          "summary_tokens_before": 84,
+          "output_tokens": 1955,
+          "summary_tokens_after": 91,
+          "summary_sha1_before": "673dd40a969877cce773e974cc25b38a9cc3f749",
+          "summary_sha1_after": "ce62e1fa439e0fd605e628433ab48f9799f4dca7",
+          "updated_at": "2026-03-20T01:15:06+00:00"
+        }
+      },
+      "stats": {
+        "rewritten": 2,
+        "skipped": 2,
+        "failed": 0
+      },
+      "reset_at": "2026-03-20T01:13:51+00:00",
+      "summary_token_cap": 4096,
+      "rows_total": 18,
+      "source_signature": "e176cef1fdc760c8280027930d581fff003226c3",
+      "file_signature": {
+        "size": 338754,
+        "mtime_ns": 1773962105332281312
+      },
+      "payload_signature": {
+        "rows": 18,
+        "sha1": "1bac96b3a7038a0fc404b1c9aff9ea08c422f39c"
+      },
+      "updated_at": "2026-03-20T01:15:06+00:00"
+    }
+  }
+}

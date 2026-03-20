@@ -1,5 +1,5 @@
 {
-  "LlmHFModelID": "meta/llama-3.3-70b-instruct",
+  "LlmHFModelID": "deepseek-ai/deepseek-v3.2",
   "LlmHFUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
   "LlmHFKeyEnv": "LlmHFKey",
   "TokenizerName": "meta-llama/Llama-3.3-70B-Instruct",
@@ -7,7 +7,7 @@
   "WindowSize": 14,
   "TimeDelay": 5,
   "MaxContext": 128000,
-  "RateLimitPerMinute": 5,
+  "RateLimitPerMinute": 20,
   "RateLimit429CooldownSeconds": 30,
   "RateLimit429CooldownMaxSeconds": 300,
   "RateLimitDynamicSpacingStep": 0.35,

@@ -296,6 +296,26 @@ def main() -> None:
                         }
                         file_failed += 1
                         stats["failed"] = int(stats.get("failed", 0)) + 1
+                    except KeyboardInterrupt:
+                        records[str(idx)] = {
+                            "state": "interrupted",
+                            "error": "KeyboardInterrupt",
+                            "summary_tokens_before": summary_before_tokens,
+                            "output_tokens": output_tokens,
+                            "updated_at": now_iso(),
+                            "attempts": int(records.get(str(idx), {}).get("attempts", 0)) + 1,
+                        }
+                        state["done_indices"] = sorted(done)
+                        state["updated_at"] = now_iso()
+                        status["updated_at"] = now_iso()
+                        if not args.dry_run:
+                            atomic_save_json(file_path, payload)
+                            atomic_save_json(status_file, status)
+                        print(
+                            f"[INTERRUPT] file={file_path} row_index={idx} "
+                            "state_saved=true next_run_will_retry_row=true"
+                        )
+                        return
 
             state["done_indices"] = sorted(done)
             state["updated_at"] = now_iso()
@@ -324,4 +344,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("[INTERRUPT] stopped by user")
