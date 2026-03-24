@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "started_at": "2026-03-22T17:52:06+00:00",
+  "updated_at": "2026-03-22T18:12:57+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 274340,
+    "mtime_ns": 1774127343102349040
+  },
+  "ingest_payload_signature": {
+    "rows": 19,
+    "sha1": "de17368ecf03381142b68118b378eb4739ba764f"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "done",
+  "split_next_source_index": 19,
+  "regen_next_changed_pos": 7,
+  "oversized_before": 1,
+  "changed_indices": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "done": true,
+  "oversized_after": 0,
+  "rows_after": 25,
+  "rows_regenerated": 7,
+  "completed_at": "2026-03-22T18:12:57+00:00"
+}

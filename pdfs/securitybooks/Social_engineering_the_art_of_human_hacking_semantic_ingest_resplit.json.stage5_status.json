@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T13:56:59+00:00",
+  "updated_at": "2026-03-23T14:06:29+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 918528,
+    "mtime_ns": 1774127343522339317
+  },
+  "ingest_payload_signature": {
+    "rows": 17,
+    "sha1": "887d240279ce12dae9677b0b7edad19bf5dac4e7"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 0,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T14:06:29+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 0,
+    "source_file": "Social_engineering_the_art_of_human_hacking.json",
+    "chunk_start": 15,
+    "chunk_end": 35,
+    "chunk_id": "doc_376b5238bc1a8b38:chunk_00001"
+  }
+}

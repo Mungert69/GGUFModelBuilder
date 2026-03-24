@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T14:06:29+00:00",
+  "updated_at": "2026-03-23T14:15:59+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 874316,
+    "mtime_ns": 1774127343542338854
+  },
+  "ingest_payload_signature": {
+    "rows": 19,
+    "sha1": "344884b12224c31d9b31ca44d5696792810b90a3"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 1,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T14:15:59+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 1,
+    "source_file": "The_Art_of_Deception.json",
+    "chunk_start": 6,
+    "chunk_end": 14,
+    "chunk_id": "doc_8689703f080816dc:chunk_00002"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T04:09:28+00:00",
+  "updated_at": "2026-03-23T04:14:19+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 176302,
+    "mtime_ns": 1774127343226346169
+  },
+  "ingest_payload_signature": {
+    "rows": 12,
+    "sha1": "194a2bbd557a267f3705013fa1cf9a85ba3a3011"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "done",
+  "split_next_source_index": 12,
+  "regen_next_changed_pos": 10,
+  "oversized_before": 2,
+  "changed_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "done": true,
+  "oversized_after": 0,
+  "rows_after": 20,
+  "rows_regenerated": 10,
+  "completed_at": "2026-03-23T04:14:19+00:00"
+}

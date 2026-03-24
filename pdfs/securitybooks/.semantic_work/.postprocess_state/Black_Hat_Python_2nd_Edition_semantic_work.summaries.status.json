@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-03-20T21:27:17+00:00",
+  "files": {
+    ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "replaced": 11
+    }
+  },
+  "updated_at": "2026-03-20T21:30:31+00:00",
+  "finished_at": "2026-03-20T21:30:31+00:00",
+  "total_summaries_replaced": 11
+}

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T15:31:59+00:00",
+  "updated_at": "2026-03-23T15:41:28+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 66984,
+    "mtime_ns": 1774127343758333853
+  },
+  "ingest_payload_signature": {
+    "rows": 3,
+    "sha1": "e624cc1f1d60cb56cd404a13752286ab84a51e1a"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 0,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T15:41:28+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 0,
+    "source_file": "linux_cmds_handbook.json",
+    "chunk_start": 4,
+    "chunk_end": 21,
+    "chunk_id": "doc_44fe03ac7be6b54b:chunk_00001"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T14:15:59+00:00",
+  "updated_at": "2026-03-23T14:25:29+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 630599,
+    "mtime_ns": 1774127343562338391
+  },
+  "ingest_payload_signature": {
+    "rows": 17,
+    "sha1": "c5fb404b994bd083d770d57c29776fd23aafda8f"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 0,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T14:25:29+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 0,
+    "source_file": "The_Art_of_Invisibility.json",
+    "chunk_start": 8,
+    "chunk_end": 21,
+    "chunk_id": "doc_fcef2d1799251370:chunk_00001"
+  }
+}

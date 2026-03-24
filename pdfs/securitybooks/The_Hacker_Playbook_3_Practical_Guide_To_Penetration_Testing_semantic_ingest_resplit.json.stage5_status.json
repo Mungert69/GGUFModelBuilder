@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T14:25:29+00:00",
+  "updated_at": "2026-03-23T14:34:59+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 458791,
+    "mtime_ns": 1774127343574338113
+  },
+  "ingest_payload_signature": {
+    "rows": 21,
+    "sha1": "f691cd931c032f98e58def32cf35edbefcb3444e"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 2,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T14:34:59+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 2,
+    "source_file": "The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
+    "chunk_start": 8,
+    "chunk_end": 21,
+    "chunk_id": "doc_7c7e779ea3f7008a:chunk_00003"
+  }
+}

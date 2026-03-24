@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T14:53:59+00:00",
+  "updated_at": "2026-03-23T15:03:29+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 2134018,
+    "mtime_ns": 1774127343698335242
+  },
+  "ingest_payload_signature": {
+    "rows": 36,
+    "sha1": "7a8f082fa14db1f827b180a1eeb618f9e303d7bc"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 0,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T15:03:29+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 0,
+    "source_file": "Web_application_hackers_handbook.json",
+    "chunk_start": 10,
+    "chunk_end": 20,
+    "chunk_id": "doc_7ad5ec548b4219d2:chunk_00001"
+  }
+}
