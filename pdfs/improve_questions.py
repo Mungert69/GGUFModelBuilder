@@ -160,7 +160,6 @@ def build_prompt(text: str, num_questions: int = 3) -> str:
         f"Generate exactly {num_questions} distinct, content-grounded questions that improve retrieval precision and recall for this exact chunk.\n\n"
         "Grounding rules:\n"
         "- Every question must be answerable from the chunk text itself.\n"
-        "- Use document metadata only to disambiguate wording, never to introduce facts not supported by the chunk.\n"
         "- Reuse exact entities when useful:\n"
         "  protocol names, CVEs, RFCs, versions, APIs, functions, classes, commands, flags, filenames, config keys, ports, error messages, standards, products, tools, libraries, and environment names.\n"
         "- Never invent entities, versions, commands, file paths, causes, mitigations, or relationships not present in the chunk.\n"
