@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T15:03:29+00:00",
+  "updated_at": "2026-03-23T15:12:59+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec__semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec__semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 170935,
+    "mtime_ns": 1774127343702335150
+  },
+  "ingest_payload_signature": {
+    "rows": 11,
+    "sha1": "f83509abc40d519f1f78485926a17f32b6cd2264"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 4,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T15:12:59+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 4,
+    "source_file": "breaking_into_infosec_.json",
+    "chunk_start": 20,
+    "chunk_end": 27,
+    "chunk_id": "doc_002d7818d4af2dca:chunk_00005"
+  }
+}

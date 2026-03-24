@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T04:14:19+00:00",
+  "updated_at": "2026-03-23T04:19:06+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 189563,
+    "mtime_ns": 1774127343234345984
+  },
+  "ingest_payload_signature": {
+    "rows": 13,
+    "sha1": "8bbd20c9407fb8f1bcb4cf05b46d7faef1683b37"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "done",
+  "split_next_source_index": 13,
+  "regen_next_changed_pos": 10,
+  "oversized_before": 2,
+  "changed_indices": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "done": true,
+  "oversized_after": 0,
+  "rows_after": 21,
+  "rows_regenerated": 10,
+  "completed_at": "2026-03-23T04:19:06+00:00"
+}

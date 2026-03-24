@@ -1,220 +1,220 @@
 {
-  "generated_at": "2026-03-20T01:55:30+00:00",
+  "generated_at": "2026-03-20T15:42:56+00:00",
   "inputs": [
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 125,
       "work_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/A_Bug_Hunters_Diary__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 161,
       "work_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 437,
       "work_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Android_Hacker-s_Handbook_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 365,
       "work_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Attacking_network_protocols.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 285,
       "work_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Attacking_network_protocols_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 263,
       "work_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Python_2nd_Edition.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 142,
       "work_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Black_Hat_Python_2nd_Edition_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 66,
       "work_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Bug_Bounty_Playbook_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 96,
       "work_file": ".semantic_work/Crypto101_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Crypto101_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 231,
       "work_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Gray_Hat_C_Sharp.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 262,
       "work_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Gray_Hat_C_Sharp_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 282,
       "work_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Hacking_For_Dummies_4th_Edition_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_The_Art_of_Exploitation_2nd_Edition.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 373,
       "work_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hash_Crack_-_Password_Cracking_Manual_v2.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 38,
       "work_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 156,
       "work_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Inside_Cyber_Warfare.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 188,
       "work_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Inside_Cyber_Warfare_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 96,
       "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 96,
       "work_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Kali_Linux_Wireless_Penetration_Testing_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 228,
       "work_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Linux_Basics_for_Hackers.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 170,
       "work_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Linux_Basics_for_Hackers_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Metasploit_the_penetration_testers_guide.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 234,
       "work_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Metasploit_the_penetration_testers_guide_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF1.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 559,
       "work_file": ".semantic_work/PDF1_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/PDF1_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF2.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 232,
       "work_file": ".semantic_work/PDF2_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/PDF2_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF3.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 359,
       "work_file": ".semantic_work/PDF3_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/PDF3_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 359,
       "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 359,
       "work_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Python_For_Kids.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 209,
       "work_file": ".semantic_work/Python_For_Kids_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Python_For_Kids_semantic_work.json",
       "missing_count": 0
     },
     {
@@ -227,122 +227,122 @@
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Real-World-Bug-Hunting.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 214,
       "work_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Real-World-Bug-Hunting_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 289,
       "work_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 215,
       "work_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 341,
       "work_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Social_engineering_the_art_of_human_hacking_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 272,
       "work_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/The_Art_of_Deception_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 205,
       "work_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/The_Art_of_Invisibility_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 166,
       "work_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 493,
       "work_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/The_Mobile_Application_Hackers_Handbook__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_tangled_web.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 271,
       "work_file": ".semantic_work/The_tangled_web_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/The_tangled_web_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 736,
       "work_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/Web_application_hackers_handbook_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec_.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 50,
       "work_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/breaking_into_infosec__semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/bug-bounty-bootcamp.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 357,
       "work_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/bug-bounty-bootcamp_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 338,
       "work_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/ghost-in-the-wires-kevin-mitnick_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 25,
       "work_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/linux_cmds_handbook_semantic_work.json",
       "missing_count": 0
     },
     {
       "input_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/web_hacking101.json",
-      "status": "no_output",
+      "status": "complete",
       "total_chunks": 183,
       "work_file": ".semantic_work/web_hacking101_semantic_work.json",
-      "latest_block_file": "",
+      "latest_block_file": ".semantic_work/web_hacking101_semantic_work.json",
       "missing_count": 0
     }
   ]

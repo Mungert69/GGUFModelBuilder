@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T14:34:59+00:00",
+  "updated_at": "2026-03-23T14:44:29+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook__semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook__semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 1782407,
+    "mtime_ns": 1774127343622337002
+  },
+  "ingest_payload_signature": {
+    "rows": 32,
+    "sha1": "de07bc39c80cd3a4d027c446cd55065020f2ff67"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 1,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T14:44:29+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 1,
+    "source_file": "The_Mobile_Application_Hackers_Handbook_.json",
+    "chunk_start": 7,
+    "chunk_end": 17,
+    "chunk_id": "doc_fbb1d86f2aeab18e:chunk_00002"
+  }
+}

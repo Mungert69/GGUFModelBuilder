@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "started_at": "2026-03-23T15:22:29+00:00",
+  "updated_at": "2026-03-23T15:31:59+00:00",
+  "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick_semantic_ingest.json",
+  "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick_semantic_ingest_resplit.json",
+  "ingest_file_signature": {
+    "size": 1018364,
+    "mtime_ns": 1774127343754333946
+  },
+  "ingest_payload_signature": {
+    "rows": 25,
+    "sha1": "24eb72fe542cd01b15dc81e26960cb4913929b68"
+  },
+  "token_cap": 4096,
+  "max_window": 24,
+  "phase": "split",
+  "split_next_source_index": 1,
+  "regen_next_changed_pos": 0,
+  "oversized_before": 0,
+  "changed_indices": [],
+  "done": false,
+  "failed": true,
+  "failed_at": "2026-03-23T15:31:59+00:00",
+  "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+  "last_error_context": {
+    "step": "split_record",
+    "source_index": 1,
+    "source_file": "ghost-in-the-wires-kevin-mitnick.json",
+    "chunk_start": 5,
+    "chunk_end": 19,
+    "chunk_id": "doc_ba4442b313805a99:chunk_00002"
+  }
+}
