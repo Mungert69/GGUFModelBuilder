@@ -27,6 +27,7 @@ common_requirements = [
     "inflect",
     "ftfy",
     "sentencepiece",
+    "requests"
 ]
 # add at top with others:
 import os
