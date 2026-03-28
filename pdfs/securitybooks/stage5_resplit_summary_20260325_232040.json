@@ -1,0 +1,480 @@
+{
+  "started_at": "2026-03-26T14:43:04+00:00",
+  "index_dir": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks",
+  "token_cap": 4096,
+  "dry_run": false,
+  "in_place": false,
+  "total_files": 42,
+  "updated_files": 4,
+  "results": [
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary__semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/A_Bug_Hunters_Diary__semantic_ingest_resplit.json",
+      "oversized_before": 7,
+      "oversized_after": 0,
+      "rows_before": 14,
+      "rows_after": 53,
+      "rows_regenerated": 46
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Advanced_Penetration_Testing_-_Hacking_the_Worlds_Most_Secure_Networks_by_Wil_Allsopp_semantic_ingest_resplit.json",
+      "oversized_before": 9,
+      "oversized_after": 0,
+      "rows_before": 11,
+      "rows_after": 76,
+      "rows_regenerated": 74
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Hacker-s_Handbook_semantic_ingest_resplit.json",
+      "oversized_before": 21,
+      "oversized_after": 0,
+      "rows_before": 58,
+      "rows_after": 179,
+      "rows_regenerated": 142
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Android_Security_Internals_An_In_Depth_Guide_to_Android_Security_Architecture__semantic_ingest_resplit.json",
+      "oversized_before": 15,
+      "oversized_after": 0,
+      "rows_before": 17,
+      "rows_after": 143,
+      "rows_regenerated": 141
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Attacking_network_protocols_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Attacking_network_protocols_semantic_ingest_resplit.json",
+      "oversized_before": 9,
+      "oversized_after": 0,
+      "rows_before": 16,
+      "rows_after": 104,
+      "rows_regenerated": 97
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Go_Go_Programming_For_Hackers_and_Pentesters_semantic_ingest_resplit.json",
+      "oversized_before": 17,
+      "oversized_after": 0,
+      "rows_before": 18,
+      "rows_after": 126,
+      "rows_regenerated": 125
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Python_2nd_Edition_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Black_Hat_Python_2nd_Edition_semantic_ingest_resplit.json",
+      "oversized_before": 9,
+      "oversized_after": 0,
+      "rows_before": 11,
+      "rows_after": 61,
+      "rows_regenerated": 59
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Bug_Bounty_Playbook_semantic_ingest_resplit.json",
+      "oversized_before": 5,
+      "oversized_after": 0,
+      "rows_before": 10,
+      "rows_after": 34,
+      "rows_regenerated": 29
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Crypto101_semantic_ingest_resplit.json",
+      "oversized_before": 1,
+      "oversized_after": 0,
+      "rows_before": 19,
+      "rows_after": 25,
+      "rows_regenerated": 7
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Game_Hacking_Developing_Autonomous_Bots_for_Online_Games_semantic_ingest_resplit.json",
+      "oversized_before": 11,
+      "oversized_after": 0,
+      "rows_before": 16,
+      "rows_after": 99,
+      "rows_regenerated": 94
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Gray_Hat_C_Sharp_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Gray_Hat_C_Sharp_semantic_ingest_resplit.json",
+      "oversized_before": 13,
+      "oversized_after": 0,
+      "rows_before": 15,
+      "rows_after": 110,
+      "rows_regenerated": 108
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_For_Dummies_4th_Edition_semantic_ingest_resplit.json",
+      "oversized_before": 14,
+      "oversized_after": 0,
+      "rows_before": 21,
+      "rows_after": 109,
+      "rows_regenerated": 102
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hacking_The_Art_of_Exploitation_2nd_Edition_semantic_ingest_resplit.json",
+      "oversized_before": 20,
+      "oversized_after": 0,
+      "rows_before": 36,
+      "rows_after": 176,
+      "rows_regenerated": 160
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Hash_Crack_-_Password_Cracking_Manual_v2_semantic_ingest_resplit.json",
+      "oversized_before": 3,
+      "oversized_after": 0,
+      "rows_before": 5,
+      "rows_after": 16,
+      "rows_regenerated": 14
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/How_software_works_the_magic_behind_encryption_CGI_search_engines_and_other_everyday_technologies__semantic_ingest_resplit.json",
+      "oversized_before": 9,
+      "oversized_after": 0,
+      "rows_before": 9,
+      "rows_after": 70,
+      "rows_regenerated": 70
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Inside_Cyber_Warfare_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Inside_Cyber_Warfare_semantic_ingest_resplit.json",
+      "oversized_before": 11,
+      "oversized_after": 0,
+      "rows_before": 15,
+      "rows_after": 81,
+      "rows_regenerated": 77
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_-_Beginners_Guide_-_Learn_to_penetrate_Wi-Fi_and_wireless_networks_to_secure_your_system_from_vulnerabilities_by_Vivek_Ramachandran_and_Cameron_Buchanan_semantic_ingest_resplit.json",
+      "oversized_before": 2,
+      "oversized_after": 0,
+      "rows_before": 12,
+      "rows_after": 20,
+      "rows_regenerated": 10
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kali_Linux_Wireless_Penetration_Testing_semantic_ingest_resplit.json",
+      "oversized_before": 2,
+      "oversized_after": 0,
+      "rows_before": 13,
+      "rows_after": 21,
+      "rows_regenerated": 10
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_ingest_resplit.json",
+      "oversized_before": 12,
+      "oversized_after": 0,
+      "rows_before": 19,
+      "rows_after": 92,
+      "rows_regenerated": 85
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Linux_Basics_for_Hackers_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Linux_Basics_for_Hackers_semantic_ingest_resplit.json",
+      "oversized_before": 10,
+      "oversized_after": 0,
+      "rows_before": 17,
+      "rows_after": 70,
+      "rows_regenerated": 63
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Metasploit_the_penetration_testers_guide_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Metasploit_the_penetration_testers_guide_semantic_ingest_resplit.json",
+      "oversized_before": 15,
+      "oversized_after": 0,
+      "rows_before": 21,
+      "rows_after": 109,
+      "rows_regenerated": 103
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF1_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF1_semantic_ingest_resplit.json",
+      "oversized_before": 25,
+      "oversized_after": 0,
+      "rows_before": 39,
+      "rows_after": 245,
+      "rows_regenerated": 231
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF2_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF2_semantic_ingest_resplit.json",
+      "oversized_before": 14,
+      "oversized_after": 0,
+      "rows_before": 24,
+      "rows_after": 106,
+      "rows_regenerated": 96
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF3_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/PDF3_semantic_ingest_resplit.json",
+      "oversized_before": 18,
+      "oversized_after": 0,
+      "rows_before": 30,
+      "rows_after": 145,
+      "rows_regenerated": 133
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_by_Georgia_Weidman_semantic_ingest_resplit.json",
+      "oversized_before": 17,
+      "oversized_after": 0,
+      "rows_before": 36,
+      "rows_after": 141,
+      "rows_regenerated": 122
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Penetration_Testing_A_Hands-On_Introduction_to_Hacking_semantic_ingest_resplit.json",
+      "oversized_before": 21,
+      "oversized_after": 0,
+      "rows_before": 36,
+      "rows_after": 152,
+      "rows_regenerated": 137
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Python_For_Kids_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Python_For_Kids_semantic_ingest_resplit.json",
+      "oversized_before": 10,
+      "oversized_after": 0,
+      "rows_before": 19,
+      "rows_after": 84,
+      "rows_regenerated": 75
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Real-World-Bug-Hunting_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Real-World-Bug-Hunting_semantic_ingest_resplit.json",
+      "oversized_before": 13,
+      "oversized_after": 0,
+      "rows_before": 22,
+      "rows_after": 87,
+      "rows_regenerated": 78
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Serious_Cryptography_A_Practical_Introduction_to_Modern_Encryption__semantic_ingest_resplit.json",
+      "oversized_before": 14,
+      "oversized_after": 0,
+      "rows_before": 19,
+      "rows_after": 117,
+      "rows_regenerated": 112
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_ingest_resplit.json",
+      "oversized_before": 12,
+      "oversized_after": 0,
+      "rows_before": 14,
+      "rows_after": 99,
+      "rows_regenerated": 97
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_engineering_the_art_of_human_hacking_semantic_ingest_resplit.json",
+      "oversized_before": 14,
+      "oversized_after": 0,
+      "rows_before": 17,
+      "rows_after": 140,
+      "rows_regenerated": 137
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception_semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Deception_semantic_ingest_resplit.json",
+      "oversized_before": 17,
+      "oversized_after": 0,
+      "rows_before": 19,
+      "rows_after": 128,
+      "rows_regenerated": 126
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility_semantic_ingest.json",
+      "status": "updated",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Art_of_Invisibility_semantic_ingest_resplit.json",
+      "oversized_before": 15,
+      "oversized_after": 0,
+      "rows_before": 17,
+      "rows_after": 98,
+      "rows_regenerated": 96
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_ingest.json",
+      "status": "updated",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_ingest_resplit.json",
+      "oversized_before": 8,
+      "oversized_after": 0,
+      "rows_before": 21,
+      "rows_after": 68,
+      "rows_regenerated": 55
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook__semantic_ingest.json",
+      "status": "updated",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_Mobile_Application_Hackers_Handbook__semantic_ingest_resplit.json",
+      "oversized_before": 25,
+      "oversized_after": 0,
+      "rows_before": 32,
+      "rows_after": 220,
+      "rows_regenerated": 213
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_tangled_web_semantic_ingest.json",
+      "status": "updated",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/The_tangled_web_semantic_ingest_resplit.json",
+      "oversized_before": 12,
+      "oversized_after": 0,
+      "rows_before": 22,
+      "rows_after": 104,
+      "rows_regenerated": 94
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook_semantic_ingest.json",
+      "status": "failed",
+      "phase": "regen",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Web_application_hackers_handbook_semantic_ingest_resplit.json",
+      "oversized_before": 28,
+      "rows_before": 36,
+      "rows_after": 313,
+      "error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+      "error_context": {
+        "step": "regen_questions_summary",
+        "changed_pos": 135,
+        "record_index": 138,
+        "chunk_start": 321,
+        "chunk_end": 323,
+        "source_file": "Web_application_hackers_handbook.json",
+        "parent_chunk_id": "doc_7ad5ec548b4219d2:chunk_00017",
+        "part_index": 5,
+        "part_count": 14
+      }
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec__semantic_ingest.json",
+      "status": "already_done",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/breaking_into_infosec__semantic_ingest_resplit.json",
+      "oversized_before": 2,
+      "oversized_after": 0,
+      "rows_before": 11,
+      "rows_after": 20,
+      "rows_regenerated": 11
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/bug-bounty-bootcamp_semantic_ingest.json",
+      "status": "failed",
+      "phase": "split",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/bug-bounty-bootcamp_semantic_ingest_resplit.json",
+      "oversized_before": 5,
+      "rows_before": 25,
+      "rows_after": 44,
+      "error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+      "error_context": {
+        "step": "split_record",
+        "source_index": 5,
+        "source_file": "bug-bounty-bootcamp.json",
+        "chunk_start": 133,
+        "chunk_end": 149,
+        "chunk_id": "doc_70257c54e5931f6b:chunk_00006"
+      }
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick_semantic_ingest.json",
+      "status": "failed",
+      "phase": "split",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/ghost-in-the-wires-kevin-mitnick_semantic_ingest_resplit.json",
+      "oversized_before": 13,
+      "rows_before": 25,
+      "rows_after": 95,
+      "error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+      "error_context": {
+        "step": "split_record",
+        "source_index": 17,
+        "source_file": "ghost-in-the-wires-kevin-mitnick.json",
+        "chunk_start": 201,
+        "chunk_end": 210,
+        "chunk_id": "doc_ba4442b313805a99:chunk_00018"
+      }
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook_semantic_ingest.json",
+      "status": "failed",
+      "phase": "regen",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/linux_cmds_handbook_semantic_ingest_resplit.json",
+      "oversized_before": 1,
+      "rows_before": 3,
+      "rows_after": 10,
+      "error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+      "error_context": {
+        "step": "regen_questions_summary",
+        "changed_pos": 0,
+        "record_index": 0,
+        "chunk_start": 4,
+        "chunk_end": 6,
+        "source_file": "linux_cmds_handbook.json",
+        "parent_chunk_id": "doc_44fe03ac7be6b54b:chunk_00001",
+        "part_index": 1,
+        "part_count": 8
+      }
+    },
+    {
+      "file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/web_hacking101_semantic_ingest.json",
+      "status": "failed",
+      "phase": "regen",
+      "output_file": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/web_hacking101_semantic_ingest_resplit.json",
+      "oversized_before": 6,
+      "rows_before": 24,
+      "rows_after": 53,
+      "error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
+      "error_context": {
+        "step": "regen_questions_summary",
+        "changed_pos": 7,
+        "record_index": 14,
+        "chunk_start": 65,
+        "chunk_end": 66,
+        "source_file": "web_hacking101.json",
+        "parent_chunk_id": "doc_264529fafc12084a:chunk_00009",
+        "part_index": 4,
+        "part_count": 6
+      }
+    }
+  ]
+}

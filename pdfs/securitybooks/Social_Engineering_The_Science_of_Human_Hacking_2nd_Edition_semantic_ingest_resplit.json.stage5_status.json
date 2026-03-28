@@ -1,7 +1,7 @@
 {
   "version": 1,
   "started_at": "2026-03-23T13:47:30+00:00",
-  "updated_at": "2026-03-24T01:31:03+00:00",
+  "updated_at": "2026-03-24T01:41:42+00:00",
   "ingest_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_ingest.json",
   "output_path": "/home/mahadeva/code/GGUFModelBuilder/pdfs/securitybooks/Social_Engineering_The_Science_of_Human_Hacking_2nd_Edition_semantic_ingest_resplit.json",
   "ingest_file_signature": {
@@ -14,9 +14,9 @@
   },
   "token_cap": 4096,
   "max_window": 24,
-  "phase": "regen",
+  "phase": "done",
   "split_next_source_index": 14,
-  "regen_next_changed_pos": 92,
+  "regen_next_changed_pos": 97,
   "oversized_before": 12,
   "changed_indices": [
     0,
@@ -117,7 +117,7 @@
     96,
     97
   ],
-  "done": false,
+  "done": true,
   "failed": true,
   "failed_at": "2026-03-23T13:56:59+00:00",
   "last_error": "API failed after 3 attempts: APITimeoutError('Request timed out.')",
@@ -128,5 +128,9 @@
     "chunk_start": 1,
     "chunk_end": 14,
     "chunk_id": "doc_faceb47e98a80123:chunk_00001"
-  }
+  },
+  "oversized_after": 0,
+  "rows_after": 99,
+  "rows_regenerated": 97,
+  "completed_at": "2026-03-24T01:41:42+00:00"
 }
