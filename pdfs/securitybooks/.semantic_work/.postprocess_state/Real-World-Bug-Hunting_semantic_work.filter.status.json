@@ -1,0 +1,39 @@
+{
+  "started_at": "2026-03-21T06:08:14+00:00",
+  "files": {
+    ".semantic_work/Real-World-Bug-Hunting_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "updated": 4
+    }
+  },
+  "updated_at": "2026-03-21T06:21:52+00:00",
+  "finished_at": "2026-03-21T06:21:52+00:00",
+  "total_non_content_updates": 4
+}
