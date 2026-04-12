@@ -1,0 +1,29 @@
+{
+  "started_at": "2026-03-20T23:40:57+00:00",
+  "files": {
+    ".semantic_work/Inside_Cyber_Warfare_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "replaced": 15
+    }
+  },
+  "updated_at": "2026-03-20T23:48:00+00:00",
+  "finished_at": "2026-03-20T23:48:00+00:00",
+  "total_questions_replaced": 15
+}

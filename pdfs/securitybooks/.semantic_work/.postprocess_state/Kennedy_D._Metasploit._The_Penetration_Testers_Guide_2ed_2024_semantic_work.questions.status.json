@@ -1,0 +1,33 @@
+{
+  "started_at": "2026-03-21T00:22:02+00:00",
+  "files": {
+    ".semantic_work/Kennedy_D._Metasploit._The_Penetration_Testers_Guide_2ed_2024_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "replaced": 19
+    }
+  },
+  "updated_at": "2026-03-21T00:30:00+00:00",
+  "finished_at": "2026-03-21T00:30:00+00:00",
+  "total_questions_replaced": 19
+}

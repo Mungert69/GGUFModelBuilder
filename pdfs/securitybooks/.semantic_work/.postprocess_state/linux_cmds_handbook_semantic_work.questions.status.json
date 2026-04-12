@@ -1,0 +1,17 @@
+{
+  "started_at": "2026-03-21T20:19:30+00:00",
+  "files": {
+    ".semantic_work/linux_cmds_handbook_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "replaced": 3
+    }
+  },
+  "updated_at": "2026-03-21T20:19:58+00:00",
+  "finished_at": "2026-03-21T20:19:58+00:00",
+  "total_questions_replaced": 3
+}

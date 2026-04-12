@@ -1,0 +1,34 @@
+{
+  "started_at": "2026-03-21T12:28:03+00:00",
+  "files": {
+    ".semantic_work/The_Hacker_Playbook_3_Practical_Guide_To_Penetration_Testing_semantic_work.json": {
+      "done_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "replaced": 21
+    }
+  },
+  "updated_at": "2026-03-21T12:48:04+00:00",
+  "finished_at": "2026-03-21T12:48:04+00:00",
+  "total_summaries_replaced": 21
+}
