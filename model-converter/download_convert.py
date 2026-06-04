@@ -37,6 +37,21 @@ from update_readme import update_readme  # Import the update_readme function
 from add_metadata_gguf import add_metadata
 from pathlib import Path
 
+def resolve_model_snapshot_dir(downloaded_files):
+    """
+    Return the shared Hugging Face snapshot directory for a set of downloaded files.
+
+    This must return the repository snapshot root, not a nested directory such as
+    `.eval_results`, even when the first downloaded file lives under a subdirectory.
+    """
+    if not downloaded_files:
+        return None
+
+    common_path = os.path.commonpath(downloaded_files)
+    if os.path.isfile(common_path):
+        return os.path.dirname(common_path)
+    return common_path
+
 def main():
     # Load the .env file
     load_dotenv()
@@ -173,7 +188,7 @@ def main():
     )
     print(f"Download summary: reused {reused_count} file(s), downloaded {downloaded_count} file(s).")
 
-    model_snapshot_dir = os.path.dirname(downloaded_files[0]) if downloaded_files else None
+    model_snapshot_dir = resolve_model_snapshot_dir(downloaded_files)
     if not model_snapshot_dir:
         print("Error: could not determine model snapshot directory.")
         return 1

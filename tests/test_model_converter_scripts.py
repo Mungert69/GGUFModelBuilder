@@ -1,5 +1,6 @@
 import ast
 import json
+import importlib.util
 import os
 import py_compile
 import shutil
@@ -481,6 +482,27 @@ class TestModelConverterScripts(unittest.TestCase):
                     output.lower(),
                     msg=f"{script_name} output did not contain expected text '{expected_text}'.\nOutput:\n{output}",
                 )
+
+    def test_download_convert_snapshot_dir_uses_common_root(self):
+        script_path = SCRIPT_DIR / "download_convert.py"
+        spec = importlib.util.spec_from_file_location("download_convert_test_module", script_path)
+        module = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(self.stub_dir))
+        try:
+            assert spec and spec.loader
+            spec.loader.exec_module(module)
+        finally:
+            sys.path.pop(0)
+
+        downloaded_files = [
+            "/home/mahadeva/.cache/huggingface/hub/models--google--gemma-4-31B-it/snapshots/abc123/.eval_results/mmmu_pro.yaml",
+            "/home/mahadeva/.cache/huggingface/hub/models--google--gemma-4-31B-it/snapshots/abc123/model.safetensors",
+        ]
+
+        self.assertEqual(
+            module.resolve_model_snapshot_dir(downloaded_files),
+            "/home/mahadeva/.cache/huggingface/hub/models--google--gemma-4-31B-it/snapshots/abc123",
+        )
 
 
 if __name__ == "__main__":
