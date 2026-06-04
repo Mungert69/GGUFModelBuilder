@@ -1,6 +1,7 @@
 [
     {"name": "f16_q8_0", "type": "Q8_0", "embed_type": "F16", "output_type": "F16", "use_imatrix": false, "use_pure": false},
     {"name": "bf16_q8_0", "type": "Q8_0", "embed_type": "BF16", "output_type": "BF16", "use_imatrix": false, "use_pure": false},
+    {"name": "q1_0", "type": "Q1_0", "embed_type": null, "output_type": null, "use_imatrix": true, "use_pure": false},
     {"name": "q2_k_m", "type": "Q2_K", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "q2_k_s", "type": "Q2_K_S", "embed_type": "Q4_K", "output_type": "Q4_K", "use_imatrix": true, "use_pure": false},
     {"name": "q3_k_m", "type": "Q3_K", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
@@ -10,6 +11,7 @@
     {"name": "q6_k_m", "type": "Q6_K", "embed_type": "Q8_0", "output_type": "Q8_0", "use_imatrix": true, "use_pure": false},
     {"name": "q4_k_s", "type": "Q4_K_S", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q8_0", "type": "Q8_0", "embed_type": "Q8_0", "output_type": "Q8_0", "use_imatrix": false, "use_pure": true},
+    {"name": "mxfp4_moe", "type": "MXFP4_MOE", "embed_type": null, "output_type": null, "use_imatrix": false, "use_pure": false},
     {"name": "q4_0", "type": "Q4_0", "embed_type": "Q8_0", "output_type": "Q8_0", "use_imatrix": true, "use_pure": true},
     {"name": "q4_1", "type": "Q4_1", "embed_type": "Q5_0", "output_type": "Q5_0", "use_imatrix": true, "use_pure": true},
     {"name": "q5_0", "type": "Q5_0", "embed_type": "Q8_0", "output_type": "Q8_0", "use_imatrix": true, "use_pure": true},
@@ -26,4 +28,3 @@
     {"name": "iq4_xs", "type": "IQ4_XS", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq4_nl", "type": "IQ4_NL", "embed_type": "IQ4_NL", "output_type": "IQ4_NL", "use_imatrix": true, "use_pure": false}
 ]
-

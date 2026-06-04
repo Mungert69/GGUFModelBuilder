@@ -19,6 +19,23 @@ iq_ladder = [
     "IQ4_XS",
 ]
 
+k1_ladder = [
+    "Q1_0",
+    "IQ1_S",
+    "IQ1_M",
+    "IQ2_XXS",
+    "IQ2_XS",
+    "IQ2_S",
+    "IQ3_XXS",
+    "IQ3_S",
+    "IQ4_NL",
+    "IQ4_XS",
+    "Q4_K_M",
+    "Q5_K_M",
+    "Q6_K",
+    "Q8_0",
+]
+
 k_ladder = [
     "Q2_K",
     "Q3_K",
@@ -155,13 +172,25 @@ def determine_quant_tier(base_quant: str,
 
     normalized_target = quant_substitutions.get(target_type, target_type)
 
-    family_ladder = iq_ladder if normalized_target.startswith("IQ") else k_ladder
-    ladder_name = "iq" if normalized_target.startswith("IQ") else "k"
+    if normalized_target == "Q1_0":
+        family_ladder = k1_ladder
+        ladder_name = "q1"
+    elif normalized_target.startswith("IQ"):
+        family_ladder = iq_ladder
+        ladder_name = "iq"
+    else:
+        family_ladder = k_ladder
+        ladder_name = "k"
 
     try:
         target_idx = family_ladder.index(normalized_target)
     except ValueError:
-        fallback = "IQ2_S" if ladder_name == "iq" else "Q4_K"
+        if ladder_name == "q1":
+            fallback = "Q1_0"
+        elif ladder_name == "iq":
+            fallback = "IQ2_S"
+        else:
+            fallback = "Q4_K"
         target_idx = family_ladder.index(fallback)
         normalized_target = fallback
     
@@ -238,6 +267,16 @@ def determine_quant_tier(base_quant: str,
         full_reason += f" ({bump_reason.strip()})"
     
     return bumped_type, full_reason, True
+
+def uses_native_llama_tensor_mixing(target_type: str) -> bool:
+    """
+    Return True for main quant types that llama-quantize already handles with
+    its own tensor-level mixing logic.
+
+    These types should not receive extra --tensor-type overrides from this
+    helper, because that would fight the native llama.cpp selection rules.
+    """
+    return target_type == "MXFP4_MOE"
 
 def apply_precision_override_rule(
     tensor_name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
@@ -326,6 +365,11 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
     
     # Get current quantization types and max layer order
     current_quants, max_layer_order = get_current_quant_types(gguf_file)
+
+    # Native llama-quantize mixing types manage tensor selection internally.
+    # We must not emit extra --tensor-type overrides for them.
+    if uses_native_llama_tensor_mixing(target_type):
+        return ""
     
     # Track suggestions
     quant_suggestions = []

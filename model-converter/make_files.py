@@ -132,6 +132,7 @@ for config in QUANT_CONFIGS:
 
 QUANT_BIT_LEVELS = {
     # Effective bits-per-weight approximations for filtering/ordering
+    "Q1_0": 1.125,
     "IQ1_S": 1.6, "IQ1_M": 1.75,
     "IQ2_XXS": 2.1, "IQ2_XS": 2.3, "IQ2_S": 2.6, "IQ2_M": 2.6,
     "Q2_K": 2.6, "Q2_K_S": 2.6, "Q2_K_M": 2.6,
@@ -139,6 +140,7 @@ QUANT_BIT_LEVELS = {
     "Q3_K": 3.3, "Q3_K_S": 3.3, "Q3_K_M": 3.3,
     "IQ4_NL": 3.8, "IQ4_XS": 4.5,
     "Q4_K": 4.5, "Q4_K_S": 4.5, "Q4_K_M": 4.5, "Q4_0": 4.0, "Q4_1": 4.0,
+    "MXFP4_MOE": 4.0,
     "Q5_K": 5.5, "Q5_K_S": 5.5, "Q5_K_M": 5.5, "Q5_0": 5.0, "Q5_1": 5.0,
     "Q6_K": 6.6, "Q8_0": 8.0, "F16": 16.0, "BF16": 16.0
 }
@@ -395,6 +397,7 @@ def filter_quant_configs(base_name, configs, model_id=None):
     entry = None
     if model_id:
         entry = catalog.get_model(model_id)
+    is_moe_model = bool(entry.get("is_moe", False)) if entry else False
 
     if not model_size and entry:
         try:
@@ -445,7 +448,11 @@ def filter_quant_configs(base_name, configs, model_id=None):
         quant_type = config[1]
         bits = QUANT_BIT_LEVELS.get(quant_type, 16)
 
-        if bits >= min_bits and (not quant_type.startswith("TQ") or "TriLM" in base_name):
+        if (
+            bits >= min_bits
+            and (not quant_type.startswith("TQ") or "TriLM" in base_name)
+            and (quant_type != "MXFP4_MOE" or is_moe_model)
+        ):
             filtered.append(config)
         else:
             print(f"⚠ Skipping {quant_type} ({bits}bit) for {base_name} "

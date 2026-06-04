@@ -1,4 +1,5 @@
 [
+    {"name": "q1_0", "type": "Q1_0", "embed_type": null, "output_type": null, "use_imatrix": true, "use_pure": false},
     {"name": "q2_k_m", "type": "Q2_K_M", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q2_k_s", "type": "Q2_K_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "q3_k_m", "type": "Q3_K_M", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
@@ -7,6 +8,7 @@
     {"name": "q4_k_s", "type": "Q4_K_S", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q5_k_m", "type": "Q5_K_M", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
     {"name": "q5_k_s", "type": "Q5_K_S", "embed_type": "Q6_K", "output_type": "Q6_K", "use_imatrix": true, "use_pure": false},
+    {"name": "mxfp4_moe", "type": "MXFP4_MOE", "embed_type": null, "output_type": null, "use_imatrix": false, "use_pure": false},
     {"name": "iq1_s", "type": "IQ1_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq1_m", "type": "IQ1_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq2_xs", "type": "IQ2_XS", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
@@ -18,4 +20,3 @@
     {"name": "iq3_s", "type": "IQ3_S", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false},
     {"name": "iq3_m", "type": "IQ3_M", "embed_type": "Q5_K", "output_type": "Q5_K", "use_imatrix": true, "use_pure": false}
 ]
-
