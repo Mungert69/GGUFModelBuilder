@@ -11,10 +11,12 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # ---- requirements (no stdlib modules here) ----
+# Gemma 4 requires Transformers 5.5.0+. Keep this pinned so fresh venvs do not
+# resolve to the older 4.x series that crashes on the current tokenizer format.
 common_requirements = [
     "flask",
     "flask-cors",
-    "transformers",
+    "transformers>=5.5.4",
     "librosa",
     "numpy",
     "soundfile",
@@ -154,4 +156,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

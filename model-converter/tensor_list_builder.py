@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 import json
 import sys
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -79,6 +80,8 @@ quant_substitutions = {
     "Q6_K_M": "Q6_K",
 }
 
+GGUF_TENSOR_INFO_TIMEOUT = int(os.getenv("GGUF_TENSOR_INFO_TIMEOUT", "300"))
+
 def extract_layer_order(name: str) -> int:
     """
     Extract layer order from tensor name
@@ -104,7 +107,7 @@ def get_current_quant_types(gguf_file: str) -> tuple:
             str(Path(gguf_file).expanduser().resolve()),  # Handle ~ paths
             "-o", str(output_file)],
             check=True,
-            timeout=30
+            timeout=GGUF_TENSOR_INFO_TIMEOUT
         )
         
         # Read from explicit path
