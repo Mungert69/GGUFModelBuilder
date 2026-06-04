@@ -38,7 +38,7 @@ def apply_patch():
 
         try:
             print("Attempting git apply from src directory...")
-            run_command(["git", "apply", "--ignore-space-change", patch_file])
+            #run_command(["git", "apply", "--ignore-space-change", patch_file])
             #run_command(["git", "apply", "--ignore-space-change", patch_file2]) 
             print("Applied patches")
             return True
