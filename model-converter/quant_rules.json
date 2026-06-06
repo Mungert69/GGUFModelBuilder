@@ -8,7 +8,7 @@
         },
         {
             "base_type": ["Q1_0","IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
+            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
             "bump": 1,
             "bump_experts": 2
         },
@@ -46,7 +46,7 @@
         },
         {
             "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*ffn_gate_inp","*ssm_out","*ssm_in"],
+            "layer_name": ["*ffn_down","*attn_output","*ffn_gate_inp","*ssm_out","*ssm_in"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -92,7 +92,7 @@
         },
         {
             "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_qkv"],
+            "layer_name": ["*attn_v","*ffn_down","*attn_qkv"],
             "bump": 0,
             "bump_experts": 1
         },
