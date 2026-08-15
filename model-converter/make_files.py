@@ -477,44 +477,64 @@ def build_imatrix_urls(company_name, model_name):
         f"{IMATRIX_BASE_URL}{model_name_2}-GGUF/resolve/main/{model_name_2}-imatrix.gguf"
     ]
 
-def download_imatrix(input_dir, company_name, model_name):
+def download_imatrix(input_dir, company_name, model_name, force_new=False):
     """Download or generate the imatrix file and upload it to Hugging Face Hub."""
     parent_dir = os.path.abspath(os.path.join(input_dir, os.pardir))  # This properly gets parent
     imatrix_dir = os.path.join(parent_dir, "imatrix-files")
     imatrix_file_copy = os.path.join(imatrix_dir, f"{model_name}-imatrix.gguf")
     imatrix_file = os.path.join(input_dir, f"{model_name}-imatrix.gguf")
+
+    def usable_imatrix(path):
+        """Reject empty files left behind by an interrupted download/generation."""
+        return os.path.isfile(path) and os.path.getsize(path) > 0
     
-    if os.path.exists(imatrix_file_copy):
+    if not force_new and usable_imatrix(imatrix_file_copy):
         print(f"Found existing imatrix file in 'imatrix-files' directory: {imatrix_file_copy}")
         shutil.copy(imatrix_file_copy, imatrix_file)
         print(f"Copied imatrix file to model's folder: {imatrix_file}")
         return imatrix_file
     
-    if not os.path.exists(imatrix_file):
-        print(f"{imatrix_file} not found. Attempting to download...")
-        urls = build_imatrix_urls(company_name, model_name)
+    if force_new or not usable_imatrix(imatrix_file):
+        if force_new:
+            print(f"Forcing local generation of a new imatrix: {imatrix_file}")
+            urls = []
+        else:
+            print(f"{imatrix_file} not found. Attempting to download...")
+            urls = build_imatrix_urls(company_name, model_name)
         downloaded = False
+        download_tmp = f"{imatrix_file}.download"
         for url in urls:
             try:
                 print(f"Trying: {url}")
-                urllib.request.urlretrieve(url, imatrix_file)
+                if os.path.exists(download_tmp):
+                    os.remove(download_tmp)
+                urllib.request.urlretrieve(url, download_tmp)
+                if not usable_imatrix(download_tmp):
+                    raise RuntimeError("downloaded imatrix is empty")
+                os.replace(download_tmp, imatrix_file)
                 print(f"Successfully downloaded imatrix from {url}")
                 downloaded = True
                 break
             except Exception as e:
                 print(f"Failed to download from {url}: {e}")
+                if os.path.exists(download_tmp):
+                    os.remove(download_tmp)
 
         if not downloaded:
-            print("All download attempts failed. Generating imatrix locally...")
+            if not force_new:
+                print("All download attempts failed. Generating imatrix locally...")
             bf16_model_path = os.path.join(input_dir, f"{model_name}-bf16.gguf")
             if not os.path.exists(bf16_model_path):
                 raise FileNotFoundError(f"Cannot generate imatrix: {bf16_model_path} not found")
             imatrix_train_set = f"{run_dir}/imatrix-train-set"
+            generate_tmp = f"{imatrix_file}.generate"
+            if os.path.exists(generate_tmp):
+                os.remove(generate_tmp)
             command = [
                 f"{base_dir}/llama.cpp/llama-imatrix",
                 "-m", bf16_model_path,
                 "-f", imatrix_train_set,
-                "-o", imatrix_file,
+                "-o", generate_tmp,
                 "--threads", str(threads)
             ]
             print("Running:", " ".join(command))
@@ -522,8 +542,13 @@ def download_imatrix(input_dir, company_name, model_name):
             if result.returncode != 0:
                 print("Error generating imatrix:")
                 print(result.stderr)
+                if os.path.exists(generate_tmp):
+                    os.remove(generate_tmp)
                 raise RuntimeError("Failed to generate imatrix file")
             else:
+                if not usable_imatrix(generate_tmp):
+                    raise RuntimeError("Generated imatrix file is empty or missing")
+                os.replace(generate_tmp, imatrix_file)
                 print("Successfully generated imatrix file")
                 os.makedirs(imatrix_dir, exist_ok=True)
                 shutil.copy(imatrix_file, imatrix_file_copy)
@@ -628,16 +653,21 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         pass
     return False
 
-def quantize_model(input_model, company_name, base_name, allow_requantize=False, is_moe=False, resume_quant=None):
+def quantize_model(input_model, company_name, base_name, allow_requantize=False, is_moe=False, resume_quant=None, force_new_imatrix=False):
     """Quantize the model and upload files following HF standards, with progress tracking."""
     # Setup paths and directories
     input_dir = os.path.dirname(input_model)
     output_dir = input_dir
     bf16_model_file = os.path.join(input_dir, f"{base_name}-bf16.gguf")
-    if company_name is not None and base_name is not None:
+    # On a resumed conversion, retain the last completed quant while ensuring the
+    # imatrix exists. Otherwise a stop during imatrix recovery would replace useful
+    # resume state with the sentinel value "imatrix".
+    if company_name is not None and base_name is not None and not resume_quant:
         catalog.set_quant_progress(f"{company_name}/{base_name}", "imatrix")
 
-    imatrix_file = download_imatrix(input_dir, company_name, base_name)
+    imatrix_file = download_imatrix(
+        input_dir, company_name, base_name, force_new=force_new_imatrix
+    )
     repo_id = f"{HF_USERNAME}/{base_name}-GGUF"
 
     # Validate BF16 model exists
@@ -793,6 +823,7 @@ def main():
     parser.add_argument("--allow-requantize", action="store_true", help="Allow requantization of already quantized models")
     parser.add_argument("--is_moe", action="store_true", help="The model is a MOE model")
     parser.add_argument("--resume_quant", type=str, default=None, help="Resume quantization from this quant name (inclusive)")
+    parser.add_argument("--force-new-imatrix", action="store_true", help="Generate a new imatrix locally instead of using a cached or downloaded one")
     parser.add_argument("--threads", type=int, default=None, help="Number of threads to use (default: half of CPU cores)")
 
     args = parser.parse_args()
@@ -816,7 +847,8 @@ def main():
         model_name,
         allow_requantize,
         args.is_moe,
-        args.resume_quant
+        args.resume_quant,
+        args.force_new_imatrix
     )
 
 if __name__ == "__main__":

@@ -738,7 +738,7 @@ class ModelConverter:
                 except Exception as e:
                     print(f"❌ Failed to clear cache for {model_id}: {e}")
 
-    def convert_model(self, model_id, is_moe, daemon_mode=False, nocheck=False, mxfp4=False):
+    def convert_model(self, model_id, is_moe, daemon_mode=False, nocheck=False, mxfp4=False, force_new_imatrix=False):
         """
         Run the conversion pipeline for a given model using the run_script function.
 
@@ -748,6 +748,7 @@ class ModelConverter:
             daemon_mode (bool): If True, exit the process if disk space is insufficient after cleanup.
             nocheck (bool): If True, bypass running/max attempts/disk space checks.
             mxfp4 (bool): If True, convert to MXFP4 GGUF instead of BF16.
+            force_new_imatrix (bool): Generate a fresh local imatrix instead of downloading or reusing one.
         """
         print(f"Begin convert_model for {model_id}. nocheck={nocheck}, mxfp4={mxfp4}")
         success = False  # Ensure success is always defined
@@ -853,6 +854,8 @@ class ModelConverter:
                 make_files_args = [model_id, "--is_moe"] if is_moe else [model_id]
                 if quant_progress:
                     make_files_args += ["--resume_quant", quant_progress]
+                if force_new_imatrix:
+                    make_files_args.append("--force-new-imatrix")
                 if not self.run_script("make_files.py", make_files_args):
                     print("Script make_files.py failed.")
                     success = False
@@ -904,7 +907,7 @@ class ModelConverter:
                 else:
                     print(f"[DEBUG] Not unmarking converting for {model_id} because quant_progress is set: {quant_progress}")
 
-    def run_conversion_cycle(self, daemon_mode=False):
+    def run_conversion_cycle(self, daemon_mode=False, force_new_imatrix=False):
         """
         Process all unconverted models in batch, updating the catalog and converting models as needed.
         Args:
@@ -971,7 +974,12 @@ class ModelConverter:
                 is_moe = entry.get("is_moe", False) 
                 try:
                     print(f"[run_conversion_cycle] Starting conversion for {model_id} (is_moe={is_moe})")
-                    self.convert_model(model_id, is_moe, daemon_mode=daemon_mode)
+                    self.convert_model(
+                        model_id,
+                        is_moe,
+                        daemon_mode=daemon_mode,
+                        force_new_imatrix=force_new_imatrix,
+                    )
                     print(f"[run_conversion_cycle] Finished conversion for {model_id}")
                 except Exception as e:
                     print(f"⚠ [run_conversion_cycle] Error converting {model_id}: {e}")
@@ -979,13 +987,15 @@ class ModelConverter:
         except Exception as e:
             print(f"[run_conversion_cycle] Error during conversion cycle: {e}")
 
-    def start_daemon(self):
+    def start_daemon(self, force_new_imatrix=False):
         """
         Run the conversion process continuously with 15 minute intervals between cycles.
         """
         while True:
             print("Starting conversion cycle...")
-            self.run_conversion_cycle(daemon_mode=True)
+            self.run_conversion_cycle(
+                daemon_mode=True, force_new_imatrix=force_new_imatrix
+            )
             print("Cycle complete. Sleeping for 1 hour...")
             time.sleep(3600)
 
@@ -1002,6 +1012,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_parameters", type=float, default=None, help="Maximum number of parameters to process (default: 33e9)")
     parser.add_argument("--nocheck", action="store_true", help="Bypass model running/max attempts/disk space checks")
     parser.add_argument("--mxfp4", action="store_true", help="Convert to MXFP4 GGUF instead of BF16")
+    parser.add_argument("--force-new-imatrix", action="store_true", help="Generate a new imatrix locally instead of using a cached or downloaded one")
     args = parser.parse_args()
 
     converter = ModelConverter()
@@ -1009,7 +1020,7 @@ if __name__ == "__main__":
         converter.MAX_PARAMETERS = args.max_parameters
 
     if args.daemon:
-        converter.start_daemon()
+        converter.start_daemon(force_new_imatrix=args.force_new_imatrix)
     elif args.single:
         model_id = args.single
         entry = converter.model_catalog.get_model(model_id)
@@ -1018,4 +1029,10 @@ if __name__ == "__main__":
         else:
             # Fallback: check config for MoE if not found in catalog
             is_moe = converter.check_moe_from_config(model_id)
-        converter.convert_model(model_id, is_moe, nocheck=args.nocheck, mxfp4=args.mxfp4)
+        converter.convert_model(
+            model_id,
+            is_moe,
+            nocheck=args.nocheck,
+            mxfp4=args.mxfp4,
+            force_new_imatrix=args.force_new_imatrix,
+        )
