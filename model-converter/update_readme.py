@@ -74,7 +74,7 @@ The full Open Source Code for the Quantum Network Monitor Service available at m
 
 💬 **How to test**:  
  Choose an **AI assistant type**:  
-   - `TurboLLM` (GPT-4.1-mini)  
+   - `TurboLLM` (gpt-5.6-luna)  
    - `HugLLM` (Hugginface Open-source models)  
    - `TestLLM` (Experimental CPU-only)  
 
