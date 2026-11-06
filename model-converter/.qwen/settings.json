@@ -1,9 +1,0 @@
-{
-  "memory": {
-    "enableManagedAutoMemory": false,
-    "enableManagedAutoDream": false,
-    "enableAutoSkill": false,
-    "autoSkillConfirm": false
-  },
-  "$version": 4
-}
