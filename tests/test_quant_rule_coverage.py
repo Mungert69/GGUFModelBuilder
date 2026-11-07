@@ -126,6 +126,32 @@ class QuantRuleCoverageTests(unittest.TestCase):
     def test_native_mxfp4_policy_remains_delegated(self):
         self.assertTrue(self.policy['uses_native_llama_tensor_mixing']('MXFP4_MOE'))
 
+    def test_native_precision_is_a_floor_for_protective_bumps(self):
+        namespace = load_policy()
+        namespace['get_current_quant_types'] = lambda _: ({
+            'blk.0.ffn_down': 'BF16', 'blk.0.ffn_up': 'BF16',
+            'blk.4.ffn_down': 'BF16', 'blk.0.attn_gate': 'BF16',
+            'blk.0.ssm_beta_alpha': 'BF16',
+        }, 23)
+        native = {'blk.0.ffn_down.weight': 'q6_K', 'blk.0.ffn_up.weight': 'q4_K',
+                  'blk.4.ffn_down.weight': 'q6_K', 'blk.0.attn_gate.weight': 'q4_K',
+                  'blk.0.ssm_beta_alpha.weight': 'f16'}
+        args = shlex.split(namespace['process_quantization'](
+            'unused', str(SCRIPTS / 'quant_rules.json'), 'Q4_K', native_types=native))
+        patterns = [args[i + 1].rsplit('=', 1) for i in range(0, len(args), 2)]
+        def selected(name):
+            return [kind for pattern, kind in patterns if re.search(pattern, name + '.weight')]
+        self.assertEqual(selected('blk.0.ffn_down'), [])  # Native Q6_K survives.
+        self.assertEqual(selected('blk.4.ffn_down'), [])
+        self.assertEqual(selected('blk.0.ffn_up'), ['Q5_K'])  # Actual uplift retained.
+        self.assertEqual(selected('blk.0.attn_gate'), ['Q8_0'])
+        self.assertEqual(selected('blk.0.ssm_beta_alpha'), ['F32'])
+        exceeds = namespace['protective_bump_exceeds_native']
+        self.assertFalse(exceeds('Q5_K', 'Q6_K'))
+        self.assertFalse(exceeds('Q5_K', 'unknown_future_type'))
+        self.assertFalse(exceeds('IQ4_NL', 'Q4_K'))
+        self.assertTrue(exceeds('Q6_K', 'IQ4_XS'))
+
 
 if __name__ == '__main__':
     unittest.main()

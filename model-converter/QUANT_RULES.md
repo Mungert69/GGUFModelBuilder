@@ -5,6 +5,22 @@ not the original Hugging Face module names. Rules select precision; llama.cpp
 still decides whether a tensor is eligible and whether its shape supports it.
 Generated tensor expressions are escaped and anchored to avoid prefix matches.
 
+## Native precision floor
+
+For mixed presets, the converter first runs the selected llama-quantize binary
+with `--dry-run`, using the same preset, importance matrix, and embedding/output
+settings. Protective ladder bumps are emitted only when their storage precision
+exceeds the native choice. For example, an edge-layer Q5_K suggestion no longer
+replaces a native Q6_K FFN down projection. Equal-width and unknown native formats
+retain the native choice; bit width is a conservative ordering, not an accuracy
+measurement. Explicit `force_type` and F16/BF16/F32 overrides remain authoritative.
+
+Pure presets have no native mixing to preserve and skip this step. NVFP4 and
+MXFP4_MOE retain their existing paths. A failed or unreadable native dry run stops
+the mixed conversion rather than silently applying potentially lower precision.
+This requires a llama-quantize build with `--dry-run` support. The values below
+describe rule suggestions; final mixed-preset choices can be higher.
+
 ## NVFP4 selection
 
 NVFP4 selects standard attention `attn_q`, `attn_k`, `attn_v`, `attn_qkv`,

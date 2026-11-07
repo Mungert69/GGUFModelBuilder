@@ -159,6 +159,19 @@ def get_standard_chunk_name(base_name, quant_type, part_num, total_parts):
     return f"{clean_base}-{quant_type}-{part_num:05d}-of-{total_parts:05d}.gguf"
 
 
+def llama_cpp_env(binary):
+    """Load shared libraries beside the selected tool before system copies."""
+    env = os.environ.copy()
+    if sys.platform.startswith("linux"):
+        resolved = shutil.which(str(binary)) or str(binary)
+        library_dir = str(Path(resolved).resolve().parent)
+        existing = env.get("LD_LIBRARY_PATH")
+        env["LD_LIBRARY_PATH"] = (
+            os.pathsep.join([library_dir, existing]) if existing else library_dir
+        )
+    return env
+
+
 def _find_gguf_split_binary():
     """Locate llama-gguf-split binary, preferring explicit override."""
     # Explicit override for custom installs.
@@ -295,6 +308,7 @@ def split_file_standard(file_path, quant_type, chunk_size=45*1024**3):
                 check=True,
                 capture_output=True,
                 text=True,
+                env=llama_cpp_env(cmd[0]),
             )
         except subprocess.CalledProcessError as e:
             stderr = (e.stderr or "").strip()
@@ -538,7 +552,9 @@ def download_imatrix(input_dir, company_name, model_name, force_new=False):
                 "--threads", str(threads)
             ]
             print("Running:", " ".join(command))
-            result = subprocess.run(command, capture_output=True, text=True)
+            result = subprocess.run(
+                command, capture_output=True, text=True, env=llama_cpp_env(command[0])
+            )
             if result.returncode != 0:
                 print("Error generating imatrix:")
                 print(result.stderr)
@@ -601,15 +617,39 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
         if t_type and e_type:
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
-        command.extend(shlex.split(tensor_args)) 
         # NVFP4 is a ggml tensor type, not a llama file-type preset.
         # Q8_0 supplies the base file type; explicit overrides select NVFP4.
         cli_quant_type = "Q8_0" if quant_type == "NVFP4" else quant_type
+        effective_tensor_args = tensor_args
+        if tensor_args and not use_pure and quant_type not in {"NVFP4", "MXFP4_MOE", "F16", "BF16", "F32"}:
+            # Ask this exact binary for native choices, with the same imatrix,
+            # embedding/output flags and preset. Never duplicate its heuristics.
+            dry_command = command + ["--dry-run", model_path, temp_output, cli_quant_type, str(threads)]
+            plan = subprocess.run(dry_command, capture_output=True, text=False,
+                                  env=llama_cpp_env(command[0]))
+            if plan.returncode != 0:
+                return plan
+            plan_text = (plan.stdout or b'') + b'\n' + (plan.stderr or b'')
+            native_types = {}
+            for line in plan_text.decode('utf-8', errors='replace').splitlines():
+                match = re.match(r'^\[\s*\d+/\s*\d+\]\s+(\S+)\s+-.*type\s*=\s*(\w+),\s*size\s*=', line)
+                if match:
+                    selected = re.search(r'->.*\((\w+)\)\s*$', line)
+                    native_types[match[1]] = selected[1] if selected else match[2]
+            if not native_types:
+                raise RuntimeError('Cannot read native quantization dry-run plan; refusing unsafe precision overrides')
+            effective_tensor_args = process_quantization(
+                gguf_file=model_path, quant_rules_file=quant_rules_path,
+                target_type=quant_type, is_moe=is_moe,
+                precision_override=precision_override, native_types=native_types)
+        command.extend(shlex.split(effective_tensor_args))
         command.extend([model_path, temp_output, cli_quant_type])
         command.append(str(threads))
         print(f"Running command {command}")
 
-        result = subprocess.run(command, capture_output=True, text=False)
+        result = subprocess.run(
+            command, capture_output=True, text=False, env=llama_cpp_env(command[0])
+        )
         if result.stdout:
             try:
                 print("Output:", result.stdout.decode("utf-8"))

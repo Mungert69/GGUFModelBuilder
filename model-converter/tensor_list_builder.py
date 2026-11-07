@@ -372,7 +372,27 @@ def apply_precision_override_rule(
         )
     return suggested_quant, reason, bump_applied
 
-def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False, precision_override: str = None):
+def protective_bump_exceeds_native(suggested: str, native: str) -> bool:
+    """Compare storage precision conservatively; unknown native formats win.
+
+    This is a precision floor, not a claim about relative model accuracy.
+    Equal-width native choices are retained as well.
+    """
+    bits = {
+        'Q1_0': 1.125, 'IQ1_S': 1.5625, 'IQ1_M': 1.75,
+        'IQ2_XXS': 2.0625, 'IQ2_XS': 2.3125, 'IQ2_S': 2.5625,
+        'Q2_K': 2.625, 'IQ3_XXS': 3.0625, 'Q3_K': 3.4375,
+        'IQ3_S': 3.4375, 'IQ4_XS': 4.25, 'IQ4_NL': 4.5,
+        'Q4_0': 4.5, 'Q4_1': 5, 'Q4_K': 4.5,
+        'Q5_0': 5.5, 'Q5_1': 6, 'Q5_K': 5.5,
+        'Q6_K': 6.5625, 'Q8_0': 8.5, 'Q8_1': 9,
+        'F16': 16, 'BF16': 16, 'F32': 32,
+    }
+    suggested, native = suggested.upper(), native.upper()
+    return suggested in bits and native in bits and bits[suggested] > bits[native]
+
+
+def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str, is_moe: bool = False, precision_override: str = None, native_types: dict = None):
     """
     Process quantization for a model based on JSON rules
     
@@ -422,6 +442,14 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
             layer_order=normalized_layer_order,
             quant_rules=quant_rules
         )
+        # A protective bump must never replace a higher native mixed type.
+        # Do this before explicit precision overrides, which remain authoritative.
+        if native_types is not None and bump_applied and reason.startswith('Bumped from '):
+            native = native_types.get(name + '.weight', native_types.get(name))
+            if native is None:
+                raise ValueError(f'Native quantization plan missing tensor: {name}')
+            if not protective_bump_exceeds_native(suggested_quant, native):
+                suggested_quant, reason, bump_applied = native, 'Preserving native precision floor', False
         # Apply override_types rules if precision_override is set
         suggested_quant, reason, bump_applied = apply_precision_override_rule(
             name, suggested_quant, reason, bump_applied, quant_rules, precision_override,
