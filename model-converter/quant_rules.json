@@ -1,32 +1,42 @@
 {
     "rules": [
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
+            "base_type": ["NVFP4"],
+            "layer_name": ["*attn_q", "*attn_k", "*attn_v", "*attn_qkv", "*attn_output", "*ffn_up", "*ffn_gate", "*ffn_down", "*ffn_up_exps", "*ffn_gate_exps", "*ffn_down_exps", "*ffn_up_shexp", "*ffn_gate_shexp", "*ffn_down_shexp", "*ffn_gate_up_exps", "*ffn_up_chexps", "*ffn_gate_chexps", "*ffn_down_chexps"],
+            "force_type": "NVFP4"
+        },
+        {
+            "base_type": ["IQ1_M", "IQ1_S", "IQ2_M", "IQ2_S", "IQ2_XS", "IQ2_XXS", "IQ3_M", "IQ3_S", "IQ3_XS", "IQ3_XXS", "IQ4_NL", "IQ4_XS", "NVFP4", "Q1_0", "Q2_K", "Q2_K_M", "Q2_K_S", "Q3_K", "Q3_K_M", "Q3_K_S", "Q4_0", "Q4_1", "Q4_K", "Q4_K_M", "Q4_K_S", "Q5_0", "Q5_1", "Q5_K", "Q5_K_M", "Q5_K_S", "Q6_K", "Q6_K_M", "Q6_K_S", "Q8_0", "TQ1_0", "TQ2_0"],
+            "layer_name": ["*ssm_x", "*ssm_dt", "*ssm_f_a", "*ssm_f_b", "*ssm_g_a", "*ssm_g_b", "*attn_gate", "*time_mix_receptance", "*time_mix_gate", "*channel_mix_receptance", "*ffn_gate_inp_shexp"],
+            "force_type": "Q8_0"
+        },
+        {
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M"],
+            "layer_name": ["*attn_k", "*attn_k_b", "*attn_q", "*attn_q_a", "*attn_q_b", "*time_mix_key"],
             "bump": 1,
             "bump_experts": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M"],
+            "layer_name": ["*attn_v", "*attn_v_b", "*attn_kv_a_mqa", "*ffn_down", "*attn_output", "*attn_qkv", "*ffn_gate_inp", "*ssm_out", "*ssm_in", "*time_mix_value", "*channel_mix_value", "*time_mix_output", "*attn_qkv_gate", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 1,
             "bump_experts": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M"],
-            "layer_name": ["*ffn_down_exps"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M"],
+            "layer_name": ["*ffn_down_exps", "*ffn_down_chexps"],
             "bump": 0,
             "bump_experts": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M"],
-            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M"],
+            "layer_name": ["*ffn_down_shexp", "*ffn_gate_shexp", "*ffn_up_shexp"],
             "bump": 0,
             "bump_experts": 1
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*attn_k", "*attn_k_b", "*attn_q", "*attn_q_a", "*attn_q_b", "*time_mix_key"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -35,8 +45,8 @@
             "bump_order_experts_val": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*attn_qkv"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*attn_v", "*attn_v_b", "*attn_kv_a_mqa", "*attn_qkv", "*time_mix_value", "*attn_qkv_gate"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -45,8 +55,8 @@
             "bump_order_experts_val": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down","*attn_output","*ffn_gate_inp","*ssm_out","*ssm_in"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*ffn_down", "*attn_output", "*ffn_gate_inp", "*ssm_out", "*ssm_in", "*channel_mix_value", "*time_mix_output", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -55,8 +65,8 @@
             "bump_order_experts_val": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*attn_output","*ssm_out","*ssm_in"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*attn_output", "*ssm_out", "*ssm_in", "*time_mix_output", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 0,
@@ -65,8 +75,8 @@
             "bump_order_experts_val": 3
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down_exps","*ffn_gate_exps","*ffn_up_exps"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*ffn_down_exps", "*ffn_gate_exps", "*ffn_up_exps", "*ffn_down_chexps", "*ffn_gate_up_exps", "*ffn_gate_chexps", "*ffn_up_chexps"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -75,8 +85,8 @@
             "bump_order_experts_val": 2
         },
         {
-            "base_type": ["Q1_0","IQ1_S","IQ1_M","IQ2_XXS","IQ2_XS","IQ2_S","IQ2_M"],
-            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
+            "base_type": ["Q1_0", "IQ1_S", "IQ1_M", "IQ2_XXS", "IQ2_XS", "IQ2_S", "IQ2_M"],
+            "layer_name": ["*ffn_down_shexp", "*ffn_gate_shexp", "*ffn_up_shexp"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 2,
@@ -85,38 +95,38 @@
             "bump_order_experts_val": 2
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_k","*attn_q"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*attn_k", "*attn_q", "*time_mix_key"],
             "bump": 0,
             "bump_experts": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*attn_qkv"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*attn_v", "*ffn_down", "*attn_qkv", "*time_mix_value", "*channel_mix_value", "*attn_qkv_gate"],
             "bump": 0,
             "bump_experts": 1
         },
         {
-            "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M"],
-            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_qkv"],
+            "base_type": ["Q2_K_S", "Q2_K", "Q2_K_M", "Q3_K", "Q3_K_S", "Q3_K_M"],
+            "layer_name": ["*attn_v", "*ffn_down", "*ffn_latent_down", "*ffn_latent_up", "*attn_qkv", "*time_mix_value", "*channel_mix_value", "*attn_qkv_gate"],
             "bump": 1,
             "bump_experts": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*ffn_down_exps","*ffn_down_shexp","*ssm_out","*ssm_in"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*ffn_down_exps", "*ffn_down_shexp", "*ssm_out", "*ssm_in", "*ffn_down_chexps", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 0,
             "bump_experts": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*ffn_gate_shexp","*ffn_up_shexp"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*ffn_gate_shexp", "*ffn_up_shexp"],
             "bump": 0,
             "bump_experts": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*attn_v", "*ffn_down", "*ffn_latent_down", "*ffn_latent_up", "*attn_output", "*attn_qkv", "*time_mix_value", "*channel_mix_value", "*time_mix_output", "*attn_qkv_gate"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -125,8 +135,8 @@
             "bump_order_experts_val": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*ffn_down_exps","*ffn_gate_exps","*ffn_up_exps"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*ffn_down_exps", "*ffn_gate_exps", "*ffn_up_exps", "*ffn_down_chexps", "*ffn_gate_up_exps", "*ffn_gate_chexps", "*ffn_up_chexps"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -135,8 +145,8 @@
             "bump_order_experts_val": 1
         },
         {
-            "base_type": ["IQ3_XXS","IQ3_XS","IQ3_S","IQ3_M"],
-            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp","*ssm_out","*ssm_in"],
+            "base_type": ["IQ3_XXS", "IQ3_XS", "IQ3_S", "IQ3_M"],
+            "layer_name": ["*ffn_down_shexp", "*ffn_gate_shexp", "*ffn_up_shexp", "*ssm_out", "*ssm_in", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -145,14 +155,14 @@
             "bump_order_experts_val": 1
         },
         {
-            "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M","Q4_K_S","Q4_K","Q4_K_S","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_k","*attn_k_b","*attn_q","*attn_q_a","*attn_q_b"],
+            "base_type": ["Q2_K_S", "Q2_K", "Q2_K_M", "Q3_K", "Q3_K_S", "Q3_K_M", "Q4_K_S", "Q4_K", "Q4_K_S", "Q5_K", "Q5_K_S", "Q5_K_M"],
+            "layer_name": ["*attn_k", "*attn_k_b", "*attn_q", "*attn_q_a", "*attn_q_b", "*time_mix_key"],
             "bump": 0,
             "bump_experts": 0
         },
         {
-            "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M","Q4_K_S","Q4_K","Q4_K_M","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*attn_v","*attn_v_b","*attn_kv_a_mqa","*ffn_down","*ffn_gate","*ffn_up","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ffn_gate_inp","*ssm_out","*ssm_in"],
+            "base_type": ["Q2_K_S", "Q2_K", "Q2_K_M", "Q3_K", "Q3_K_S", "Q3_K_M", "Q4_K_S", "Q4_K", "Q4_K_M", "Q5_K", "Q5_K_S", "Q5_K_M"],
+            "layer_name": ["*attn_v", "*attn_v_b", "*attn_kv_a_mqa", "*ffn_down", "*ffn_gate", "*ffn_up", "*ffn_latent_down", "*ffn_latent_up", "*attn_output", "*attn_qkv", "*ffn_gate_inp", "*ssm_out", "*ssm_in", "*time_mix_value", "*channel_mix_value", "*channel_mix_key", "*time_mix_output", "*attn_qkv_gate", "*shortconv.out_proj", "*shortconv.in_proj"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -161,8 +171,8 @@
             "bump_order_experts_val": 1
         },
         {
-            "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M","Q4_K_S","Q4_K","Q4_K_M","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*ffn_down_exps","*ffn_gate_exps","*ffn_up_exps"],
+            "base_type": ["Q2_K_S", "Q2_K", "Q2_K_M", "Q3_K", "Q3_K_S", "Q3_K_M", "Q4_K_S", "Q4_K", "Q4_K_M", "Q5_K", "Q5_K_S", "Q5_K_M"],
+            "layer_name": ["*ffn_down_exps", "*ffn_gate_exps", "*ffn_up_exps", "*ffn_down_chexps", "*ffn_gate_up_exps", "*ffn_gate_chexps", "*ffn_up_chexps"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -171,8 +181,8 @@
             "bump_order_experts_val": 1
         },
         {
-            "base_type": ["Q2_K_S","Q2_K","Q2_K_M","Q3_K","Q3_K_S","Q3_K_M","Q4_K_S","Q4_K","Q4_K_M","Q5_K","Q5_K_S","Q5_K_M"],
-            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
+            "base_type": ["Q2_K_S", "Q2_K", "Q2_K_M", "Q3_K", "Q3_K_S", "Q3_K_M", "Q4_K_S", "Q4_K", "Q4_K_M", "Q5_K", "Q5_K_S", "Q5_K_M"],
+            "layer_name": ["*ffn_down_shexp", "*ffn_gate_shexp", "*ffn_up_shexp"],
             "bump": 0,
             "bump_experts": 0,
             "bump_order_low": 1,
@@ -181,35 +191,34 @@
             "bump_order_experts_val": 1
         },
         {
-            "override_types": ["BF16","F16"],
-            "layer_name": ["*attn_k","*attn_q"],
-            "experts" : true,
+            "override_types": ["BF16", "F16"],
+            "layer_name": ["*attn_k", "*attn_q", "*time_mix_key"],
+            "experts": true,
             "order_low": 1,
             "order_high": 9
         },
         {
-            "override_types": ["BF16","F16"],
-            "layer_name": ["*attn_v","*ffn_down","*ffn_latent_down","*ffn_latent_up","*attn_output","*attn_qkv","*ssm_out","*ssm_in"]
+            "override_types": ["BF16", "F16"],
+            "layer_name": ["*attn_v", "*ffn_down", "*ffn_latent_down", "*ffn_latent_up", "*attn_output", "*attn_qkv", "*ssm_out", "*ssm_in", "*time_mix_value", "*channel_mix_value", "*time_mix_output", "*attn_qkv_gate", "*shortconv.out_proj", "*shortconv.in_proj", "*ssm_x", "*ssm_dt", "*ssm_f_a", "*ssm_f_b", "*ssm_g_a", "*ssm_g_b", "*attn_gate", "*time_mix_receptance", "*time_mix_gate", "*channel_mix_receptance", "*ffn_gate_inp_shexp"]
         },
         {
-            "override_types": ["BF16","F16"],
-            "layer_name": ["*ffn_down_exps","*ffn_gate_exps","*ffn_up_exps"],
-            "experts" : true,
+            "override_types": ["BF16", "F16"],
+            "layer_name": ["*ffn_down_exps", "*ffn_gate_exps", "*ffn_up_exps", "*ffn_down_chexps", "*ffn_gate_up_exps", "*ffn_gate_chexps", "*ffn_up_chexps"],
+            "experts": true,
             "order_low": 1,
             "order_high": 9
         },
         {
-            "override_types": ["BF16","F16"],
-            "layer_name": ["*ffn_down_shexp","*ffn_gate_shexp","*ffn_up_shexp"],
-            "experts" : true,
+            "override_types": ["BF16", "F16"],
+            "layer_name": ["*ffn_down_shexp", "*ffn_gate_shexp", "*ffn_up_shexp"],
+            "experts": true,
             "order_low": 1,
             "order_high": 9
         },
         {
-           "override_types": ["*"],
-           "layer_name":  ["*ssm_alpha","*ssm_beta"],
-           "force_type": "F32"
+            "override_types": ["*"],
+            "layer_name": ["*ssm_alpha", "*ssm_beta", "*ssm_beta_alpha"],
+            "force_type": "F32"
         }
     ]
 }
-

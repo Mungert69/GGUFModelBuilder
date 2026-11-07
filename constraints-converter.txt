@@ -1,0 +1,20 @@
+# Conversion stack verified with Python 3.13 and the current llama.cpp checkout.
+# Upgrade these together and verify HF tokenizer + GGUF export before changing.
+transformers==5.22.2
+huggingface-hub==2.4.0
+tokenizers==0.23.3
+safetensors==0.8.0
+numpy==2.2.6
+torch==2.11.0
+gguf==0.19.0
+protobuf==4.25.9
+sentencepiece==0.2.3
+requests==2.34.2
+regex==2026.11.7
+hf-xet==1.8.0
+filelock==4.2.9
+anyio==4.16.0
+click==8.5.1
+llama-cpp-python==0.3.36
+python-dotenv==1.2.4
+redis==8.1.0

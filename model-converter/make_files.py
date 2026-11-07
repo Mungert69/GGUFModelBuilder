@@ -140,7 +140,7 @@ QUANT_BIT_LEVELS = {
     "Q3_K": 3.3, "Q3_K_S": 3.3, "Q3_K_M": 3.3,
     "IQ4_NL": 3.8, "IQ4_XS": 4.5,
     "Q4_K": 4.5, "Q4_K_S": 4.5, "Q4_K_M": 4.5, "Q4_0": 4.0, "Q4_1": 4.0,
-    "MXFP4_MOE": 4.0,
+    "MXFP4_MOE": 4.0, "NVFP4": 4.5,
     "Q5_K": 5.5, "Q5_K_S": 5.5, "Q5_K_M": 5.5, "Q5_0": 5.0, "Q5_1": 5.0,
     "Q6_K": 6.6, "Q8_0": 8.0, "F16": 16.0, "BF16": 16.0
 }
@@ -602,7 +602,10 @@ def quantize_with_fallback(model_path, output_path, quant_type, tensor_type=None
             command.extend(["--output-tensor-type", t_type])
             command.extend(["--token-embedding-type", e_type])
         command.extend(shlex.split(tensor_args)) 
-        command.extend([model_path, temp_output, quant_type])
+        # NVFP4 is a ggml tensor type, not a llama file-type preset.
+        # Q8_0 supplies the base file type; explicit overrides select NVFP4.
+        cli_quant_type = "Q8_0" if quant_type == "NVFP4" else quant_type
+        command.extend([model_path, temp_output, cli_quant_type])
         command.append(str(threads))
         print(f"Running command {command}")
 

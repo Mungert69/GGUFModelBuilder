@@ -5,6 +5,7 @@ import sys
 import os
 import re
 import subprocess
+import shlex
 from pathlib import Path
 
 # Supported ladders (only ggml-supported canonical types)
@@ -169,9 +170,28 @@ def determine_quant_tier(base_quant: str,
     Improved quantization tier determination with wildcards and F32 protection
     """
     # Never bump F32 layers - keep original precision
-    if base_quant == "F32":
+    if base_quant == "F32" and target_type != "NVFP4":
         return (base_quant, "Keeping original F32 precision", False)
     
+
+    # Explicit tensor types let formats outside the precision ladders use
+    # the same layer-name rules. First matching force_type rule wins.
+    for rule in quant_rules or []:
+        base_types = rule.get("base_type", [])
+        if isinstance(base_types, str):
+            base_types = [base_types]
+        patterns = rule.get("layer_name", [])
+        if isinstance(patterns, str):
+            patterns = [patterns]
+        if (target_type in base_types and rule.get("force_type")
+                and any(is_layer_match(layer_name, pattern) for pattern in patterns)
+                and ("experts" not in rule or bool(rule["experts"]) == bool(is_moe))):
+            return (rule["force_type"].upper(), "Explicit type from layer rule", True)
+
+    # Q8_0 balances size and precision for weights outside the NVFP4 rules.
+    # Existing precision override rules can still protect sensitive tensors.
+    if target_type == "NVFP4":
+        return ("Q8_0", "NVFP4 layer not selected; use Q8_0", True)
 
     normalized_target = quant_substitutions.get(target_type, target_type)
 
@@ -380,7 +400,7 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
     # Process each tensor
     for name, current_quant in current_quants.items():
         # Skip changing quant type for mxfp4
-        if "mxfp4" in str(current_quant).lower():
+        if "mxfp4" in str(current_quant).lower() and target_type != "NVFP4":
             print(f"[DEBUG] Preserving mxfp4 quantization for tensor: {name} (current_quant={current_quant})")
             quant_suggestions.append((name, "mxfp4", "Preserve mxfp4 quantization"))
             continue
@@ -429,7 +449,12 @@ def process_quantization(gguf_file: str, quant_rules_file: str, target_type: str
     
     # Generate tensor-type arguments
     #print("=== Suggested --tensor-type arguments (copy-ready) ===")
-    tensor_args = " ".join([f"--tensor-type {name}={quant}" for name, quant, _ in quant_suggestions])
+    # Tensor names are cleaned of .weight by the inspector. Anchor and escape
+    # every regex: a rule for ffn_gate must not also select ffn_gate_inp.
+    tensor_args = " ".join(
+        "--tensor-type " + shlex.quote(r"^" + re.escape(name) + r"(?:\.weight)?$=" + quant)
+        for name, quant, _ in quant_suggestions
+    )
     return tensor_args
 
 def main():

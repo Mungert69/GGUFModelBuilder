@@ -5,47 +5,31 @@ import subprocess
 import sys
 import platform
 import argparse
-import importlib.util
-import sysconfig
-from dotenv import load_dotenv
 from pathlib import Path
 
-# ---- requirements (no stdlib modules here) ----
-# Gemma 4 requires Transformers 5.5.0+. Keep this pinned so fresh venvs do not
-# resolve to the older 4.x series that crashes on the current tokenizer format.
+# Shared constraints keep both installers on the tested conversion stack.
+PROJECT_DIR = Path(__file__).resolve().parent
+CONSTRAINTS = PROJECT_DIR / "constraints-converter.txt"
+CORE_REQUIREMENTS = PROJECT_DIR / "requirements-converter.txt"
+
+# Optional audio/application dependencies for the full installer.
 common_requirements = [
-    "flask",
-    "flask-cors",
-    "transformers>=5.5.4",
-    "librosa",
-    "numpy",
-    "soundfile",
-    "huggingface_hub",
-    "phonemizer",
-    "munch",
-    "werkzeug",
-    "num2words",
-    "dateparser",
-    "inflect",
-    "ftfy",
-    "sentencepiece",
-    "requests"
+    "flask", "flask-cors", "librosa", "soundfile", "phonemizer", "munch",
+    "werkzeug", "num2words", "dateparser", "inflect", "ftfy",
 ]
-# add at top with others:
-import os
-from dotenv import load_dotenv
-from pathlib import Path
 
-def verify_llama_dir():
-    load_dotenv()
-    llama_dir = os.getenv("LLAMA_CPP_DIR")
+def verify_llama_dir(explicit_dir=None):
+    from dotenv import load_dotenv
+
+    load_dotenv(PROJECT_DIR / ".env")
+    llama_dir = explicit_dir or os.getenv("LLAMA_CPP_DIR")
     if not llama_dir:
         print("[WARN] LLAMA_CPP_DIR not set (.env). You can set it to your llama.cpp path.")
         return None
     p = Path(llama_dir)
     conv = p / "convert_hf_to_gguf.py"
     if not conv.exists():
-        print(f"[WARN] convert_hf_to_gguf.py not found in {p}. Check LLAMA_CPP_DIR.")
+        raise FileNotFoundError(f"convert_hf_to_gguf.py not found in {p}")
     else:
         print(f"[INFO] Found llama.cpp converter at: {conv}")
     return str(p)
@@ -58,19 +42,8 @@ def run(cmd: str) -> None:
         print(f"Failed to run command: {cmd}\nError: {e}")
         raise
 
-def is_stdlib(module_name: str) -> bool:
-    """
-    Defensive guard: if someone accidentally puts a stdlib module name
-    into the requirements list, skip pip-installing it.
-    """
-    spec = importlib.util.find_spec(module_name)
-    if not spec or not spec.origin:
-        return False
-    stdlib_path = sysconfig.get_paths().get("stdlib") or ""
-    return spec.origin.startswith(stdlib_path)
-
 def pip_install(pkg: str, extra_args=None, retries: int = 1) -> None:
-    cmd = [sys.executable, "-m", "pip", "install", pkg]
+    cmd = [sys.executable, "-m", "pip", "install", "--constraint", str(CONSTRAINTS), pkg]
     if extra_args:
         cmd.extend(extra_args)
     try:
@@ -119,39 +92,36 @@ def detect_mode(default: str = "cpu") -> str:
     return mode
 
 def main() -> None:
-    print("Detecting operating system...")
-    os_type = platform.system()
-    print(f"Operating system detected: {os_type}")
+    parser = argparse.ArgumentParser(description="Install the tested GGUF conversion stack")
+    parser.add_argument("--mode", choices=("cpu", "gpu"))
+    parser.add_argument("--llama-dir", help="Local llama.cpp checkout")
+    parser.add_argument("--core-only", action="store_true", help="Skip optional audio/ONNX packages and system dependencies")
+    args = parser.parse_args()
 
-    llama_dir = verify_llama_dir()
-
-    install_system_dependencies()
-
+    # Bootstrap dotenv before inspecting .env in a fresh virtual environment.
+    pip_install("python-dotenv")
+    verify_llama_dir(args.llama_dir)
     mode = detect_mode(default="cpu")
 
-    # Install common packages first
-    print("\nInstalling common Python requirements...")
-    for req in common_requirements:
-        # Guard against accidental stdlib names
-        mod_name = req.split("==")[0].split("[")[0].replace("-", "_")
-        if is_stdlib(mod_name):
-            print(f"[INFO] Skipping stdlib module '{req}'.")
-            continue
-        print(f"Installing {req}...")
-        pip_install(req)
-
-    # Torch + ONNX stacks
+    # Install PyTorch first so dependency resolution cannot select a CUDA build
+    # in CPU mode. The shared constraint also applies to every later pip call.
     if mode == "cpu":
-        print("\nInstalling torch (CPU-only wheels)...")
-        pip_install("torch", ["--index-url", "https://download.pytorch.org/whl/cpu"])
-        print("Installing onnxruntime (CPU-only)...")
-        pip_install("onnxruntime")
+        pip_install("torch==2.11.0+cpu", ["--index-url", "https://download.pytorch.org/whl/cpu"])
     else:
-        print("\nInstalling torch (GPU/CUDA, default index)...")
-        pip_install("torch")
-        print("Installing onnxruntime-gpu...")
-        pip_install("onnxruntime-gpu")
+        pip_install("torch==2.11.0")
 
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "--upgrade",
+        "--constraint", str(CONSTRAINTS), "--requirement", str(CORE_REQUIREMENTS),
+    ])
+
+    if not args.core_only:
+        install_system_dependencies()
+        for req in common_requirements:
+            pip_install(req)
+        pip_install("onnxruntime" if mode == "cpu" else "onnxruntime-gpu")
+
+    subprocess.check_call([sys.executable, "-m", "pip", "check"])
     print("\nInstallation complete!")
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+-c constraints-converter.txt
+# Project conversion dependencies. Do not also install llama.cpp requirements:
+# that checkout currently pins Transformers 4.x, incompatible with LFM3 configs.
+# PyTorch is installed separately from the selected CPU/GPU wheel index.
+python-dotenv
+huggingface-hub
+llama-cpp-python
+gguf
+redis
+hf-xet
+transformers
+tokenizers
+safetensors
+numpy
+protobuf
+sentencepiece
+requests
+regex
+filelock
+anyio
+click

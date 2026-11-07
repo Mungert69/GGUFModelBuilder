@@ -1,4 +1,5 @@
 [
+    {"name": "nvfp4", "type": "NVFP4", "embed_type": null, "output_type": null, "use_imatrix": false, "use_pure": true},
     {"name": "f16", "type": "F16", "embed_type": "F16", "output_type": "F16", "use_imatrix": false, "use_pure": false},
     {"name": "f16_q8_0", "type": "Q8_0", "embed_type": "F16", "output_type": "F16", "use_imatrix": false, "use_pure": false},
     {"name": "bf16_q8_0", "type": "Q8_0", "embed_type": "BF16", "output_type": "BF16", "use_imatrix": false, "use_pure": false},

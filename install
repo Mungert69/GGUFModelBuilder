@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Resolve support files relative to this script, independent of the caller.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
 # Defaults
 VENV_DIR="venv"
 LLAMA_DIR_FROM_FLAG=""
 NONINTERACTIVE=0
+INSTALL_MODE="cpu"
 
 usage() {
   cat <<'USAGE'
-Usage: ./install.sh [--llama-dir /path/to/llama.cpp] [--venv venv] [--yes]
+Usage: ./install [--llama-dir /path/to/llama.cpp] [--venv venv] [--mode cpu|gpu] [--yes]
   --llama-dir   Path to your local llama.cpp checkout (will be saved to .env)
   --venv        Virtualenv directory name (default: venv)
+  --mode        PyTorch wheel type (default: cpu)
   --yes         Non-interactive; skip prompts and apt confirmations
 USAGE
 }
@@ -19,11 +24,17 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --llama-dir) LLAMA_DIR_FROM_FLAG="$2"; shift 2;;
     --venv) VENV_DIR="$2"; shift 2;;
+    --mode) INSTALL_MODE="$2"; shift 2;;
     --yes|-y) NONINTERACTIVE=1; shift;;
     -h|--help) usage; exit 0;;
     *) echo "Unknown arg: $1"; usage; exit 1;;
   esac
 done
+
+if [[ "$INSTALL_MODE" != cpu && "$INSTALL_MODE" != gpu ]]; then
+  echo "[ERROR] --mode must be cpu or gpu"
+  exit 1
+fi
 
 if ! python3 -c "import venv" &>/dev/null; then
   echo "[INFO] python3-venv is not installed. Installing..."
@@ -36,27 +47,24 @@ else
   echo "[INFO] python3-venv is already installed."
 fi
 
-echo "[1/7] Creating virtual environment at '$VENV_DIR'..."
+echo "[1/4] Creating virtual environment at '$VENV_DIR'..."
 python3 -m venv "$VENV_DIR"
 
-echo "[2/7] Activating virtual environment..."
+echo "[2/4] Activating virtual environment..."
 # shellcheck disable=SC1090
 source "$VENV_DIR/bin/activate"
 
-echo "[3/7] Upgrading pip..."
+echo "[3/4] Upgrading pip..."
 python -m pip install --upgrade pip setuptools wheel
 
-echo "[4/7] Installing base Python deps for your project..."
-python -m pip install \
-  python-dotenv huggingface_hub llama-cpp-python gguf redis hf_xet 
-
+echo "[4/4] Installing the tested conversion stack..."
 
 # Resolve llama.cpp dir (prompt only if not provided)
 if [[ -z "$LLAMA_DIR_FROM_FLAG" ]]; then
   if [[ $NONINTERACTIVE -eq 1 ]]; then
-    echo "[WARN] --llama-dir not provided in non-interactive mode; skipping llama.cpp requirements."
+    echo "[WARN] --llama-dir not provided in non-interactive mode; installing the project conversion stack without a checkout check."
   else
-    read -rp "[INPUT] Path to your llama.cpp repo (or leave blank to skip): " LLAMA_DIR_FROM_FLAG
+    read -rp "[INPUT] Path to your llama.cpp repo (or leave blank to skip checkout validation): " LLAMA_DIR_FROM_FLAG
   fi
 fi
 
@@ -67,12 +75,9 @@ if [[ -n "${LLAMA_DIR_TRIMMED}" ]]; then
     exit 1
   fi
 
-  # Correct filenames (underscores). Prefer the newer update file.
-  REQ_UPDATE="$LLAMA_DIR_TRIMMED/requirements/requirements-convert_hf_to_gguf.txt"
-  REQ_BASE="$LLAMA_DIR_TRIMMED/requirements.txt"
-
-  python -m pip install -r "$REQ_UPDATE"
-  python -m pip install -r "$REQ_BASE"
+  # The project installer uses shared tested versions. Installing the checkout's
+  # requirements here would downgrade Transformers and break LFM3 tokenizers.
+  python "$SCRIPT_DIR/install_dependencies.py" --core-only --mode "$INSTALL_MODE" --llama-dir "$LLAMA_DIR_TRIMMED"
 
   # persist to .env so other scripts can find it
   echo "[INFO] Writing LLAMA_CPP_DIR to .env"
@@ -81,7 +86,7 @@ if [[ -n "${LLAMA_DIR_TRIMMED}" ]]; then
     && sed -i "s|^LLAMA_CPP_DIR=.*|LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED|" .env \
     || echo "LLAMA_CPP_DIR=$LLAMA_DIR_TRIMMED" >> .env
 else
-  echo "[INFO] Skipping llama.cpp requirements (no directory provided)."
+  python "$SCRIPT_DIR/install_dependencies.py" --core-only --mode "$INSTALL_MODE"
 fi
 
 
