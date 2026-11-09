@@ -37,11 +37,15 @@ class QuantRuleCoverageTests(unittest.TestCase):
             ('ffn_up_chexps', 'ffn_up_exps'),
             ('ffn_down_chexps', 'ffn_down_exps'),
             ('attn_qkv_gate', 'attn_qkv'),
+            ('attn_gate', 'attn_qkv'),
             ('shortconv.in_proj', 'ssm_in'),
             ('shortconv.out_proj', 'ssm_out'),
             ('time_mix_key', 'attn_k'),
             ('time_mix_value', 'attn_v'),
             ('time_mix_output', 'attn_output'),
+            ('time_mix_receptance', 'time_mix_value'),
+            ('time_mix_gate', 'time_mix_value'),
+            ('channel_mix_receptance', 'channel_mix_value'),
         ]
         for base in self.bases:
             for order in (0, 1, 2, 5, 8, 9, 10):
@@ -49,7 +53,7 @@ class QuantRuleCoverageTests(unittest.TestCase):
                     for new, old in pairs:
                         # NVFP4 deliberately keeps specialized attention at Q8_0.
                         if base == 'NVFP4' and new in {
-                            'attn_qkv_gate', 'time_mix_key', 'time_mix_value', 'time_mix_output'
+                            'attn_qkv_gate', 'attn_gate', 'time_mix_key', 'time_mix_value', 'time_mix_output'
                         }:
                             continue
                         with self.subTest(base=base, order=order, moe=moe, layer=new):
@@ -100,6 +104,11 @@ class QuantRuleCoverageTests(unittest.TestCase):
     def test_full_precision_and_f32_exceptions(self):
         apply = self.policy['apply_precision_override_rule']
         for override in ('BF16', 'F16'):
+            for name in ('time_mix_receptance', 'time_mix_gate', 'channel_mix_receptance'):
+                kind, _, emit = apply('blk.4.' + name, 'Q4_K', '', False,
+                                     self.rules, override, is_moe=False, layer_order=5)
+                self.assertEqual(kind, override)
+                self.assertTrue(emit)
             kind, _, emit = apply('blk.4.ssm_dt', 'Q8_0', '', True,
                                  self.rules, override, is_moe=True, layer_order=5)
             self.assertEqual(kind, override)
@@ -144,7 +153,7 @@ class QuantRuleCoverageTests(unittest.TestCase):
         self.assertEqual(selected('blk.0.ffn_down'), [])  # Native Q6_K survives.
         self.assertEqual(selected('blk.4.ffn_down'), [])
         self.assertEqual(selected('blk.0.ffn_up'), ['Q5_K'])  # Actual uplift retained.
-        self.assertEqual(selected('blk.0.attn_gate'), ['Q8_0'])
+        self.assertEqual(selected('blk.0.attn_gate'), ['Q5_K'])
         self.assertEqual(selected('blk.0.ssm_beta_alpha'), ['F32'])
         exceeds = namespace['protective_bump_exceeds_native']
         self.assertFalse(exceeds('Q5_K', 'Q6_K'))

@@ -45,7 +45,10 @@ standard attention names; model-level accuracy remains to be evaluated.
 | `time_mix_key`, `time_mix_value`, `time_mix_output` | Q8_0 for NVFP4; otherwise use attention key/value/output rules as a role-based starting policy. |
 | `channel_mix_key`, `channel_mix_value` | Use FFN up/down rules for non-NVFP4 presets. Keep the existing Q8_0 default for NVFP4 until evaluated. |
 | `ssm_x`, `ssm_dt`, `ssm_f_a`, `ssm_f_b`, `ssm_g_a`, `ssm_g_b` | Q8_0 for quantized presets; existing opt-in F16/BF16 mode may override this. |
-| `attn_gate`, `time_mix_receptance`, `time_mix_gate`, `channel_mix_receptance`, `ffn_gate_inp_shexp` | Same Q8_0 control/gate policy. |
+| `attn_gate` | Q8_0 for NVFP4; otherwise inherit attention value/QKV bumps based on the main quant and layer order, subject to the native precision floor. |
+| `time_mix_receptance`, `time_mix_gate` | Inherit `time_mix_value` bumps; retain Q8_0 for NVFP4 and existing full-precision overrides. |
+| `channel_mix_receptance` | Inherit `channel_mix_value` bumps; retain Q8_0 for NVFP4 and existing full-precision overrides. |
+| `ffn_gate_inp_shexp` | Same Q8_0 control/gate policy. |
 | `ssm_beta_alpha` | Extend the existing `ssm_alpha` / `ssm_beta` F32 exception to the fused control projection. |
 
 This transfers the current bump values to equivalent roles, rather than adding
