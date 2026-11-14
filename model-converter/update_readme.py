@@ -92,7 +92,7 @@ I’m pushing the limits of **small open-source models for AI network monitoring
 - 🔧 **Help wanted!** If you’re into **edge-device AI**, let’s collaborate!  
 
 ### **Other Assistants**  
-🟢 **TurboLLM** – Uses **gpt-4.1-mini** :
+🟢 **TurboLLM** – Uses **gpt-5.6-luna** :
 - **It performs very well but unfortunatly OpenAI charges per token. For this reason tokens usage is limited. 
 - **Create custom cmd processors to run .net code on Quantum Network Monitor Agents**
 - **Real-time network diagnostics and monitoring**
